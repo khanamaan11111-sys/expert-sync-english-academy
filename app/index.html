@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b3d91">
+<meta name="description" content="Expert Sync English Academy - Speak English with Confidence">
+<title>Expert Sync English Academy</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f8ff;
+  color: #172033;
+  padding-bottom: 75px;
+}
+
+header {
+  background: linear-gradient(135deg, #063b91, #0b63ce);
+  color: white;
+  padding: 22px 18px;
+  text-align: center;
+}
+
+.logo {
+  width: 85px;
+  height: 85px;
+  object-fit: contain;
+  background: white;
+  border-radius: 20px;
+  padding: 6px;
+  margin-bottom: 10px;
+}
+
+header h1 {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+header p {
+  color: #ffd700;
+  font-weight: bold;
+}
+
+.container {
+  max-width: 700px;
+  margin: auto;
+  padding: 18px;
+}
+
+.hero {
+  background: white;
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 15px rgba(0,0,0,.08);
+  text-align: center;
+}
+
+.hero h2 {
+  color: #063b91;
+  margin-bottom: 10px;
+}
+
+.hero p {
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+button,
+.btn {
+  display: inline-block;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  margin: 5px;
+  font-size: 15px;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  background: #063b91;
+  color: white;
+}
+
+.gold {
+  background: #d6a900;
+  color: #111;
+}
+
+.green {
+  background: #168a45;
+}
+
+.section {
+  display: none;
+}
+
+.section.active {
+  display: block;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 18px;
+  margin: 12px 0;
+  box-shadow: 0 3px 12px rgba(0,0,0,.07);
+}
+
+.card h3 {
+  color: #063b91;
+  margin-bottom: 8px;
+}
+
+.card p {
+  line-height: 1.5;
+}
+
+.price {
+  font-size: 24px;
+  color: #063b91;
+  font-weight: bold;
+}
+
+.warning {
+  background: #fff4d6;
+  border-left: 5px solid #d6a900;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 15px;
+  line-height: 1.6;
+}
+
+.location {
+  background: #eaf2ff;
+  border-radius: 14px;
+  padding: 16px;
+  margin-top: 15px;
+  line-height: 1.6;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 68px;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 -3px 15px rgba(0,0,0,.12);
+  z-index: 100;
+}
+
+.nav-item {
+  border: none;
+  background: transparent;
+  color: #555;
+  font-size: 12px;
+  padding: 7px;
+  margin: 0;
+}
+
+.nav-item span {
+  display: block;
+  font-size: 21px;
+  margin-bottom: 2px;
+}
+
+.nav-item.active {
+  color: #063b91;
+  font-weight: bold;
+}
+
+ul {
+  padding-left: 20px;
+  line-height: 1.8;
+}
+
+.small {
+  font-size: 13px;
+  color: #666;
+}
+
+footer {
+  text-align: center;
+  padding: 25px 10px;
+  color: #666;
+  font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <img src="../logo.png" alt="Expert Sync English Academy Logo" class="logo">
+  <h1>Expert Sync English Academy</h1>
+  <p>Speak English with Confidence</p>
+</header>
+
+<main class="container">
+
+<!-- HOME -->
+<section id="home" class="section active">
+
+  <div class="hero">
+    <h2>Build Your English. Build Your Career.</h2>
+    <p>
+      Improve your English communication, interview skills,
+      customer service skills and professional confidence.
+    </p>
+
+    <button onclick="showSection('courses')">
+      📚 Explore Courses
+    </button>
+
+    <button class="gold" onclick="showSection('practice')">
+      🗣️ Start Practice
+    </button>
+  </div>
+
+  <div class="card">
+    <h3>🎯 Why Expert Sync?</h3>
+    <ul>
+      <li>Spoken English & Communication</li>
+      <li>Grammar & Vocabulary</li>
+      <li>Interview Preparation</li>
+      <li>Customer Support & BPO English</li>
+      <li>Public Speaking</li>
+      <li>IELTS Preparation</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>💰 Academy Fees</h3>
+    <p>Admission Fee</p>
+    <p class="price">₹200</p>
+    <br>
+    <p>Monthly Fee</p>
+    <p class="price">₹500</p>
+  </div>
+
+  <div class="location">
+    <h3>📍 Academy Location</h3>
+    <p><strong>7CC3+JQR, Bhopal, Madhya Pradesh</strong></p>
+
+    <a
+      class="btn"
+      href="https://www.google.com/maps/search/?api=1&query=7CC3%2BJQR%2C%20Bhopal%2C%20Madhya%20Pradesh"
+      target="_blank">
+      🧭 Get Directions
+    </a>
+  </div>
+
+  <div class="card">
+    <h3>📱 Contact Us</h3>
+    <p><strong>Phone:</strong> 9755298132</p>
+    <p><strong>WhatsApp:</strong> 9713177663</p>
+
+    <a class="btn green"
+       href="https://wa.me/919713177663"
+       target="_blank">
+       💬 WhatsApp Us
+    </a>
+  </div>
+
+</section>
+
+
+<!-- COURSES -->
+<section id="courses" class="section">
+
+  <div class="hero">
+    <h2>📚 Our Courses</h2>
+    <p>Choose the skill you want to improve.</p>
+  </div>
+
+  <div class="card">
+    <h3>🗣️ Spoken English</h3>
+    <p>Daily conversation, confidence, fluency and practical English.</p>
+  </div>
+
+  <div class="card">
+    <h3>📖 English Grammar</h3>
+    <p>Grammar rules explained in simple English and Hinglish.</p>
+  </div>
+
+  <div class="card">
+    <h3>💼 Interview Preparation</h3>
+    <p>HR questions, professional answers, mock interviews and confidence building.</p>
+  </div>
+
+  <div class="card">
+    <h3>🎤 Public Speaking</h3>
+    <p>Learn how to speak clearly and confidently in front of people.</p>
+  </div>
+
+  <div class="card">
+    <h3>🌍 IELTS Preparation</h3>
+    <p>Improve English skills for IELTS and international opportunities.</p>
+  </div>
+
+  <div class="card">
+    <h3>☎️ Customer Support & BPO English</h3>
+    <p>Customer handling, professional communication, escalation handling and call etiquette.</p>
+  </div>
+
+</section>
+
+
+<!-- PRACTICE -->
+<section id="practice" class="section">
+
+  <div class="hero">
+    <h2>🗣️ Practice Zone</h2>
+    <p>Practice every day and improve your confidence.</p>
+  </div>
+
+  <div class="card">
+    <h3>Speaking Practice</h3>
+    <p>Practice introducing yourself, daily conversations and professional communication.</p>
+    <button onclick="alert('Speaking practice will be added in the next version.')">
+      Start
+    </button>
+  </div>
+
+  <div class="card">
+    <h3>📚 Vocabulary</h3>
+    <p>Learn useful English words and professional vocabulary.</p>
+    <button onclick="alert('Vocabulary practice will be added in the next version.')">
+      Practice
+    </button>
+  </div>
+
+  <div class="card">
+    <h3>🎧 Pronunciation</h3>
+    <p>Improve difficult English sounds and pronunciation.</p>
+    <button onclick="alert('Pronunciation practice will be added in the next version.')">
+      Practice
+    </button>
+  </div>
+
+  <div class="card">
+    <h3>💼 Interview Q&A</h3>
+    <p>Practice common HR, customer service and aviation interview questions.</p>
+    <button onclick="alert('Interview practice will be added in the next version.')">
+      Practice
+    </button>
+  </div>
+
+</section>
+
+
+<!-- JOBS -->
+<section id="jobs" class="section">
+
+  <div class="hero">
+    <h2>💼 Jobs & Career</h2>
+    <p>Find opportunities and prepare for your next career move.</p>
+  </div>
+
+  <div class="card">
+    <h3>Latest Job Updates</h3>
+    <p>
+      Job vacancies, customer support, BPO, aviation,
+      airport operations and other career opportunities
+      will be listed here.
+    </p>
+  </div>
+
+  <div class="warning">
+    <h3>⚠️ Job Safety Warning</h3>
+    <p>
+      Never pay money to get a job.
+      Do not pay registration fees, interview fees,
+      security deposits, training fees, document verification fees,
+      offer-letter fees or placement fees.
+    </p>
+
+    <p>
+      Never share your OTP, UPI PIN, ATM PIN,
+      bank password or sensitive financial information.
+    </p>
+
+    <p>
+      Always verify the company, recruiter, vacancy,
+      salary and official recruitment details independently.
+    </p>
+  </div>
+
+</section>
+
+
+<!-- PROFILE -->
+<section id="profile" class="section">
+
+  <div class="hero">
+    <h2>👤 Expert Sync English Academy</h2>
+    <p>Speak English with Confidence</p>
+  </div>
+
+  <div class="card">
+    <h3>📍 Location</h3>
+    <p>7CC3+JQR, Bhopal, Madhya Pradesh</p>
+
+    <a
+      class="btn"
+      href="https://www.google.com/maps/search/?api=1&query=7CC3%2BJQR%2C%20Bhopal%2C%20Madhya%20Pradesh"
+      target="_blank">
+      🧭 Get Directions
+    </a>
+  </div>
+
+  <div class="card">
+    <h3>📞 Contact</h3>
+    <p>Phone: 9755298132</p>
+    <p>WhatsApp: 9713177663</p>
+
+    <a class="btn green"
+       href="https://wa.me/919713177663"
+       target="_blank">
+       💬 WhatsApp
+    </a>
+  </div>
+
+  <div class="card">
+    <h3>🌐 Connect With Us</h3>
+
+    <a class="btn"
+       href="https://youtube.com/@expert7617?si=jcl_Q89Voe5eKSpz"
+       target="_blank">
+       ▶️ YouTube
+    </a>
+  </div>
+
+</section>
+
+<footer>
+  © 2026 Expert Sync English Academy<br>
+  Speak English with Confidence
+</footer>
+
+</main>
+
+
+<!-- BOTTOM NAVIGATION -->
+<nav class="bottom-nav">
+
+  <button class="nav-item active" onclick="showSection('home', this)">
+    <span>🏠</span>
+    Home
+  </button>
+
+  <button class="nav-item" onclick="showSection('courses', this)">
+    <span>📚</span>
+    Courses
+  </button>
+
+  <button class="nav-item" onclick="showSection('practice', this)">
+    <span>🗣️</span>
+    Practice
+  </button>
+
+  <button class="nav-item" onclick="showSection('jobs', this)">
+    <span>💼</span>
+    Jobs
+  </button>
+
+  <button class="nav-item" onclick="showSection('profile', this)">
+    <span>👤</span>
+    Profile
+  </button>
+
+</nav>
+
+
+<script>
+
+function showSection(sectionId, clickedButton) {
+
+  document.querySelectorAll('.section').forEach(function(section) {
+    section.classList.remove('active');
+  });
+
+  document.getElementById(sectionId).classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(function(button) {
+    button.classList.remove('active');
+  });
+
+  if (clickedButton) {
+    clickedButton.classList.add('active');
+  } else {
+    document.querySelectorAll('.nav-item').forEach(function(button) {
+      if (button.textContent.toLowerCase().includes(sectionId)) {
+        button.classList.add('active');
+      }
+    });
+  }
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
+
+</script>
+
+</body>
+</html>
