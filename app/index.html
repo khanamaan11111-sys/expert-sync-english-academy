@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0b3d91">
+<meta name="theme-color" content="#063b91">
 <meta name="description" content="Expert Sync English Academy - Speak English with Confidence">
 <title>Expert Sync English Academy</title>
 
@@ -14,135 +14,291 @@
   padding: 0;
 }
 
+:root {
+  --blue: #063b91;
+  --blue2: #0b63ce;
+  --gold: #d6a900;
+  --dark: #172033;
+  --light: #f5f8ff;
+  --white: #ffffff;
+  --green: #168a45;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  background: #f5f8ff;
-  color: #172033;
-  padding-bottom: 75px;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--light);
+  color: var(--dark);
+  padding-bottom: 82px;
 }
 
 header {
-  background: linear-gradient(135deg, #063b91, #0b63ce);
+  background: linear-gradient(135deg, var(--blue), var(--blue2));
   color: white;
-  padding: 22px 18px;
   text-align: center;
+  padding: 25px 18px 30px;
+  border-radius: 0 0 28px 28px;
+  box-shadow: 0 5px 20px rgba(6,59,145,.20);
 }
 
 .logo {
-  width: 85px;
-  height: 85px;
+  width: 92px;
+  height: 92px;
   object-fit: contain;
   background: white;
-  border-radius: 20px;
-  padding: 6px;
-  margin-bottom: 10px;
+  border-radius: 22px;
+  padding: 7px;
+  margin-bottom: 12px;
 }
 
 header h1 {
-  font-size: 24px;
-  margin-bottom: 6px;
+  font-size: 25px;
+  line-height: 1.2;
+  margin-bottom: 8px;
 }
 
-header p {
+.tagline {
   color: #ffd700;
   font-weight: bold;
+  font-size: 15px;
 }
 
 .container {
-  max-width: 700px;
+  max-width: 720px;
   margin: auto;
   padding: 18px;
 }
 
-.hero {
-  background: white;
-  border-radius: 18px;
-  padding: 22px;
-  margin-bottom: 18px;
-  box-shadow: 0 4px 15px rgba(0,0,0,.08);
-  text-align: center;
-}
-
-.hero h2 {
-  color: #063b91;
-  margin-bottom: 10px;
-}
-
-.hero p {
-  line-height: 1.6;
-  margin-bottom: 18px;
-}
-
-button,
-.btn {
-  display: inline-block;
-  border: none;
-  border-radius: 12px;
-  padding: 12px 18px;
-  margin: 5px;
-  font-size: 15px;
-  font-weight: bold;
-  text-decoration: none;
-  cursor: pointer;
-  background: #063b91;
-  color: white;
-}
-
-.gold {
-  background: #d6a900;
-  color: #111;
-}
-
-.green {
-  background: #168a45;
-}
-
 .section {
   display: none;
+  animation: fade .25s ease;
 }
 
 .section.active {
   display: block;
 }
 
+@keyframes fade {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero {
+  background: white;
+  border-radius: 22px;
+  padding: 25px 20px;
+  margin: 18px 0;
+  box-shadow: 0 5px 20px rgba(0,0,0,.07);
+  text-align: center;
+}
+
+.hero h2 {
+  color: var(--blue);
+  font-size: 25px;
+  margin-bottom: 10px;
+  line-height: 1.25;
+}
+
+.hero p {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+button,
+.btn {
+  display: inline-block;
+  border: none;
+  border-radius: 13px;
+  padding: 13px 18px;
+  font-size: 15px;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  background: var(--blue);
+  color: white;
+  transition: .2s;
+}
+
+button:active,
+.btn:active {
+  transform: scale(.97);
+}
+
+.gold {
+  background: var(--gold);
+  color: #111;
+}
+
+.green {
+  background: var(--green);
+}
+
+.outline {
+  background: white;
+  color: var(--blue);
+  border: 2px solid var(--blue);
+}
+
 .card {
   background: white;
-  border-radius: 16px;
-  padding: 18px;
-  margin: 12px 0;
-  box-shadow: 0 3px 12px rgba(0,0,0,.07);
+  border-radius: 19px;
+  padding: 20px;
+  margin: 14px 0;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
 }
 
 .card h3 {
-  color: #063b91;
-  margin-bottom: 8px;
+  color: var(--blue);
+  margin-bottom: 9px;
+  font-size: 19px;
 }
 
 .card p {
-  line-height: 1.5;
+  line-height: 1.6;
+  color: #444;
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 15px 0;
+}
+
+.quick-card {
+  background: white;
+  border-radius: 17px;
+  padding: 17px 12px;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,.06);
+}
+
+.quick-card .icon {
+  font-size: 28px;
+  margin-bottom: 7px;
+}
+
+.quick-card h3 {
+  color: var(--blue);
+  font-size: 15px;
+  margin-bottom: 5px;
+}
+
+.quick-card p {
+  font-size: 12px;
+  color: #666;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.stat {
+  background: var(--blue);
+  color: white;
+  border-radius: 15px;
+  padding: 15px 7px;
+  text-align: center;
+}
+
+.stat strong {
+  display: block;
+  font-size: 21px;
+  color: #ffd700;
+}
+
+.stat span {
+  font-size: 11px;
+}
+
+.course-icon {
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.price-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.price-card {
+  border: 2px solid #e3eaff;
+  border-radius: 16px;
+  padding: 17px 10px;
+  text-align: center;
+}
+
+.price-card small {
+  display: block;
+  color: #666;
+  margin-bottom: 6px;
 }
 
 .price {
-  font-size: 24px;
-  color: #063b91;
+  color: var(--blue);
+  font-size: 25px;
   font-weight: bold;
-}
-
-.warning {
-  background: #fff4d6;
-  border-left: 5px solid #d6a900;
-  border-radius: 12px;
-  padding: 16px;
-  margin-top: 15px;
-  line-height: 1.6;
 }
 
 .location {
   background: #eaf2ff;
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 18px;
+  padding: 19px;
+  margin: 15px 0;
+  line-height: 1.6;
+  border: 1px solid #d6e4ff;
+}
+
+.location h3 {
+  color: var(--blue);
+  margin-bottom: 7px;
+}
+
+.warning {
+  background: #fff5d9;
+  border-left: 5px solid var(--gold);
+  border-radius: 15px;
+  padding: 18px;
   margin-top: 15px;
   line-height: 1.6;
+}
+
+.warning h3 {
+  margin-bottom: 8px;
+}
+
+ul {
+  padding-left: 20px;
+  line-height: 1.9;
+}
+
+.contact-box {
+  text-align: center;
+}
+
+.contact-number {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--blue);
+  margin: 7px 0;
 }
 
 .bottom-nav {
@@ -150,50 +306,65 @@ button,
   bottom: 0;
   left: 0;
   right: 0;
-  height: 68px;
+  height: 75px;
   background: white;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  box-shadow: 0 -3px 15px rgba(0,0,0,.12);
+  box-shadow: 0 -4px 18px rgba(0,0,0,.12);
   z-index: 100;
+  border-radius: 20px 20px 0 0;
 }
 
 .nav-item {
   border: none;
   background: transparent;
-  color: #555;
-  font-size: 12px;
-  padding: 7px;
+  color: #666;
+  font-size: 11px;
+  padding: 6px 5px;
   margin: 0;
 }
 
 .nav-item span {
   display: block;
-  font-size: 21px;
-  margin-bottom: 2px;
+  font-size: 22px;
+  margin-bottom: 3px;
 }
 
 .nav-item.active {
-  color: #063b91;
+  color: var(--blue);
   font-weight: bold;
-}
-
-ul {
-  padding-left: 20px;
-  line-height: 1.8;
-}
-
-.small {
-  font-size: 13px;
-  color: #666;
 }
 
 footer {
   text-align: center;
   padding: 25px 10px;
-  color: #666;
+  color: #777;
   font-size: 13px;
+  line-height: 1.6;
+}
+
+.small {
+  font-size: 12px;
+  color: #777;
+}
+
+@media (max-width: 380px) {
+  header h1 {
+    font-size: 22px;
+  }
+
+  .hero h2 {
+    font-size: 22px;
+  }
+
+  .stats {
+    gap: 6px;
+  }
+
+  .stat {
+    padding: 13px 4px;
+  }
 }
 </style>
 </head>
@@ -201,34 +372,122 @@ footer {
 <body>
 
 <header>
-  <img src="../logo.png" alt="Expert Sync English Academy Logo" class="logo">
+  <img src="../logo.png"
+       alt="Expert Sync English Academy Logo"
+       class="logo">
+
   <h1>Expert Sync English Academy</h1>
-  <p>Speak English with Confidence</p>
+
+  <p class="tagline">Speak English with Confidence</p>
 </header>
+
 
 <main class="container">
 
-<!-- HOME -->
+<!-- ================= HOME ================= -->
+
 <section id="home" class="section active">
 
   <div class="hero">
-    <h2>Build Your English. Build Your Career.</h2>
+
+    <h2>Build Your English.<br>Build Your Career.</h2>
+
     <p>
       Improve your English communication, interview skills,
-      customer service skills and professional confidence.
+      professional confidence and career opportunities.
     </p>
 
-    <button onclick="showSection('courses')">
-      📚 Explore Courses
-    </button>
+    <div class="btn-row">
 
-    <button class="gold" onclick="showSection('practice')">
-      🗣️ Start Practice
-    </button>
+      <button onclick="showSection('courses')">
+        📚 Explore Courses
+      </button>
+
+      <button class="gold" onclick="showSection('practice')">
+        🗣️ Start Practice
+      </button>
+
+    </div>
+
   </div>
 
+
+  <div class="stats">
+
+    <div class="stat">
+      <strong>6+</strong>
+      <span>Skill Areas</span>
+    </div>
+
+    <div class="stat">
+      <strong>₹500</strong>
+      <span>Monthly Fee</span>
+    </div>
+
+    <div class="stat">
+      <strong>100%</strong>
+      <span>Practical Focus</span>
+    </div>
+
+  </div>
+
+
+  <div class="quick-grid">
+
+    <div class="quick-card"
+         onclick="showSection('courses')">
+
+      <div class="icon">📚</div>
+
+      <h3>Courses</h3>
+
+      <p>Learn English & career skills</p>
+
+    </div>
+
+
+    <div class="quick-card"
+         onclick="showSection('practice')">
+
+      <div class="icon">🗣️</div>
+
+      <h3>Practice</h3>
+
+      <p>Improve daily communication</p>
+
+    </div>
+
+
+    <div class="quick-card"
+         onclick="showSection('jobs')">
+
+      <div class="icon">💼</div>
+
+      <h3>Jobs</h3>
+
+      <p>Career opportunities & updates</p>
+
+    </div>
+
+
+    <div class="quick-card"
+         onclick="showSection('profile')">
+
+      <div class="icon">📍</div>
+
+      <h3>Visit Us</h3>
+
+      <p>Find our academy</p>
+
+    </div>
+
+  </div>
+
+
   <div class="card">
+
     <h3>🎯 Why Expert Sync?</h3>
+
     <ul>
       <li>Spoken English & Communication</li>
       <li>Grammar & Vocabulary</li>
@@ -237,20 +496,40 @@ footer {
       <li>Public Speaking</li>
       <li>IELTS Preparation</li>
     </ul>
+
   </div>
+
 
   <div class="card">
-    <h3>💰 Academy Fees</h3>
-    <p>Admission Fee</p>
-    <p class="price">₹200</p>
-    <br>
-    <p>Monthly Fee</p>
-    <p class="price">₹500</p>
+
+    <h3>💰 Simple & Affordable Fees</h3>
+
+    <div class="price-box">
+
+      <div class="price-card">
+        <small>Admission Fee</small>
+        <div class="price">₹200</div>
+      </div>
+
+      <div class="price-card">
+        <small>Monthly Fee</small>
+        <div class="price">₹500</div>
+      </div>
+
+    </div>
+
   </div>
 
+
   <div class="location">
+
     <h3>📍 Academy Location</h3>
-    <p><strong>7CC3+JQR, Bhopal, Madhya Pradesh</strong></p>
+
+    <p>
+      <strong>7CC3+JQR, Bhopal, Madhya Pradesh</strong>
+    </p>
+
+    <br>
 
     <a
       class="btn"
@@ -258,158 +537,324 @@ footer {
       target="_blank">
       🧭 Get Directions
     </a>
+
   </div>
 
-  <div class="card">
-    <h3>📱 Contact Us</h3>
-    <p><strong>Phone:</strong> 9755298132</p>
-    <p><strong>WhatsApp:</strong> 9713177663</p>
 
-    <a class="btn green"
-       href="https://wa.me/919713177663"
-       target="_blank">
-       💬 WhatsApp Us
+  <div class="card contact-box">
+
+    <h3>📱 Contact Expert Sync</h3>
+
+    <p class="contact-number">
+      📞 9755298132
+    </p>
+
+    <p class="contact-number">
+      💬 9713177663
+    </p>
+
+    <br>
+
+    <a
+      class="btn green"
+      href="https://wa.me/919713177663"
+      target="_blank">
+      💬 Chat on WhatsApp
     </a>
+
   </div>
 
 </section>
 
 
-<!-- COURSES -->
+<!-- ================= COURSES ================= -->
+
 <section id="courses" class="section">
 
   <div class="hero">
+
     <h2>📚 Our Courses</h2>
-    <p>Choose the skill you want to improve.</p>
+
+    <p>
+      Practical courses designed to improve your English,
+      confidence and career skills.
+    </p>
+
   </div>
 
-  <div class="card">
-    <h3>🗣️ Spoken English</h3>
-    <p>Daily conversation, confidence, fluency and practical English.</p>
-  </div>
 
   <div class="card">
-    <h3>📖 English Grammar</h3>
-    <p>Grammar rules explained in simple English and Hinglish.</p>
+
+    <div class="course-icon">🗣️</div>
+
+    <h3>Spoken English</h3>
+
+    <p>
+      Daily conversation, fluency, confidence,
+      sentence formation and practical communication.
+    </p>
+
   </div>
 
-  <div class="card">
-    <h3>💼 Interview Preparation</h3>
-    <p>HR questions, professional answers, mock interviews and confidence building.</p>
-  </div>
 
   <div class="card">
-    <h3>🎤 Public Speaking</h3>
-    <p>Learn how to speak clearly and confidently in front of people.</p>
+
+    <div class="course-icon">📖</div>
+
+    <h3>English Grammar</h3>
+
+    <p>
+      Learn grammar rules through simple English
+      and easy Hinglish explanations.
+    </p>
+
   </div>
 
-  <div class="card">
-    <h3>🌍 IELTS Preparation</h3>
-    <p>Improve English skills for IELTS and international opportunities.</p>
-  </div>
 
   <div class="card">
-    <h3>☎️ Customer Support & BPO English</h3>
-    <p>Customer handling, professional communication, escalation handling and call etiquette.</p>
+
+    <div class="course-icon">💼</div>
+
+    <h3>Interview Preparation</h3>
+
+    <p>
+      HR questions, professional answers,
+      mock interviews and confidence building.
+    </p>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="course-icon">🎤</div>
+
+    <h3>Public Speaking</h3>
+
+    <p>
+      Improve presentation skills, body language,
+      confidence and professional speaking.
+    </p>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="course-icon">🌍</div>
+
+    <h3>IELTS Preparation</h3>
+
+    <p>
+      Develop English skills for IELTS and
+      international education and career opportunities.
+    </p>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="course-icon">☎️</div>
+
+    <h3>Customer Support & BPO English</h3>
+
+    <p>
+      Learn customer handling, professional communication,
+      escalation handling and call etiquette.
+    </p>
+
   </div>
 
 </section>
 
 
-<!-- PRACTICE -->
+<!-- ================= PRACTICE ================= -->
+
 <section id="practice" class="section">
 
   <div class="hero">
+
     <h2>🗣️ Practice Zone</h2>
-    <p>Practice every day and improve your confidence.</p>
+
+    <p>
+      Practice regularly to improve your English
+      communication and confidence.
+    </p>
+
   </div>
 
+
   <div class="card">
-    <h3>Speaking Practice</h3>
-    <p>Practice introducing yourself, daily conversations and professional communication.</p>
-    <button onclick="alert('Speaking practice will be added in the next version.')">
-      Start
+
+    <h3>🎤 Speaking Practice</h3>
+
+    <p>
+      Practice self-introduction, daily conversations,
+      workplace communication and public speaking.
+    </p>
+
+    <button
+      onclick="alert('Speaking Practice will be available in the next version.')">
+      Start Practice
     </button>
+
   </div>
 
+
   <div class="card">
-    <h3>📚 Vocabulary</h3>
-    <p>Learn useful English words and professional vocabulary.</p>
-    <button onclick="alert('Vocabulary practice will be added in the next version.')">
+
+    <h3>📚 Vocabulary Practice</h3>
+
+    <p>
+      Learn useful daily-life, professional and
+      interview vocabulary.
+    </p>
+
+    <button
+      onclick="alert('Vocabulary Practice will be available in the next version.')">
       Practice
     </button>
+
   </div>
 
+
   <div class="card">
-    <h3>🎧 Pronunciation</h3>
-    <p>Improve difficult English sounds and pronunciation.</p>
-    <button onclick="alert('Pronunciation practice will be added in the next version.')">
+
+    <h3>🎧 Pronunciation Practice</h3>
+
+    <p>
+      Improve difficult English sounds and
+      speak more clearly.
+    </p>
+
+    <button
+      onclick="alert('Pronunciation Practice will be available in the next version.')">
       Practice
     </button>
+
   </div>
 
+
   <div class="card">
+
     <h3>💼 Interview Q&A</h3>
-    <p>Practice common HR, customer service and aviation interview questions.</p>
-    <button onclick="alert('Interview practice will be added in the next version.')">
+
+    <p>
+      Practice common HR, customer service,
+      BPO and aviation interview questions.
+    </p>
+
+    <button
+      onclick="alert('Interview Practice will be available in the next version.')">
       Practice
     </button>
+
   </div>
 
 </section>
 
 
-<!-- JOBS -->
+<!-- ================= JOBS ================= -->
+
 <section id="jobs" class="section">
 
   <div class="hero">
+
     <h2>💼 Jobs & Career</h2>
-    <p>Find opportunities and prepare for your next career move.</p>
+
+    <p>
+      Discover career opportunities and prepare
+      for your next professional step.
+    </p>
+
   </div>
+
 
   <div class="card">
-    <h3>Latest Job Updates</h3>
+
+    <h3>📢 Latest Job Updates</h3>
+
     <p>
-      Job vacancies, customer support, BPO, aviation,
-      airport operations and other career opportunities
-      will be listed here.
+      We will share customer support, BPO, aviation,
+      airport operations and other career opportunities here.
     </p>
+
   </div>
 
+
+  <div class="card">
+
+    <h3>🚀 Career Preparation</h3>
+
+    <ul>
+      <li>Resume & interview preparation</li>
+      <li>Customer service interview practice</li>
+      <li>BPO communication skills</li>
+      <li>Aviation interview preparation</li>
+      <li>Professional English</li>
+    </ul>
+
+  </div>
+
+
   <div class="warning">
-    <h3>⚠️ Job Safety Warning</h3>
+
+    <h3>⚠️ Important Job Safety Warning</h3>
+
     <p>
       Never pay money to get a job.
-      Do not pay registration fees, interview fees,
-      security deposits, training fees, document verification fees,
-      offer-letter fees or placement fees.
+      Be careful of registration fees, interview fees,
+      security deposits, training fees, document-verification fees,
+      offer-letter fees and placement fees.
     </p>
+
+    <br>
 
     <p>
       Never share your OTP, UPI PIN, ATM PIN,
       bank password or sensitive financial information.
     </p>
 
+    <br>
+
     <p>
-      Always verify the company, recruiter, vacancy,
-      salary and official recruitment details independently.
+      Always independently verify the company,
+      recruiter, vacancy, salary and official recruitment details
+      before sharing documents or making any payment.
     </p>
+
   </div>
 
 </section>
 
 
-<!-- PROFILE -->
+<!-- ================= PROFILE ================= -->
+
 <section id="profile" class="section">
 
   <div class="hero">
+
     <h2>👤 Expert Sync English Academy</h2>
-    <p>Speak English with Confidence</p>
+
+    <p>
+      Speak English with Confidence
+    </p>
+
   </div>
 
+
   <div class="card">
-    <h3>📍 Location</h3>
-    <p>7CC3+JQR, Bhopal, Madhya Pradesh</p>
+
+    <h3>📍 Our Location</h3>
+
+    <p>
+      <strong>
+        7CC3+JQR, Bhopal, Madhya Pradesh
+      </strong>
+    </p>
+
+    <br>
 
     <a
       class="btn"
@@ -417,64 +862,130 @@ footer {
       target="_blank">
       🧭 Get Directions
     </a>
+
   </div>
 
-  <div class="card">
-    <h3>📞 Contact</h3>
-    <p>Phone: 9755298132</p>
-    <p>WhatsApp: 9713177663</p>
 
-    <a class="btn green"
-       href="https://wa.me/919713177663"
-       target="_blank">
-       💬 WhatsApp
+  <div class="card contact-box">
+
+    <h3>📞 Contact Us</h3>
+
+    <p class="contact-number">
+      9755298132
+    </p>
+
+    <p class="contact-number">
+      9713177663
+    </p>
+
+    <br>
+
+    <a
+      class="btn green"
+      href="https://wa.me/919713177663"
+      target="_blank">
+      💬 WhatsApp
     </a>
+
   </div>
 
-  <div class="card">
-    <h3>🌐 Connect With Us</h3>
 
-    <a class="btn"
-       href="https://youtube.com/@expert7617?si=jcl_Q89Voe5eKSpz"
-       target="_blank">
-       ▶️ YouTube
+  <div class="card">
+
+    <h3>🌐 YouTube</h3>
+
+    <p>
+      Follow Expert Sync English Academy for
+      English-learning and career content.
+    </p>
+
+    <br>
+
+    <a
+      class="btn"
+      href="https://youtube.com/@expert7617?si=jcl_Q89Voe5eKSpz"
+      target="_blank">
+      ▶️ Visit YouTube
     </a>
+
+  </div>
+
+
+  <div class="card">
+
+    <h3>💰 Fees</h3>
+
+    <p>
+      Admission Fee: <strong>₹200</strong>
+    </p>
+
+    <p>
+      Monthly Fee: <strong>₹500</strong>
+    </p>
+
   </div>
 
 </section>
 
+
 <footer>
-  © 2026 Expert Sync English Academy<br>
+
+  © 2026 Expert Sync English Academy
+
+  <br>
+
   Speak English with Confidence
+
+  <br>
+
+  <span class="small">
+    Bhopal, Madhya Pradesh
+  </span>
+
 </footer>
 
 </main>
 
 
-<!-- BOTTOM NAVIGATION -->
+<!-- ================= BOTTOM NAVIGATION ================= -->
+
 <nav class="bottom-nav">
 
-  <button class="nav-item active" onclick="showSection('home', this)">
+  <button
+    class="nav-item active"
+    onclick="showSection('home', this)">
     <span>🏠</span>
     Home
   </button>
 
-  <button class="nav-item" onclick="showSection('courses', this)">
+
+  <button
+    class="nav-item"
+    onclick="showSection('courses', this)">
     <span>📚</span>
     Courses
   </button>
 
-  <button class="nav-item" onclick="showSection('practice', this)">
+
+  <button
+    class="nav-item"
+    onclick="showSection('practice', this)">
     <span>🗣️</span>
     Practice
   </button>
 
-  <button class="nav-item" onclick="showSection('jobs', this)">
+
+  <button
+    class="nav-item"
+    onclick="showSection('jobs', this)">
     <span>💼</span>
     Jobs
   </button>
 
-  <button class="nav-item" onclick="showSection('profile', this)">
+
+  <button
+    class="nav-item"
+    onclick="showSection('profile', this)">
     <span>👤</span>
     Profile
   </button>
@@ -490,7 +1001,11 @@ function showSection(sectionId, clickedButton) {
     section.classList.remove('active');
   });
 
-  document.getElementById(sectionId).classList.add('active');
+  const selectedSection = document.getElementById(sectionId);
+
+  if (selectedSection) {
+    selectedSection.classList.add('active');
+  }
 
   document.querySelectorAll('.nav-item').forEach(function(button) {
     button.classList.remove('active');
@@ -498,12 +1013,6 @@ function showSection(sectionId, clickedButton) {
 
   if (clickedButton) {
     clickedButton.classList.add('active');
-  } else {
-    document.querySelectorAll('.nav-item').forEach(function(button) {
-      if (button.textContent.toLowerCase().includes(sectionId)) {
-        button.classList.add('active');
-      }
-    });
   }
 
   window.scrollTo({
