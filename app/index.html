@@ -556,6 +556,160 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+  /* ================= STUDENT DASHBOARD ================= */
+
+.dashboard-wrap {
+  display: grid;
+  gap: 16px;
+}
+
+.dashboard-title {
+  background: linear-gradient(135deg, #063b91, #0b63ce);
+  color: white;
+  padding: 22px;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-title h2 {
+  margin: 0 0 6px;
+  font-size: 24px;
+}
+
+.dashboard-title p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.dashboard-stat {
+  background: white;
+  border-radius: 16px;
+  padding: 18px 14px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e7edf5;
+}
+
+.dashboard-stat .stat-icon {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.dashboard-stat .stat-number {
+  font-size: 24px;
+  font-weight: 800;
+  color: #063b91;
+}
+
+.dashboard-stat .stat-label {
+  font-size: 13px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.dashboard-card {
+  background: white;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e7edf5;
+}
+
+.dashboard-card h3 {
+  margin-top: 0;
+  color: #063b91;
+}
+
+.progress-row {
+  margin: 15px 0;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 7px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.progress-bar {
+  height: 10px;
+  background: #e9eef5;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #063b91, #d4af37);
+  border-radius: 20px;
+}
+
+.achievement-list {
+  display: grid;
+  gap: 10px;
+}
+
+.achievement {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f7faff;
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.achievement-icon {
+  font-size: 28px;
+}
+
+.learning-plan {
+  display: grid;
+  gap: 10px;
+}
+
+.plan-item {
+  padding: 13px;
+  border-left: 4px solid #d4af37;
+  background: #f7faff;
+  border-radius: 8px;
+}
+
+.dashboard-button {
+  width: 100%;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  background: #063b91;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dashboard-button:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 400px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .dashboard-stat {
+    padding: 14px 8px;
+  }
+
+  .dashboard-stat .stat-number {
+    font-size: 21px;
+  }
+}
 </style>
 </head>
 
@@ -785,7 +939,11 @@ footer {
 
 </section>
 
+<!-- Student Dashboard Button -->
 
+<button class="dashboard-button" onclick="showSection('dashboard')">
+  🎓 Student Dashboard
+</button>
 <!-- ================= COURSES ================= -->
 
 <section id="courses" class="section">
@@ -1296,7 +1454,172 @@ footer {
 
 </section>
 
+<!-- ================= STUDENT DASHBOARD ================= -->
 
+<section id="dashboard" class="section">
+
+  <div class="dashboard-wrap">
+
+    <div class="dashboard-title">
+      <h2>🎓 Student Dashboard</h2>
+      <p>Track your English learning journey</p>
+    </div>
+
+    <div class="dashboard-stats">
+
+      <div class="dashboard-stat">
+        <div class="stat-icon">📊</div>
+        <div class="stat-number" id="dashboardSessions">0</div>
+        <div class="stat-label">Practice Sessions</div>
+      </div>
+
+      <div class="dashboard-stat">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-number" id="dashboardBestScore">0%</div>
+        <div class="stat-label">Best Score</div>
+      </div>
+
+      <div class="dashboard-stat">
+        <div class="stat-icon">📝</div>
+        <div class="stat-number" id="dashboardQuestions">0</div>
+        <div class="stat-label">Questions Answered</div>
+      </div>
+
+      <div class="dashboard-stat">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-number" id="dashboardStreak">0</div>
+        <div class="stat-label">Learning Streak</div>
+      </div>
+
+    </div>
+
+    <div class="dashboard-card">
+
+      <h3>📈 Skill Progress</h3>
+
+      <div class="progress-row">
+        <div class="progress-info">
+          <span>Grammar</span>
+          <span>20%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:20%;"></div>
+        </div>
+      </div>
+
+      <div class="progress-row">
+        <div class="progress-info">
+          <span>Vocabulary</span>
+          <span>20%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:20%;"></div>
+        </div>
+      </div>
+
+      <div class="progress-row">
+        <div class="progress-info">
+          <span>Speaking</span>
+          <span>20%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:20%;"></div>
+        </div>
+      </div>
+
+      <div class="progress-row">
+        <div class="progress-info">
+          <span>Pronunciation</span>
+          <span>20%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:20%;"></div>
+        </div>
+      </div>
+
+      <div class="progress-row">
+        <div class="progress-info">
+          <span>Interview Skills</span>
+          <span>20%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:20%;"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="dashboard-card">
+
+      <h3>🏅 Achievements</h3>
+
+      <div class="achievement-list">
+
+        <div class="achievement">
+          <div class="achievement-icon">🌟</div>
+          <div>
+            <strong>First Practice</strong>
+            <div>Complete your first practice session.</div>
+          </div>
+        </div>
+
+        <div class="achievement">
+          <div class="achievement-icon">📚</div>
+          <div>
+            <strong>Vocabulary Builder</strong>
+            <div>Improve your English vocabulary.</div>
+          </div>
+        </div>
+
+        <div class="achievement">
+          <div class="achievement-icon">🎤</div>
+          <div>
+            <strong>Confident Speaker</strong>
+            <div>Practice speaking regularly.</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="dashboard-card">
+
+      <h3>🎯 Learning Plan</h3>
+
+      <div class="learning-plan">
+
+        <div class="plan-item">
+          <strong>Day 1:</strong> Grammar Practice
+        </div>
+
+        <div class="plan-item">
+          <strong>Day 2:</strong> Vocabulary Practice
+        </div>
+
+        <div class="plan-item">
+          <strong>Day 3:</strong> Speaking Practice
+        </div>
+
+        <div class="plan-item">
+          <strong>Day 4:</strong> Pronunciation Practice
+        </div>
+
+        <div class="plan-item">
+          <strong>Day 5:</strong> Interview Preparation
+        </div>
+
+      </div>
+
+    </div>
+
+    <button class="dashboard-button" onclick="showSection('practice')">
+      🚀 Continue Practice
+    </button>
+
+  </div>
+
+</section>
 <!-- ================= JOBS ================= -->
 
 <section id="jobs" class="section">
@@ -2453,7 +2776,80 @@ function nextCustomerQuestion() {
   loadCustomerQuestion();
 }
 
+/* ================= STUDENT DASHBOARD ================= */
 
+function updateDashboard() {
+
+  const sessions = localStorage.getItem("esaPracticeSessions") || 0;
+  const questions = localStorage.getItem("esaQuestionsAnswered") || 0;
+  const bestScore = localStorage.getItem("esaBestScore") || 0;
+  const streak = localStorage.getItem("esaStreak") || 0;
+
+  const sessionsElement = document.getElementById("dashboardSessions");
+  const questionsElement = document.getElementById("dashboardQuestions");
+  const bestScoreElement = document.getElementById("dashboardBestScore");
+  const streakElement = document.getElementById("dashboardStreak");
+
+  if (sessionsElement) {
+    sessionsElement.textContent = sessions;
+  }
+
+  if (questionsElement) {
+    questionsElement.textContent = questions;
+  }
+
+  if (bestScoreElement) {
+    bestScoreElement.textContent = bestScore + "%";
+  }
+
+  if (streakElement) {
+    streakElement.textContent = streak;
+  }
+}
+
+function recordPracticeQuestion(scorePercent) {
+
+  let questions =
+    Number(localStorage.getItem("esaQuestionsAnswered")) || 0;
+
+  questions++;
+
+  localStorage.setItem(
+    "esaQuestionsAnswered",
+    questions
+  );
+
+  let bestScore =
+    Number(localStorage.getItem("esaBestScore")) || 0;
+
+  if (scorePercent > bestScore) {
+    bestScore = scorePercent;
+
+    localStorage.setItem(
+      "esaBestScore",
+      bestScore
+    );
+  }
+
+  updateDashboard();
+}
+
+function recordPracticeSession() {
+
+  let sessions =
+    Number(localStorage.getItem("esaPracticeSessions")) || 0;
+
+  sessions++;
+
+  localStorage.setItem(
+    "esaPracticeSessions",
+    sessions
+  );
+
+  updateDashboard();
+}
+
+updateDashboard();
 /* ================= INITIALIZE ================= */
 
 loadInterviewQuestion();
