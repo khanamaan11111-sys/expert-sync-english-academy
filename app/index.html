@@ -1524,15 +1524,20 @@ footer {
 </div>        </div>
       </div>
 
-      <div class="progress-row">
-        <div class="progress-info">
-          <span>Speaking</span>
-          <span>20%</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width:20%;"></div>
-        </div>
-      </div>
+<div class="progress-row">
+  <div class="progress-info">
+    <span>Speaking</span>
+    <span id="speakingProgressText">0%</span>
+  </div>
+
+  <div class="progress-bar">
+    <div
+      id="speakingProgressFill"
+      class="progress-fill"
+      style="width:0%;">
+    </div>
+  </div>
+</div>
 
       <div class="progress-row">
         <div class="progress-info">
@@ -1990,7 +1995,40 @@ let speakingIndex = 0;
 function nextSpeakingTopic() {
 
   speakingIndex++;
+  /* Update Speaking Progress */
 
+  let speakingPracticed =
+    Number(localStorage.getItem("esaSpeakingPracticed")) || 0;
+
+  if (speakingPracticed < speakingTopics.length) {
+    speakingPracticed++;
+  }
+
+  localStorage.setItem(
+    "esaSpeakingPracticed",
+    speakingPracticed
+  );
+
+  const speakingProgress =
+    Math.round(
+      (speakingPracticed / speakingTopics.length) * 100
+    );
+
+  const speakingText =
+    document.getElementById("speakingProgressText");
+
+  const speakingFill =
+    document.getElementById("speakingProgressFill");
+
+  if (speakingText) {
+    speakingText.textContent =
+      speakingProgress + "%";
+  }
+
+  if (speakingFill) {
+    speakingFill.style.width =
+      speakingProgress + "%";
+  }
   if (speakingIndex >= speakingTopics.length) {
     speakingIndex = 0;
   }
