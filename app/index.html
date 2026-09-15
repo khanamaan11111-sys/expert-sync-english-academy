@@ -1500,10 +1500,14 @@ footer {
       <div class="progress-row">
         <div class="progress-info">
           <span>Grammar</span>
-          <span>20%</span>
+<span id="grammarProgressText">0%</span>
         </div>
         <div class="progress-bar">
-          <div class="progress-fill" style="width:20%;"></div>
+<div
+  id="grammarProgressFill"
+  class="progress-fill"
+  style="width:0%;">
+</div>
         </div>
       </div>
 
@@ -2838,7 +2842,26 @@ function recordPracticeQuestion(scorePercent) {
       bestScore
     );
   }
+  const grammarProgress =
+    Math.round(
+      (grammarScore / grammarQuestions.length) * 100
+    );
 
+  const grammarText =
+    document.getElementById("grammarProgressText");
+
+  const grammarFill =
+    document.getElementById("grammarProgressFill");
+
+  if (grammarText) {
+    grammarText.textContent =
+      grammarProgress + "%";
+  }
+
+  if (grammarFill) {
+    grammarFill.style.width =
+      grammarProgress + "%";
+  }
   updateDashboard();
 }
 
