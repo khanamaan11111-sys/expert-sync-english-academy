@@ -1191,17 +1191,53 @@ footer {
 
       <br>
 
-      <button onclick="nextSpeakingTopic()">
-        🔄 Next Topic
-      </button>
+<div style="display:flex; gap:10px; flex-wrap:wrap;">
 
-      <button
-        class="outline"
-        onclick="closePractice()">
-        Back
-      </button>
+  <button onclick="startSpeakingRecording()">
+    🎙️ Start Recording
+  </button>
 
-    </div>
+  <button
+    class="outline"
+    onclick="stopSpeakingRecording()">
+    ⏹️ Stop Recording
+  </button>
+
+</div>
+
+<div style="margin-top:12px;">
+
+  <button
+    id="playSpeakingRecording"
+    class="outline"
+    onclick="playSpeakingRecording()"
+    style="display:none;">
+    ▶️ Play Recording
+  </button>
+
+  <button onclick="nextSpeakingTopic()">
+    🔄 Next Topic
+  </button>
+
+  <button
+    class="outline"
+    onclick="closePractice()">
+    Back
+  </button>
+
+</div>
+
+<p
+  id="speakingRecordingStatus"
+  style="margin-top:12px;">
+  🎤 Ready to record
+</p>
+
+<audio
+  id="speakingAudio"
+  controls
+  style="display:none; width:100%; margin-top:10px;">
+</audio>    </div>
 
   </div>
 
@@ -1990,7 +2026,121 @@ const speakingTopics = [
 ];
 
 let speakingIndex = 0;
+/* ================= SPEAKING RECORDER ================= */
 
+let speakingMediaRecorder = null;
+let speakingAudioChunks = [];
+let speakingAudioBlob = null;
+
+async function startSpeakingRecording() {
+
+  try {
+
+    const stream =
+      await navigator.mediaDevices.getUserMedia({
+        audio: true
+      });
+
+    speakingAudioChunks = [];
+
+    speakingMediaRecorder =
+      new MediaRecorder(stream);
+
+    speakingMediaRecorder.ondataavailable =
+      function(event) {
+
+        if (event.data.size > 0) {
+          speakingAudioChunks.push(event.data);
+        }
+
+      };
+
+    speakingMediaRecorder.onstop =
+      function() {
+
+        speakingAudioBlob =
+          new Blob(
+            speakingAudioChunks,
+            { type: "audio/webm" }
+          );
+
+        const audioURL =
+          URL.createObjectURL(
+            speakingAudioBlob
+          );
+
+        const audio =
+          document.getElementById(
+            "speakingAudio"
+          );
+
+        audio.src = audioURL;
+        audio.style.display = "block";
+
+        document.getElementById(
+          "playSpeakingRecording"
+        ).style.display = "inline-block";
+
+        document.getElementById(
+          "speakingRecordingStatus"
+        ).textContent =
+          "✅ Recording completed. You can play it.";
+
+        stream.getTracks().forEach(
+          function(track) {
+            track.stop();
+          }
+        );
+
+      };
+
+    speakingMediaRecorder.start();
+
+    document.getElementById(
+      "speakingRecordingStatus"
+    ).textContent =
+      "🔴 Recording... Speak now.";
+
+  } catch (error) {
+
+    document.getElementById(
+      "speakingRecordingStatus"
+    ).textContent =
+      "❌ Microphone permission is required.";
+
+    console.error(error);
+
+  }
+
+}
+
+
+function stopSpeakingRecording() {
+
+  if (
+    speakingMediaRecorder &&
+    speakingMediaRecorder.state === "recording"
+  ) {
+
+    speakingMediaRecorder.stop();
+
+  }
+
+}
+
+
+function playSpeakingRecording() {
+
+  const audio =
+    document.getElementById(
+      "speakingAudio"
+    );
+
+  if (audio.src) {
+    audio.play();
+  }
+
+}
 
 function nextSpeakingTopic() {
 
