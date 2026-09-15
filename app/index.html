@@ -2161,7 +2161,15 @@ function checkGrammarAnswer(index, button) {
       + data.options[data.answer];
 
   }
+  /* Update Student Dashboard */
 
+  const grammarPercent =
+    Math.round(
+      (grammarScore / (grammarIndex + 1)) * 100
+    );
+
+  recordPracticeQuestion(grammarPercent);  
+  
   document.getElementById('grammarScore')
     .textContent = grammarScore;
 
