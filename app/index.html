@@ -22,6 +22,7 @@
   --light: #f5f8ff;
   --white: #ffffff;
   --green: #168a45;
+  --red: #c62828;
 }
 
 body {
@@ -82,6 +83,7 @@ header h1 {
     opacity: 0;
     transform: translateY(5px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -146,6 +148,10 @@ button:active,
   background: var(--green);
 }
 
+.red {
+  background: var(--red);
+}
+
 .outline {
   background: white;
   color: var(--blue);
@@ -184,6 +190,7 @@ button:active,
   padding: 17px 12px;
   text-align: center;
   box-shadow: 0 4px 14px rgba(0,0,0,.06);
+  cursor: pointer;
 }
 
 .quick-card .icon {
@@ -301,6 +308,178 @@ ul {
   margin: 7px 0;
 }
 
+/* ================= PRACTICE ================= */
+
+.practice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.practice-card {
+  background: white;
+  border-radius: 18px;
+  padding: 18px 12px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+  border: 1px solid #e7edfa;
+}
+
+.practice-card .practice-icon {
+  font-size: 34px;
+  margin-bottom: 8px;
+}
+
+.practice-card h3 {
+  color: var(--blue);
+  font-size: 16px;
+  margin-bottom: 7px;
+}
+
+.practice-card p {
+  color: #666;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.practice-card button {
+  width: 100%;
+  padding: 10px 8px;
+  font-size: 13px;
+}
+
+.practice-box {
+  background: #f8fbff;
+  border: 2px solid #dfeaff;
+  border-radius: 17px;
+  padding: 18px;
+  margin-top: 15px;
+}
+
+.practice-box h3 {
+  color: var(--blue);
+  margin-bottom: 12px;
+}
+
+.question {
+  font-size: 17px;
+  font-weight: bold;
+  line-height: 1.5;
+  color: var(--dark);
+  margin-bottom: 15px;
+}
+
+.option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: white;
+  color: var(--dark);
+  border: 2px solid #dce5f5;
+  margin: 8px 0;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: normal;
+}
+
+.option:hover {
+  border-color: var(--blue);
+}
+
+.option.correct {
+  background: #e7f8ed;
+  border-color: var(--green);
+  color: #126d37;
+}
+
+.option.wrong {
+  background: #ffebeb;
+  border-color: var(--red);
+  color: #a51e1e;
+}
+
+.result {
+  margin-top: 13px;
+  padding: 13px;
+  border-radius: 12px;
+  display: none;
+  line-height: 1.5;
+  font-weight: bold;
+}
+
+.result.success {
+  display: block;
+  background: #e7f8ed;
+  color: #126d37;
+}
+
+.result.error {
+  display: block;
+  background: #ffebeb;
+  color: #a51e1e;
+}
+
+.score-box {
+  background: var(--blue);
+  color: white;
+  border-radius: 15px;
+  padding: 15px;
+  text-align: center;
+  margin-top: 15px;
+}
+
+.score-box strong {
+  color: #ffd700;
+  font-size: 25px;
+}
+
+.speaking-topic {
+  background: white;
+  border: 2px dashed #b8ccef;
+  border-radius: 16px;
+  padding: 18px;
+  font-size: 18px;
+  line-height: 1.6;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.answer-box {
+  background: white;
+  border: 1px solid #dce5f5;
+  border-radius: 14px;
+  padding: 15px;
+  line-height: 1.7;
+  color: #444;
+  margin-top: 12px;
+}
+
+.progress {
+  height: 8px;
+  background: #dfe7f5;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 10px 0 15px;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--blue2);
+  transition: .3s;
+}
+
+.practice-panel {
+  display: none;
+}
+
+.practice-panel.active {
+  display: block;
+}
+
+/* ================= BOTTOM NAV ================= */
+
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -349,7 +528,14 @@ footer {
   color: #777;
 }
 
+@media (max-width: 500px) {
+  .practice-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 @media (max-width: 380px) {
+
   header h1 {
     font-size: 22px;
   }
@@ -365,6 +551,10 @@ footer {
   .stat {
     padding: 13px 4px;
   }
+
+  .practice-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 </head>
@@ -372,13 +562,18 @@ footer {
 <body>
 
 <header>
-  <img src="../logo.png"
-       alt="Expert Sync English Academy Logo"
-       class="logo">
+
+  <img
+    src="../logo.png"
+    alt="Expert Sync English Academy Logo"
+    class="logo">
 
   <h1>Expert Sync English Academy</h1>
 
-  <p class="tagline">Speak English with Confidence</p>
+  <p class="tagline">
+    Speak English with Confidence
+  </p>
+
 </header>
 
 
@@ -390,7 +585,10 @@ footer {
 
   <div class="hero">
 
-    <h2>Build Your English.<br>Build Your Career.</h2>
+    <h2>
+      Build Your English.<br>
+      Build Your Career.
+    </h2>
 
     <p>
       Improve your English communication, interview skills,
@@ -403,7 +601,9 @@ footer {
         📚 Explore Courses
       </button>
 
-      <button class="gold" onclick="showSection('practice')">
+      <button
+        class="gold"
+        onclick="showSection('practice')">
         🗣️ Start Practice
       </button>
 
@@ -434,8 +634,9 @@ footer {
 
   <div class="quick-grid">
 
-    <div class="quick-card"
-         onclick="showSection('courses')">
+    <div
+      class="quick-card"
+      onclick="showSection('courses')">
 
       <div class="icon">📚</div>
 
@@ -446,8 +647,9 @@ footer {
     </div>
 
 
-    <div class="quick-card"
-         onclick="showSection('practice')">
+    <div
+      class="quick-card"
+      onclick="showSection('practice')">
 
       <div class="icon">🗣️</div>
 
@@ -458,8 +660,9 @@ footer {
     </div>
 
 
-    <div class="quick-card"
-         onclick="showSection('jobs')">
+    <div
+      class="quick-card"
+      onclick="showSection('jobs')">
 
       <div class="icon">💼</div>
 
@@ -470,8 +673,9 @@ footer {
     </div>
 
 
-    <div class="quick-card"
-         onclick="showSection('profile')">
+    <div
+      class="quick-card"
+      onclick="showSection('profile')">
 
       <div class="icon">📍</div>
 
@@ -489,12 +693,19 @@ footer {
     <h3>🎯 Why Expert Sync?</h3>
 
     <ul>
+
       <li>Spoken English & Communication</li>
+
       <li>Grammar & Vocabulary</li>
+
       <li>Interview Preparation</li>
+
       <li>Customer Support & BPO English</li>
+
       <li>Public Speaking</li>
+
       <li>IELTS Preparation</li>
+
     </ul>
 
   </div>
@@ -507,13 +718,19 @@ footer {
     <div class="price-box">
 
       <div class="price-card">
+
         <small>Admission Fee</small>
+
         <div class="price">₹200</div>
+
       </div>
 
       <div class="price-card">
+
         <small>Monthly Fee</small>
+
         <div class="price">₹500</div>
+
       </div>
 
     </div>
@@ -526,7 +743,9 @@ footer {
     <h3>📍 Academy Location</h3>
 
     <p>
-      <strong>7CC3+JQR, Bhopal, Madhya Pradesh</strong>
+      <strong>
+        7CC3+JQR, Bhopal, Madhya Pradesh
+      </strong>
     </p>
 
     <br>
@@ -678,77 +897,400 @@ footer {
     <h2>🗣️ Practice Zone</h2>
 
     <p>
-      Practice regularly to improve your English
-      communication and confidence.
+      Choose a skill below and start practicing.
+      Your progress is calculated during this session.
     </p>
 
   </div>
 
 
-  <div class="card">
+  <div class="practice-grid">
 
-    <h3>🎤 Speaking Practice</h3>
+    <div class="practice-card">
 
-    <p>
-      Practice self-introduction, daily conversations,
-      workplace communication and public speaking.
-    </p>
+      <div class="practice-icon">🎤</div>
 
-    <button
-      onclick="alert('Speaking Practice will be available in the next version.')">
-      Start Practice
-    </button>
+      <h3>Speaking</h3>
+
+      <p>
+        Practice everyday speaking topics.
+      </p>
+
+      <button onclick="openPractice('speaking')">
+        Start
+      </button>
+
+    </div>
+
+
+    <div class="practice-card">
+
+      <div class="practice-icon">📖</div>
+
+      <h3>Grammar</h3>
+
+      <p>
+        Test your grammar knowledge.
+      </p>
+
+      <button onclick="openPractice('grammar')">
+        Start
+      </button>
+
+    </div>
+
+
+    <div class="practice-card">
+
+      <div class="practice-icon">📚</div>
+
+      <h3>Vocabulary</h3>
+
+      <p>
+        Improve useful English words.
+      </p>
+
+      <button onclick="openPractice('vocabulary')">
+        Start
+      </button>
+
+    </div>
+
+
+    <div class="practice-card">
+
+      <div class="practice-icon">🔊</div>
+
+      <h3>Pronunciation</h3>
+
+      <p>
+        Listen and practice difficult words.
+      </p>
+
+      <button onclick="openPractice('pronunciation')">
+        Start
+      </button>
+
+    </div>
+
+
+    <div class="practice-card">
+
+      <div class="practice-icon">💼</div>
+
+      <h3>Interview</h3>
+
+      <p>
+        Practice common interview questions.
+      </p>
+
+      <button onclick="openPractice('interview')">
+        Start
+      </button>
+
+    </div>
+
+
+    <div class="practice-card">
+
+      <div class="practice-icon">☎️</div>
+
+      <h3>Customer Service</h3>
+
+      <p>
+        Solve realistic customer situations.
+      </p>
+
+      <button onclick="openPractice('customer')">
+        Start
+      </button>
+
+    </div>
 
   </div>
 
 
-  <div class="card">
+  <!-- SPEAKING -->
 
-    <h3>📚 Vocabulary Practice</h3>
+  <div
+    id="practice-speaking"
+    class="practice-panel">
 
-    <p>
-      Learn useful daily-life, professional and
-      interview vocabulary.
-    </p>
+    <div class="practice-box">
 
-    <button
-      onclick="alert('Vocabulary Practice will be available in the next version.')">
-      Practice
-    </button>
+      <h3>🎤 Speaking Practice</h3>
+
+      <div
+        id="speakingTopic"
+        class="speaking-topic">
+        Tell me about yourself.
+      </div>
+
+      <p>
+        Speak for 30–60 seconds. Try to speak clearly
+        and use complete sentences.
+      </p>
+
+      <br>
+
+      <button onclick="nextSpeakingTopic()">
+        🔄 Next Topic
+      </button>
+
+      <button
+        class="outline"
+        onclick="closePractice()">
+        Back
+      </button>
+
+    </div>
 
   </div>
 
 
-  <div class="card">
+  <!-- GRAMMAR -->
 
-    <h3>🎧 Pronunciation Practice</h3>
+  <div
+    id="practice-grammar"
+    class="practice-panel">
 
-    <p>
-      Improve difficult English sounds and
-      speak more clearly.
-    </p>
+    <div class="practice-box">
 
-    <button
-      onclick="alert('Pronunciation Practice will be available in the next version.')">
-      Practice
-    </button>
+      <h3>📖 Grammar Practice</h3>
+
+      <div class="progress">
+        <div
+          id="grammarProgress"
+          class="progress-bar">
+        </div>
+      </div>
+
+      <div
+        id="grammarQuestion"
+        class="question">
+      </div>
+
+      <div id="grammarOptions"></div>
+
+      <div
+        id="grammarResult"
+        class="result">
+      </div>
+
+      <br>
+
+      <button
+        id="grammarNext"
+        onclick="nextGrammarQuestion()"
+        style="display:none;">
+        Next Question
+      </button>
+
+      <button
+        class="outline"
+        onclick="closePractice()">
+        Back
+      </button>
+
+      <div class="score-box">
+        Score:
+        <strong id="grammarScore">0</strong>
+      </div>
+
+    </div>
 
   </div>
 
 
-  <div class="card">
+  <!-- VOCABULARY -->
 
-    <h3>💼 Interview Q&A</h3>
+  <div
+    id="practice-vocabulary"
+    class="practice-panel">
 
-    <p>
-      Practice common HR, customer service,
-      BPO and aviation interview questions.
-    </p>
+    <div class="practice-box">
 
-    <button
-      onclick="alert('Interview Practice will be available in the next version.')">
-      Practice
-    </button>
+      <h3>📚 Vocabulary Practice</h3>
+
+      <div class="progress">
+        <div
+          id="vocabProgress"
+          class="progress-bar">
+        </div>
+      </div>
+
+      <div
+        id="vocabQuestion"
+        class="question">
+      </div>
+
+      <div id="vocabOptions"></div>
+
+      <div
+        id="vocabResult"
+        class="result">
+      </div>
+
+      <br>
+
+      <button
+        id="vocabNext"
+        onclick="nextVocabQuestion()"
+        style="display:none;">
+        Next Word
+      </button>
+
+      <button
+        class="outline"
+        onclick="closePractice()">
+        Back
+      </button>
+
+      <div class="score-box">
+        Score:
+        <strong id="vocabScore">0</strong>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- PRONUNCIATION -->
+
+  <div
+    id="practice-pronunciation"
+    class="practice-panel">
+
+    <div class="practice-box">
+
+      <h3>🔊 Pronunciation Practice</h3>
+
+      <div
+        id="pronunciationWord"
+        class="speaking-topic">
+        Comfortable
+      </div>
+
+      <p>
+        Tap the button to hear the word.
+        Then repeat it aloud.
+      </p>
+
+      <br>
+
+      <button
+        onclick="speakWord()">
+        🔊 Listen
+      </button>
+
+      <button
+        class="gold"
+        onclick="nextPronunciationWord()">
+        Next Word
+      </button>
+
+      <br><br>
+
+      <p>
+        Tip: Focus on clear sounds, stress and natural rhythm.
+      </p>
+
+      <br>
+
+      <button
+        class="outline"
+        onclick="closePractice()">
+        Back
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- INTERVIEW -->
+
+  <div
+    id="practice-interview"
+    class="practice-panel">
+
+    <div class="practice-box">
+
+      <h3>💼 Interview Q&A</h3>
+
+      <div
+        id="interviewQuestion"
+        class="question">
+      </div>
+
+      <button
+        class="gold"
+        onclick="showInterviewAnswer()">
+        💡 Show Sample Answer
+      </button>
+
+      <div
+        id="interviewAnswer"
+        class="answer-box"
+        style="display:none;">
+      </div>
+
+      <br>
+
+      <button onclick="nextInterviewQuestion()">
+        🔄 Next Question
+      </button>
+
+      <button
+        class="outline"
+        onclick="closePractice()">
+        Back
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- CUSTOMER SERVICE -->
+
+  <div
+    id="practice-customer"
+    class="practice-panel">
+
+    <div class="practice-box">
+
+      <h3>☎️ Customer Service Scenario</h3>
+
+      <div
+        id="customerQuestion"
+        class="question">
+      </div>
+
+      <div id="customerOptions"></div>
+
+      <div
+        id="customerResult"
+        class="result">
+      </div>
+
+      <br>
+
+      <button
+        id="customerNext"
+        onclick="nextCustomerQuestion()"
+        style="display:none;">
+        Next Scenario
+      </button>
+
+      <button
+        class="outline"
+        onclick="closePractice()">
+        Back
+      </button>
+
+    </div>
 
   </div>
 
@@ -788,11 +1330,17 @@ footer {
     <h3>🚀 Career Preparation</h3>
 
     <ul>
+
       <li>Resume & interview preparation</li>
+
       <li>Customer service interview practice</li>
+
       <li>BPO communication skills</li>
+
       <li>Aviation interview preparation</li>
+
       <li>Professional English</li>
+
     </ul>
 
   </div>
@@ -958,14 +1506,12 @@ footer {
     Home
   </button>
 
-
   <button
     class="nav-item"
     onclick="showSection('courses', this)">
     <span>📚</span>
     Courses
   </button>
-
 
   <button
     class="nav-item"
@@ -974,14 +1520,12 @@ footer {
     Practice
   </button>
 
-
   <button
     class="nav-item"
     onclick="showSection('jobs', this)">
     <span>💼</span>
     Jobs
   </button>
-
 
   <button
     class="nav-item"
@@ -995,13 +1539,16 @@ footer {
 
 <script>
 
+/* ================= SECTION NAVIGATION ================= */
+
 function showSection(sectionId, clickedButton) {
 
   document.querySelectorAll('.section').forEach(function(section) {
     section.classList.remove('active');
   });
 
-  const selectedSection = document.getElementById(sectionId);
+  const selectedSection =
+    document.getElementById(sectionId);
 
   if (selectedSection) {
     selectedSection.classList.add('active');
@@ -1020,6 +1567,896 @@ function showSection(sectionId, clickedButton) {
     behavior: 'smooth'
   });
 }
+
+
+/* ================= PRACTICE NAVIGATION ================= */
+
+function openPractice(type) {
+
+  document.querySelectorAll('.practice-panel')
+    .forEach(function(panel) {
+      panel.classList.remove('active');
+    });
+
+  const panel =
+    document.getElementById('practice-' + type);
+
+  if (panel) {
+    panel.classList.add('active');
+  }
+
+  if (type === 'grammar') {
+    grammarIndex = 0;
+    grammarScore = 0;
+    loadGrammarQuestion();
+  }
+
+  if (type === 'vocabulary') {
+    vocabIndex = 0;
+    vocabScore = 0;
+    loadVocabQuestion();
+  }
+
+  if (type === 'interview') {
+    interviewIndex = 0;
+    loadInterviewQuestion();
+  }
+
+  if (type === 'customer') {
+    customerIndex = 0;
+    loadCustomerQuestion();
+  }
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
+
+
+function closePractice() {
+
+  document.querySelectorAll('.practice-panel')
+    .forEach(function(panel) {
+      panel.classList.remove('active');
+    });
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
+
+
+/* ================= SPEAKING ================= */
+
+const speakingTopics = [
+
+  "Tell me about yourself.",
+
+  "Describe your daily routine.",
+
+  "What is your favorite hobby and why?",
+
+  "Why do you want to improve your English?",
+
+  "Describe your hometown.",
+
+  "Talk about your career goals.",
+
+  "Describe your favorite movie.",
+
+  "What are your strengths?",
+
+  "What makes a good customer service professional?",
+
+  "Talk about a difficult situation you handled."
+
+];
+
+let speakingIndex = 0;
+
+
+function nextSpeakingTopic() {
+
+  speakingIndex++;
+
+  if (speakingIndex >= speakingTopics.length) {
+    speakingIndex = 0;
+  }
+
+  document.getElementById('speakingTopic')
+    .textContent = speakingTopics[speakingIndex];
+}
+
+
+/* ================= GRAMMAR ================= */
+
+const grammarQuestions = [
+
+  {
+    q: "She ___ to work every day.",
+    options: ["go", "goes", "going", "gone"],
+    answer: 1
+  },
+
+  {
+    q: "I ___ English for two years.",
+    options: ["study", "studied", "have studied", "studying"],
+    answer: 2
+  },
+
+  {
+    q: "They ___ watching a movie now.",
+    options: ["is", "are", "was", "be"],
+    answer: 1
+  },
+
+  {
+    q: "He ___ his homework yesterday.",
+    options: ["complete", "completed", "completes", "completing"],
+    answer: 1
+  },
+
+  {
+    q: "If I have time, I ___ you.",
+    options: ["will call", "called", "calling", "calls"],
+    answer: 0
+  },
+
+  {
+    q: "There ___ many students in the class.",
+    options: ["is", "are", "was", "be"],
+    answer: 1
+  },
+
+  {
+    q: "She is good ___ English.",
+    options: ["in", "at", "on", "for"],
+    answer: 1
+  },
+
+  {
+    q: "I am interested ___ learning English.",
+    options: ["on", "at", "in", "for"],
+    answer: 2
+  },
+
+  {
+    q: "He has ___ his work.",
+    options: ["finish", "finished", "finishing", "finishes"],
+    answer: 1
+  },
+
+  {
+    q: "We ___ respect our customers.",
+    options: ["should", "would", "could be", "are"],
+    answer: 0
+  }
+
+];
+
+let grammarIndex = 0;
+let grammarScore = 0;
+
+
+function loadGrammarQuestion() {
+
+  const data =
+    grammarQuestions[grammarIndex];
+
+  document.getElementById('grammarQuestion')
+    .textContent =
+    (grammarIndex + 1) + ". " + data.q;
+
+  const options =
+    document.getElementById('grammarOptions');
+
+  options.innerHTML = "";
+
+  document.getElementById('grammarResult')
+    .className = "result";
+
+  document.getElementById('grammarResult')
+    .textContent = "";
+
+  document.getElementById('grammarNext')
+    .style.display = "none";
+
+  data.options.forEach(function(option, index) {
+
+    const button =
+      document.createElement('button');
+
+    button.className = "option";
+
+    button.textContent = option;
+
+    button.onclick = function() {
+
+      checkGrammarAnswer(
+        index,
+        button
+      );
+
+    };
+
+    options.appendChild(button);
+
+  });
+
+  document.getElementById('grammarProgress')
+    .style.width =
+    ((grammarIndex / grammarQuestions.length) * 100) + "%";
+
+  document.getElementById('grammarScore')
+    .textContent = grammarScore;
+}
+
+
+function checkGrammarAnswer(index, button) {
+
+  const data =
+    grammarQuestions[grammarIndex];
+
+  const buttons =
+    document.querySelectorAll(
+      '#grammarOptions .option'
+    );
+
+  buttons.forEach(function(btn) {
+    btn.disabled = true;
+  });
+
+  const result =
+    document.getElementById('grammarResult');
+
+  if (index === data.answer) {
+
+    button.classList.add('correct');
+
+    result.className =
+      "result success";
+
+    result.textContent =
+      "✅ Correct! Well done.";
+
+    grammarScore++;
+
+  } else {
+
+    button.classList.add('wrong');
+
+    buttons[data.answer]
+      .classList.add('correct');
+
+    result.className =
+      "result error";
+
+    result.textContent =
+      "❌ Incorrect. The correct answer is: "
+      + data.options[data.answer];
+
+  }
+
+  document.getElementById('grammarScore')
+    .textContent = grammarScore;
+
+  document.getElementById('grammarNext')
+    .style.display = "inline-block";
+}
+
+
+function nextGrammarQuestion() {
+
+  grammarIndex++;
+
+  if (grammarIndex >= grammarQuestions.length) {
+
+    alert(
+      "Grammar Practice Complete! Your score is "
+      + grammarScore
+      + " / "
+      + grammarQuestions.length
+    );
+
+    grammarIndex = 0;
+    grammarScore = 0;
+  }
+
+  loadGrammarQuestion();
+}
+
+
+/* ================= VOCABULARY ================= */
+
+const vocabularyQuestions = [
+
+  {
+    q: "What does 'assist' mean?",
+    options: [
+      "Help",
+      "Ignore",
+      "Delay",
+      "Reject"
+    ],
+    answer: 0
+  },
+
+  {
+    q: "What does 'reliable' mean?",
+    options: [
+      "Uncertain",
+      "Trustworthy",
+      "Expensive",
+      "Difficult"
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What does 'urgent' mean?",
+    options: [
+      "Not important",
+      "Very slow",
+      "Requiring immediate attention",
+      "Optional"
+    ],
+    answer: 2
+  },
+
+  {
+    q: "What does 'resolve' mean?",
+    options: [
+      "Solve",
+      "Create",
+      "Forget",
+      "Delay"
+    ],
+    answer: 0
+  },
+
+  {
+    q: "What does 'professional' mean?",
+    options: [
+      "Careless",
+      "Untrained",
+      "Work-related and competent",
+      "Angry"
+    ],
+    answer: 2
+  },
+
+  {
+    q: "What does 'confident' mean?",
+    options: [
+      "Sure of yourself",
+      "Afraid",
+      "Confused",
+      "Silent"
+    ],
+    answer: 0
+  },
+
+  {
+    q: "What does 'polite' mean?",
+    options: [
+      "Rude",
+      "Respectful",
+      "Angry",
+      "Lazy"
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What does 'escalate' mean in customer service?",
+    options: [
+      "Close the company",
+      "Transfer a serious issue to a higher level",
+      "Ignore the customer",
+      "Delete a complaint"
+    ],
+    answer: 1
+  }
+
+];
+
+let vocabIndex = 0;
+let vocabScore = 0;
+
+
+function loadVocabQuestion() {
+
+  const data =
+    vocabularyQuestions[vocabIndex];
+
+  document.getElementById('vocabQuestion')
+    .textContent =
+    (vocabIndex + 1) + ". " + data.q;
+
+  const options =
+    document.getElementById('vocabOptions');
+
+  options.innerHTML = "";
+
+  document.getElementById('vocabResult')
+    .className = "result";
+
+  document.getElementById('vocabResult')
+    .textContent = "";
+
+  document.getElementById('vocabNext')
+    .style.display = "none";
+
+  data.options.forEach(function(option, index) {
+
+    const button =
+      document.createElement('button');
+
+    button.className = "option";
+
+    button.textContent = option;
+
+    button.onclick = function() {
+
+      checkVocabAnswer(
+        index,
+        button
+      );
+
+    };
+
+    options.appendChild(button);
+
+  });
+
+  document.getElementById('vocabProgress')
+    .style.width =
+    ((vocabIndex / vocabularyQuestions.length) * 100) + "%";
+
+  document.getElementById('vocabScore')
+    .textContent = vocabScore;
+}
+
+
+function checkVocabAnswer(index, button) {
+
+  const data =
+    vocabularyQuestions[vocabIndex];
+
+  const buttons =
+    document.querySelectorAll(
+      '#vocabOptions .option'
+    );
+
+  buttons.forEach(function(btn) {
+    btn.disabled = true;
+  });
+
+  const result =
+    document.getElementById('vocabResult');
+
+  if (index === data.answer) {
+
+    button.classList.add('correct');
+
+    result.className =
+      "result success";
+
+    result.textContent =
+      "✅ Correct! Excellent.";
+
+    vocabScore++;
+
+  } else {
+
+    button.classList.add('wrong');
+
+    buttons[data.answer]
+      .classList.add('correct');
+
+    result.className =
+      "result error";
+
+    result.textContent =
+      "❌ Incorrect. Correct answer: "
+      + data.options[data.answer];
+
+  }
+
+  document.getElementById('vocabScore')
+    .textContent = vocabScore;
+
+  document.getElementById('vocabNext')
+    .style.display = "inline-block";
+}
+
+
+function nextVocabQuestion() {
+
+  vocabIndex++;
+
+  if (vocabIndex >= vocabularyQuestions.length) {
+
+    alert(
+      "Vocabulary Practice Complete! Your score is "
+      + vocabScore
+      + " / "
+      + vocabularyQuestions.length
+    );
+
+    vocabIndex = 0;
+    vocabScore = 0;
+  }
+
+  loadVocabQuestion();
+}
+
+
+/* ================= PRONUNCIATION ================= */
+
+const pronunciationWords = [
+
+  "Comfortable",
+
+  "Professional",
+
+  "Communication",
+
+  "Opportunity",
+
+  "Customer",
+
+  "Experience",
+
+  "Confidence",
+
+  "Responsible",
+
+  "Successful",
+
+  "Escalation",
+
+  "Environment",
+
+  "Interview"
+
+];
+
+let pronunciationIndex = 0;
+
+
+function speakWord() {
+
+  const word =
+    document.getElementById(
+      'pronunciationWord'
+    ).textContent;
+
+  if ('speechSynthesis' in window) {
+
+    const speech =
+      new SpeechSynthesisUtterance(word);
+
+    speech.lang = "en-US";
+
+    speech.rate = 0.75;
+
+    window.speechSynthesis.cancel();
+
+    window.speechSynthesis.speak(speech);
+
+  } else {
+
+    alert(
+      "Speech playback is not supported by this browser."
+    );
+
+  }
+
+}
+
+
+function nextPronunciationWord() {
+
+  pronunciationIndex++;
+
+  if (
+    pronunciationIndex >=
+    pronunciationWords.length
+  ) {
+    pronunciationIndex = 0;
+  }
+
+  document.getElementById(
+    'pronunciationWord'
+  ).textContent =
+    pronunciationWords[pronunciationIndex];
+}
+
+
+/* ================= INTERVIEW ================= */
+
+const interviewQuestions = [
+
+  {
+    q: "Tell me about yourself.",
+    a: "Start with your education, experience, key skills and career goal. Keep your answer professional and focused."
+  },
+
+  {
+    q: "Why do you want to work in customer support?",
+    a: "I enjoy communicating with people and helping them solve problems. Customer support will also help me improve my communication, problem-solving and professional skills."
+  },
+
+  {
+    q: "What are your strengths?",
+    a: "My strengths are communication, patience, problem-solving, adaptability and the ability to remain calm in difficult situations."
+  },
+
+  {
+    q: "How would you handle an angry customer?",
+    a: "I would listen carefully, remain calm, acknowledge the customer's concern, apologize when appropriate, investigate the issue and provide the best possible solution."
+  },
+
+  {
+    q: "Where do you see yourself in five years?",
+    a: "I want to develop strong professional skills, take greater responsibilities and grow into a leadership position."
+  },
+
+  {
+    q: "Why should we hire you?",
+    a: "You should hire me because I am willing to learn, communicate professionally, take responsibility and focus on providing a positive customer experience."
+  },
+
+  {
+    q: "What is good customer service?",
+    a: "Good customer service means understanding the customer's need, communicating clearly, solving the problem efficiently and making the customer feel respected."
+  }
+
+];
+
+let interviewIndex = 0;
+
+
+function loadInterviewQuestion() {
+
+  document.getElementById(
+    'interviewQuestion'
+  ).textContent =
+    (interviewIndex + 1)
+    + ". "
+    + interviewQuestions[interviewIndex].q;
+
+  document.getElementById(
+    'interviewAnswer'
+  ).style.display = "none";
+
+  document.getElementById(
+    'interviewAnswer'
+  ).textContent =
+    interviewQuestions[interviewIndex].a;
+}
+
+
+function showInterviewAnswer() {
+
+  document.getElementById(
+    'interviewAnswer'
+  ).style.display = "block";
+}
+
+
+function nextInterviewQuestion() {
+
+  interviewIndex++;
+
+  if (
+    interviewIndex >=
+    interviewQuestions.length
+  ) {
+    interviewIndex = 0;
+  }
+
+  loadInterviewQuestion();
+}
+
+
+/* ================= CUSTOMER SERVICE ================= */
+
+const customerQuestions = [
+
+  {
+    q: "A customer is angry because their issue has not been resolved. What should you do?",
+    options: [
+      "Argue with the customer.",
+      "Listen calmly, acknowledge the concern and work toward a solution.",
+      "Disconnect the call.",
+      "Tell the customer it is not your problem."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A customer asks something you do not know. What should you do?",
+    options: [
+      "Make up an answer.",
+      "Ignore the question.",
+      "Tell the customer you will check the correct information and get back to them.",
+      "End the conversation."
+    ],
+    answer: 2
+  },
+
+  {
+    q: "A customer has difficulty understanding English. What should you do?",
+    options: [
+      "Speak faster.",
+      "Use simple words, speak clearly and confirm understanding.",
+      "Ignore the customer.",
+      "Use complicated technical terms."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A customer is waiting for a delayed service. What is the best response?",
+    options: [
+      "Give false information.",
+      "Blame another department.",
+      "Explain the situation clearly, apologize for the inconvenience and provide the latest available information.",
+      "Tell them to wait without explanation."
+    ],
+    answer: 2
+  },
+
+  {
+    q: "You notice a serious customer issue that requires a higher authority. What should you do?",
+    options: [
+      "Hide the issue.",
+      "Escalate it according to the process.",
+      "Ignore it.",
+      "Delete the case."
+    ],
+    answer: 1
+  }
+
+];
+
+let customerIndex = 0;
+
+
+function loadCustomerQuestion() {
+
+  const data =
+    customerQuestions[customerIndex];
+
+  document.getElementById(
+    'customerQuestion'
+  ).textContent =
+    (customerIndex + 1)
+    + ". "
+    + data.q;
+
+  const options =
+    document.getElementById(
+      'customerOptions'
+    );
+
+  options.innerHTML = "";
+
+  document.getElementById(
+    'customerResult'
+  ).className = "result";
+
+  document.getElementById(
+    'customerResult'
+  ).textContent = "";
+
+  document.getElementById(
+    'customerNext'
+  ).style.display = "none";
+
+  data.options.forEach(function(option, index) {
+
+    const button =
+      document.createElement('button');
+
+    button.className = "option";
+
+    button.textContent = option;
+
+    button.onclick = function() {
+
+      checkCustomerAnswer(
+        index,
+        button
+      );
+
+    };
+
+    options.appendChild(button);
+
+  });
+
+}
+
+
+function checkCustomerAnswer(index, button) {
+
+  const data =
+    customerQuestions[customerIndex];
+
+  const buttons =
+    document.querySelectorAll(
+      '#customerOptions .option'
+    );
+
+  buttons.forEach(function(btn) {
+    btn.disabled = true;
+  });
+
+  const result =
+    document.getElementById(
+      'customerResult'
+    );
+
+  if (index === data.answer) {
+
+    button.classList.add('correct');
+
+    result.className =
+      "result success";
+
+    result.textContent =
+      "✅ Excellent choice. This is a professional customer-service response.";
+
+  } else {
+
+    button.classList.add('wrong');
+
+    buttons[data.answer]
+      .classList.add('correct');
+
+    result.className =
+      "result error";
+
+    result.textContent =
+      "❌ Better choice: "
+      + data.options[data.answer];
+
+  }
+
+  document.getElementById(
+    'customerNext'
+  ).style.display = "inline-block";
+
+}
+
+
+function nextCustomerQuestion() {
+
+  customerIndex++;
+
+  if (
+    customerIndex >=
+    customerQuestions.length
+  ) {
+    alert(
+      "Customer Service Practice Complete!"
+    );
+
+    customerIndex = 0;
+  }
+
+  loadCustomerQuestion();
+}
+
+
+/* ================= INITIALIZE ================= */
+
+loadInterviewQuestion();
 
 </script>
 
