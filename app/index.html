@@ -1514,11 +1514,14 @@ footer {
       <div class="progress-row">
         <div class="progress-info">
           <span>Vocabulary</span>
-          <span>20%</span>
+<span id="vocabProgressText">0%</span>
         </div>
         <div class="progress-bar">
-          <div class="progress-fill" style="width:20%;"></div>
-        </div>
+<div
+  id="vocabProgressFill"
+  class="progress-fill"
+  style="width:0%;">
+</div>        </div>
       </div>
 
       <div class="progress-row">
@@ -2399,7 +2402,26 @@ function checkVocabAnswer(index, button) {
       + data.options[data.answer];
 
   }
+  const vocabProgress =
+    Math.round(
+      (vocabScore / vocabularyQuestions.length) * 100
+    );
 
+  const vocabText =
+    document.getElementById("vocabProgressText");
+
+  const vocabFill =
+    document.getElementById("vocabProgressFill");
+
+  if (vocabText) {
+    vocabText.textContent =
+      vocabProgress + "%";
+  }
+
+  if (vocabFill) {
+    vocabFill.style.width =
+      vocabProgress + "%";
+  }
   document.getElementById('vocabScore')
     .textContent = vocabScore;
 
