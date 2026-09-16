@@ -2129,8 +2129,53 @@ function stopSpeakingRecording() {
 }
 
 
-function playSpeakingRecording() {
+function stopSpeakingRecording() {
 
+  if (
+    speakingMediaRecorder &&
+    speakingMediaRecorder.state === "recording"
+  ) {
+
+    speakingMediaRecorder.stop();
+
+    // Update Speaking progress
+    let speakingProgress =
+      Number(localStorage.getItem("speakingProgress") || 0);
+
+    speakingProgress = Math.min(
+      speakingProgress + 20,
+      100
+    );
+
+    localStorage.setItem(
+      "speakingProgress",
+      speakingProgress
+    );
+
+    updateSpeakingProgress();
+  }
+
+}
+function updateSpeakingProgress() {
+
+  const progress =
+    Number(localStorage.getItem("speakingProgress") || 0);
+
+  const text =
+    document.getElementById("speakingProgressText");
+
+  const fill =
+    document.getElementById("speakingProgressFill");
+
+  if (text) {
+    text.textContent = progress + "%";
+  }
+
+  if (fill) {
+    fill.style.width = progress + "%";
+  }
+
+}
   const audio =
     document.getElementById(
       "speakingAudio"
