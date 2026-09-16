@@ -307,7 +307,57 @@ ul {
   color: var(--blue);
   margin: 7px 0;
 }
+/* ================= SERVICES ================= */
 
+.service-card {
+  text-align: center;
+  border: 1px solid #e1e9f8;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.service-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 20px rgba(0,0,0,.10);
+}
+
+.service-icon {
+  font-size: 45px;
+  margin-bottom: 10px;
+}
+
+.service-card h3 {
+  font-size: 20px;
+  margin-bottom: 7px;
+}
+
+.service-card h4 {
+  color: #333;
+  font-size: 17px;
+  margin-bottom: 10px;
+}
+
+.service-card p {
+  margin-bottom: 15px;
+}
+
+.service-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.service-actions .btn {
+  min-width: 145px;
+}
+
+.service-card .green {
+  background: var(--green);
+}
+
+.service-card .btn:hover {
+  opacity: .9;
+}
 /* ================= PRACTICE ================= */
 
 .practice-grid {
@@ -1747,7 +1797,109 @@ footer {
 
 </section>
 
+<!-- ================= SERVICES ================= -->
 
+<section id="services" class="section">
+
+  <div class="hero">
+
+    <h2>🤝 Business & Local Services</h2>
+
+    <p>
+      Connect with trusted local contacts for
+      property and automobile assistance in Bhopal.
+    </p>
+
+  </div>
+
+
+  <!-- PROPERTY SERVICES -->
+
+  <div class="card service-card">
+
+    <div class="service-icon">🏠</div>
+
+    <h3>Property Services — Bhopal</h3>
+
+    <h4>Aslam Khan</h4>
+
+    <p>
+      For property buying, selling and general
+      real-estate assistance in Bhopal, please contact
+      Aslam Khan.
+    </p>
+
+    <div class="service-actions">
+
+      <a
+        class="btn"
+        href="tel:9302336474">
+        📞 Call Aslam Khan
+      </a>
+
+      <a
+        class="btn green"
+        href="https://wa.me/919302336474"
+        target="_blank">
+        💬 WhatsApp
+      </a>
+
+    </div>
+
+  </div>
+
+
+  <!-- AUTOMOBILE SERVICES -->
+
+  <div class="card service-card">
+
+    <div class="service-icon">🚗</div>
+
+    <h3>Automobile Services — Bhopal</h3>
+
+    <h4>Aamir Khan</h4>
+
+    <p>
+      For car buying, selling and general
+      automobile assistance in Bhopal, please contact
+      Aamir Khan.
+    </p>
+
+    <div class="service-actions">
+
+      <a
+        class="btn"
+        href="tel:7400902880">
+        📞 Call Aamir Khan
+      </a>
+
+      <a
+        class="btn green"
+        href="https://wa.me/917400902880"
+        target="_blank">
+        💬 WhatsApp
+      </a>
+
+    </div>
+
+  </div>
+
+
+  <div class="warning">
+
+    <h3>ℹ️ Important Information</h3>
+
+    <p>
+      Expert Sync English Academy provides this section
+      as a contact and information resource. Please
+      independently verify property, vehicle, seller,
+      buyer and transaction details before making any
+      financial commitment.
+    </p>
+
+  </div>
+
+</section>
 <!-- ================= PROFILE ================= -->
 
 <section id="profile" class="section">
@@ -1897,7 +2049,12 @@ footer {
     <span>💼</span>
     Jobs
   </button>
-
+<button
+  class="nav-item"
+  onclick="showSection('services', this)">
+  <span>🤝</span>
+  Services
+</button>
   <button
     class="nav-item"
     onclick="showSection('profile', this)">
