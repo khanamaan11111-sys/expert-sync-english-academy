@@ -2026,11 +2026,16 @@ const speakingTopics = [
 ];
 
 let speakingIndex = 0;
+
+
 /* ================= SPEAKING RECORDER ================= */
 
 let speakingMediaRecorder = null;
 let speakingAudioChunks = [];
 let speakingAudioBlob = null;
+
+
+/* START RECORDING */
 
 async function startSpeakingRecording() {
 
@@ -2054,6 +2059,7 @@ async function startSpeakingRecording() {
         }
 
       };
+
 
     speakingMediaRecorder.onstop =
       function() {
@@ -2094,6 +2100,7 @@ async function startSpeakingRecording() {
 
       };
 
+
     speakingMediaRecorder.start();
 
     document.getElementById(
@@ -2101,7 +2108,9 @@ async function startSpeakingRecording() {
     ).textContent =
       "🔴 Recording... Speak now.";
 
-  } catch (error) {
+  }
+
+  catch (error) {
 
     document.getElementById(
       "speakingRecordingStatus"
@@ -2115,19 +2124,7 @@ async function startSpeakingRecording() {
 }
 
 
-function stopSpeakingRecording() {
-
-  if (
-    speakingMediaRecorder &&
-    speakingMediaRecorder.state === "recording"
-  ) {
-
-    speakingMediaRecorder.stop();
-
-  }
-
-}
-
+/* STOP RECORDING */
 
 function stopSpeakingRecording() {
 
@@ -2138,101 +2135,131 @@ function stopSpeakingRecording() {
 
     speakingMediaRecorder.stop();
 
-    // Update Speaking progress
-    let speakingProgress =
-      Number(localStorage.getItem("speakingProgress") || 0);
+    /* Update Speaking Progress */
 
-    speakingProgress = Math.min(
-      speakingProgress + 20,
-      100
-    );
+    let speakingPracticed =
+      Number(
+        localStorage.getItem(
+          "esaSpeakingPracticed"
+        )
+      ) || 0;
+
+    if (
+      speakingPracticed <
+      speakingTopics.length
+    ) {
+
+      speakingPracticed++;
+
+    }
 
     localStorage.setItem(
-      "speakingProgress",
-      speakingProgress
+      "esaSpeakingPracticed",
+      speakingPracticed
     );
 
     updateSpeakingProgress();
+
   }
 
 }
-function updateSpeakingProgress() {
 
-  const progress =
-    Number(localStorage.getItem("speakingProgress") || 0);
 
-  const text =
-    document.getElementById("speakingProgressText");
+/* PLAY RECORDING */
 
-  const fill =
-    document.getElementById("speakingProgressFill");
+function playSpeakingRecording() {
 
-  if (text) {
-    text.textContent = progress + "%";
-  }
-
-  if (fill) {
-    fill.style.width = progress + "%";
-  }
-
-}
   const audio =
     document.getElementById(
       "speakingAudio"
     );
 
-  if (audio.src) {
+  if (audio && audio.src) {
+
     audio.play();
+
   }
 
 }
+
+
+/* UPDATE SPEAKING PROGRESS */
+
+function updateSpeakingProgress() {
+
+  const speakingPracticed =
+    Number(
+      localStorage.getItem(
+        "esaSpeakingPracticed"
+      )
+    ) || 0;
+
+  const speakingProgress =
+    Math.min(
+      Math.round(
+        (speakingPracticed /
+          speakingTopics.length) * 100
+      ),
+      100
+    );
+
+
+  const speakingText =
+    document.getElementById(
+      "speakingProgressText"
+    );
+
+  const speakingFill =
+    document.getElementById(
+      "speakingProgressFill"
+    );
+
+
+  if (speakingText) {
+
+    speakingText.textContent =
+      speakingProgress + "%";
+
+  }
+
+
+  if (speakingFill) {
+
+    speakingFill.style.width =
+      speakingProgress + "%";
+
+  }
+
+}
+
+
+/* NEXT SPEAKING TOPIC */
 
 function nextSpeakingTopic() {
 
   speakingIndex++;
-  /* Update Speaking Progress */
 
-  let speakingPracticed =
-    Number(localStorage.getItem("esaSpeakingPracticed")) || 0;
+  if (
+    speakingIndex >=
+    speakingTopics.length
+  ) {
 
-  if (speakingPracticed < speakingTopics.length) {
-    speakingPracticed++;
-  }
-
-  localStorage.setItem(
-    "esaSpeakingPracticed",
-    speakingPracticed
-  );
-
-  const speakingProgress =
-    Math.round(
-      (speakingPracticed / speakingTopics.length) * 100
-    );
-
-  const speakingText =
-    document.getElementById("speakingProgressText");
-
-  const speakingFill =
-    document.getElementById("speakingProgressFill");
-
-  if (speakingText) {
-    speakingText.textContent =
-      speakingProgress + "%";
-  }
-
-  if (speakingFill) {
-    speakingFill.style.width =
-      speakingProgress + "%";
-  }
-  if (speakingIndex >= speakingTopics.length) {
     speakingIndex = 0;
+
   }
 
-  document.getElementById('speakingTopic')
-    .textContent = speakingTopics[speakingIndex];
+  document.getElementById(
+    "speakingTopic"
+  ).textContent =
+    speakingTopics[speakingIndex];
+
 }
 
 
+/* LOAD SAVED SPEAKING PROGRESS */
+
+updateSpeakingProgress();
+  
 /* ================= GRAMMAR ================= */
 
 const grammarQuestions = [
