@@ -1109,6 +1109,594 @@ footer {
     padding: 0 13px;
   }
 }
+  /* =========================================================
+   EXPERT SYNC — PREMIUM AVIATION APP THEME
+   ========================================================= */
+
+:root {
+  --aviation-navy: #031b3f;
+  --aviation-blue: #063b91;
+  --aviation-bright-blue: #0b63ce;
+  --aviation-sky: #eaf4ff;
+  --aviation-gold: #d4af37;
+  --aviation-gold-light: #f4cf5d;
+  --aviation-white: #ffffff;
+  --aviation-text: #172033;
+}
+
+
+/* APP BACKGROUND */
+
+body {
+  background:
+    linear-gradient(
+      180deg,
+      #eaf4ff 0%,
+      #f7fbff 45%,
+      #ffffff 100%
+    );
+}
+
+
+/* ================= AVIATION HERO ================= */
+
+.aviation-hero {
+  position: relative;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(255,255,255,0.20),
+      transparent 28%
+    ),
+    linear-gradient(
+      135deg,
+      #031b3f 0%,
+      #063b91 55%,
+      #0b63ce 100%
+    );
+
+  color: white;
+
+  padding:
+    34px 22px 30px;
+
+  border-radius:
+    0 0 30px 30px;
+
+  text-align: center;
+
+  box-shadow:
+    0 12px 30px
+    rgba(3,27,63,0.22);
+}
+
+
+/* AIRPLANE BACKGROUND SYMBOL */
+
+.aviation-hero::after {
+  content: "✈";
+
+  position: absolute;
+
+  right: -10px;
+  top: 15px;
+
+  font-size: 125px;
+
+  color:
+    rgba(255,255,255,0.08);
+
+  transform:
+    rotate(-12deg);
+
+  pointer-events: none;
+}
+
+
+/* SMALL TOP LABEL */
+
+.aviation-eyebrow {
+  position: relative;
+  z-index: 2;
+
+  display: inline-block;
+
+  color: var(--aviation-gold-light);
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+  letter-spacing: 2px;
+
+  text-transform: uppercase;
+
+  margin-bottom: 10px;
+}
+
+
+/* HERO TITLE */
+
+.aviation-hero h1 {
+  position: relative;
+  z-index: 2;
+
+  margin: 0;
+
+  font-size: 30px;
+
+  line-height: 1.15;
+
+  font-weight: 800;
+}
+
+
+/* GOLD LINE */
+
+.aviation-gold-line {
+  position: relative;
+  z-index: 2;
+
+  width: 70px;
+  height: 3px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--aviation-gold),
+      var(--aviation-gold-light)
+    );
+
+  margin:
+    15px auto;
+
+  border-radius: 20px;
+}
+
+
+/* HERO TAGLINE */
+
+.aviation-hero-tagline {
+  position: relative;
+  z-index: 2;
+
+  color: var(--aviation-gold-light);
+
+  font-size: 17px;
+
+  font-weight: 700;
+
+  margin-bottom: 9px;
+}
+
+
+/* HERO DESCRIPTION */
+
+.aviation-hero-description {
+  position: relative;
+  z-index: 2;
+
+  max-width: 600px;
+
+  margin:
+    0 auto;
+
+  color:
+    rgba(255,255,255,0.90);
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+
+/* ================= FLIGHT STATUS BAR ================= */
+
+.aviation-status-bar {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  background:
+    rgba(3,27,63,0.96);
+
+  color: white;
+
+  margin:
+    16px 15px;
+
+  border-radius: 16px;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 7px 20px
+    rgba(3,27,63,0.15);
+}
+
+
+.aviation-status-item {
+  text-align: center;
+
+  padding:
+    12px 5px;
+
+  border-right:
+    1px solid
+    rgba(255,255,255,0.12);
+}
+
+
+.aviation-status-item:last-child {
+  border-right: none;
+}
+
+
+.aviation-status-label {
+  display: block;
+
+  color:
+    rgba(255,255,255,0.65);
+
+  font-size: 9px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 1px;
+
+  margin-bottom: 4px;
+}
+
+
+.aviation-status-value {
+  color:
+    var(--aviation-gold-light);
+
+  font-size: 12px;
+
+  font-weight: 800;
+}
+
+
+/* ================= AVIATION SECTION TITLE ================= */
+
+.aviation-section-heading {
+  margin:
+    24px 16px 12px;
+
+  color:
+    var(--aviation-navy);
+
+  font-size: 20px;
+
+  font-weight: 800;
+}
+
+
+.aviation-section-heading span {
+  color:
+    var(--aviation-gold);
+}
+
+
+/* ================= AVIATION FEATURE CARDS ================= */
+
+.aviation-feature-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 12px;
+
+  padding:
+    0 15px;
+}
+
+
+.aviation-feature-card {
+  position: relative;
+
+  overflow: hidden;
+
+  background: white;
+
+  border:
+    1px solid #dce7f3;
+
+  border-radius: 18px;
+
+  padding:
+    20px 14px;
+
+  text-align: center;
+
+  box-shadow:
+    0 6px 18px
+    rgba(3,27,63,0.08);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.aviation-feature-card:active {
+  transform:
+    scale(0.97);
+}
+
+
+.aviation-feature-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 4px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--aviation-gold),
+      var(--aviation-gold-light)
+    );
+}
+
+
+.aviation-feature-icon {
+  font-size: 31px;
+
+  margin-bottom: 9px;
+}
+
+
+.aviation-feature-card h3 {
+  margin:
+    0 0 5px;
+
+  color:
+    var(--aviation-navy);
+
+  font-size: 15px;
+}
+
+
+.aviation-feature-card p {
+  margin: 0;
+
+  color: #687386;
+
+  font-size: 11px;
+
+  line-height: 1.45;
+}
+
+
+/* DARK AVIATION CARD */
+
+.aviation-feature-card.primary {
+  background:
+    linear-gradient(
+      145deg,
+      #031b3f,
+      #063b91
+    );
+
+  border: none;
+}
+
+
+.aviation-feature-card.primary h3 {
+  color: white;
+}
+
+
+.aviation-feature-card.primary p {
+  color:
+    rgba(255,255,255,0.75);
+}
+
+
+/* ================= AVIATION BANNER ================= */
+
+.aviation-banner {
+  position: relative;
+
+  overflow: hidden;
+
+  margin:
+    18px 15px;
+
+  padding:
+    20px;
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #031b3f,
+      #0756b6
+    );
+
+  color: white;
+
+  box-shadow:
+    0 8px 22px
+    rgba(3,27,63,0.18);
+}
+
+
+.aviation-banner::after {
+  content: "✈";
+
+  position: absolute;
+
+  right: 12px;
+  bottom: -25px;
+
+  font-size: 100px;
+
+  color:
+    rgba(255,255,255,0.08);
+}
+
+
+.aviation-banner h3 {
+  position: relative;
+  z-index: 2;
+
+  margin:
+    0 0 6px;
+
+  color:
+    var(--aviation-gold-light);
+
+  font-size: 18px;
+}
+
+
+.aviation-banner p {
+  position: relative;
+  z-index: 2;
+
+  margin: 0;
+
+  max-width: 75%;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+
+  color:
+    rgba(255,255,255,0.88);
+}
+
+
+/* ================= PREMIUM BUTTON ================= */
+
+.aviation-gold-button {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+
+  margin-top: 15px;
+
+  padding:
+    14px 16px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #d4af37,
+      #f4cf5d
+    );
+
+  color:
+    #031b3f;
+
+  font-size: 15px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 5px 14px
+    rgba(212,175,55,0.25);
+}
+
+
+/* ================= PREMIUM BOTTOM NAV ================= */
+
+.bottom-nav {
+  background:
+    rgba(255,255,255,0.98);
+
+  border-top:
+    1px solid #dce7f3;
+
+  box-shadow:
+    0 -5px 20px
+    rgba(3,27,63,0.08);
+}
+
+
+.bottom-nav button {
+  color:
+    #566276;
+}
+
+
+.bottom-nav button.active {
+  color:
+    var(--aviation-blue);
+}
+
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 480px) {
+
+  .aviation-hero {
+    padding:
+      28px 17px 25px;
+  }
+
+
+  .aviation-hero h1 {
+    font-size:
+      25px;
+  }
+
+
+  .aviation-hero-tagline {
+    font-size:
+      15px;
+  }
+
+
+  .aviation-feature-grid {
+    gap:
+      10px;
+
+    padding:
+      0 12px;
+  }
+
+
+  .aviation-feature-card {
+    padding:
+      17px 10px;
+  }
+
+
+  .aviation-status-bar {
+    margin:
+      14px 12px;
+  }
+
+
+  .aviation-banner {
+    margin:
+      16px 12px;
+  }
+
+}
 </style>
 </head>
 
@@ -1134,166 +1722,351 @@ footer {
 
 <!-- ================= HOME ================= -->
 
+<!-- ================= AVIATION HOME ================= -->
+
 <section id="home" class="section active">
 
-  <div class="hero">
+  <!-- PREMIUM AVIATION HERO -->
 
-    <h2>
-      Build Your English.<br>
-      Build Your Career.
-    </h2>
+  <div class="aviation-hero">
 
-    <p>
-      Improve your English communication, interview skills,
-      professional confidence and career opportunities.
+    <div class="aviation-eyebrow">
+      ✈ EXPERT SYNC ENGLISH ACADEMY
+    </div>
+
+    <h1>
+      Welcome Aboard
+    </h1>
+
+    <div class="aviation-gold-line"></div>
+
+    <div class="aviation-hero-tagline">
+      Fly Higher with English
+    </div>
+
+    <p class="aviation-hero-description">
+      Build professional English, communication and career skills
+      for aviation, travel, hospitality and global opportunities.
     </p>
 
-    <div class="btn-row">
+    <button
+      class="aviation-gold-button"
+      onclick="showSection('aiTeacher')">
 
-      <button onclick="showSection('courses')">
-        📚 Explore Courses
-      </button>
+      🤖 Start Learning with AI Teacher
 
-      <button
-        class="gold"
-        onclick="showSection('practice')">
-        🗣️ Start Practice
-      </button>
+    </button>
+
+  </div>
+
+
+  <!-- FLIGHT STYLE INFORMATION BAR -->
+
+  <div class="aviation-status-bar">
+
+    <div class="aviation-status-item">
+
+      <span class="aviation-status-label">
+        Academy
+      </span>
+
+      <span class="aviation-status-value">
+        EXPERT SYNC
+      </span>
+
+    </div>
+
+
+    <div class="aviation-status-item">
+
+      <span class="aviation-status-label">
+        Destination
+      </span>
+
+      <span class="aviation-status-value">
+        GLOBAL CAREER
+      </span>
+
+    </div>
+
+
+    <div class="aviation-status-item">
+
+      <span class="aviation-status-label">
+        Status
+      </span>
+
+      <span class="aviation-status-value">
+        BOARDING ✓
+      </span>
 
     </div>
 
   </div>
 
 
-  <div class="stats">
+  <!-- LEARNING SERVICES -->
 
-    <div class="stat">
-      <strong>6+</strong>
-      <span>Skill Areas</span>
-    </div>
-
-    <div class="stat">
-      <strong>₹500</strong>
-      <span>Monthly Fee</span>
-    </div>
-
-    <div class="stat">
-      <strong>100%</strong>
-      <span>Practical Focus</span>
-    </div>
-
-  </div>
+  <h2 class="aviation-section-heading">
+    Your Learning <span>Journey</span>
+  </h2>
 
 
-  <div class="quick-grid">
+  <div class="aviation-feature-grid">
+
+
+    <!-- AI TEACHER -->
 
     <div
-      class="quick-card"
+      class="aviation-feature-card primary"
+      onclick="showSection('aiTeacher')">
+
+      <div class="aviation-feature-icon">
+        🤖
+      </div>
+
+      <h3>
+        AI English Teacher
+      </h3>
+
+      <p>
+        Talk with Khan or Khanam
+      </p>
+
+    </div>
+
+
+    <!-- AVIATION ENGLISH -->
+
+    <div
+      class="aviation-feature-card"
       onclick="showSection('courses')">
 
-      <div class="icon">📚</div>
+      <div class="aviation-feature-icon">
+        ✈️
+      </div>
 
-      <h3>Courses</h3>
+      <h3>
+        Aviation English
+      </h3>
 
-      <p>Learn English & career skills</p>
+      <p>
+        Airline, airport & cabin communication
+      </p>
 
     </div>
 
 
+    <!-- INTERVIEW -->
+
     <div
-      class="quick-card"
+      class="aviation-feature-card"
       onclick="showSection('practice')">
 
-      <div class="icon">🗣️</div>
+      <div class="aviation-feature-icon">
+        👔
+      </div>
 
-      <h3>Practice</h3>
+      <h3>
+        Interview Preparation
+      </h3>
 
-      <p>Improve daily communication</p>
+      <p>
+        Airlines, cabin crew & customer service
+      </p>
 
     </div>
 
 
+    <!-- SPEAKING -->
+
     <div
-      class="quick-card"
+      class="aviation-feature-card primary"
+      onclick="showSection('practice')">
+
+      <div class="aviation-feature-icon">
+        🎤
+      </div>
+
+      <h3>
+        Speaking Practice
+      </h3>
+
+      <p>
+        Build fluency and confidence
+      </p>
+
+    </div>
+
+
+    <!-- COURSES -->
+
+    <div
+      class="aviation-feature-card"
+      onclick="showSection('courses')">
+
+      <div class="aviation-feature-icon">
+        📚
+      </div>
+
+      <h3>
+        English Courses
+      </h3>
+
+      <p>
+        Grammar, vocabulary & IELTS
+      </p>
+
+    </div>
+
+
+    <!-- JOBS -->
+
+    <div
+      class="aviation-feature-card"
       onclick="showSection('jobs')">
 
-      <div class="icon">💼</div>
+      <div class="aviation-feature-icon">
+        💼
+      </div>
 
-      <h3>Jobs</h3>
+      <h3>
+        Career & Jobs
+      </h3>
 
-      <p>Career opportunities & updates</p>
+      <p>
+        Explore career opportunities
+      </p>
 
     </div>
 
+
+    <!-- DASHBOARD -->
 
     <div
-      class="quick-card"
+      class="aviation-feature-card"
+      onclick="showSection('dashboard')">
+
+      <div class="aviation-feature-icon">
+        🎓
+      </div>
+
+      <h3>
+        Student Dashboard
+      </h3>
+
+      <p>
+        Track learning and practice
+      </p>
+
+    </div>
+
+
+    <!-- LOCATION -->
+
+    <div
+      class="aviation-feature-card"
       onclick="showSection('profile')">
 
-      <div class="icon">📍</div>
+      <div class="aviation-feature-icon">
+        📍
+      </div>
 
-      <h3>Visit Us</h3>
+      <h3>
+        Academy
+      </h3>
 
-      <p>Find our academy</p>
+      <p>
+        Contact & location information
+      </p>
 
     </div>
 
   </div>
 
 
-  <div class="card">
+  <!-- AI TEACHER PROMOTION -->
 
-    <h3>🎯 Why Expert Sync?</h3>
+  <div class="aviation-banner">
 
-    <ul>
+    <h3>
+      👨‍✈️ Khan & 👩‍✈️ Khanam
+    </h3>
 
-      <li>Spoken English & Communication</li>
+    <p>
+      Meet your virtual English teachers.
+      Practice conversation, interviews,
+      aviation English and professional communication.
+    </p>
 
-      <li>Grammar & Vocabulary</li>
+    <button
+      class="aviation-gold-button"
+      onclick="showSection('aiTeacher')">
 
-      <li>Interview Preparation</li>
+      Start AI Practice →
 
-      <li>Customer Support & BPO English</li>
-
-      <li>Public Speaking</li>
-
-      <li>IELTS Preparation</li>
-
-    </ul>
+    </button>
 
   </div>
 
 
+  <!-- FEES -->
+
   <div class="card">
 
-    <h3>💰 Simple & Affordable Fees</h3>
+    <h3>
+      🎫 Academy Learning Pass
+    </h3>
 
     <div class="price-box">
 
       <div class="price-card">
 
-        <small>Admission Fee</small>
+        <small>
+          Admission Fee
+        </small>
 
-        <div class="price">₹200</div>
+        <div class="price">
+          ₹200
+        </div>
 
       </div>
 
+
       <div class="price-card">
 
-        <small>Monthly Fee</small>
+        <small>
+          Monthly Classes
+        </small>
 
-        <div class="price">₹500</div>
+        <div class="price">
+          ₹500
+        </div>
 
       </div>
 
     </div>
 
+    <p style="
+      margin-top:12px;
+      color:#687386;
+      font-size:12px;
+      line-height:1.5;
+    ">
+      AI Virtual Teacher subscription plans will be
+      introduced separately.
+    </p>
+
   </div>
 
 
+  <!-- LOCATION -->
+
   <div class="location">
 
-    <h3>📍 Academy Location</h3>
+    <h3>
+      📍 Expert Sync — Bhopal
+    </h3>
 
     <p>
       <strong>
@@ -1307,15 +2080,21 @@ footer {
       class="btn"
       href="https://www.google.com/maps/search/?api=1&query=7CC3%2BJQR%2C%20Bhopal%2C%20Madhya%20Pradesh"
       target="_blank">
+
       🧭 Get Directions
+
     </a>
 
   </div>
 
 
+  <!-- CONTACT -->
+
   <div class="card contact-box">
 
-    <h3>📱 Contact Expert Sync</h3>
+    <h3>
+      📱 Contact Expert Sync
+    </h3>
 
     <p class="contact-number">
       📞 9755298132
@@ -1331,23 +2110,31 @@ footer {
       class="btn green"
       href="https://wa.me/919713177663"
       target="_blank">
+
       💬 Chat on WhatsApp
+
     </a>
 
   </div>
 
+
+  <!-- CAREER MESSAGE -->
+
+  <div class="aviation-banner">
+
+    <h3>
+      ✈ Your Career Journey Starts Here
+    </h3>
+
+    <p>
+      Learn today. Practice every day.
+      Build the communication skills required
+      for global opportunities.
+    </p>
+
+  </div>
+
 </section>
-
-<!-- Student Dashboard Button -->
-
-<button class="dashboard-button" onclick="showSection('dashboard')">
-  🎓 Student Dashboard
-</button>  
-  <!-- AI English Teacher Button -->
-
-<button class="dashboard-button" onclick="showSection('aiTeacher')">
-  🤖 AI English Teacher — Talk with Khan or Khanam
-</button>
 <!-- ================= COURSES ================= -->
 
 <section id="courses" class="section">
