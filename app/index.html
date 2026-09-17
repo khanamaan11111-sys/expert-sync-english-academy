@@ -1462,7 +1462,11 @@ footer {
     <div class="practice-box">
 
       <h3>💼 Interview Q&A</h3>
-
+<div
+  id="interviewCounter"
+  style="text-align:center; font-weight:700; color:#063b91; margin-bottom:10px;">
+  Question 1 of 100
+</div>
       <div
         id="interviewQuestion"
         class="question">
@@ -3471,9 +3475,21 @@ function loadInterviewQuestion() {
     'interviewAnswer'
   ).textContent =
     interviewQuestions[interviewIndex].a;
+
+  /* Update Interview Counter */
+
+  const counter =
+    document.getElementById('interviewCounter');
+
+  if (counter) {
+    counter.textContent =
+      "Question "
+      + (interviewIndex + 1)
+      + " of "
+      + interviewQuestions.length;
+  }
+
 }
-
-
 function showInterviewAnswer() {
 
   document.getElementById(
