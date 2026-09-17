@@ -4599,21 +4599,205 @@ function sendAIMessage() {
 }
 
 
-/* Temporary voice functions */
+/* ================= REAL VOICE FUNCTIONS ================= */
+
+let lastAIMessage = "";
+
+
+/* STUDENT SPEECH TO TEXT */
 
 function startStudentVoice() {
 
-  alert(
-    "🎤 Voice conversation will be activated when we connect the AI Teacher voice system."
-  );
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+
+    alert(
+      "Speech recognition is not supported in this browser. Please try Google Chrome."
+    );
+
+    return;
+  }
+
+
+  const recognition = new SpeechRecognition();
+
+  recognition.lang = "en-US";
+
+  recognition.interimResults = false;
+
+  recognition.continuous = false;
+
+
+  recognition.onstart = function() {
+
+    const input =
+      document.getElementById("aiStudentMessage");
+
+    input.placeholder =
+      "🎤 Listening... Please speak now.";
+
+  };
+
+
+  recognition.onresult = function(event) {
+
+    const spokenText =
+      event.results[0][0].transcript;
+
+    const input =
+      document.getElementById("aiStudentMessage");
+
+    input.value = spokenText;
+
+  };
+
+
+  recognition.onerror = function(event) {
+
+    alert(
+      "Microphone error: " + event.error
+    );
+
+  };
+
+
+  recognition.onend = function() {
+
+    const input =
+      document.getElementById("aiStudentMessage");
+
+    input.placeholder =
+      "Type your message in English...";
+
+  };
+
+
+  recognition.start();
 
 }
 
 
+/* AI TEACHER TEXT TO SPEECH */
+
 function speakLastAIMessage() {
 
-  alert(
-    "🔊 AI Teacher voice will be activated in the voice development stage."
+  if (!("speechSynthesis" in window)) {
+
+    alert(
+      "Voice playback is not supported in this browser."
+    );
+
+    return;
+  }
+
+
+  if (!lastAIMessage) {
+
+    const messages =
+      document.querySelectorAll(
+        ".teacher-message p"
+      );
+
+    if (messages.length > 0) {
+
+      lastAIMessage =
+        messages[
+          messages.length - 1
+        ].textContent;
+
+    }
+
+  }
+
+
+  if (!lastAIMessage) {
+
+    alert(
+      "There is no teacher message to read yet."
+    );
+
+    return;
+  }
+
+
+  window.speechSynthesis.cancel();
+
+
+  const speech =
+    new SpeechSynthesisUtterance(
+      lastAIMessage
+    );
+
+
+  speech.lang = "en-US";
+
+  speech.rate = 0.9;
+
+  speech.pitch =
+    selectedAITeacher === "Khanam"
+      ? 1.1
+      : 0.9;
+
+
+  const voices =
+    window.speechSynthesis.getVoices();
+
+
+  if (voices.length > 0) {
+
+    let preferredVoice;
+
+
+    if (selectedAITeacher === "Khanam") {
+
+      preferredVoice =
+        voices.find(function(voice) {
+
+          return (
+            voice.lang.startsWith("en") &&
+            (
+              voice.name.toLowerCase().includes("female") ||
+              voice.name.toLowerCase().includes("zira") ||
+              voice.name.toLowerCase().includes("samantha")
+            )
+          );
+
+        });
+
+    } else {
+
+      preferredVoice =
+        voices.find(function(voice) {
+
+          return (
+            voice.lang.startsWith("en") &&
+            (
+              voice.name.toLowerCase().includes("male") ||
+              voice.name.toLowerCase().includes("david") ||
+              voice.name.toLowerCase().includes("daniel")
+            )
+          );
+
+        });
+
+    }
+
+
+    if (preferredVoice) {
+
+      speech.voice =
+        preferredVoice;
+
+    }
+
+  }
+
+
+  window.speechSynthesis.speak(
+    speech
   );
 
 }
