@@ -759,6 +759,146 @@ footer {
   .dashboard-stat .stat-number {
     font-size: 21px;
   }
+}  
+  /* ================= AI ENGLISH TEACHER ================= */
+
+.ai-teacher-header {
+  background: linear-gradient(135deg, #063b91, #0b63ce);
+  color: white;
+  padding: 24px 18px;
+  border-radius: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+}
+
+.ai-teacher-header h2 {
+  margin: 0 0 8px;
+  font-size: 26px;
+}
+
+.ai-teacher-header p {
+  margin: 0;
+  line-height: 1.6;
+  opacity: 0.95;
+}
+
+.teacher-select-title {
+  text-align: center;
+  color: #063b91;
+  margin: 20px 0;
+}
+
+.teacher-card {
+  background: white;
+  border: 1px solid #e3e8ef;
+  border-radius: 20px;
+  padding: 22px 18px;
+  margin-bottom: 18px;
+  text-align: center;
+  box-shadow: 0 7px 20px rgba(0,0,0,0.08);
+}
+
+.teacher-card h2 {
+  color: #063b91;
+  margin: 10px 0 4px;
+  font-size: 25px;
+}
+
+.teacher-avatar {
+  width: 90px;
+  height: 90px;
+  margin: auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  border: 4px solid #d4af37;
+}
+
+.male-avatar {
+  background: #eaf3ff;
+}
+
+.female-avatar {
+  background: #fff3f7;
+}
+
+.teacher-role {
+  color: #d4af37;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.teacher-card p {
+  color: #555;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.teacher-select-button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #063b91, #0b63ce);
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.teacher-select-button:active {
+  transform: scale(0.98);
+}
+
+.teacher-features {
+  background: #f7faff;
+  border-left: 5px solid #d4af37;
+  border-radius: 16px;
+  padding: 18px;
+  margin-top: 20px;
+  margin-bottom: 25px;
+}
+
+.teacher-features h3 {
+  color: #063b91;
+  margin-top: 0;
+}
+
+.teacher-features p {
+  background: white;
+  padding: 11px;
+  margin: 8px 0;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+/* Teacher selection highlight */
+
+.teacher-card:hover {
+  border-color: #d4af37;
+}
+
+/* Mobile */
+
+@media (max-width: 480px) {
+
+  .ai-teacher-header h2 {
+    font-size: 23px;
+  }
+
+  .teacher-card {
+    padding: 18px 14px;
+  }
+
+  .teacher-avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 42px;
+  }
 }
 </style>
 </head>
@@ -993,6 +1133,11 @@ footer {
 
 <button class="dashboard-button" onclick="showSection('dashboard')">
   🎓 Student Dashboard
+</button>  
+  <!-- AI English Teacher Button -->
+
+<button class="dashboard-button" onclick="showSection('aiTeacher')">
+  🤖 AI English Teacher — Talk with Khan or Khanam
 </button>
 <!-- ================= COURSES ================= -->
 
@@ -1722,6 +1867,100 @@ footer {
     <button class="dashboard-button" onclick="showSection('practice')">
       🚀 Continue Practice
     </button>
+
+  </div>
+
+</section>  
+  <!-- ================= AI ENGLISH TEACHER ================= -->
+
+<section id="aiTeacher" class="section">
+
+  <div class="ai-teacher-header">
+    <h2>🤖 AI English Teacher</h2>
+    <p>
+      Choose your personal AI English teacher and start learning
+      through interactive conversation.
+    </p>
+  </div>
+
+  <div id="teacherSelection">
+
+    <h3 class="teacher-select-title">
+      Choose Your AI Teacher
+    </h3>
+
+    <!-- KHAN -->
+
+    <div class="teacher-card">
+
+      <div class="teacher-avatar male-avatar">
+        👨‍✈️
+      </div>
+
+      <h2>Khan</h2>
+
+      <div class="teacher-role">
+        Male AI English Teacher
+      </div>
+
+      <p>
+        Practice English conversation, grammar, vocabulary,
+        pronunciation, interviews, customer service,
+        aviation and hospitality English with Khan.
+      </p>
+
+      <button
+        class="teacher-select-button"
+        onclick="selectAITeacher('Khan')">
+        👨‍✈️ Learn with Khan
+      </button>
+
+    </div>
+
+
+    <!-- KHANAM -->
+
+    <div class="teacher-card">
+
+      <div class="teacher-avatar female-avatar">
+        👩‍✈️
+      </div>
+
+      <h2>Khanam</h2>
+
+      <div class="teacher-role">
+        Female AI English Teacher
+      </div>
+
+      <p>
+        Practice English conversation, grammar, vocabulary,
+        pronunciation, interviews, customer service,
+        aviation and hospitality English with Khanam.
+      </p>
+
+      <button
+        class="teacher-select-button"
+        onclick="selectAITeacher('Khanam')">
+        👩‍✈️ Learn with Khanam
+      </button>
+
+    </div>
+
+
+    <div class="teacher-features">
+
+      <h3>🎓 What You Can Learn</h3>
+
+      <p>💬 English Conversation</p>
+      <p>📚 Grammar & Vocabulary</p>
+      <p>🎤 Speaking & Pronunciation</p>
+      <p>💼 Interview Preparation</p>
+      <p>✈️ Aviation English</p>
+      <p>🏨 Hospitality English</p>
+      <p>🎧 Customer Service English</p>
+      <p>📝 IELTS Practice</p>
+
+    </div>
 
   </div>
 
@@ -3805,7 +4044,85 @@ function recordPracticeSession() {
   updateDashboard();
 }
 
-updateDashboard();
+updateDashboard();  
+  /* ================= AI TEACHER SELECTION ================= */
+
+let selectedAITeacher =
+  localStorage.getItem("esaSelectedTeacher") || "";
+
+function selectAITeacher(teacherName) {
+
+  selectedAITeacher = teacherName;
+
+  localStorage.setItem(
+    "esaSelectedTeacher",
+    teacherName
+  );
+
+  if (teacherName === "Khan") {
+
+    alert(
+      "👨‍✈️ Welcome! You selected Khan as your AI English Teacher."
+    );
+
+  } else {
+
+    alert(
+      "👩‍✈️ Welcome! You selected Khanam as your AI English Teacher."
+    );
+
+  }
+
+  updateTeacherSelection();
+}
+
+
+function updateTeacherSelection() {
+
+  const buttons =
+    document.querySelectorAll(".teacher-select-button");
+
+  buttons.forEach(function(button) {
+
+    button.style.background =
+      "linear-gradient(135deg, #063b91, #0b63ce)";
+
+  });
+
+
+  if (selectedAITeacher === "Khan") {
+
+    if (buttons[0]) {
+      buttons[0].innerHTML =
+        "✅ Khan Selected";
+    }
+
+    if (buttons[1]) {
+      buttons[1].innerHTML =
+        "👩‍✈️ Learn with Khanam";
+    }
+
+  }
+
+
+  if (selectedAITeacher === "Khanam") {
+
+    if (buttons[0]) {
+      buttons[0].innerHTML =
+        "👨‍✈️ Learn with Khan";
+    }
+
+    if (buttons[1]) {
+      buttons[1].innerHTML =
+        "✅ Khanam Selected";
+    }
+
+  }
+
+}
+
+
+updateTeacherSelection();
 /* ================= INITIALIZE ================= */
 
 loadInterviewQuestion();
