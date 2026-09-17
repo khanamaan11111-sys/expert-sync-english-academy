@@ -1697,6 +1697,31 @@ body {
   }
 
 }
+  /* ================= AVIATION HERO IMAGE ================= */
+
+.aviation-hero-image {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto 20px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 12px 35px rgba(0, 35, 90, 0.22);
+  background: #062b63;
+}
+
+.aviation-hero-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+@media (max-width: 600px) {
+  .aviation-hero-image {
+    border-radius: 16px;
+    margin-bottom: 16px;
+  }
+}
 </style>
 </head>
 
@@ -1725,39 +1750,14 @@ body {
 <!-- ================= AVIATION HOME ================= -->
 
 <section id="home" class="section active">
+<!-- AVIATION HERO IMAGE -->
 
-  <!-- PREMIUM AVIATION HERO -->
-
-  <div class="aviation-hero">
-
-    <div class="aviation-eyebrow">
-      ✈ EXPERT SYNC ENGLISH ACADEMY
-    </div>
-
-    <h1>
-      Welcome Aboard
-    </h1>
-
-    <div class="aviation-gold-line"></div>
-
-    <div class="aviation-hero-tagline">
-      Fly Higher with English
-    </div>
-
-    <p class="aviation-hero-description">
-      Build professional English, communication and career skills
-      for aviation, travel, hospitality and global opportunities.
-    </p>
-
-    <button
-      class="aviation-gold-button"
-      onclick="showSection('aiTeacher')">
-
-      🤖 Start Learning with AI Teacher
-
-    </button>
-
-  </div>
+<div class="aviation-hero-image">
+  <img
+    src="images/hero-aviation.png"
+    alt="Expert Sync English Academy - Aviation English Learning"
+  >
+</div>
 
 
   <!-- FLIGHT STYLE INFORMATION BAR -->
