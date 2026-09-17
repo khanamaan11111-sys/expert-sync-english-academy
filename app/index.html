@@ -1481,7 +1481,11 @@ footer {
       </div>
 
       <br>
-
+<button
+  class="outline"
+  onclick="previousInterviewQuestion()">
+  ⬅️ Previous Question
+</button>
       <button onclick="nextInterviewQuestion()">
         🔄 Next Question
       </button>
@@ -3477,7 +3481,17 @@ function showInterviewAnswer() {
   ).style.display = "block";
 }
 
+function previousInterviewQuestion() {
 
+  interviewIndex--;
+
+  if (interviewIndex < 0) {
+    interviewIndex =
+      interviewQuestions.length - 1;
+  }
+
+  loadInterviewQuestion();
+}
 function nextInterviewQuestion() {
 
   interviewIndex++;
