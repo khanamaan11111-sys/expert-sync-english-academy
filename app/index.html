@@ -12,6 +12,9 @@
 <meta name="description" content="Expert Sync English Academy - Speak English with Confidence">
 <title>Expert Sync English Academy</title>
 
+  <!-- Supabase JavaScript Library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 * {
   box-sizing: border-box;
@@ -6320,6 +6323,19 @@ if (studentSignupTab) {
   );
 
 }
+</script>
+
+  <!-- ================= SUPABASE CONNECTION ================= -->
+<script>
+const SUPABASE_URL = "https://bhxmbbkgkaxikisugrcs.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_RvYvEhsMIFM0mW6M9SHiVw_d2NSlhnz";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+console.log("Expert Sync Student App: Supabase connected.");
 </script>
 
 </body>
