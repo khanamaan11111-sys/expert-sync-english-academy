@@ -1,0 +1,14 @@
+{
+  "name": "Expert Sync English Academy",
+  "short_name": "Expert Sync",
+  "description": "Aviation English, communication, interview preparation and career learning with Expert Sync English Academy.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#061f46",
+  "theme_color": "#063b91",
+  "categories": [
+    "education"
+  ]
+}
