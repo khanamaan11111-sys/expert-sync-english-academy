@@ -747,6 +747,226 @@ ul {
     gap: 4px;
   }
 }
+  /* ================= STUDENT ACCOUNT GATE ================= */
+
+.student-account-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  background:
+    radial-gradient(circle at top right, rgba(26,105,210,.45), transparent 35%),
+    linear-gradient(145deg, #020f24, #052b68 55%, #063b91);
+  overflow-y: auto;
+  padding: 35px 18px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.account-terminal {
+  width: 100%;
+  max-width: 480px;
+  margin: auto;
+  background: #ffffff;
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: 0 25px 70px rgba(0,0,0,.35);
+  border: 1px solid rgba(255,213,74,.6);
+}
+
+.account-airline-strip {
+  background: #041b3d;
+  color: #ffd54a;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px 20px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+}
+
+.account-logo {
+  width: 68px;
+  height: 68px;
+  margin: 26px auto 10px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #063b91, #041b3d);
+  border: 3px solid #ffd54a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffd54a;
+  font-size: 30px;
+  box-shadow: 0 8px 22px rgba(6,59,145,.22);
+}
+
+.account-eyebrow {
+  text-align: center;
+  color: #d6a900;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 7px;
+}
+
+.account-terminal > h1 {
+  text-align: center;
+  color: #041b3d;
+  font-size: 25px;
+  padding: 0 20px;
+  margin: 0;
+}
+
+.account-subtitle {
+  text-align: center;
+  color: #68758a;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 8px 28px 20px;
+}
+
+.account-tabs {
+  margin: 0 22px;
+  padding: 5px;
+  background: #edf3fc;
+  border-radius: 13px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.account-tab {
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 8px;
+  background: transparent;
+  color: #526078;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.account-tab.active {
+  background: #063b91;
+  color: white;
+  box-shadow: 0 5px 12px rgba(6,59,145,.2);
+}
+
+.account-panel {
+  display: none;
+  padding: 24px 24px 10px;
+}
+
+.account-panel.active {
+  display: block;
+}
+
+.account-panel h2 {
+  color: #041b3d;
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.account-help {
+  color: #748096;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.account-panel label {
+  display: block;
+  color: #24334d;
+  font-size: 12px;
+  font-weight: 700;
+  margin: 14px 0 7px;
+}
+
+.account-panel input {
+  width: 100%;
+  height: 48px;
+  border: 1px solid #ccd8e8;
+  border-radius: 11px;
+  padding: 0 14px;
+  background: #f9fbff;
+  color: #172033;
+  font-size: 14px;
+  outline: none;
+  transition: .2s ease;
+}
+
+.account-panel input:focus {
+  border-color: #063b91;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(6,59,145,.1);
+}
+
+.account-primary-button {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 22px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #e2b522, #ffd54a);
+  color: #041b3d;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(214,169,0,.25);
+}
+
+.account-primary-button:active {
+  transform: scale(.98);
+}
+
+.account-security-note {
+  margin: 12px 24px 0;
+  padding: 12px;
+  border-radius: 10px;
+  background: #f1f6fd;
+  color: #526078;
+  text-align: center;
+  font-size: 11px;
+}
+
+.account-footer {
+  margin-top: 18px;
+  background: #041b3d;
+  color: #ffd54a;
+  text-align: center;
+  padding: 14px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 500px) {
+
+  .student-account-gate {
+    padding: 18px 12px;
+  }
+
+  .account-terminal {
+    border-radius: 20px;
+  }
+
+  .account-terminal > h1 {
+    font-size: 21px;
+  }
+
+  .account-panel {
+    padding: 20px 18px 8px;
+  }
+
+  .account-tabs {
+    margin: 0 18px;
+  }
+
+  .account-security-note {
+    margin-left: 18px;
+    margin-right: 18px;
+  }
+}
 /* ================= BOTTOM NAV ================= */
 
 .bottom-nav {
@@ -1928,7 +2148,155 @@ body {
 </style>
 </head>
 
-<body>
+<body> 
+  <!-- ================= STUDENT ACCOUNT GATE ================= -->
+
+<div id="studentAccountGate" class="student-account-gate">
+
+  <div class="account-terminal">
+
+    <div class="account-airline-strip">
+      <span>✈ EXPERT SYNC</span>
+      <span>STUDENT TERMINAL</span>
+    </div>
+
+    <div class="account-logo">✈</div>
+
+    <p class="account-eyebrow">
+      WELCOME ABOARD
+    </p>
+
+    <h1>Expert Sync English Academy</h1>
+
+    <p class="account-subtitle">
+      Your journey to confident English starts here.
+    </p>
+
+    <div class="account-tabs">
+
+      <button
+        type="button"
+        id="loginTabButton"
+        class="account-tab active">
+        Login
+      </button>
+
+      <button
+        type="button"
+        id="signupTabButton"
+        class="account-tab">
+        Create Account
+      </button>
+
+    </div>
+
+
+    <!-- LOGIN -->
+
+    <div id="studentLoginPanel" class="account-panel active">
+
+      <h2>Student Login</h2>
+
+      <p class="account-help">
+        Welcome back. Continue your learning journey.
+      </p>
+
+      <label for="loginEmail">
+        Email
+      </label>
+
+      <input
+        type="email"
+        id="loginEmail"
+        placeholder="Enter your email"
+        autocomplete="email"
+      >
+
+      <label for="loginPassword">
+        Password
+      </label>
+
+      <input
+        type="password"
+        id="loginPassword"
+        placeholder="Enter your password"
+        autocomplete="current-password"
+      >
+
+      <button
+        type="button"
+        class="account-primary-button"
+        id="studentLoginButton">
+        ✈ Login & Continue
+      </button>
+
+    </div>
+
+
+    <!-- SIGN UP -->
+
+    <div id="studentSignupPanel" class="account-panel">
+
+      <h2>Create Student Account</h2>
+
+      <p class="account-help">
+        Create your learning profile and receive your boarding pass.
+      </p>
+
+      <label for="signupName">
+        Full Name
+      </label>
+
+      <input
+        type="text"
+        id="signupName"
+        placeholder="Enter your full name"
+        autocomplete="name"
+      >
+
+      <label for="signupEmail">
+        Email
+      </label>
+
+      <input
+        type="email"
+        id="signupEmail"
+        placeholder="Enter your email"
+        autocomplete="email"
+      >
+
+      <label for="signupPassword">
+        Create Password
+      </label>
+
+      <input
+        type="password"
+        id="signupPassword"
+        placeholder="Create a password"
+        autocomplete="new-password"
+      >
+
+      <button
+        type="button"
+        class="account-primary-button"
+        id="studentSignupButton">
+        🎫 Create My Boarding Pass
+      </button>
+
+    </div>
+
+
+    <div class="account-security-note">
+      🔒 Student Account • Learning Progress • Personal Dashboard
+    </div>
+
+    <div class="account-footer">
+      EXPERT SYNC • FLY HIGHER WITH ENGLISH
+    </div>
+
+  </div>
+
+</div>
 
 <header>
 
@@ -5877,7 +6245,81 @@ function speakLastAIMessage() {
 /* ================= INITIALIZE ================= */
 
 loadInterviewQuestion();
+/* ================= STUDENT ACCOUNT UI ================= */
 
+function showStudentLogin() {
+
+  const loginPanel =
+    document.getElementById("studentLoginPanel");
+
+  const signupPanel =
+    document.getElementById("studentSignupPanel");
+
+  const loginTab =
+    document.getElementById("loginTabButton");
+
+  const signupTab =
+    document.getElementById("signupTabButton");
+
+  if (!loginPanel || !signupPanel) return;
+
+  loginPanel.classList.add("active");
+  signupPanel.classList.remove("active");
+
+  loginTab.classList.add("active");
+  signupTab.classList.remove("active");
+}
+
+
+function showStudentSignup() {
+
+  const loginPanel =
+    document.getElementById("studentLoginPanel");
+
+  const signupPanel =
+    document.getElementById("studentSignupPanel");
+
+  const loginTab =
+    document.getElementById("loginTabButton");
+
+  const signupTab =
+    document.getElementById("signupTabButton");
+
+  if (!loginPanel || !signupPanel) return;
+
+  signupPanel.classList.add("active");
+  loginPanel.classList.remove("active");
+
+  signupTab.classList.add("active");
+  loginTab.classList.remove("active");
+}
+
+
+const studentLoginTab =
+  document.getElementById("loginTabButton");
+
+const studentSignupTab =
+  document.getElementById("signupTabButton");
+
+
+if (studentLoginTab) {
+
+  studentLoginTab.addEventListener(
+    "click",
+    showStudentLogin
+  );
+
+}
+
+
+if (studentSignupTab) {
+
+  studentSignupTab.addEventListener(
+    "click",
+    showStudentSignup
+  );
+
+}
 </script>
 
 </body>
