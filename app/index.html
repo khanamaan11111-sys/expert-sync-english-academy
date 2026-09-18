@@ -538,25 +538,31 @@ ul {
 .bottom-nav {
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
-  height: 75px;
-  background: white;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 1200px;
+  min-height: 76px;
+  padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
+  background: linear-gradient(135deg, #041b3d, #063b91);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  box-shadow: 0 -4px 18px rgba(0,0,0,.12);
-  z-index: 100;
-  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 30px rgba(0, 35, 90, 0.25);
+  z-index: 1000;
+  border-top: 2px solid #d6a900;
+  border-radius: 22px 22px 0 0;
 }
-
 .nav-item {
   border: none;
   background: transparent;
-  color: #666;
+  color: rgba(255,255,255,.78);
   font-size: 11px;
   padding: 6px 5px;
   margin: 0;
+  min-width: 48px;
+  cursor: pointer;
+  transition: .2s ease;
 }
 
 .nav-item span {
@@ -566,8 +572,12 @@ ul {
 }
 
 .nav-item.active {
-  color: var(--blue);
-  font-weight: bold;
+  color: #ffd54a;
+  font-weight: 700;
+  transform: translateY(-2px);
+}
+
+body {  padding-bottom: calc(100px + env(safe-area-inset-bottom));
 }
 
 footer {
