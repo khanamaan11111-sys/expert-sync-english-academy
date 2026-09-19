@@ -6336,6 +6336,92 @@ const supabaseClient = window.supabase.createClient(
 );
 
 console.log("Expert Sync Student App: Supabase connected.");
+  /* ================= REAL STUDENT SIGN UP ================= */
+
+const studentSignupButton =
+  document.getElementById("studentSignupButton");
+
+if (studentSignupButton) {
+
+  studentSignupButton.addEventListener("click", async function () {
+
+    const name =
+      document.getElementById("signupName").value.trim();
+
+    const email =
+      document.getElementById("signupEmail").value.trim();
+
+    const password =
+      document.getElementById("signupPassword").value;
+
+    if (!name || !email || !password) {
+      alert("Please enter your full name, email and password.");
+      return;
+    }
+
+    if (password.length < 8) {
+      alert("Please create a password with at least 8 characters.");
+      return;
+    }
+
+    studentSignupButton.disabled = true;
+    studentSignupButton.textContent = "Creating Account...";
+
+    try {
+
+      const { data, error } =
+        await supabaseClient.auth.signUp({
+          email: email,
+          password: password,
+          options: {
+            data: {
+              full_name: name
+            }
+          }
+        });
+
+      if (error) {
+        alert("Account could not be created: " + error.message);
+        return;
+      }
+
+      if (data.user) {
+
+        const boardingName =
+          document.getElementById("boardingStudentName");
+
+        if (boardingName) {
+          boardingName.textContent = name.toUpperCase();
+        }
+
+        alert(
+          "Welcome aboard, " + name +
+          "! Your student account has been created."
+        );
+
+        document.getElementById("studentAccountGate").style.display =
+          "none";
+      }
+
+    } catch (error) {
+
+      console.error("Student signup error:", error);
+
+      alert(
+        "Something went wrong while creating your account."
+      );
+
+    } finally {
+
+      studentSignupButton.disabled = false;
+      studentSignupButton.textContent =
+        "🎫 Create My Boarding Pass";
+
+    }
+
+  });
+
+}
 </script>
 
 </body>
