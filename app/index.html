@@ -6389,6 +6389,65 @@ const supabaseClient = window.supabase.createClient(
 );
 
 console.log("Expert Sync Student App: Supabase connected.");
+  
+  /* ================= RESTORE STUDENT SESSION ================= */
+
+async function restoreStudentSession() {
+
+  try {
+
+    const { data, error } =
+      await supabaseClient.auth.getSession();
+
+    if (error) {
+      console.error("Session check error:", error);
+      return;
+    }
+
+    const session = data.session;
+
+    if (!session || !session.user) {
+      return;
+    }
+
+    const user = session.user;
+
+    const studentName =
+      user.user_metadata?.full_name || "STUDENT";
+
+    const boardingName =
+      document.getElementById("boardingStudentName");
+
+    if (boardingName) {
+      boardingName.textContent =
+        studentName.toUpperCase();
+    }
+
+    const accountGate =
+      document.getElementById("studentAccountGate");
+
+    if (accountGate) {
+      accountGate.style.display = "none";
+    }
+
+    console.log(
+      "Student session restored:",
+      studentName
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Could not restore student session:",
+      error
+    );
+
+  }
+
+}
+
+restoreStudentSession();
+  
   /* ================= REAL STUDENT SIGN UP ================= */
 
 const studentSignupButton =
