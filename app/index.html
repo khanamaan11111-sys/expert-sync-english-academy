@@ -5628,6 +5628,8 @@ function nextInterviewQuestion() {
 
 const customerQuestions = [
 
+  /* ================= CUSTOMER SUPPORT 1–35 ================= */
+
   {
     q: "A customer is angry because their issue has not been resolved. What should you do?",
     options: [
@@ -5640,14 +5642,36 @@ const customerQuestions = [
   },
 
   {
-    q: "A customer asks something you do not know. What should you do?",
+    q: "A customer asks a question and you do not know the answer. What should you do?",
     options: [
-      "Make up an answer.",
+      "Guess the answer.",
       "Ignore the question.",
-      "Tell the customer you will check the correct information and get back to them.",
+      "Tell the customer you will verify the correct information and assist them.",
       "End the conversation."
     ],
     answer: 2
+  },
+
+  {
+    q: "What is the best way to start a customer-service call?",
+    options: [
+      "Ask the customer to speak quickly.",
+      "Introduce yourself professionally and offer assistance.",
+      "Immediately ask for payment.",
+      "Wait silently."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What does active listening mean in customer service?",
+    options: [
+      "Interrupting the customer frequently.",
+      "Listening carefully, understanding the concern and responding appropriately.",
+      "Talking more than the customer.",
+      "Ignoring unnecessary details."
+    ],
+    answer: 1
   },
 
   {
@@ -5655,36 +5679,1060 @@ const customerQuestions = [
     options: [
       "Speak faster.",
       "Use simple words, speak clearly and confirm understanding.",
-      "Ignore the customer.",
-      "Use complicated technical terms."
+      "Use complicated technical terms.",
+      "End the conversation."
     ],
     answer: 1
   },
 
   {
-    q: "A customer is waiting for a delayed service. What is the best response?",
+    q: "What should you do before placing a customer on hold?",
     options: [
-      "Give false information.",
+      "Put them on hold without saying anything.",
+      "Ask for permission and explain why the hold is required.",
+      "Disconnect the call.",
+      "Transfer the customer immediately."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What should you do after returning from hold?",
+    options: [
+      "Continue without explanation.",
+      "Thank the customer for waiting.",
+      "Ask why they are still on the call.",
+      "End the call."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What is empathy in customer service?",
+    options: [
+      "Agreeing with every customer demand.",
+      "Understanding the customer's feelings and responding appropriately.",
+      "Giving discounts to everyone.",
+      "Ignoring emotional customers."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A customer is shouting at you. What is the best response?",
+    options: [
+      "Shout back.",
+      "Remain calm, listen and focus on resolving the issue.",
+      "Disconnect immediately.",
+      "Laugh at the customer."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "When should a customer issue be escalated?",
+    options: [
+      "Whenever you do not want to handle it.",
+      "When it requires authority or expertise beyond your responsibility.",
+      "For every customer question.",
+      "Never."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What is the purpose of confirming customer details?",
+    options: [
+      "To make the conversation longer.",
+      "To ensure accuracy and protect customer information.",
+      "To avoid solving the problem.",
+      "To advertise products."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A customer complains about a delayed service. What should you do?",
+    options: [
       "Blame another department.",
-      "Explain the situation clearly, apologize for the inconvenience and provide the latest available information.",
-      "Tell them to wait without explanation."
+      "Acknowledge the inconvenience, provide accurate information and explain available options.",
+      "Give false information.",
+      "Ignore the complaint."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What does FCR mean in customer support?",
+    options: [
+      "First Customer Report.",
+      "First Contact Resolution.",
+      "Final Complaint Review.",
+      "Fast Customer Response."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What is CSAT commonly used to measure?",
+    options: [
+      "Employee attendance.",
+      "Customer satisfaction.",
+      "Call duration only.",
+      "Company expenses."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What does AHT commonly mean in a contact center?",
+    options: [
+      "Average Handle Time.",
+      "Automatic Help Technology.",
+      "Advanced Hiring Test.",
+      "Average Holiday Time."
+    ],
+    answer: 0
+  },
+
+  {
+    q: "A customer requests something that is against company policy. What should you do?",
+    options: [
+      "Break the policy.",
+      "Politely explain the policy and offer approved alternatives if available.",
+      "Argue with the customer.",
+      "Promise something you cannot provide."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Why is a professional tone important?",
+    options: [
+      "It makes calls longer.",
+      "It helps create respectful and clear communication.",
+      "It prevents customers from asking questions.",
+      "It allows you to avoid procedures."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What should you do if you make a mistake while assisting a customer?",
+    options: [
+      "Hide the mistake.",
+      "Acknowledge it, correct it and follow the appropriate process.",
+      "Blame the customer.",
+      "Delete the customer record."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "How should confidential customer information be handled?",
+    options: [
+      "Share it with friends.",
+      "Protect it and follow company privacy and security procedures.",
+      "Post it online.",
+      "Write it in a public place."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A customer keeps interrupting you. What should you do?",
+    options: [
+      "Become angry.",
+      "Remain patient and politely guide the conversation.",
+      "Disconnect immediately.",
+      "Stop responding."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What is the best way to explain a complicated process to a customer?",
+    options: [
+      "Use as much technical language as possible.",
+      "Explain it clearly in simple steps and check understanding.",
+      "Speak very quickly.",
+      "Tell the customer to search online."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A customer says they have contacted the company several times about the same issue. What should you do?",
+    options: [
+      "Tell them to call again later.",
+      "Acknowledge their frustration, review the history and work toward resolution.",
+      "Ignore previous contacts.",
+      "Blame another agent."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What should you do if a customer requests a supervisor?",
+    options: [
+      "Refuse every time.",
+      "Understand the concern and follow the approved escalation process when appropriate.",
+      "Disconnect the call.",
+      "Pretend to be the supervisor."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Why should customer-service representatives avoid making promises they cannot guarantee?",
+    options: [
+      "Because customers do not like promises.",
+      "Because unrealistic promises can damage trust and create further complaints.",
+      "Because representatives should never provide information.",
+      "Because only managers can speak."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What is the best response when a customer thanks you for your help?",
+    options: [
+      "Do not respond.",
+      "Respond politely and ask whether any further assistance is needed.",
+      "End the call immediately.",
+      "Ask the customer for money."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What is call etiquette?",
+    options: [
+      "Professional standards for communicating with customers on calls.",
+      "A method of increasing call duration.",
+      "A type of software.",
+      "A recruitment test."
+    ],
+    answer: 0
+  },
+
+  {
+    q: "What should you do if there is a long silence while you are checking information?",
+    options: [
+      "Say nothing for several minutes.",
+      "Keep the customer informed about what you are doing.",
+      "Disconnect the call.",
+      "Play music from your phone."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What is the purpose of asking probing questions?",
+    options: [
+      "To confuse the customer.",
+      "To gather relevant information and understand the issue accurately.",
+      "To make the call longer.",
+      "To avoid taking responsibility."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A customer gives incorrect information by mistake. What should you do?",
+    options: [
+      "Embarrass the customer.",
+      "Politely clarify and confirm the correct information.",
+      "Ignore it.",
+      "End the conversation."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "How should you handle multiple customer requests during one interaction?",
+    options: [
+      "Ignore some of them.",
+      "Identify each request, prioritize appropriately and address them systematically.",
+      "Ask the customer to contact another company.",
+      "Only answer the easiest request."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What should you do if a system problem prevents you from completing a customer's request?",
+    options: [
+      "Pretend the request was completed.",
+      "Explain the situation accurately and follow the approved alternative or escalation process.",
+      "Blame the customer.",
+      "Provide false confirmation."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What is a good way to close a customer-service interaction?",
+    options: [
+      "Disconnect without warning.",
+      "Confirm the outcome, ask whether further assistance is needed and close professionally.",
+      "Start discussing an unrelated subject.",
+      "Tell the customer not to contact the company again."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Why is documentation important after a customer interaction?",
+    options: [
+      "It provides an accurate record for future reference and follow-up.",
+      "It makes the computer slower.",
+      "It is only useful for managers.",
+      "It replaces customer communication."
+    ],
+    answer: 0
+  },
+
+  {
+    q: "How should you respond to constructive feedback from a supervisor?",
+    options: [
+      "Ignore it.",
+      "Listen professionally and use it to improve your performance.",
+      "Argue immediately.",
+      "Stop working."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What is the main goal of professional customer support?",
+    options: [
+      "To finish every interaction as quickly as possible.",
+      "To understand the customer's need and provide accurate, respectful and appropriate assistance.",
+      "To avoid difficult customers.",
+      "To sell something during every interaction."
+    ],
+    answer: 1
+  },
+    /* ================= CABIN CREW 36–70 ================= */
+
+  {
+    q: "What is the most important responsibility of cabin crew?",
+    options: [
+      "Serving food and drinks.",
+      "Passenger safety and security while also providing professional service.",
+      "Selling products.",
+      "Cleaning the airport."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A passenger is nervous about flying. How should cabin crew respond?",
+    options: [
+      "Ignore the passenger.",
+      "Tell the passenger there is nothing to worry about.",
+      "Speak calmly, listen to the concern and provide appropriate reassurance.",
+      "Ask another passenger to help."
     ],
     answer: 2
   },
 
   {
-    q: "You notice a serious customer issue that requires a higher authority. What should you do?",
+    q: "A passenger is angry because the flight is delayed. What should you do?",
     options: [
-      "Hide the issue.",
-      "Escalate it according to the process.",
+      "Argue with the passenger.",
+      "Acknowledge the frustration, remain calm and provide accurate available information.",
+      "Promise an exact departure time even if you do not know it.",
+      "Ignore the passenger."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Why is clear communication important for cabin crew?",
+    options: [
+      "It helps passengers understand instructions and improves safety and service.",
+      "It makes announcements longer.",
+      "It allows crew members to avoid passengers.",
+      "It is only important during meal service."
+    ],
+    answer: 0
+  },
+
+  {
+    q: "What should cabin crew do if a passenger refuses to follow a safety instruction?",
+    options: [
+      "Ignore the passenger.",
+      "Remain professional, explain the requirement clearly and follow airline procedures.",
+      "Immediately argue with the passenger.",
+      "Allow the passenger to decide."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "How should cabin crew handle a passenger who does not understand English well?",
+    options: [
+      "Speak faster.",
+      "Use simple language, gestures where appropriate and approved communication assistance.",
+      "Ignore the passenger.",
+      "Use complicated aviation terminology."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A passenger complains about their seat. What should you do?",
+    options: [
+      "Tell them nothing can ever be done.",
+      "Listen to the concern, check available options and explain what can be done.",
+      "Ask another passenger to solve the problem.",
+      "Ignore the complaint."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What should you do if a passenger asks a question and you are unsure of the answer?",
+    options: [
+      "Guess.",
+      "Provide any answer quickly.",
+      "Tell the passenger you will verify the information with the appropriate crew member or source.",
+      "Walk away."
+    ],
+    answer: 2
+  },
+
+  {
+    q: "Why is teamwork important among cabin crew?",
+    options: [
+      "Crew members work independently at all times.",
+      "Effective teamwork supports safety, communication and efficient passenger service.",
+      "It is only useful during boarding.",
+      "It reduces the need for procedures."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A passenger appears unwell during the flight. What should cabin crew do?",
+    options: [
+      "Ignore the passenger unless they complain.",
+      "Assess the situation within their training and follow the airline's medical procedures.",
+      "Give any medicine available.",
+      "Ask the passenger to wait until landing."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What should cabin crew do during an emergency?",
+    options: [
+      "Wait for passengers to decide what to do.",
+      "Remain calm and follow trained emergency procedures and commands.",
+      "Leave the aircraft immediately without passengers.",
+      "Use personal judgment instead of procedures."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Why must cabin crew remain calm during difficult situations?",
+    options: [
+      "Calm behavior supports clear decisions, communication and passenger confidence.",
+      "It makes the flight shorter.",
+      "It prevents all emergencies.",
+      "It is only required when managers are present."
+    ],
+    answer: 0
+  },
+
+  {
+    q: "A passenger is speaking rudely to you. What is the professional response?",
+    options: [
+      "Respond rudely.",
+      "Remain calm, professional and focused on the issue.",
+      "Immediately insult the passenger.",
+      "Discuss the passenger with other travelers."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What should cabin crew check before takeoff?",
+    options: [
+      "Only whether passengers have food.",
+      "Required cabin and passenger safety conditions according to airline procedures.",
+      "Passengers' social media accounts.",
+      "Only the cabin temperature."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Why are pre-flight briefings important?",
+    options: [
+      "They allow crew members to discuss personal matters.",
+      "They help the crew review operational, safety and service information before the flight.",
+      "They replace all training.",
+      "They are only for pilots."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "How should cabin crew assist an elderly passenger who needs help?",
+    options: [
+      "Ignore them.",
+      "Provide respectful assistance within procedures and coordinate additional support when required.",
+      "Ask another passenger to take responsibility.",
+      "Tell them they should not travel."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "How should cabin crew assist a passenger with a disability?",
+    options: [
+      "Make assumptions about what assistance they need.",
+      "Communicate respectfully, understand the required assistance and follow applicable procedures.",
+      "Avoid communicating directly with the passenger.",
+      "Automatically move the passenger without asking."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Two passengers are arguing. What should cabin crew do?",
+    options: [
+      "Encourage the argument.",
+      "Remain calm, assess the situation and follow conflict-management and safety procedures.",
+      "Ignore them completely.",
+      "Record the argument for social media."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A passenger complains about the meal. What is the best response?",
+    options: [
+      "Tell the passenger to stop complaining.",
+      "Listen politely, apologize when appropriate and check available alternatives.",
+      "Blame the catering company.",
+      "Ignore the passenger."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What does good passenger service mean?",
+    options: [
+      "Agreeing with every request.",
+      "Providing respectful, attentive and professional assistance within airline procedures.",
+      "Giving free products to everyone.",
+      "Ignoring difficult passengers."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What should cabin crew do if they notice a potential safety hazard?",
+    options: [
+      "Ignore it if passengers have not noticed.",
+      "Take appropriate action and report it according to procedures.",
+      "Wait until the flight is over.",
+      "Post about it online."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Why is grooming important for cabin crew?",
+    options: [
+      "It is only for photographs.",
+      "Professional grooming supports the airline's standards and professional presentation.",
+      "It is more important than safety.",
+      "It replaces good communication."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A passenger asks you to make an exception to a safety rule. What should you do?",
+    options: [
+      "Make the exception to keep them happy.",
+      "Politely explain that safety requirements must be followed.",
+      "Let another passenger decide.",
+      "Ignore the rule."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What should cabin crew do when making a passenger announcement?",
+    options: [
+      "Speak as quickly as possible.",
+      "Speak clearly, professionally and at an understandable pace.",
+      "Use unnecessary technical language.",
+      "Speak very quietly."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A passenger is unable to find space for cabin baggage. What should you do?",
+    options: [
+      "Tell them to leave it in the aisle.",
+      "Assist according to cabin-baggage and safety procedures.",
+      "Put it anywhere without checking.",
+      "Ignore them."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Why must aisles and exits remain clear when required?",
+    options: [
+      "For appearance only.",
+      "To support safe movement and emergency evacuation.",
+      "To make cleaning easier.",
+      "To provide more meal-service space."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A passenger is using a device when instructed to stop. What should cabin crew do?",
+    options: [
       "Ignore it.",
-      "Delete the case."
+      "Politely repeat the instruction and follow the airline's procedure if the passenger does not comply.",
+      "Take the device without explanation.",
+      "Allow the passenger to decide."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "How should cabin crew handle cultural differences among passengers?",
+    options: [
+      "Treat one culture as better than another.",
+      "Communicate respectfully and professionally without inappropriate assumptions.",
+      "Avoid passengers from unfamiliar cultures.",
+      "Use stereotypes to understand passengers."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Why is situational awareness important for cabin crew?",
+    options: [
+      "It helps crew notice changes, risks and passenger needs in the cabin.",
+      "It is only needed during meal service.",
+      "It eliminates the need for teamwork.",
+      "It is only the captain's responsibility."
+    ],
+    answer: 0
+  },
+
+  {
+    q: "What should cabin crew do if turbulence begins unexpectedly?",
+    options: [
+      "Continue normal service regardless of conditions.",
+      "Follow the airline's turbulence and safety procedures.",
+      "Tell passengers to decide whether to sit down.",
+      "Ignore the seat-belt requirements."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "How should cabin crew respond if a passenger reports lost property on the aircraft?",
+    options: [
+      "Promise that it will definitely be found.",
+      "Assist according to the airline's lost-property procedure and provide accurate guidance.",
+      "Tell the passenger it is not important.",
+      "Pay the passenger personally."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A parent is having difficulty managing a child during the flight. What should cabin crew do?",
+    options: [
+      "Criticize the parent.",
+      "Remain respectful and offer appropriate assistance within airline procedures.",
+      "Ignore the situation completely.",
+      "Tell the family to leave the aircraft during flight."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What should cabin crew do when receiving a passenger complaint?",
+    options: [
+      "Take it personally.",
+      "Listen carefully, acknowledge the concern and provide or seek an appropriate solution.",
+      "Immediately blame another employee.",
+      "Avoid documenting serious issues."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What is the best approach when passengers are boarding?",
+    options: [
+      "Avoid interacting with passengers.",
+      "Welcome passengers, observe the cabin and assist while following boarding and safety procedures.",
+      "Focus only on selling products.",
+      "Allow baggage to be placed anywhere."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What quality is especially important for successful cabin crew?",
+    options: [
+      "Being argumentative.",
+      "Professional communication, adaptability, teamwork and safety awareness.",
+      "Ignoring procedures when busy.",
+      "Avoiding passenger interaction."
+    ],
+    answer: 1
+  }, 
+    /* ================= AIRPORT OPERATIONS 71–100 ================= */
+
+  {
+    q: "A passenger arrives at the check-in counter without the required travel document. What should you do?",
+    options: [
+      "Allow the passenger to travel anyway.",
+      "Politely explain the requirement and follow the airline's document-check procedure.",
+      "Create a document for the passenger.",
+      "Ignore the issue."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A passenger's baggage exceeds the permitted allowance. What should you do?",
+    options: [
+      "Ignore the excess baggage.",
+      "Explain the baggage policy and available options or applicable charges.",
+      "Ask the passenger to hide the extra baggage.",
+      "Automatically cancel the ticket."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A passenger is angry because their flight is delayed. What is the best response?",
+    options: [
+      "Blame the airline.",
+      "Remain calm, acknowledge the inconvenience and provide accurate available information.",
+      "Give an estimated time as a confirmed time.",
+      "Ignore the passenger."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What should airport staff do when a flight is cancelled?",
+    options: [
+      "Avoid speaking with passengers.",
+      "Provide accurate information and explain available options according to airline procedures.",
+      "Promise every passenger a free flight.",
+      "Tell passengers to solve the problem themselves."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A passenger reports that their checked baggage has not arrived. What should you do?",
+    options: [
+      "Tell them to buy new baggage.",
+      "Guide them through the airline's baggage tracing or reporting procedure.",
+      "Tell them baggage is never recovered.",
+      "Ignore the complaint."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Why is passenger identity verification important at the airport?",
+    options: [
+      "It makes check-in slower.",
+      "It supports security and ensures required travel procedures are followed.",
+      "It is only required for airline employees.",
+      "It is mainly used for advertising."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A passenger arrives after the check-in deadline. What should you do?",
+    options: [
+      "Change the system time.",
+      "Check the applicable procedure and explain any available options to the passenger.",
+      "Allow boarding without completing required procedures.",
+      "Argue with the passenger."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What is the main purpose of a boarding pass?",
+    options: [
+      "It replaces a passport in every situation.",
+      "It contains information used for the passenger's boarding process.",
+      "It guarantees baggage will never be delayed.",
+      "It is only a shopping coupon."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A passenger does not know where the departure gate is. What should you do?",
+    options: [
+      "Tell them to find it themselves.",
+      "Provide clear directions and advise them to check current flight information.",
+      "Send them to baggage claim.",
+      "Ignore them."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What should airport staff do when a boarding gate changes?",
+    options: [
+      "Keep the old gate information displayed.",
+      "Follow procedures to communicate updated gate information accurately.",
+      "Tell only a few passengers.",
+      "Wait until departure."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Why is accurate communication important during airport operations?",
+    options: [
+      "It helps passengers and operational teams act on correct information.",
+      "It makes announcements longer.",
+      "It removes the need for procedures.",
+      "It is only important for international flights."
+    ],
+    answer: 0
+  },
+
+  {
+    q: "A passenger misses a connecting flight because of a delay. What should you do?",
+    options: [
+      "Tell them it is entirely their problem.",
+      "Check the applicable airline procedure and guide them regarding available rebooking or assistance options.",
+      "Promise a free ticket without checking.",
+      "Tell them to leave the airport."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What is the purpose of the boarding process?",
+    options: [
+      "To move passengers onto the aircraft in an organized and controlled manner according to procedures.",
+      "To sell airport products.",
+      "To check hotel reservations.",
+      "To collect passenger mobile phones."
+    ],
+    answer: 0
+  },
+
+  {
+    q: "What should you do if a passenger tries to board the wrong flight?",
+    options: [
+      "Allow them to board.",
+      "Stop the boarding process for that passenger, verify the details and direct them appropriately.",
+      "Ignore the boarding pass.",
+      "Tell another passenger to handle it."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A passenger needs wheelchair assistance. What should airport staff do?",
+    options: [
+      "Tell the passenger to arrange everything alone.",
+      "Follow the airport or airline procedure to arrange the appropriate assistance.",
+      "Ask another passenger to provide a wheelchair.",
+      "Refuse assistance."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "How should airport staff communicate with an elderly passenger who needs assistance?",
+    options: [
+      "Speak impatiently.",
+      "Communicate respectfully, clearly and provide appropriate assistance.",
+      "Ignore their questions.",
+      "Speak only to other passengers."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A passenger does not understand an airport announcement. What should you do?",
+    options: [
+      "Repeat it more quickly.",
+      "Explain the relevant information clearly using simple language.",
+      "Tell them announcements are not important.",
+      "Ignore the passenger."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What should airport staff do if they notice an unattended bag?",
+    options: [
+      "Open it to identify the owner.",
+      "Follow airport security procedures and report it appropriately.",
+      "Move it to a crowded area.",
+      "Take it home."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Why is coordination between airport teams important?",
+    options: [
+      "Airport operations involve multiple teams that must exchange accurate information and work together.",
+      "It eliminates the need for communication.",
+      "It is only necessary during emergencies.",
+      "It allows procedures to be ignored."
+    ],
+    answer: 0
+  },
+
+  {
+    q: "What should you do if a passenger becomes verbally aggressive at the airport?",
+    options: [
+      "Become aggressive too.",
+      "Remain calm, maintain professional boundaries and follow escalation or security procedures when required.",
+      "Challenge the passenger to an argument.",
+      "Post the incident online."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What should staff do if they discover incorrect information has been given to a passenger?",
+    options: [
+      "Hide the mistake.",
+      "Correct the information promptly, apologize when appropriate and provide accurate guidance.",
+      "Continue giving the incorrect information.",
+      "Blame the passenger."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "A passenger asks whether a flight will definitely depart at the displayed time during a disruption. What should you do?",
+    options: [
+      "Guarantee the time.",
+      "Provide the latest confirmed information and explain that operational information may change.",
+      "Invent a departure time.",
+      "Refuse to communicate."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Why is baggage tagging important?",
+    options: [
+      "It supports identification and routing of checked baggage.",
+      "It is only for decoration.",
+      "It replaces passenger identification.",
+      "It guarantees that baggage can never be delayed."
+    ],
+    answer: 0
+  },
+
+  {
+    q: "A passenger says their baggage is damaged. What should you do?",
+    options: [
+      "Tell them damage is normal.",
+      "Guide them to the appropriate baggage-service reporting process.",
+      "Repair it yourself.",
+      "Ignore the complaint."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What should airport staff do during an operational disruption?",
+    options: [
+      "Provide unverified information to reduce questions.",
+      "Stay informed, communicate confirmed information and follow operational procedures.",
+      "Leave their assigned area without informing anyone.",
+      "Ignore passenger concerns."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Why is punctuality important for airport operations staff?",
+    options: [
+      "Airport activities are time-sensitive and depend on coordinated operations.",
+      "It is only important for managers.",
+      "Flights always wait for employees.",
+      "It has no effect on operations."
+    ],
+    answer: 0
+  },
+
+  {
+    q: "A passenger has a complaint but you cannot resolve it within your authority. What should you do?",
+    options: [
+      "Make up a solution.",
+      "Explain the situation and escalate the matter through the appropriate process.",
+      "Ignore the passenger.",
+      "Promise compensation without authorization."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "What is the best way to handle a long passenger queue?",
+    options: [
+      "Rush passengers without checking details.",
+      "Work efficiently and accurately while keeping passengers informed when appropriate.",
+      "Stop communicating with passengers.",
+      "Skip required procedures."
+    ],
+    answer: 1
+  },
+
+  {
+    q: "Why should airport staff protect passenger information?",
+    options: [
+      "Passenger information may be confidential and must be handled according to privacy and security procedures.",
+      "Only managers need to protect it.",
+      "It can be shared publicly after check-in.",
+      "It is useful for personal social media."
+    ],
+    answer: 0
+  },
+
+  {
+    q: "What qualities are important for someone working in airport operations?",
+    options: [
+      "Poor communication and avoiding teamwork.",
+      "Professional communication, attention to detail, teamwork, adaptability and safety awareness.",
+      "Ignoring procedures when the airport is busy.",
+      "Avoiding passengers whenever possible."
     ],
     answer: 1
   }
 
 ];
-
 let customerIndex = 0;
 
 
