@@ -6815,6 +6815,88 @@ if (updateStudentPasswordButton) {
   );
 
 }
+  /* ================= STUDENT LOGOUT ================= */
+
+const studentLogoutButton =
+  document.getElementById("studentLogoutButton");
+
+if (studentLogoutButton) {
+
+  studentLogoutButton.addEventListener("click", async function () {
+
+    const confirmLogout =
+      confirm("Are you sure you want to logout?");
+
+    if (!confirmLogout) {
+      return;
+    }
+
+    studentLogoutButton.disabled = true;
+    studentLogoutButton.textContent = "Logging out...";
+
+    try {
+
+      const { error } =
+        await supabaseClient.auth.signOut();
+
+      if (error) {
+        alert("Logout failed: " + error.message);
+        return;
+      }
+
+      const boardingName =
+        document.getElementById("boardingStudentName");
+
+      if (boardingName) {
+        boardingName.textContent = "STUDENT";
+      }
+
+      const accountGate =
+        document.getElementById("studentAccountGate");
+
+      if (accountGate) {
+        accountGate.style.display = "";
+      }
+
+      const loginEmail =
+        document.getElementById("loginEmail");
+
+      const loginPassword =
+        document.getElementById("loginPassword");
+
+      if (loginEmail) {
+        loginEmail.value = "";
+      }
+
+      if (loginPassword) {
+        loginPassword.value = "";
+      }
+
+      showStudentLogin();
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+      alert("You have been logged out successfully.");
+
+    } catch (error) {
+
+      console.error("Student logout error:", error);
+
+      alert("Something went wrong while logging out.");
+
+    } finally {
+
+      studentLogoutButton.disabled = false;
+      studentLogoutButton.textContent = "🚪 Logout";
+
+    }
+
+  });
+
+}
 </script>
 
 </body>
