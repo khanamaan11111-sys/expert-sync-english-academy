@@ -2232,7 +2232,21 @@ body {
         id="studentLoginButton">
         ✈ Login & Continue
       </button>
-
+<button
+  type="button"
+  id="forgotPasswordButton"
+  style="
+    background:none;
+    border:none;
+    color:#0b4aa2;
+    font-weight:700;
+    cursor:pointer;
+    width:100%;
+    margin-top:14px;
+    text-decoration:underline;
+  ">
+  Forgot Password?
+</button>
     </div>
 
 
@@ -6496,6 +6510,62 @@ if (studentLoginButton) {
       studentLoginButton.disabled = false;
       studentLoginButton.textContent =
         "✈ Login & Continue";
+
+    }
+
+  });
+
+}
+  /* ================= FORGOT PASSWORD ================= */
+
+const forgotPasswordButton =
+  document.getElementById("forgotPasswordButton");
+
+if (forgotPasswordButton) {
+
+  forgotPasswordButton.addEventListener("click", async function () {
+
+    const email =
+      document.getElementById("loginEmail").value.trim();
+
+    if (!email) {
+      alert("Please enter your registered email address first.");
+      return;
+    }
+
+    forgotPasswordButton.disabled = true;
+    forgotPasswordButton.textContent = "Sending reset email...";
+
+    try {
+
+      const { error } =
+        await supabaseClient.auth.resetPasswordForEmail(
+          email,
+          {
+            redirectTo:
+              "https://khanamaan11111-sys.github.io/expert-sync-english-academy/app/"
+          }
+        );
+
+      if (error) {
+        alert("Could not send reset email: " + error.message);
+        return;
+      }
+
+      alert(
+        "Password reset email sent. Please check your inbox and spam folder."
+      );
+
+    } catch (error) {
+
+      console.error("Password reset error:", error);
+
+      alert("Something went wrong. Please try again.");
+
+    } finally {
+
+      forgotPasswordButton.disabled = false;
+      forgotPasswordButton.textContent = "Forgot Password?";
 
     }
 
