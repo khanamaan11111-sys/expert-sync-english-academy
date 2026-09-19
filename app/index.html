@@ -6422,6 +6422,86 @@ if (studentSignupButton) {
   });
 
 }
+  /* ================= REAL STUDENT LOGIN ================= */
+
+const studentLoginButton =
+  document.getElementById("studentLoginButton");
+
+if (studentLoginButton) {
+
+  studentLoginButton.addEventListener("click", async function () {
+
+    const email =
+      document.getElementById("loginEmail").value.trim();
+
+    const password =
+      document.getElementById("loginPassword").value;
+
+    if (!email || !password) {
+      alert("Please enter your email and password.");
+      return;
+    }
+
+    studentLoginButton.disabled = true;
+    studentLoginButton.textContent = "Logging in...";
+
+    try {
+
+      const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
+
+      if (error) {
+        alert("Login failed: " + error.message);
+        return;
+      }
+
+      if (data.user) {
+
+        const studentName =
+          data.user.user_metadata?.full_name || "STUDENT";
+
+        const boardingName =
+          document.getElementById("boardingStudentName");
+
+        if (boardingName) {
+          boardingName.textContent =
+            studentName.toUpperCase();
+        }
+
+        const accountGate =
+          document.getElementById("studentAccountGate");
+
+        if (accountGate) {
+          accountGate.style.display = "none";
+        }
+
+        alert(
+          "Welcome back, " + studentName + "!"
+        );
+      }
+
+    } catch (error) {
+
+      console.error("Student login error:", error);
+
+      alert(
+        "Something went wrong while logging in."
+      );
+
+    } finally {
+
+      studentLoginButton.disabled = false;
+      studentLoginButton.textContent =
+        "✈ Login & Continue";
+
+    }
+
+  });
+
+}
 </script>
 
 </body>
