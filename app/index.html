@@ -6610,6 +6610,131 @@ if (forgotPasswordButton) {
 
   });
 
+} 
+  /* ================= PASSWORD RECOVERY ================= */
+
+const studentResetPanel =
+  document.getElementById("studentResetPanel");
+
+const updateStudentPasswordButton =
+  document.getElementById("updateStudentPasswordButton");
+
+/* Detect Supabase password recovery */
+
+supabaseClient.auth.onAuthStateChange(function (event, session) {
+
+  if (event === "PASSWORD_RECOVERY") {
+
+    const loginPanel =
+      document.getElementById("studentLoginPanel");
+
+    const signupPanel =
+      document.getElementById("studentSignupPanel");
+
+    if (loginPanel) {
+      loginPanel.style.display = "none";
+    }
+
+    if (signupPanel) {
+      signupPanel.style.display = "none";
+    }
+
+    if (studentResetPanel) {
+      studentResetPanel.style.display = "block";
+    }
+
+  }
+
+});
+
+
+/* Update student's password */
+
+if (updateStudentPasswordButton) {
+
+  updateStudentPasswordButton.addEventListener(
+    "click",
+    async function () {
+
+      const newPassword =
+        document.getElementById("newStudentPassword").value;
+
+      const confirmPassword =
+        document.getElementById("confirmStudentPassword").value;
+
+      if (!newPassword || !confirmPassword) {
+
+        alert("Please enter and confirm your new password.");
+        return;
+
+      }
+
+      if (newPassword.length < 8) {
+
+        alert("Password must contain at least 8 characters.");
+        return;
+
+      }
+
+      if (newPassword !== confirmPassword) {
+
+        alert("Passwords do not match.");
+        return;
+
+      }
+
+      updateStudentPasswordButton.disabled = true;
+      updateStudentPasswordButton.textContent =
+        "Updating Password...";
+
+      try {
+
+        const { error } =
+          await supabaseClient.auth.updateUser({
+            password: newPassword
+          });
+
+        if (error) {
+
+          alert(
+            "Password could not be updated: " +
+            error.message
+          );
+
+          return;
+        }
+
+        alert(
+          "Password updated successfully! You can now use your new password."
+        );
+
+        await supabaseClient.auth.signOut();
+
+        window.location.href =
+          "https://khanamaan11111-sys.github.io/expert-sync-english-academy/app/";
+
+      } catch (error) {
+
+        console.error(
+          "Password update error:",
+          error
+        );
+
+        alert(
+          "Something went wrong while updating your password."
+        );
+
+      } finally {
+
+        updateStudentPasswordButton.disabled = false;
+        updateStudentPasswordButton.textContent =
+          "🔐 Update Password";
+
+      }
+
+    }
+  );
+
 }
 </script>
 
