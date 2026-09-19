@@ -3365,7 +3365,37 @@ body {
     <div class="practice-box">
 
       <h3>☎️ Customer Service Scenario</h3>
+      
+<div style="margin:15px 0;">
 
+  <label for="customerCategory">
+    <strong>Choose Practice Category:</strong>
+  </label>
+
+  <select
+    id="customerCategory"
+    onchange="changeCustomerCategory()"
+    style="width:100%; margin-top:8px; padding:12px; border-radius:10px;">
+
+    <option value="all">
+      🌐 All Questions — 100
+    </option>
+
+    <option value="support">
+      🎧 Customer Support — 35
+    </option>
+
+    <option value="cabin">
+      ✈️ Cabin Crew — 35
+    </option>
+
+    <option value="airport">
+      🛫 Airport Operations — 30
+    </option>
+
+  </select>
+
+</div>
       <div
         id="customerQuestion"
         class="question">
@@ -6735,12 +6765,46 @@ const customerQuestions = [
 ];
 let customerIndex = 0;
 
+  let filteredCustomerQuestions = customerQuestions;
+
+
+function changeCustomerCategory() {
+
+  const category =
+    document.getElementById("customerCategory").value;
+
+  if (category === "support") {
+
+    filteredCustomerQuestions =
+      customerQuestions.slice(0, 35);
+
+  } else if (category === "cabin") {
+
+    filteredCustomerQuestions =
+      customerQuestions.slice(35, 70);
+
+  } else if (category === "airport") {
+
+    filteredCustomerQuestions =
+      customerQuestions.slice(70, 100);
+
+  } else {
+
+    filteredCustomerQuestions =
+      customerQuestions;
+
+  }
+
+  customerIndex = 0;
+
+  loadCustomerQuestion();
+}
 
 function loadCustomerQuestion() {
 
-  const data =
-    customerQuestions[customerIndex];
-
+const data =
+  filteredCustomerQuestions[customerIndex];
+  
   document.getElementById(
     'customerQuestion'
   ).textContent =
@@ -6794,9 +6858,8 @@ function loadCustomerQuestion() {
 
 function checkCustomerAnswer(index, button) {
 
-  const data =
-    customerQuestions[customerIndex];
-
+const data =
+  filteredCustomerQuestions[customerIndex];
   const buttons =
     document.querySelectorAll(
       '#customerOptions .option'
@@ -6848,14 +6911,13 @@ function nextCustomerQuestion() {
 
   customerIndex++;
 
-  if (
-    customerIndex >=
-    customerQuestions.length
-  ) {
+if (
+  customerIndex >=
+  filteredCustomerQuestions.length
+) {
     alert(
       "Customer Service Practice Complete!"
     );
-
     customerIndex = 0;
   }
 
