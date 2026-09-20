@@ -7152,6 +7152,8 @@ function openAIClassroom() {
 
   }
 
+  restoreAIChatHistory();
+  
 }
 
 
@@ -7184,7 +7186,9 @@ function sendAIMessage() {
   studentMessage.textContent = message;
 
   chatBox.appendChild(studentMessage);
-
+  
+  saveAIChatHistory();
+  
   input.value = "";
   chatBox.scrollTop = chatBox.scrollHeight;
 
@@ -7593,7 +7597,7 @@ else if (wantsTeaching) {
     teacherMessage.appendChild(teacherText);
 
     chatBox.appendChild(teacherMessage);
-
+saveAIChatHistory();
     lastAIMessage = reply;
 
     chatBox.scrollTop = chatBox.scrollHeight;
@@ -7607,7 +7611,41 @@ else if (wantsTeaching) {
 
 let lastAIMessage = "";
 
+/* ================= AI CHAT HISTORY ================= */
 
+const AI_CHAT_HISTORY_KEY = "esaAIChatHistory";
+
+function saveAIChatHistory() {
+
+  const chatBox = document.getElementById("aiChatBox");
+
+  if (!chatBox) {
+    return;
+  }
+
+  localStorage.setItem(
+    AI_CHAT_HISTORY_KEY,
+    chatBox.innerHTML
+  );
+}
+
+
+function restoreAIChatHistory() {
+
+  const chatBox = document.getElementById("aiChatBox");
+
+  if (!chatBox) {
+    return;
+  }
+
+  const savedHistory =
+    localStorage.getItem(AI_CHAT_HISTORY_KEY);
+
+  if (savedHistory) {
+    chatBox.innerHTML = savedHistory;
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+}
 /* STUDENT SPEECH TO TEXT */
 
 function startStudentVoice() {
