@@ -7195,7 +7195,39 @@ function sendAIMessage() {
     : "general";
 
   const text = message.toLowerCase();
+/* Understand common student English */
 
+const simpleText = text
+  .replace(/[?.!,]/g, "")
+  .replace(/\s+/g, " ")
+  .trim();
+
+const isHowAreYou =
+  simpleText === "how are you" ||
+  simpleText === "how r u" ||
+  simpleText === "how are u" ||
+  simpleText === "how r you";
+
+const isStudentFine =
+  simpleText.includes("i am fine") ||
+  simpleText.includes("im fine") ||
+  simpleText.includes("i'm fine") ||
+  simpleText.includes("i am good") ||
+  simpleText.includes("im good");
+
+const isMyName =
+  simpleText.startsWith("my name is") ||
+  simpleText.startsWith("i am called");
+
+const wantsCorrection =
+  simpleText.includes("correct my english") ||
+  simpleText.includes("correct me") ||
+  simpleText.includes("check my english");
+
+const wantsTeaching =
+  simpleText.includes("teach me english") ||
+  simpleText === "teach me" ||
+  simpleText.includes("help me learn english");
   let reply = "";
 
 
@@ -7219,13 +7251,50 @@ function sendAIMessage() {
 
   /* HOW ARE YOU */
 
-  else if (text.includes("how are you")) {
+else if (isHowAreYou) {
 
     reply =
       "I am doing well, thank you! Now let's practice. You can reply: I am doing well today. How about you?";
 
   }
+/* STUDENT SAYS THEY ARE FINE */
 
+else if (isStudentFine) {
+
+  reply =
+    "That's good to hear! Try a more complete answer: I am doing well today, thank you. Now tell me, what did you do today?";
+
+}
+
+
+/* STUDENT TELLS THEIR NAME */
+
+else if (isMyName) {
+
+  reply =
+    "Nice to meet you! Now let's make your introduction stronger. Tell me where you are from and what you do or study.";
+
+}
+
+
+/* STUDENT WANTS ENGLISH CORRECTION */
+
+else if (wantsCorrection) {
+
+  reply =
+    "Of course. Write one English sentence here. I will help you practice it. For now, remember to use a capital letter at the beginning and proper punctuation at the end.";
+
+}
+
+
+/* STUDENT WANTS TO LEARN ENGLISH */
+
+else if (wantsTeaching) {
+
+  reply =
+    "Of course! Let's start with simple English conversation. Introduce yourself in 3 sentences: your name, where you are from, and what you do or study.";
+
+}
 
   /* INTRODUCTION */
 
