@@ -7198,7 +7198,7 @@ function sendAIMessage() {
 /* Understand common student English */
 
 const simpleText = text
-  .replace(/[?.!,]/g, "")
+.replace(/[?.!,'’]/g, "")
   .replace(/\s+/g, " ")
   .trim();
 
