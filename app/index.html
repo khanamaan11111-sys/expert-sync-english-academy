@@ -7228,6 +7228,31 @@ const wantsTeaching =
   simpleText.includes("teach me english") ||
   simpleText === "teach me" ||
   simpleText.includes("help me learn english");
+  /* COMMON BEGINNER GRAMMAR MISTAKES */
+
+const grammarIAmGo =
+  simpleText === "i am go to school" ||
+  simpleText === "i am go to work" ||
+  simpleText.startsWith("i am go to ");
+
+const grammarSheGo =
+  simpleText === "she go to school" ||
+  simpleText === "she go to work" ||
+  simpleText.startsWith("she go ");
+
+const grammarHeGo =
+  simpleText === "he go to school" ||
+  simpleText === "he go to work" ||
+  simpleText.startsWith("he go ");
+
+const grammarHeDont =
+  simpleText.startsWith("he dont ");
+
+const grammarSheDont =
+  simpleText.startsWith("she dont ");
+
+const grammarIGoed =
+  simpleText.includes("i goed ");
   let reply = "";
 
 
@@ -7257,8 +7282,100 @@ else if (isHowAreYou) {
       "I am doing well, thank you! Now let's practice. You can reply: I am doing well today. How about you?";
 
   }
-/* STUDENT SAYS THEY ARE FINE */
 
+  /* FREE BEGINNER GRAMMAR CORRECTION */
+
+else if (grammarIAmGo) {
+
+  const place =
+    simpleText.replace("i am go to ", "");
+
+  reply =
+    "Good try! ❌ 'I am go to " +
+    place +
+    "' is not correct. ✅ Say: 'I am going to " +
+    place +
+    ".' You can also say 'I go to " +
+    place +
+    "' when talking about your regular routine.";
+
+}
+
+
+else if (grammarSheGo) {
+
+  const rest =
+    simpleText.replace("she go ", "");
+
+  reply =
+    "Good try! ❌ 'She go " +
+    rest +
+    "' should be: ✅ 'She goes " +
+    rest +
+    ".' With he, she, or it in the simple present, we usually add -s or -es to the verb.";
+
+}
+
+
+else if (grammarHeGo) {
+
+  const rest =
+    simpleText.replace("he go ", "");
+
+  reply =
+    "Good try! ❌ 'He go " +
+    rest +
+    "' should be: ✅ 'He goes " +
+    rest +
+    ".' With he, she, or it in the simple present, we usually add -s or -es to the verb.";
+
+}
+
+
+else if (grammarHeDont) {
+
+  const rest =
+    simpleText.replace("he dont ", "");
+
+  reply =
+    "Good try! ❌ 'He don't " +
+    rest +
+    "' should be: ✅ 'He doesn't " +
+    rest +
+    ".' Use doesn't with he, she, and it.";
+
+}
+
+
+else if (grammarSheDont) {
+
+  const rest =
+    simpleText.replace("she dont ", "");
+
+  reply =
+    "Good try! ❌ 'She don't " +
+    rest +
+    "' should be: ✅ 'She doesn't " +
+    rest +
+    ".' Use doesn't with he, she, and it.";
+
+}
+
+
+else if (grammarIGoed) {
+
+  const rest =
+    simpleText.replace("i goed ", "");
+
+  reply =
+    "Good try! ❌ 'I goed " +
+    rest +
+    "' should be: ✅ 'I went " +
+    rest +
+    ".' The past tense of go is went.";
+
+}
+/* STUDENT SAYS THEY ARE FINE */
 else if (isStudentFine) {
 
   reply =
