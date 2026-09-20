@@ -7256,6 +7256,33 @@ const grammarSheDont =
   simpleText.startsWith("she dont ");
 
 const grammarIGoed =
+  const grammarIIs =
+  simpleText.startsWith("i is ");
+
+const grammarHeAre =
+  simpleText.startsWith("he are ");
+
+const grammarSheAre =
+  simpleText.startsWith("she are ");
+
+const grammarTheyIs =
+  simpleText.startsWith("they is ");
+
+const grammarIDidntWent =
+  simpleText.includes("i didnt went");
+
+const grammarYesterdayIGo =
+  simpleText.startsWith("yesterday i go ");
+
+const grammarIAmAgree =
+  simpleText === "i am agree" ||
+  simpleText.startsWith("i am agree ");
+
+const grammarPeopleIs =
+  simpleText.startsWith("people is ");
+
+const grammarOneOfMyFriend =
+  simpleText.includes("one of my friend");
   simpleText.includes("i goed ");
   let reply = "";
 
@@ -7379,7 +7406,109 @@ else if (grammarIGoed) {
     ".' The past tense of go is went.";
 
 }
+  /* MORE BEGINNER GRAMMAR CORRECTIONS */
+
+else if (grammarIIs) {
+
+  const rest = simpleText.replace("i is ", "");
+
+  reply =
+    "Good try! ❌ 'I is " + rest +
+    "' should be: ✅ 'I am " + rest +
+    ".' Use am with I.";
+
+}
+
+else if (grammarHeAre) {
+
+  const rest = simpleText.replace("he are ", "");
+
+  reply =
+    "Good try! ❌ 'He are " + rest +
+    "' should be: ✅ 'He is " + rest +
+    ".' Use is with he.";
+
+}
+
+else if (grammarSheAre) {
+
+  const rest = simpleText.replace("she are ", "");
+
+  reply =
+    "Good try! ❌ 'She are " + rest +
+    "' should be: ✅ 'She is " + rest +
+    ".' Use is with she.";
+
+}
+
+else if (grammarTheyIs) {
+
+  const rest = simpleText.replace("they is ", "");
+
+  reply =
+    "Good try! ❌ 'They is " + rest +
+    "' should be: ✅ 'They are " + rest +
+    ".' Use are with they.";
+
+}
+
+else if (grammarIDidntWent) {
+
+  const rest = simpleText.replace("i didnt went", "");
+
+  reply =
+    "Good try! ❌ 'I didn't went" + rest +
+    "' should be: ✅ 'I didn't go" + rest +
+    ".' After didn't, use the base form of the verb.";
+
+}
+
+else if (grammarYesterdayIGo) {
+
+  const rest = simpleText.replace("yesterday i go ", "");
+
+  reply =
+    "Good try! ❌ 'Yesterday I go " + rest +
+    "' should be: ✅ 'Yesterday I went " + rest +
+    ".' Use the past tense went for a completed action yesterday.";
+
+}
+
+else if (grammarIAmAgree) {
+
+  const rest = simpleText.replace("i am agree", "");
+
+  reply =
+    "Good try! ❌ 'I am agree" + rest +
+    "' should be: ✅ 'I agree" + rest +
+    ".' Agree is a verb, so we do not normally use am before it.";
+
+}
+
+else if (grammarPeopleIs) {
+
+  const rest = simpleText.replace("people is ", "");
+
+  reply =
+    "Good try! ❌ 'People is " + rest +
+    "' should be: ✅ 'People are " + rest +
+    ".' People is normally plural, so use are.";
+
+}
+
+else if (grammarOneOfMyFriend) {
+
+  const corrected =
+    simpleText.replace("one of my friend", "one of my friends");
+
+  reply =
+    "Good try! After 'one of my', use a plural noun. ✅ Say: '" +
+    corrected +
+    ".'";
+
+}
 /* STUDENT SAYS THEY ARE FINE */
+  
 else if (isStudentFine) {
 
   reply =
