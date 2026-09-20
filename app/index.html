@@ -7166,66 +7166,257 @@ function switchAITeacher() {
 }
 
 
-/* Temporary local chat test */
+/* ================= FREE LOCAL AI TEACHER ================= */
 
 function sendAIMessage() {
 
-  const input =
-    document.getElementById("aiStudentMessage");
-
-  const message =
-    input.value.trim();
+  const input = document.getElementById("aiStudentMessage");
+  const message = input.value.trim();
 
   if (!message) {
     return;
   }
 
-  const chatBox =
-    document.getElementById("aiChatBox");
+  const chatBox = document.getElementById("aiChatBox");
 
-
-  const studentMessage =
-    document.createElement("div");
-
-  studentMessage.className =
-    "ai-message student-message";
-
-  studentMessage.textContent =
-    message;
+  const studentMessage = document.createElement("div");
+  studentMessage.className = "ai-message student-message";
+  studentMessage.textContent = message;
 
   chatBox.appendChild(studentMessage);
 
   input.value = "";
+  chatBox.scrollTop = chatBox.scrollHeight;
 
-  chatBox.scrollTop =
-    chatBox.scrollHeight;
+  const modeElement = document.getElementById("aiLessonMode");
+
+  const mode = modeElement
+    ? modeElement.value
+    : "general";
+
+  const text = message.toLowerCase();
+
+  let reply = "";
 
 
-  /* Temporary teacher response */
+  /* GREETINGS */
+
+  if (
+    text.includes("hello") ||
+    text.includes("hi ") ||
+    text === "hi" ||
+    text.includes("good morning") ||
+    text.includes("good evening")
+  ) {
+
+    reply =
+      "Hello! I am " +
+      selectedAITeacher +
+      ". I am happy to practice English with you. Tell me what you would like to learn today.";
+
+  }
+
+
+  /* HOW ARE YOU */
+
+  else if (text.includes("how are you")) {
+
+    reply =
+      "I am doing well, thank you! Now let's practice. You can reply: I am doing well today. How about you?";
+
+  }
+
+
+  /* INTRODUCTION */
+
+  else if (
+    text.includes("introduce myself") ||
+    text.includes("self introduction") ||
+    text.includes("introduction")
+  ) {
+
+    reply =
+      "Let's practice your introduction. Say: Hello, my name is ___. I am from ___. I am currently studying or working as ___. I am a hardworking and positive person. My goal is to improve my English and build a successful career.";
+
+  }
+
+
+  /* GRAMMAR */
+
+  else if (
+    mode === "grammar" ||
+    text.includes("grammar")
+  ) {
+
+    reply =
+      "Grammar practice: Choose the correct sentence. A: She go to work every day. B: She goes to work every day. Type A or B and tell me why.";
+
+  }
+
+
+  /* VOCABULARY */
+
+  else if (
+    mode === "vocabulary" ||
+    text.includes("vocabulary") ||
+    text.includes("new word")
+  ) {
+
+    reply =
+      "Vocabulary practice: Today's word is PROFESSIONAL. It means behaving in a skilled, respectful and responsible way at work. Example: A cabin crew member should always remain professional. Now make your own sentence using the word professional.";
+
+  }
+
+
+  /* INTERVIEW */
+
+  else if (
+    mode === "interview" ||
+    text.includes("interview")
+  ) {
+
+    reply =
+      "Interview practice: Tell me about yourself. Try to answer in 4 to 6 sentences. Include your name, education or experience, strengths and career goal.";
+
+  }
+
+
+  /* AVIATION */
+
+  else if (
+    mode === "aviation" ||
+    text.includes("aviation") ||
+    text.includes("airport")
+  ) {
+
+    reply =
+      "Aviation English practice: Imagine you are working at an airport check-in counter. A passenger says, 'My flight is delayed. What should I do?' Give a polite and professional response.";
+
+  }
+
+
+  /* CABIN CREW */
+
+  else if (
+    text.includes("cabin crew") ||
+    text.includes("cabin")
+  ) {
+
+    reply =
+      "Cabin crew practice: A passenger is nervous about flying. How would you speak to the passenger calmly and professionally? Type your response in English.";
+
+  }
+
+
+  /* HOSPITALITY */
+
+  else if (
+    mode === "hospitality" ||
+    text.includes("hospitality") ||
+    text.includes("hotel")
+  ) {
+
+    reply =
+      "Hospitality English practice: A hotel guest says, 'My room is not clean.' Respond politely, apologize and offer an appropriate solution.";
+
+  }
+
+
+  /* CUSTOMER SERVICE */
+
+  else if (
+    mode === "customer-service" ||
+    text.includes("customer service") ||
+    text.includes("customer support")
+  ) {
+
+    reply =
+      "Customer-service practice: An angry customer says, 'I have contacted your company three times and nobody has solved my problem.' How would you respond professionally?";
+
+  }
+
+
+  /* IELTS */
+
+  else if (
+    mode === "ielts" ||
+    text.includes("ielts")
+  ) {
+
+    reply =
+      "IELTS Speaking practice: Let's begin with Part 1. What do you do — do you work or are you a student? Answer naturally in 2 to 4 sentences.";
+
+  }
+
+
+  /* SPEAKING */
+
+  else if (
+    mode === "speaking" ||
+    text.includes("speaking") ||
+    text.includes("speak english")
+  ) {
+
+    reply =
+      "Let's practice speaking. Tell me about your daily routine in 4 sentences. You can start with: I usually wake up at...";
+
+  }
+
+
+  /* THANK YOU */
+
+  else if (
+    text.includes("thank you") ||
+    text.includes("thanks")
+  ) {
+
+    reply =
+      "You're welcome! Keep practicing. Consistency will help you become more confident in English. What would you like to practice next?";
+
+  }
+
+
+  /* DEFAULT CONVERSATION */
+
+  else {
+
+    reply =
+      "Good attempt. Let's continue in English. Please tell me more about \"" +
+      message +
+      "\". Try to write 2 or 3 complete sentences. I will help you practice.";
+
+  }
+
+
+  /* DISPLAY KHAN / KHANAM RESPONSE */
 
   setTimeout(function() {
 
-    const teacherMessage =
-      document.createElement("div");
+    const teacherMessage = document.createElement("div");
 
     teacherMessage.className =
       "ai-message teacher-message";
 
-    teacherMessage.innerHTML =
-      "<strong>" +
-      selectedAITeacher +
-      "</strong><p>Thank you for your message. The full AI English Teacher will be connected soon.</p>";
+    const teacherName = document.createElement("strong");
+    teacherName.textContent = selectedAITeacher;
+
+    const teacherText = document.createElement("p");
+    teacherText.textContent = reply;
+
+    teacherMessage.appendChild(teacherName);
+    teacherMessage.appendChild(teacherText);
 
     chatBox.appendChild(teacherMessage);
 
-    chatBox.scrollTop =
-      chatBox.scrollHeight;
+    lastAIMessage = reply;
 
-  }, 500);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+  }, 400);
 
 }
 
-
+  
 /* ================= REAL VOICE FUNCTIONS ================= */
 
 let lastAIMessage = "";
