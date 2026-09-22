@@ -1466,6 +1466,7 @@ footer {
 
 .ai-input-area {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   background: white;
   padding: 12px;
@@ -1473,7 +1474,8 @@ footer {
 }
 
 #aiStudentMessage {
-  flex: 1;
+  flex: 1 1 65%;
+  min-width: 0;
   resize: none;
   padding: 11px;
   border: 1px solid #ccd6e2;
@@ -1481,8 +1483,8 @@ footer {
   font-family: inherit;
   font-size: 14px;
   outline: none;
+  box-sizing: border-box;
 }
-
 #aiStudentMessage:focus {
   border-color: #063b91;
 }
