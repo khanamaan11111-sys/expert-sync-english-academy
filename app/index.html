@@ -7180,6 +7180,10 @@ function nextVocabQuestion() {
       + vocabularyQuestions.length
     );
 
+    const vocabPercent = Math.round((vocabScore / vocabularyQuestions.length) * 100);
+recordPracticeQuestion(vocabPercent);
+recordPracticeSession();
+
     vocabIndex = 0;
     vocabScore = 0;
   }
