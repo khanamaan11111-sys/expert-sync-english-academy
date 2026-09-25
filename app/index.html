@@ -3819,7 +3819,224 @@ body {
 </div>
   </div>
 
+<!-- BIOGRAPHY & READING -->
 
+<div class="practice-card">
+
+  <div class="practice-status">
+    <span>✦ SKILL • ESA-P07</span>
+    <span>● READY</span>
+  </div>
+
+  <div class="practice-icon">📖</div>
+
+  <h3>Biography & Reading</h3>
+
+  <p>
+    Read inspiring biographies and stories to improve English.
+  </p>
+
+  <button onclick="openPractice('biography')">
+    START READING
+  </button>
+
+  <div style="
+    margin-top:10px;
+    padding-top:8px;
+    border-top:1px dashed #d7dee8;
+    font-size:9px;
+    font-weight:700;
+    color:#345;">
+    GATE P-07 • READING LIBRARY
+  </div>
+
+</div>
+
+  <!-- BIOGRAPHY & READING PANEL -->
+
+<div
+  id="practice-biography"
+  class="practice-panel">
+
+  <div class="practice-box">
+
+    <h3>📖 Biography & Reading Library</h3>
+
+    <p>
+      Read inspiring biographies and professional stories to improve
+      English vocabulary, comprehension and career knowledge.
+    </p>
+
+    <label for="biographyCategory">
+      <strong>Choose Profession:</strong>
+    </label>
+
+    <select
+      id="biographyCategory"
+      onchange="loadBiography()"
+      style="width:100%; margin-top:8px; padding:12px; border-radius:10px;">
+
+      <option value="racer">🏎️ Car Racer</option>
+      <option value="scientist">🔬 Scientist</option>
+      <option value="doctor">🩺 Doctor</option>
+      <option value="engineer">⚙️ Engineer</option>
+      <option value="teacher">👨‍🏫 Teacher</option>
+      <option value="lawyer">⚖️ Lawyer</option>
+      <option value="pilot">✈️ Pilot</option>
+      <option value="singer">🎤 Singer</option>
+      <option value="actor">🎬 Actor / Actress</option>
+      <option value="dancer">💃 Dancer</option>
+      <option value="artist">🎨 Painter / Artist</option>
+      <option value="writer">✍️ Writer</option>
+      <option value="journalist">📰 Journalist</option>
+      <option value="chef">👨‍🍳 Chef</option>
+      <option value="farmer">🌾 Farmer</option>
+      <option value="business">💼 Businessman / Businesswoman</option>
+      <option value="politician">🏛️ Politician</option>
+      <option value="soldier">🪖 Soldier</option>
+      <option value="nurse">🏥 Nurse</option>
+      <option value="architect">🏗️ Architect</option>
+      <option value="photographer">📷 Photographer</option>
+      <option value="musician">🎵 Musician</option>
+      <option value="boxer">🥊 Boxer</option>
+      <option value="wrestler">🤼 Wrestler</option>
+      <option value="athlete">🏃 Athlete</option>
+      <option value="coach">🏅 Coach</option>
+      <option value="astronaut">🚀 Astronaut</option>
+      <option value="cricketer">🏏 Cricketer</option>
+      <option value="footballer">⚽ Footballer</option>
+      <option value="tennis">🎾 Tennis Player</option>
+      <option value="police">👮 Police Officer</option>
+      <option value="army">🎖️ Army Officer</option>
+      <option value="fashion">👗 Fashion Designer</option>
+      <option value="entrepreneur">🚀 Entrepreneur</option>
+      <option value="model">📸 Model</option>
+      <option value="ca">📊 Chartered Accountant</option>
+      <option value="banker">🏦 Banker</option>
+      <option value="professor">🎓 Professor</option>
+      <option value="space-scientist">🛰️ Space Scientist</option>
+      <option value="youtuber">▶️ YouTuber</option>
+      <option value="content-creator">📱 Content Creator</option>
+
+    </select>
+
+    <div
+      id="biographyReadingArea"
+      style="
+        margin-top:18px;
+        padding:16px;
+        border:1px solid #d7dee8;
+        border-radius:10px;
+      ">
+
+      <strong>📚 Reading Library</strong>
+
+      <p>
+        Select a profession to begin reading.
+      </p>
+
+    </div>
+
+    <button
+      style="margin-top:15px;"
+      onclick="backToPractice()">
+      Back
+    </button>
+
+  </div>
+
+</div>
+
+<!-- BIOGRAPHY READING PANEL -->
+
+<div
+  id="practice-biography"
+  class="practice-panel">
+
+  <div class="practice-box">
+
+    <h3>📖 Biography & Reading Library</h3>
+
+    <p>
+      Choose a profession and read an inspiring biography to improve
+      your English vocabulary, comprehension and reading skills.
+    </p>
+
+    <label for="biographyCategory">
+      <strong>Choose Profession:</strong>
+    </label>
+
+    <select
+      id="biographyCategory"
+      onchange="loadBiography()"
+      style="width:100%; margin-top:8px; padding:12px; border-radius:10px;">
+
+      <option value="racer">🏎️ Car Racer</option>
+      <option value="scientist">🔬 Scientist</option>
+      <option value="doctor">🩺 Doctor</option>
+      <option value="engineer">⚙️ Engineer</option>
+      <option value="teacher">👨‍🏫 Teacher</option>
+      <option value="lawyer">⚖️ Lawyer</option>
+      <option value="pilot">✈️ Pilot</option>
+      <option value="singer">🎤 Singer</option>
+      <option value="actor">🎭 Actor / Actress</option>
+      <option value="dancer">💃 Dancer</option>
+      <option value="artist">🎨 Painter / Artist</option>
+      <option value="writer">✍️ Writer</option>
+      <option value="journalist">📰 Journalist</option>
+      <option value="chef">👨‍🍳 Chef</option>
+      <option value="farmer">🌾 Farmer</option>
+      <option value="business">💼 Businessman / Businesswoman</option>
+      <option value="politician">🏛️ Politician</option>
+      <option value="soldier">🪖 Soldier</option>
+      <option value="nurse">👩‍⚕️ Nurse</option>
+      <option value="architect">🏗️ Architect</option>
+      <option value="photographer">📷 Photographer</option>
+      <option value="musician">🎵 Musician</option>
+      <option value="boxer">🥊 Boxer</option>
+      <option value="wrestler">🤼 Wrestler</option>
+      <option value="athlete">🏃 Athlete</option>
+      <option value="coach">🏅 Coach</option>
+      <option value="astronaut">🚀 Astronaut</option>
+      <option value="cricketer">🏏 Cricketer</option>
+      <option value="footballer">⚽ Footballer</option>
+      <option value="tennis">🎾 Tennis Player</option>
+      <option value="police">👮 Police Officer</option>
+      <option value="army">🎖️ Army Officer</option>
+      <option value="fashion">👗 Fashion Designer</option>
+      <option value="entrepreneur">🚀 Entrepreneur</option>
+      <option value="model">📸 Model</option>
+      <option value="ca">📊 Chartered Accountant</option>
+      <option value="banker">🏦 Banker</option>
+      <option value="professor">🎓 Professor</option>
+      <option value="spaceScientist">🛰️ Space Scientist</option>
+      <option value="youtuber">▶️ YouTuber</option>
+      <option value="contentCreator">📱 Content Creator</option>
+
+    </select>
+
+    <div
+      id="biographyContent"
+      style="
+        margin-top:18px;
+        padding:18px;
+        border:1px solid #d7dee8;
+        border-radius:12px;
+        line-height:1.8;
+      ">
+      Select a profession to begin reading.
+    </div>
+
+    <button
+      onclick="backToPractice()"
+      style="margin-top:15px;">
+      Back
+    </button>
+
+  </div>
+
+</div>
+  
   <!-- SPEAKING -->
 
   <div
@@ -7042,6 +7259,92 @@ const vocabularyQuestions = [
 
 ];
 
+  /* =============== BIOGRAPHY & READING =============== */
+
+  const biographyProfessions = [
+  "Car Racer",
+  "Scientist",
+  "Doctor",
+  "Engineer",
+  "Teacher",
+  "Lawyer",
+  "Pilot",
+  "Singer",
+  "Actor/Actress",
+  "Dancer",
+  "Painter/Artist",
+  "Writer",
+  "Journalist",
+  "Chef",
+  "Farmer",
+  "Businessman/Businesswoman",
+  "Politician",
+  "Soldier",
+  "Nurse",
+  "Architect",
+  "Photographer",
+  "Musician",
+  "Boxer",
+  "Wrestler",
+  "Athlete",
+  "Coach",
+  "Astronaut",
+  "Cricketer",
+  "Footballer",
+  "Tennis Player",
+  "Police Officer",
+  "Army Officer",
+  "Fashion Designer",
+  "Entrepreneur",
+  "Model",
+  "Chartered Accountant",
+  "Banker",
+  "Professor",
+  "Space Scientist",
+  "YouTuber",
+  "Content Creator"
+];
+const biographyStories = [
+  {
+    profession: "Car Racer",
+    title: "The Journey of a Car Racer",
+    story: "A young racing enthusiast dreamed of becoming a professional car racer. He began by learning about cars, road safety, fitness, and racing techniques. He practiced regularly and learned from every mistake. Racing required concentration, discipline, quick decisions, and courage. His progress was slow at first, but he continued training. Over time, his driving skills and confidence improved. His journey showed that success in motorsport requires much more than speed. It requires preparation, responsibility, patience, and continuous learning."
+  },
+  {
+    profession: "Scientist",
+    title: "The Journey of a Scientist",
+    story: "A curious student loved asking questions about the world. She studied science carefully and spent many hours reading, observing, and experimenting. Some experiments failed, but she treated every failure as an opportunity to learn. As her knowledge grew, she began working on difficult scientific problems. Her career required patience, accuracy, creativity, and teamwork. She learned that important discoveries often take years of careful work. Her journey showed that curiosity combined with education and persistence can help a person contribute valuable knowledge to society."
+  },
+  {
+    profession: "Pilot",
+    title: "The Journey of a Pilot",
+    story: "A student dreamed of flying aircraft and seeing the world from the sky. He studied aviation, communication, navigation, weather, and safety procedures. Flight training demanded concentration and discipline. He learned to follow checklists, communicate clearly, and remain calm while making decisions. After extensive study and practical training, he continued developing his flying skills and professional knowledge. His journey showed that becoming a pilot is not simply about flying an aircraft. It requires responsibility, continuous training, teamwork, and a strong commitment to safety."
+  }
+];
+function loadBiography() {
+
+  const category =
+    document.getElementById("biographyCategory").value;
+
+  const readingArea =
+    document.getElementById("biographyReadingArea");
+
+  const biography =
+    biographyStories.find(function(item) {
+      return item.profession.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") === category;
+    });
+
+  if (biography) {
+    readingArea.innerHTML =
+      "<h3>" + biography.title + "</h3>" +
+      "<p style='line-height:1.8;'>" + biography.story + "</p>";
+  } else {
+    readingArea.innerHTML =
+      "<strong>📚 Reading Library</strong>" +
+      "<p>This biography is being prepared. Please choose another profession.</p>";
+  }
+}
+  
 let vocabIndex = 0;
 let vocabScore = 0;
 
