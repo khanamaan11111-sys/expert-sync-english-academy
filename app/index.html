@@ -7293,9 +7293,21 @@ function loadBiography() {
     });
 
   if (biography) {
-    readingArea.innerHTML =
-      "<h3>" + biography.title + "</h3>" +
-      "<p style='line-height:1.8;'>" + biography.story + "</p>";
+
+  const paragraphs = biography.story
+    .split(/\n\s*\n/)
+    .map(function(paragraph) {
+      return "<p style='line-height:1.8; margin-bottom:14px;'>" +
+        paragraph.trim() +
+        "</p>";
+    })
+    .join("");
+
+  readingArea.innerHTML =
+    "<h3>" + biography.title + "</h3>" +
+    paragraphs;
+
+}
   } else {
     readingArea.innerHTML =
       "<strong>📚 Reading Library</strong>" +
