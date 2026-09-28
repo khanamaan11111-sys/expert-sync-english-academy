@@ -3920,7 +3920,19 @@ body {
       <option value="content-creator">📱 Content Creator</option>
 
     </select>
+<div id="biographyPersonBox" style="display:none; margin-top:14px;">
 
+  <label for="biographyPerson">
+    <strong>Choose Personality:</strong>
+  </label>
+
+  <select
+    id="biographyPerson"
+    onchange="loadBiography()"
+    style="width:100%; margin-top:8px; padding:12px; border-radius:10px;">
+  </select>
+
+</div>
     <div
       id="biographyReadingArea"
       style="
@@ -7240,8 +7252,9 @@ const biographyStories = [
   },
 {
   profession: "Scientist",
-  title: "Marie Curie: The Scientist Who Changed the World",
-  story: `Marie Curie was one of the most remarkable scientists in history. She was a physicist and chemist whose pioneering research on radioactivity transformed science and medicine.
+person: "Marie Curie",
+title: "Marie Curie: The Scientist Who Changed the World",
+story: `Marie Curie was one of the most remarkable scientists in history. She was a physicist and chemist whose pioneering research on radioactivity transformed science and medicine.
 
 Marie Curie was born Maria Skłodowska on 7 November 1867 in Warsaw. Her parents were teachers, and education was very important in her family. However, her early life was difficult. Her family faced financial problems, she lost her mother when she was young, and women did not have the same educational opportunities as men in Russian-controlled Warsaw.
 
@@ -7273,6 +7286,35 @@ Her life teaches students an important lesson: difficult circumstances may delay
 
 Marie Curie's discoveries changed our understanding of science and contributed to important developments in physics and medicine. Her extraordinary journey continues to inspire students, researchers and scientists around the world.`
 },
+
+ {
+  profession: "Scientist",
+  person: "Nikola Tesla",
+  title: "Nikola Tesla: The Visionary Inventor",
+  story: `Nikola Tesla was a remarkable inventor and electrical engineer whose ideas helped shape the modern world. He is especially remembered for his important contributions to alternating current, commonly known as AC, and for his experiments with electricity and wireless technology.
+
+Tesla was born on 10 July 1856 in Smiljan, in the Austrian Empire, in an area that is now part of Croatia. From an early age, he showed a strong imagination and an unusual ability to visualize machines and mechanical systems in his mind.
+
+As a young man, Tesla studied engineering and developed a deep interest in electricity. He worked in Europe before moving to the United States in 1884. Soon after arriving in New York, he worked briefly with Thomas Edison.
+
+Tesla and Edison had different approaches to electrical power systems. Tesla became strongly associated with alternating current, while Edison had promoted direct current, or DC. Tesla later worked with industrialist George Westinghouse, who supported the development and commercial use of AC technology.
+
+One of Tesla's most important achievements was his work on the alternating-current electrical system. AC made it practical to transmit electrical power over long distances and became fundamental to the development of modern electric-power networks.
+
+Tesla also developed and demonstrated technologies involving motors, transformers, high-frequency electricity, radio-related systems, remote control, and wireless transmission. The Tesla coil, which he developed in 1891, became one of his best-known inventions.
+
+Tesla was fascinated by the possibility of transmitting information and electrical energy without wires. At his laboratory in Colorado Springs, he conducted ambitious experiments involving high-voltage and high-frequency electricity.
+
+Later, Tesla began work on the Wardenclyffe project on Long Island, New York. He hoped to develop a powerful wireless communication system. However, financial difficulties prevented the project from being completed as he had envisioned.
+
+Tesla received numerous patents during his career, but his financial situation became increasingly difficult later in life. He continued thinking about inventions and scientific ideas even when he no longer had the resources available during his earlier career.
+
+Nikola Tesla died in New York City on 7 January 1943. Decades after his death, public interest in his work increased considerably, and his name became widely associated with innovation, electricity, engineering, and technological imagination.
+
+Tesla's life demonstrates the power of curiosity, experimentation, creativity, and persistence. His journey also shows that innovation can involve uncertainty, disagreement, financial challenges, and ideas that may take years to receive wider recognition.
+
+For English learners, Tesla's story provides useful vocabulary connected with science, engineering, electricity, invention, experimentation, innovation, technology, research, challenges, and achievement.`
+}, 
   {
     profession: "Pilot",
     title: "The Journey of a Pilot",
@@ -7305,13 +7347,47 @@ His life demonstrates the importance of creativity, observation, perseverance, a
   }
 ];
 
-  function loadBiography() {
+function loadBiography() {
 
   const category =
     document.getElementById("biographyCategory").value;
 
   const readingArea =
     document.getElementById("biographyReadingArea");
+
+  const personBox =
+    document.getElementById("biographyPersonBox");
+
+  const personSelect =
+    document.getElementById("biographyPerson");
+
+  // Scientist has multiple personalities
+  if (category === "scientist") {
+
+    personBox.style.display = "block";
+
+    // Create personality choices only when needed
+    if (personSelect.options.length === 0) {
+      personSelect.innerHTML =
+        '<option value="Marie Curie">Marie Curie</option>' +
+        '<option value="Nikola Tesla">Nikola Tesla</option>';
+    }
+
+    const selectedPerson = personSelect.value;
+
+    const biography =
+      biographyStories.find(function(item) {
+        return item.profession === "Scientist" &&
+               item.person === selectedPerson;
+      });
+
+    displayBiography(biography, readingArea);
+    return;
+  }
+
+  // Hide personality selector for other professions
+  personBox.style.display = "none";
+  personSelect.innerHTML = "";
 
   const biography =
     biographyStories.find(function(item) {
@@ -7320,6 +7396,12 @@ His life demonstrates the importance of creativity, observation, perseverance, a
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-|-$/g, "") === category;
     });
+
+  displayBiography(biography, readingArea);
+}
+
+
+function displayBiography(biography, readingArea) {
 
   if (biography) {
 
