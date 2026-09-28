@@ -7279,7 +7279,8 @@ Marie Curie's discoveries changed our understanding of science and contributed t
     story: "A student dreamed of flying aircraft and seeing the world from the sky. He studied aviation, communication, navigation, weather, and safety procedures. Flight training demanded concentration and discipline. He learned to follow checklists, communicate clearly, and remain calm while making decisions. After extensive study and practical training, he continued developing his flying skills and professional knowledge. His journey showed that becoming a pilot is not simply about flying an aircraft. It requires responsibility, continuous training, teamwork, and a strong commitment to safety."
   }
 ];
-function loadBiography() {
+
+  function loadBiography() {
 
   const category =
     document.getElementById("biographyCategory").value;
@@ -7289,32 +7290,35 @@ function loadBiography() {
 
   const biography =
     biographyStories.find(function(item) {
-      return item.profession.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") === category;
+      return item.profession
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") === category;
     });
 
   if (biography) {
 
-  const paragraphs = biography.story
-    .split(/\n\s*\n/)
-    .map(function(paragraph) {
-      return "<p style='line-height:1.8; margin-bottom:14px;'>" +
-        paragraph.trim() +
-        "</p>";
-    })
-    .join("");
+    const paragraphs = biography.story
+      .split(/\n\s*\n/)
+      .map(function(paragraph) {
+        return "<p style='line-height:1.8; margin-bottom:14px;'>" +
+          paragraph.trim() +
+          "</p>";
+      })
+      .join("");
 
-  readingArea.innerHTML =
-    "<h3>" + biography.title + "</h3>" +
-    paragraphs;
+    readingArea.innerHTML =
+      "<h3>" + biography.title + "</h3>" +
+      paragraphs;
 
-}
   } else {
+
     readingArea.innerHTML =
       "<strong>📚 Reading Library</strong>" +
       "<p>This biography is being prepared. Please choose another profession.</p>";
+
   }
 }
-  
 let vocabIndex = 0;
 let vocabScore = 0;
 
