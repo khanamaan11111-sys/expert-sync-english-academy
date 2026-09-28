@@ -3862,11 +3862,11 @@ body {
 
     <h3>📖 Biography & Reading Library</h3>
 
-    <p>
-      Read inspiring biographies and professional stories to improve
-      English vocabulary, comprehension and career knowledge.
-    </p>
-
+<p>
+  Read inspiring biographies and professional stories to improve
+  your English reading skills and general knowledge.
+</p>
+    
     <label for="biographyCategory">
       <strong>Choose Profession:</strong>
     </label>
@@ -3885,6 +3885,7 @@ body {
       <option value="pilot">✈️ Pilot</option>
       <option value="singer">🎤 Singer</option>
       <option value="actor">🎬 Actor / Actress</option>
+      <option value="director">🎥 Film Director</option>
       <option value="dancer">💃 Dancer</option>
       <option value="artist">🎨 Painter / Artist</option>
       <option value="writer">✍️ Writer</option>
@@ -3947,96 +3948,7 @@ body {
 
 </div>
 
-<!-- BIOGRAPHY READING PANEL -->
 
-<div
-  id="practice-biography"
-  class="practice-panel">
-
-  <div class="practice-box">
-
-    <h3>📖 Biography & Reading Library</h3>
-
-    <p>
-      Choose a profession and read an inspiring biography to improve
-      your English vocabulary, comprehension and reading skills.
-    </p>
-
-    <label for="biographyCategory">
-      <strong>Choose Profession:</strong>
-    </label>
-
-    <select
-      id="biographyCategory"
-      onchange="loadBiography()"
-      style="width:100%; margin-top:8px; padding:12px; border-radius:10px;">
-
-      <option value="racer">🏎️ Car Racer</option>
-      <option value="scientist">🔬 Scientist</option>
-      <option value="doctor">🩺 Doctor</option>
-      <option value="engineer">⚙️ Engineer</option>
-      <option value="teacher">👨‍🏫 Teacher</option>
-      <option value="lawyer">⚖️ Lawyer</option>
-      <option value="pilot">✈️ Pilot</option>
-      <option value="singer">🎤 Singer</option>
-      <option value="actor">🎭 Actor / Actress</option>
-      <option value="dancer">💃 Dancer</option>
-      <option value="artist">🎨 Painter / Artist</option>
-      <option value="writer">✍️ Writer</option>
-      <option value="journalist">📰 Journalist</option>
-      <option value="chef">👨‍🍳 Chef</option>
-      <option value="farmer">🌾 Farmer</option>
-      <option value="business">💼 Businessman / Businesswoman</option>
-      <option value="politician">🏛️ Politician</option>
-      <option value="soldier">🪖 Soldier</option>
-      <option value="nurse">👩‍⚕️ Nurse</option>
-      <option value="architect">🏗️ Architect</option>
-      <option value="photographer">📷 Photographer</option>
-      <option value="musician">🎵 Musician</option>
-      <option value="boxer">🥊 Boxer</option>
-      <option value="wrestler">🤼 Wrestler</option>
-      <option value="athlete">🏃 Athlete</option>
-      <option value="coach">🏅 Coach</option>
-      <option value="astronaut">🚀 Astronaut</option>
-      <option value="cricketer">🏏 Cricketer</option>
-      <option value="footballer">⚽ Footballer</option>
-      <option value="tennis">🎾 Tennis Player</option>
-      <option value="police">👮 Police Officer</option>
-      <option value="army">🎖️ Army Officer</option>
-      <option value="fashion">👗 Fashion Designer</option>
-      <option value="entrepreneur">🚀 Entrepreneur</option>
-      <option value="model">📸 Model</option>
-      <option value="ca">📊 Chartered Accountant</option>
-      <option value="banker">🏦 Banker</option>
-      <option value="professor">🎓 Professor</option>
-      <option value="spaceScientist">🛰️ Space Scientist</option>
-      <option value="youtuber">▶️ YouTuber</option>
-      <option value="contentCreator">📱 Content Creator</option>
-
-    </select>
-
-    <div
-      id="biographyContent"
-      style="
-        margin-top:18px;
-        padding:18px;
-        border:1px solid #d7dee8;
-        border-radius:12px;
-        line-height:1.8;
-      ">
-      Select a profession to begin reading.
-    </div>
-
-    <button
-      onclick="backToPractice()"
-      style="margin-top:15px;">
-      Back
-    </button>
-
-  </div>
-
-</div>
-  
   <!-- SPEAKING -->
 
   <div
@@ -7286,6 +7198,7 @@ const vocabularyQuestions = [
   "Pilot",
   "Singer",
   "Actor/Actress",
+  "Film Director",
   "Dancer",
   "Painter/Artist",
   "Writer",
