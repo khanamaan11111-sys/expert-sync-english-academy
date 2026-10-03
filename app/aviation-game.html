@@ -1,0 +1,1909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expert Sync Aviation Simulator</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#020914;
+    font-family:Arial,Helvetica,sans-serif;
+    color:#fff;
+}
+
+#game{
+    position:relative;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#061426;
+}
+
+canvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+}
+
+/* =========================
+   START SCREEN
+========================= */
+
+#startScreen{
+    position:absolute;
+    inset:0;
+    z-index:20;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+        radial-gradient(circle at 50% 30%,rgba(40,130,220,.22),transparent 40%),
+        linear-gradient(180deg,#03101f,#02060d);
+}
+
+.startCard{
+    width:min(720px,92vw);
+    padding:42px;
+    border:1px solid rgba(100,190,255,.35);
+    border-radius:24px;
+    background:rgba(3,16,30,.92);
+    box-shadow:0 30px 80px rgba(0,0,0,.65);
+    text-align:center;
+}
+
+.logo{
+    font-size:18px;
+    letter-spacing:4px;
+    color:#76d5ff;
+    font-weight:bold;
+    margin-bottom:12px;
+}
+
+.startCard h1{
+    font-size:clamp(34px,6vw,64px);
+    margin-bottom:10px;
+    background:linear-gradient(90deg,#fff,#7bdcff);
+    -webkit-background-clip:text;
+    color:transparent;
+}
+
+.startCard p{
+    color:#b9cfe2;
+    line-height:1.7;
+    margin-bottom:25px;
+}
+
+.featureGrid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin:20px 0 28px;
+}
+
+.feature{
+    padding:12px;
+    border-radius:10px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    color:#dcefff;
+    font-size:13px;
+}
+
+#startButton{
+    border:0;
+    border-radius:12px;
+    padding:16px 35px;
+    font-size:17px;
+    font-weight:bold;
+    color:#00121e;
+    background:#65d8ff;
+    cursor:pointer;
+    box-shadow:0 8px 25px rgba(75,200,255,.3);
+}
+
+#startButton:hover{
+    transform:translateY(-2px);
+    background:#8be2ff;
+}
+
+/* =========================
+   HUD
+========================= */
+
+#hud{
+    position:absolute;
+    inset:0;
+    z-index:5;
+    pointer-events:none;
+    display:none;
+}
+
+.topBar{
+    position:absolute;
+    top:14px;
+    left:14px;
+    right:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+}
+
+.panel{
+    background:rgba(2,13,25,.72);
+    border:1px solid rgba(120,210,255,.2);
+    backdrop-filter:blur(8px);
+    border-radius:10px;
+    padding:10px 13px;
+}
+
+.titlePanel{
+    min-width:220px;
+}
+
+.titlePanel strong{
+    color:#76ddff;
+    letter-spacing:2px;
+    font-size:12px;
+}
+
+.titlePanel div{
+    font-size:11px;
+    color:#b7c9d7;
+    margin-top:4px;
+}
+
+.stats{
+    display:flex;
+    gap:8px;
+}
+
+.stat{
+    min-width:78px;
+    text-align:center;
+}
+
+.stat label{
+    display:block;
+    font-size:9px;
+    color:#8da9bb;
+    letter-spacing:1px;
+}
+
+.stat span{
+    display:block;
+    margin-top:3px;
+    font-weight:bold;
+    font-size:16px;
+}
+
+#messageBox{
+    position:absolute;
+    top:105px;
+    left:50%;
+    transform:translateX(-50%);
+    width:min(560px,88vw);
+    text-align:center;
+    pointer-events:none;
+}
+
+.message{
+    display:inline-block;
+    padding:9px 16px;
+    border-radius:8px;
+    background:rgba(1,12,23,.78);
+    border:1px solid rgba(105,210,255,.25);
+    color:#dff6ff;
+    font-size:13px;
+}
+
+#missionPanel{
+    position:absolute;
+    top:105px;
+    left:16px;
+    width:270px;
+}
+
+.panelHeading{
+    color:#72d8ff;
+    font-size:11px;
+    letter-spacing:2px;
+    margin-bottom:8px;
+}
+
+#missionText{
+    font-size:13px;
+    line-height:1.5;
+    color:#d7e8f3;
+}
+
+#missionProgress{
+    height:5px;
+    background:rgba(255,255,255,.1);
+    border-radius:5px;
+    overflow:hidden;
+    margin-top:9px;
+}
+
+#missionProgressBar{
+    width:0%;
+    height:100%;
+    background:#62d7ff;
+}
+
+#statusPanel{
+    position:absolute;
+    right:16px;
+    bottom:16px;
+    width:205px;
+}
+
+.statusRow{
+    display:flex;
+    justify-content:space-between;
+    margin:5px 0;
+    font-size:11px;
+    color:#b9c9d5;
+}
+
+.statusRow span:last-child{
+    color:#fff;
+    font-weight:bold;
+}
+
+#scorePanel{
+    position:absolute;
+    left:16px;
+    bottom:16px;
+}
+
+#score{
+    color:#74deff;
+    font-size:22px;
+    font-weight:bold;
+}
+
+/* =========================
+   FLIGHT INSTRUMENTS
+========================= */
+
+#instruments{
+    position:absolute;
+    left:50%;
+    bottom:15px;
+    transform:translateX(-50%);
+    display:flex;
+    gap:10px;
+    align-items:flex-end;
+}
+
+.instrument{
+    width:82px;
+    height:82px;
+    border-radius:50%;
+    background:rgba(2,9,17,.82);
+    border:2px solid rgba(160,220,255,.35);
+    box-shadow:0 6px 20px rgba(0,0,0,.35);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+
+.instrument small{
+    color:#7e9aac;
+    font-size:8px;
+    letter-spacing:1px;
+}
+
+.instrument strong{
+    font-size:18px;
+    color:#e9f9ff;
+}
+
+.instrument em{
+    font-style:normal;
+    font-size:9px;
+    color:#72d8ff;
+}
+
+/* =========================
+   CONTROLS
+========================= */
+
+#controls{
+    position:absolute;
+    z-index:8;
+    left:50%;
+    bottom:18px;
+    transform:translateX(-50%);
+    display:none;
+    pointer-events:auto;
+}
+
+.controlGrid{
+    display:grid;
+    grid-template-columns:repeat(3,60px);
+    gap:7px;
+}
+
+.controlBtn{
+    width:60px;
+    height:45px;
+    border-radius:9px;
+    border:1px solid rgba(130,215,255,.25);
+    background:rgba(3,18,32,.82);
+    color:#dff7ff;
+    font-weight:bold;
+    cursor:pointer;
+    user-select:none;
+    -webkit-user-select:none;
+}
+
+.controlBtn:active{
+    background:rgba(60,160,210,.55);
+}
+
+.blank{
+    visibility:hidden;
+}
+
+/* =========================
+   PAUSE / HELP
+========================= */
+
+#help{
+    position:absolute;
+    right:16px;
+    top:105px;
+    padding:9px 12px;
+    font-size:10px;
+    color:#91a9b9;
+}
+
+#pauseButton{
+    pointer-events:auto;
+    cursor:pointer;
+    border:0;
+    color:#dff6ff;
+    background:transparent;
+    font-size:11px;
+}
+
+/* =========================
+   LANDING RESULT
+========================= */
+
+#resultScreen{
+    position:absolute;
+    inset:0;
+    z-index:30;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(1,7,14,.86);
+}
+
+.resultCard{
+    width:min(520px,90vw);
+    text-align:center;
+    padding:35px;
+    border-radius:20px;
+    background:#061426;
+    border:1px solid rgba(110,215,255,.3);
+}
+
+.resultCard h2{
+    color:#78ddff;
+    margin-bottom:10px;
+}
+
+.resultScore{
+    font-size:50px;
+    font-weight:bold;
+    margin:15px 0;
+}
+
+.resultInfo{
+    color:#abc2d2;
+    line-height:1.7;
+    font-size:13px;
+}
+
+#restartButton{
+    margin-top:22px;
+    padding:13px 25px;
+    border:0;
+    border-radius:9px;
+    background:#66d9ff;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:750px){
+    .stats .stat:nth-child(3),
+    .stats .stat:nth-child(4){
+        display:none;
+    }
+
+    #missionPanel{
+        width:220px;
+        top:92px;
+    }
+
+    #statusPanel{
+        display:none;
+    }
+
+    #instruments{
+        display:none;
+    }
+
+    #controls{
+        display:block;
+    }
+
+    .titlePanel{
+        min-width:150px;
+    }
+
+    .featureGrid{
+        grid-template-columns:1fr;
+    }
+
+    .startCard{
+        padding:28px 20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+<canvas id="canvas"></canvas>
+
+<!-- =========================
+     START SCREEN
+========================= -->
+
+<div id="startScreen">
+
+    <div class="startCard">
+
+        <div class="logo">EXPERT SYNC ENGLISH ACADEMY</div>
+
+        <h1>AVIATION SIMULATOR</h1>
+
+        <p>
+            Welcome, Pilot. Complete aviation missions while practicing
+            the terminology, communication and operational awareness
+            used in aviation environments.
+        </p>
+
+        <div class="featureGrid">
+            <div class="feature">✈️ Aircraft Flight</div>
+            <div class="feature">🛫 Take-off & Landing</div>
+            <div class="feature">🧭 Navigation</div>
+            <div class="feature">📡 ATC Communication</div>
+            <div class="feature">🎯 Aviation Missions</div>
+            <div class="feature">🏆 Pilot Score</div>
+        </div>
+
+        <button id="startButton">
+            START FLIGHT
+        </button>
+
+    </div>
+
+</div>
+
+<!-- =========================
+     HUD
+========================= -->
+
+<div id="hud">
+
+    <div class="topBar">
+
+        <div class="panel titlePanel">
+            <strong>EXPERT SYNC • FLIGHT DECK</strong>
+            <div id="flightPhase">PRE-FLIGHT</div>
+        </div>
+
+        <div class="stats">
+
+            <div class="panel stat">
+                <label>AIRSPEED</label>
+                <span id="speed">0</span>
+                <small>KT</small>
+            </div>
+
+            <div class="panel stat">
+                <label>ALTITUDE</label>
+                <span id="altitude">0</span>
+                <small>FT</small>
+            </div>
+
+            <div class="panel stat">
+                <label>HEADING</label>
+                <span id="heading">090</span>
+                <small>°</small>
+            </div>
+
+            <div class="panel stat">
+                <label>FUEL</label>
+                <span id="fuel">100</span>
+                <small>%</small>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="messageBox">
+        <div class="message" id="message">
+            Welcome aboard. Complete your pre-flight briefing.
+        </div>
+    </div>
+
+    <div class="panel" id="missionPanel">
+
+        <div class="panelHeading">CURRENT MISSION</div>
+
+        <div id="missionText">
+            Taxi to the runway.
+        </div>
+
+        <div id="missionProgress">
+            <div id="missionProgressBar"></div>
+        </div>
+
+    </div>
+
+    <div class="panel" id="help">
+        <button id="pauseButton">⏸ PAUSE</button>
+    </div>
+
+    <div class="panel" id="scorePanel">
+        <div class="panelHeading">FLIGHT SCORE</div>
+        <div id="score">0</div>
+    </div>
+
+    <div class="panel" id="statusPanel">
+
+        <div class="panelHeading">AIRCRAFT STATUS</div>
+
+        <div class="statusRow">
+            <span>Engine</span>
+            <span id="engineStatus">READY</span>
+        </div>
+
+        <div class="statusRow">
+            <span>Gear</span>
+            <span id="gearStatus">DOWN</span>
+        </div>
+
+        <div class="statusRow">
+            <span>Flaps</span>
+            <span id="flapStatus">UP</span>
+        </div>
+
+        <div class="statusRow">
+            <span>Weather</span>
+            <span id="weatherStatus">CLEAR</span>
+        </div>
+
+    </div>
+
+    <div id="instruments">
+
+        <div class="instrument">
+            <small>VERTICAL</small>
+            <strong id="vspeed">0</strong>
+            <em>FPM</em>
+        </div>
+
+        <div class="instrument">
+            <small>THROTTLE</small>
+            <strong id="throttle">0</strong>
+            <em>%</em>
+        </div>
+
+        <div class="instrument">
+            <small>WIND</small>
+            <strong id="wind">08</strong>
+            <em>KT</em>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =========================
+     TOUCH CONTROLS
+========================= -->
+
+<div id="controls">
+
+    <div class="controlGrid">
+
+        <button class="controlBtn blank"></button>
+        <button class="controlBtn" data-control="up">▲</button>
+        <button class="controlBtn blank"></button>
+
+        <button class="controlBtn" data-control="left">◀</button>
+        <button class="controlBtn" data-control="down">▼</button>
+        <button class="controlBtn" data-control="right">▶</button>
+
+        <button class="controlBtn" data-control="throttleDown">−</button>
+        <button class="controlBtn" data-control="throttleUp">THR</button>
+        <button class="controlBtn" data-control="brake">BRK</button>
+
+    </div>
+
+</div>
+
+<!-- =========================
+     RESULT SCREEN
+========================= -->
+
+<div id="resultScreen">
+
+    <div class="resultCard">
+
+        <h2 id="resultTitle">FLIGHT COMPLETE</h2>
+
+        <div class="resultScore" id="finalScore">
+            0
+        </div>
+
+        <div class="resultInfo" id="resultInfo">
+            Flight completed.
+        </div>
+
+        <button id="restartButton">
+            FLY AGAIN
+        </button>
+
+    </div>
+
+</div>
+
+</div>
+
+<script>
+
+/* =========================================================
+   EXPERT SYNC AVIATION SIMULATOR
+   VERSION 1
+========================================================= */
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let W = 0;
+let H = 0;
+
+function resize(){
+    W = canvas.width = window.innerWidth * devicePixelRatio;
+    H = canvas.height = window.innerHeight * devicePixelRatio;
+
+    canvas.style.width = window.innerWidth + "px";
+    canvas.style.height = window.innerHeight + "px";
+
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+
+    W = window.innerWidth;
+    H = window.innerHeight;
+}
+
+window.addEventListener("resize",resize);
+resize();
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+let running = false;
+let paused = false;
+
+const plane = {
+
+    x:0,
+    y:0,
+
+    speed:0,
+    altitude:0,
+    heading:90,
+
+    pitch:0,
+    roll:0,
+
+    throttle:0,
+
+    fuel:100,
+
+    gear:true,
+    flaps:false,
+
+    onGround:true,
+
+    verticalSpeed:0,
+
+    distance:0
+
+};
+
+let score = 0;
+
+let missionIndex = 0;
+
+const missions = [
+
+    {
+        title:"Taxi to the runway",
+        instruction:"Use throttle and steering to taxi toward the departure runway.",
+        type:"taxi"
+    },
+
+    {
+        title:"Take off",
+        instruction:"Increase power and rotate the aircraft safely for take-off.",
+        type:"takeoff"
+    },
+
+    {
+        title:"Climb to 2,000 feet",
+        instruction:"Maintain a controlled climb and reach 2,000 feet.",
+        type:"climb"
+    },
+
+    {
+        title:"Navigate to the training area",
+        instruction:"Maintain heading 090° and fly east toward the training area.",
+        type:"cruise"
+    },
+
+    {
+        title:"Return to the airport",
+        instruction:"Turn back toward the airport and prepare for landing.",
+        type:"return"
+    },
+
+    {
+        title:"Land safely",
+        instruction:"Reduce speed, lower the landing gear and land on the runway.",
+        type:"landing"
+    }
+
+];
+
+/* =========================================================
+   INPUT
+========================================================= */
+
+const keys = {};
+
+window.addEventListener("keydown",e=>{
+
+    keys[e.key.toLowerCase()] = true;
+
+    if(e.key === " "){
+        e.preventDefault();
+    }
+
+});
+
+window.addEventListener("keyup",e=>{
+    keys[e.key.toLowerCase()] = false;
+});
+
+/* =========================================================
+   TOUCH INPUT
+========================================================= */
+
+document.querySelectorAll("[data-control]").forEach(button=>{
+
+    const control = button.dataset.control;
+
+    const press = e => {
+
+        e.preventDefault();
+
+        if(control==="up") keys["arrowup"]=true;
+        if(control==="down") keys["arrowdown"]=true;
+        if(control==="left") keys["arrowleft"]=true;
+        if(control==="right") keys["arrowright"]=true;
+
+        if(control==="throttleUp") keys["w"]=true;
+        if(control==="throttleDown") keys["s"]=true;
+        if(control==="brake") keys["b"]=true;
+
+    };
+
+    const release = e => {
+
+        e.preventDefault();
+
+        if(control==="up") keys["arrowup"]=false;
+        if(control==="down") keys["arrowdown"]=false;
+        if(control==="left") keys["arrowleft"]=false;
+        if(control==="right") keys["arrowright"]=false;
+
+        if(control==="throttleUp") keys["w"]=false;
+        if(control==="throttleDown") keys["s"]=false;
+        if(control==="brake") keys["b"]=false;
+
+    };
+
+    button.addEventListener("pointerdown",press);
+    button.addEventListener("pointerup",release);
+    button.addEventListener("pointercancel",release);
+    button.addEventListener("pointerleave",release);
+
+});
+
+/* =========================================================
+   START
+========================================================= */
+
+document.getElementById("startButton").onclick = startGame;
+
+function startGame(){
+
+    document.getElementById("startScreen").style.display="none";
+    document.getElementById("hud").style.display="block";
+
+    running=true;
+    paused=false;
+
+    resetPlane();
+
+    showMessage(
+        "Welcome aboard. Pre-flight complete. Taxi to the runway."
+    );
+
+    requestAnimationFrame(loop);
+
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function resetPlane(){
+
+    plane.x=0;
+    plane.y=0;
+
+    plane.speed=0;
+    plane.altitude=0;
+    plane.heading=90;
+
+    plane.pitch=0;
+    plane.roll=0;
+
+    plane.throttle=0;
+
+    plane.fuel=100;
+
+    plane.gear=true;
+    plane.flaps=false;
+
+    plane.onGround=true;
+
+    plane.verticalSpeed=0;
+
+    plane.distance=0;
+
+    score=0;
+    missionIndex=0;
+
+    updateMission();
+
+}
+
+/* =========================================================
+   MESSAGES
+========================================================= */
+
+let messageTimer=0;
+
+function showMessage(text){
+
+    document.getElementById("message").textContent=text;
+
+    messageTimer=5;
+
+}
+
+/* =========================================================
+   MISSION SYSTEM
+========================================================= */
+
+function updateMission(){
+
+    const mission=missions[missionIndex];
+
+    document.getElementById("missionText").textContent=
+        mission.title + " — " + mission.instruction;
+
+    document.getElementById("missionProgressBar").style.width="0%";
+
+}
+
+function completeMission(){
+
+    score += 100;
+
+    missionIndex++;
+
+    if(missionIndex >= missions.length){
+
+        completeFlight();
+        return;
+
+    }
+
+    showMessage(
+        "Mission complete. Next task: " +
+        missions[missionIndex].title
+    );
+
+    updateMission();
+
+}
+
+function missionProgress(){
+
+    let progress=0;
+
+    const type=missions[missionIndex].type;
+
+    if(type==="taxi"){
+
+        progress=Math.min(100,plane.speed*2);
+
+    }
+
+    if(type==="takeoff"){
+
+        progress=Math.min(100,plane.altitude/500*100);
+
+    }
+
+    if(type==="climb"){
+
+        progress=Math.min(100,plane.altitude/2000*100);
+
+    }
+
+    if(type==="cruise"){
+
+        progress=Math.min(100,plane.distance/1200*100);
+
+    }
+
+    if(type==="return"){
+
+        progress=Math.min(100,plane.distance/2000*100);
+
+    }
+
+    if(type==="landing"){
+
+        if(plane.onGround && plane.speed<90){
+            progress=100;
+        }else{
+            progress=Math.max(0,100-plane.altitude/15);
+        }
+
+    }
+
+    document.getElementById(
+        "missionProgressBar"
+    ).style.width=progress+"%";
+
+}
+
+/* =========================================================
+   COMPLETE FLIGHT
+========================================================= */
+
+function completeFlight(){
+
+    running=false;
+
+    document.getElementById("resultScreen").style.display="flex";
+
+    document.getElementById("finalScore").textContent=score;
+
+    document.getElementById("resultTitle").textContent=
+        "FLIGHT COMPLETED";
+
+    document.getElementById("resultInfo").innerHTML=
+        "Excellent work, Pilot.<br><br>" +
+        "You completed the Expert Sync Aviation training flight.<br>" +
+        "Your flight score was <strong>"+score+"</strong> points.";
+
+}
+
+/* =========================================================
+   PAUSE
+========================================================= */
+
+document.getElementById("pauseButton").onclick=()=>{
+
+    paused=!paused;
+
+    document.getElementById("pauseButton").textContent=
+        paused ? "▶ RESUME" : "⏸ PAUSE";
+
+};
+
+/* =========================================================
+   RESTART
+========================================================= */
+
+document.getElementById("restartButton").onclick=()=>{
+
+    document.getElementById("resultScreen").style.display="none";
+
+    startGame();
+
+};
+
+/* =========================================================
+   PHYSICS
+========================================================= */
+
+function updatePhysics(dt){
+
+    if(paused) return;
+
+    /* throttle */
+
+    if(keys["w"]){
+        plane.throttle += 30*dt;
+    }
+
+    if(keys["s"]){
+        plane.throttle -= 30*dt;
+    }
+
+    plane.throttle=Math.max(
+        0,
+        Math.min(100,plane.throttle)
+    );
+
+    /* braking */
+
+    if(keys["b"]){
+        plane.speed -= 35*dt;
+    }
+
+    /* engine acceleration */
+
+    const targetSpeed=plane.throttle*1.7;
+
+    if(plane.speed < targetSpeed){
+        plane.speed += 18*dt;
+    }else{
+        plane.speed -= 3*dt;
+    }
+
+    plane.speed=Math.max(
+        0,
+        Math.min(190,plane.speed)
+    );
+
+    /* steering */
+
+    if(keys["arrowleft"] || keys["a"]){
+
+        plane.heading -= 45*dt;
+        plane.roll=-20;
+
+    }else if(keys["arrowright"] || keys["d"]){
+
+        plane.heading += 45*dt;
+        plane.roll=20;
+
+    }else{
+
+        plane.roll *= .94;
+
+    }
+
+    if(plane.heading<0) plane.heading+=360;
+    if(plane.heading>=360) plane.heading-=360;
+
+    /* pitch */
+
+    if(keys["arrowup"]){
+
+        plane.pitch += 25*dt;
+
+    }
+
+    if(keys["arrowdown"]){
+
+        plane.pitch -= 25*dt;
+
+    }
+
+    plane.pitch *= .985;
+
+    plane.pitch=Math.max(
+        -15,
+        Math.min(15,plane.pitch)
+    );
+
+    /* takeoff */
+
+    if(
+        plane.onGround &&
+        plane.speed>80 &&
+        plane.pitch>2
+    ){
+
+        plane.onGround=false;
+
+        showMessage(
+            "ROTATE. Positive climb. Gear remains down."
+        );
+
+        score+=50;
+
+    }
+
+    /* airborne altitude */
+
+    if(!plane.onGround){
+
+        plane.verticalSpeed =
+            plane.pitch*35 +
+            (plane.speed-70)*0.4;
+
+        plane.verticalSpeed=Math.max(
+            -900,
+            Math.min(1600,plane.verticalSpeed)
+        );
+
+        plane.altitude +=
+            plane.verticalSpeed*dt/60;
+
+        plane.altitude=Math.max(
+            0,
+            plane.altitude
+        );
+
+        plane.distance +=
+            plane.speed*dt*0.8;
+
+    }else{
+
+        plane.verticalSpeed=0;
+
+    }
+
+    /* automatic landing gear control */
+
+    if(
+        plane.altitude>300 &&
+        plane.speed>100
+    ){
+
+        plane.gear=false;
+
+    }
+
+    if(
+        plane.altitude<150 &&
+        plane.speed<120
+    ){
+
+        plane.gear=true;
+
+    }
+
+    /* landing */
+
+    if(
+        !plane.onGround &&
+        plane.altitude<=5 &&
+        plane.verticalSpeed<300 &&
+        plane.speed<110 &&
+        plane.gear
+    ){
+
+        plane.altitude=0;
+        plane.onGround=true;
+
+        showMessage(
+            "Landing confirmed. Welcome back to the airport."
+        );
+
+        score+=150;
+
+    }
+
+    /* fuel */
+
+    plane.fuel -=
+        (0.004 + plane.throttle*0.00004)*dt;
+
+    plane.fuel=Math.max(
+        0,
+        plane.fuel
+    );
+
+}
+
+/* =========================================================
+   GAME RULES
+========================================================= */
+
+function checkMissions(){
+
+    const type=missions[missionIndex].type;
+
+    if(type==="taxi"){
+
+        if(
+            plane.speed>35 &&
+            plane.speed<70 &&
+            plane.onGround
+        ){
+
+            completeMission();
+
+        }
+
+    }
+
+    else if(type==="takeoff"){
+
+        if(
+            !plane.onGround &&
+            plane.altitude>500
+        ){
+
+            completeMission();
+
+        }
+
+    }
+
+    else if(type==="climb"){
+
+        if(
+            plane.altitude>=2000
+        ){
+
+            completeMission();
+
+        }
+
+    }
+
+    else if(type==="cruise"){
+
+        if(
+            plane.distance>=1200
+        ){
+
+            completeMission();
+
+        }
+
+    }
+
+    else if(type==="return"){
+
+        if(
+            plane.distance>=2000
+        ){
+
+            completeMission();
+
+        }
+
+    }
+
+    else if(type==="landing"){
+
+        if(
+            plane.onGround &&
+            plane.speed<90 &&
+            plane.gear
+        ){
+
+            completeMission();
+
+        }
+
+    }
+
+}
+
+/* =========================================================
+   HUD UPDATE
+========================================================= */
+
+function updateHUD(){
+
+    document.getElementById("speed").textContent=
+        Math.round(plane.speed);
+
+    document.getElementById("altitude").textContent=
+        Math.round(plane.altitude);
+
+    document.getElementById("heading").textContent=
+        String(Math.round(plane.heading)).padStart(3,"0");
+
+    document.getElementById("fuel").textContent=
+        Math.round(plane.fuel);
+
+    document.getElementById("vspeed").textContent=
+        Math.round(plane.verticalSpeed);
+
+    document.getElementById("throttle").textContent=
+        Math.round(plane.throttle);
+
+    document.getElementById("engineStatus").textContent=
+        plane.throttle>5 ? "RUNNING" : "IDLE";
+
+    document.getElementById("gearStatus").textContent=
+        plane.gear ? "DOWN" : "UP";
+
+    document.getElementById("flapStatus").textContent=
+        plane.flaps ? "EXTENDED" : "UP";
+
+    let phase="PRE-FLIGHT";
+
+    if(plane.onGround && plane.speed>10){
+        phase="TAXI";
+    }
+
+    if(!plane.onGround && plane.altitude<2000){
+        phase="CLIMB";
+    }
+
+    if(!plane.onGround && plane.altitude>=2000){
+        phase="CRUISE";
+    }
+
+    if(
+        !plane.onGround &&
+        plane.altitude<500 &&
+        plane.gear
+    ){
+        phase="APPROACH";
+    }
+
+    if(
+        plane.onGround &&
+        plane.speed<80 &&
+        missionIndex>=5
+    ){
+        phase="LANDING COMPLETE";
+    }
+
+    document.getElementById(
+        "flightPhase"
+    ).textContent=phase;
+
+}
+
+/* =========================================================
+   DRAW SKY
+========================================================= */
+
+function drawSky(){
+
+    const sky=ctx.createLinearGradient(
+        0,0,0,H
+    );
+
+    sky.addColorStop(0,"#3f9bd1");
+    sky.addColorStop(.55,"#91d7f4");
+    sky.addColorStop(1,"#e6f5f7");
+
+    ctx.fillStyle=sky;
+
+    ctx.fillRect(0,0,W,H);
+
+}
+
+/* =========================================================
+   CLOUDS
+========================================================= */
+
+function drawCloud(x,y,s){
+
+    ctx.save();
+
+    ctx.fillStyle="rgba(255,255,255,.75)";
+
+    ctx.beginPath();
+
+    ctx.arc(x,y,30*s,0,Math.PI*2);
+    ctx.arc(x+35*s,y-12*s,38*s,0,Math.PI*2);
+    ctx.arc(x+75*s,y,28*s,0,Math.PI*2);
+
+    ctx.fill();
+
+    ctx.restore();
+
+}
+
+function drawClouds(){
+
+    drawCloud(
+        100,
+        130,
+        1
+    );
+
+    drawCloud(
+        W-230,
+        170,
+        .8
+    );
+
+    drawCloud(
+        W*.45,
+        105,
+        .65
+    );
+
+}
+
+/* =========================================================
+   AIRPORT
+========================================================= */
+
+function drawAirport(){
+
+    const horizon=H*.57;
+
+    /* distant ground */
+
+    ctx.fillStyle="#50734b";
+
+    ctx.fillRect(
+        0,
+        horizon,
+        W,
+        H-horizon
+    );
+
+    /* runway */
+
+    const runwayW=Math.min(
+        500,
+        W*.55
+    );
+
+    const runwayX=W/2-runwayW/2;
+
+    ctx.fillStyle="#30363a";
+
+    ctx.fillRect(
+        runwayX,
+        horizon,
+        runwayW,
+        H-horizon
+    );
+
+    /* runway edge */
+
+    ctx.strokeStyle="#fff";
+    ctx.lineWidth=4;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        runwayX,
+        horizon
+    );
+
+    ctx.lineTo(
+        runwayX,
+        H
+    );
+
+    ctx.moveTo(
+        runwayX+runwayW,
+        horizon
+    );
+
+    ctx.lineTo(
+        runwayX+runwayW,
+        H
+    );
+
+    ctx.stroke();
+
+    /* center markings */
+
+    ctx.fillStyle="#fff";
+
+    const center=W/2;
+
+    for(
+        let y=horizon+30;
+        y<H;
+        y+=75
+    ){
+
+        ctx.fillRect(
+            center-5,
+            y,
+            10,
+            38
+        );
+
+    }
+
+    /* runway number */
+
+    ctx.save();
+
+    ctx.translate(
+        center,
+        horizon+90
+    );
+
+    ctx.fillStyle="#fff";
+    ctx.font="bold 48px Arial";
+    ctx.textAlign="center";
+
+    ctx.fillText("09",0,0);
+
+    ctx.restore();
+
+    /* airport buildings */
+
+    ctx.fillStyle="#9ba9ad";
+
+    ctx.fillRect(
+        30,
+        horizon-45,
+        120,
+        45
+    );
+
+    ctx.fillStyle="#6c7c82";
+
+    ctx.fillRect(
+        180,
+        horizon-30,
+        90,
+        30
+    );
+
+    ctx.fillStyle="#d3e1e5";
+
+    ctx.fillRect(
+        45,
+        horizon-30,
+        20,
+        15
+    );
+
+    ctx.fillRect(
+        75,
+        horizon-30,
+        20,
+        15
+    );
+
+    ctx.fillRect(
+        105,
+        horizon-30,
+        20,
+        15
+    );
+
+}
+
+/* =========================================================
+   AIRCRAFT
+========================================================= */
+
+function drawAircraft(){
+
+    const cx=W/2;
+    const cy=H*.65;
+
+    ctx.save();
+
+    ctx.translate(cx,cy);
+
+    ctx.rotate(
+        plane.roll*Math.PI/180
+    );
+
+    /* shadow */
+
+    ctx.fillStyle="rgba(0,0,0,.25)";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        0,
+        34,
+        55,
+        10,
+        0,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    /* wings */
+
+    ctx.fillStyle="#e9f2f5";
+
+    ctx.beginPath();
+
+    ctx.moveTo(-12,0);
+    ctx.lineTo(-80,25);
+    ctx.lineTo(-78,35);
+    ctx.lineTo(-8,15);
+    ctx.lineTo(8,15);
+    ctx.lineTo(78,35);
+    ctx.lineTo(80,25);
+    ctx.lineTo(12,0);
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    /* fuselage */
+
+    ctx.fillStyle="#f8fbfc";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        0,
+        0,
+        13,
+        62,
+        0,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    /* cockpit */
+
+    ctx.fillStyle="#193f57";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        0,
+        -32,
+        9,
+        15,
+        0,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    /* tail */
+
+    ctx.fillStyle="#dbe8ec";
+
+    ctx.beginPath();
+
+    ctx.moveTo(-10,42);
+    ctx.lineTo(0,25);
+    ctx.lineTo(10,42);
+    ctx.closePath();
+
+    ctx.fill();
+
+    ctx.restore();
+
+}
+
+/* =========================================================
+   HORIZON / FLIGHT EFFECT
+========================================================= */
+
+function drawFlightView(){
+
+    const horizon=
+        H*.57 -
+        plane.pitch*4;
+
+    ctx.save();
+
+    ctx.globalAlpha=.18;
+
+    ctx.strokeStyle="#fff";
+    ctx.lineWidth=1;
+
+    for(
+        let i=-5;
+        i<=5;
+        i++
+    ){
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            W/2+i*90,
+            horizon
+        );
+
+        ctx.lineTo(
+            W/2+i*140,
+            H
+        );
+
+        ctx.stroke();
+
+    }
+
+    ctx.restore();
+
+}
+
+/* =========================================================
+   COCKPIT OVERLAY
+========================================================= */
+
+function drawCockpitOverlay(){
+
+    const gradient=ctx.createLinearGradient(
+        0,0,0,H
+    );
+
+    gradient.addColorStop(
+        0,
+        "rgba(0,0,0,.05)"
+    );
+
+    gradient.addColorStop(
+        1,
+        "rgba(0,0,0,.30)"
+    );
+
+    ctx.fillStyle=gradient;
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+}
+
+/* =========================================================
+   MAIN DRAW
+========================================================= */
+
+function draw(){
+
+    drawSky();
+
+    drawClouds();
+
+    drawAirport();
+
+    drawFlightView();
+
+    drawCockpitOverlay();
+
+    drawAircraft();
+
+}
+
+/* =========================================================
+   LOOP
+========================================================= */
+
+let lastTime=performance.now();
+
+function loop(now){
+
+    if(!running) return;
+
+    const dt=Math.min(
+        .05,
+        (now-lastTime)/1000
+    );
+
+    lastTime=now;
+
+    updatePhysics(dt);
+
+    checkMissions();
+
+    missionProgress();
+
+    updateHUD();
+
+    draw();
+
+    requestAnimationFrame(loop);
+
+}
+
+/* =========================================================
+   KEYBOARD SHORTCUTS
+========================================================= */
+
+window.addEventListener("keydown",e=>{
+
+    if(e.key.toLowerCase()==="p"){
+
+        paused=!paused;
+
+    }
+
+    if(e.key.toLowerCase()==="g"){
+
+        plane.gear=!plane.gear;
+
+        showMessage(
+            plane.gear
+            ? "Landing gear DOWN."
+            : "Landing gear UP."
+        );
+
+    }
+
+    if(e.key.toLowerCase()==="f"){
+
+        plane.flaps=!plane.flaps;
+
+        showMessage(
+            plane.flaps
+            ? "Flaps EXTENDED."
+            : "Flaps UP."
+        );
+
+    }
+
+});
+
+/* =========================================================
+   INITIAL DRAW
+========================================================= */
+
+draw();
+
+</script>
+
+</body>
+</html>
