@@ -228,8 +228,8 @@ button{
     position:absolute;
     left:50%;
     top:68%;
-    width:112px;
-    height:170px;
+    width:150px;
+    height:210px;
     transform:translate(-50%,-50%) rotate(0deg);
     z-index:20;
     transition:transform .05s linear;
@@ -434,6 +434,18 @@ button{
     background:#ff3030;
     box-shadow:0 0 8px #ff3030;
     z-index:10;
+}
+.aircraft-svg{
+    width:150px;
+    height:210px;
+    display:block;
+    overflow:visible;
+}
+.svg-propeller{
+    transform-origin:0 0;
+}
+.svg-light,.svg-beacon{
+    filter:drop-shadow(0 0 4px currentColor);
 }
 #aircraft .wheelFairing{
     position:absolute;
@@ -966,27 +978,65 @@ button{
     </div>
 
     <div id="aircraft" aria-label="Single-engine training aircraft">
-        <div class="shadow"></div>
-        <div class="propeller"></div>
-        <div class="spinner"></div>
-        <div class="cowling"></div>
-        <div class="fuselage"></div>
-        <div class="windshield"></div>
-        <div class="window w1"></div>
-        <div class="window w2"></div>
-        <div class="door"></div>
-        <div class="wing"></div>
-        <div class="tail"></div>
-        <div class="horizontal-tail"></div>
-        <div class="vertical"></div>
-        <div class="gear noseGear"></div>
-        <div class="gear leftGear"></div>
-        <div class="gear rightGear"></div>
-        <div class="wheelFairing"></div>
-        <div class="navLight redLight"></div>
-        <div class="navLight greenLight"></div>
-        <div class="beacon"></div>
-    </div>
+    <svg class="aircraft-svg" viewBox="0 0 112 170" role="img" aria-label="Single-engine high-wing trainer aircraft">
+      <defs>
+        <linearGradient id="bodyMetal" x1="0" x2="1">
+          <stop offset="0" stop-color="#737f85"/><stop offset=".18" stop-color="#eef3f5"/>
+          <stop offset=".5" stop-color="#ffffff"/><stop offset=".78" stop-color="#c5d0d5"/>
+          <stop offset="1" stop-color="#68757b"/>
+        </linearGradient>
+        <linearGradient id="wingMetal" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#dbe4e8"/><stop offset="1" stop-color="#a9b7bd"/>
+        </linearGradient>
+        <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#10232c"/><stop offset=".45" stop-color="#3e8299"/><stop offset="1" stop-color="#0b1a22"/>
+        </linearGradient>
+        <filter id="planeShadow"><feGaussianBlur stdDeviation="3"/></filter>
+      </defs>
+      <ellipse cx="56" cy="91" rx="42" ry="73" fill="rgba(0,0,0,.22)" filter="url(#planeShadow)"/>
+      <!-- propeller -->
+      <g class="svg-propeller" transform="translate(56 11)">
+        <ellipse cx="0" cy="-8" rx="3.5" ry="18" fill="#303a3f"/>
+        <ellipse cx="0" cy="-8" rx="3.5" ry="18" fill="#303a3f" transform="rotate(90)"/>
+        <circle r="4.5" fill="#d9e2e6" stroke="#68767c"/>
+      </g>
+      <!-- main wing -->
+      <path d="M7 67 L105 51 L101 84 L11 79 Z" fill="url(#wingMetal)" stroke="#7b898f" stroke-width="1.2"/>
+      <path d="M9 70 L103 56" stroke="#f9fcfd" stroke-width="2" opacity=".75"/>
+      <!-- tailplane -->
+      <path d="M18 139 L94 124 L88 151 L24 153 Z" fill="url(#wingMetal)" stroke="#7b898f" stroke-width="1.2"/>
+      <!-- fuselage -->
+      <path d="M56 7 C47 12 43 27 43 46 L43 125 C43 145 48 159 56 164 C64 159 69 145 69 125 L69 46 C69 27 65 12 56 7 Z"
+            fill="url(#bodyMetal)" stroke="#647178" stroke-width="1.2"/>
+      <!-- engine cowling -->
+      <path d="M43 20 C44 9 49 5 56 5 C63 5 68 9 69 20 L66 30 L46 30 Z"
+            fill="url(#bodyMetal)" stroke="#66747a" stroke-width="1"/>
+      <!-- windshield -->
+      <path d="M45 31 Q56 23 67 31 L65 51 Q56 57 47 51 Z" fill="url(#glass)" stroke="#d8e3e7" stroke-width="1.4"/>
+      <path d="M56 28 L56 52" stroke="#b9d0d8" stroke-width="1" opacity=".7"/>
+      <!-- cabin windows -->
+      <path d="M46 56 Q56 52 66 56 L65 69 Q56 73 47 69 Z" fill="url(#glass)" stroke="#c7d5da" stroke-width="1"/>
+      <path d="M46 73 Q56 70 66 73 L65 86 Q56 89 47 86 Z" fill="url(#glass)" stroke="#c7d5da" stroke-width="1"/>
+      <!-- cabin door -->
+      <path d="M42 54 L42 105 Q56 110 70 105 L70 54" fill="none" stroke="#6d7a80" stroke-width="1"/>
+      <circle cx="66" cy="101" r="1.5" fill="#59676d"/>
+      <!-- tail fin -->
+      <path d="M48 119 L49 99 L64 91 L66 145 L56 158 L49 145 Z" fill="url(#wingMetal)" stroke="#78868c" stroke-width="1"/>
+      <!-- landing gear -->
+      <g class="svg-gear">
+        <path d="M56 21 L54 35" stroke="#3f4b50" stroke-width="2.5"/>
+        <circle cx="54" cy="37" r="4" fill="#20272b" stroke="#9aa5a9"/>
+        <path d="M38 86 L29 98" stroke="#3f4b50" stroke-width="2.5"/>
+        <circle cx="27" cy="100" r="5" fill="#20272b" stroke="#9aa5a9"/>
+        <path d="M74 86 L83 98" stroke="#3f4b50" stroke-width="2.5"/>
+        <circle cx="85" cy="100" r="5" fill="#20272b" stroke="#9aa5a9"/>
+      </g>
+      <!-- lights -->
+      <circle cx="9" cy="73" r="2.4" fill="#ff3045" class="svg-light"/>
+      <circle cx="103" cy="62" r="2.4" fill="#39ff93" class="svg-light"/>
+      <circle cx="56" cy="119" r="2.5" fill="#ff3030" class="svg-beacon"/>
+    </svg>
+  </div>
 
     <div id="brand">
         <b>EXPERT SYNC • FLIGHT DECK</b>
@@ -1171,8 +1221,8 @@ function setAircraft(){
  aircraft.style.left=px+"px"; aircraft.style.top=py+"px";
  aircraft.style.transform="translate(-50%,-50%) rotate("+(state.heading+state.bank*.35)+"deg)";
  aircraft.style.filter=state.onGround?"drop-shadow(0 7px 5px rgba(0,0,0,.34))":"drop-shadow(0 12px 14px rgba(0,0,0,.28))";
- const prop=aircraft.querySelector(".propeller");
- if(prop)prop.style.transform="rotate("+(performance.now()/8*clamp(state.rpm/800,0,1))+"deg)";
+ const prop=aircraft.querySelector(".svg-propeller");
+ if(prop)prop.setAttribute("transform","translate(56 11) rotate("+(performance.now()/8*clamp(state.rpm/800,0,1))+")");
  aircraft.querySelectorAll(".gear").forEach(g=>g.style.opacity=state.gearDown?"1":"0");
 }
 function completeMission(){
