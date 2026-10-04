@@ -330,8 +330,76 @@ drawExternal();
 }
 function drawSky(){let g=ctx.createLinearGradient(0,0,0,H*.62);g.addColorStop(0,'#48a7d7');g.addColorStop(.72,'#a9dfef');g.addColorStop(1,'#7da76e');ctx.fillStyle=g;ctx.fillRect(0,0,W,H*.64)}
 function drawCloud(x,y,sc){ctx.fillStyle='rgba(255,255,255,.78)';ctx.beginPath();ctx.ellipse(x,y,55*sc,18*sc,0,0,Math.PI*2);ctx.ellipse(x-25*sc,y-10*sc,25*sc,22*sc,0,0,Math.PI*2);ctx.ellipse(x+25*sc,y-8*sc,30*sc,25*sc,0,0,Math.PI*2);ctx.fill()}
+function drawGroundChase(){
+  // Low-altitude chase camera: a runway/taxiway perspective modeled after a real
+  // training-aircraft external view. The aircraft remains large in the foreground.
+  drawSky();
+  const horizon=H*.46;
+  const groundTop=horizon+H*.045;
+  const vanX=W*.50;
+  // layered terrain
+  const mountain=(base,amp,phase,alpha)=>{
+    ctx.save();ctx.globalAlpha=alpha;ctx.fillStyle='#526b68';ctx.beginPath();ctx.moveTo(0,base);
+    for(let x=0;x<=W;x+=36)ctx.lineTo(x,base-amp-Math.sin(x*.008+phase)*amp*.42-Math.sin(x*.019+phase)*amp*.18);
+    ctx.lineTo(W,base);ctx.closePath();ctx.fill();ctx.restore();
+  };
+  mountain(horizon+24,55,.5,.55);mountain(horizon+38,38,1.7,.72);
+  ctx.fillStyle='#4b7045';ctx.fillRect(0,groundTop,W,H-groundTop);
+  for(let i=0;i<16;i++){ctx.fillStyle=i%2?'#507748':'#567d4f';ctx.fillRect(i*W/16,groundTop,W/16+1,H-groundTop)}
+  // Airport buildings/control tower in the distance.
+  ctx.fillStyle='#b9c4c6';ctx.fillRect(W*.055,groundTop-42,W*.16,42);
+  ctx.fillStyle='#687a7f';ctx.fillRect(W*.055,groundTop-55,W*.16,13);
+  ctx.fillStyle='#e6f4f5';ctx.font='bold 10px Arial';ctx.fillText('EXPERT SYNC AIRPORT',W*.065,groundTop-24);
+  ctx.fillStyle='#7b8b90';ctx.fillRect(W*.245,groundTop-112,20,112);
+  ctx.fillStyle='#2e4148';ctx.fillRect(W*.235,groundTop-124,40,15);
+  ctx.fillStyle='#8ed2e6';ctx.fillRect(W*.241,groundTop-121,28,8);
+  // Main runway, in true perspective.
+  const runwayTop=groundTop+H*.018, runwayBottom=H*1.05;
+  ctx.fillStyle='#262d30';ctx.beginPath();
+  ctx.moveTo(vanX-W*.085,runwayTop);ctx.lineTo(vanX+W*.085,runwayTop);
+  ctx.lineTo(vanX+W*.43,runwayBottom);ctx.lineTo(vanX-W*.43,runwayBottom);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#e0c64b';ctx.lineWidth=3;ctx.stroke();
+  // runway centreline
+  ctx.strokeStyle='#f4f5f5';ctx.lineWidth=4;ctx.setLineDash([30,25]);
+  ctx.beginPath();ctx.moveTo(vanX,runwayTop);ctx.lineTo(vanX,runwayBottom);ctx.stroke();ctx.setLineDash([]);
+  // threshold bars and runway number
+  ctx.fillStyle='#fff';
+  const ty=runwayTop+H*.045;
+  for(let i=-2;i<=2;i++)ctx.fillRect(vanX+i*22,ty,13,5);
+  ctx.font='900 34px Arial';ctx.fillText('09',vanX+W*.08,ty+18);
+  // runway edge lights
+  for(let i=0;i<22;i++){
+    const t=i/21,y=runwayTop+t*(runwayBottom-runwayTop);
+    const half=W*.085+t*W*.345;
+    ctx.fillStyle=i%3?'#b9dcff':'#fff';ctx.shadowColor='#b9dcff';ctx.shadowBlur=7;
+    ctx.fillRect(vanX-half,y,4,4);ctx.fillRect(vanX+half,y,4,4);ctx.shadowBlur=0;
+  }
+  // Active taxiway, slightly offset left like a training-airport scene.
+  const tx=W*.19;
+  ctx.fillStyle='#303739';ctx.beginPath();
+  ctx.moveTo(tx-18,groundTop);ctx.lineTo(tx+18,groundTop);
+  ctx.lineTo(tx+W*.08,H);ctx.lineTo(tx-W*.08,H);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#e4ca3f';ctx.lineWidth=3;ctx.setLineDash([20,17]);
+  ctx.beginPath();ctx.moveTo(tx,groundTop);ctx.lineTo(tx,H);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#f1d23e';ctx.fillRect(W*.055,groundTop+H*.10,44,23);
+  ctx.fillStyle='#071015';ctx.font='bold 14px Arial';ctx.fillText('A →',W*.064,groundTop+H*.116);
+  // Aircraft is deliberately large and low in frame, matching a chase-camera composition.
+  const planeX=W*.50, planeY=H*.72;
+  ctx.save();
+  ctx.translate(planeX,planeY);
+  // Small camera bob while taxiing gives motion without making the UI shake.
+  ctx.translate(0,Math.sin(performance.now()/170)*Math.min(2.2,s.speed*.015));
+  drawPlane(0,0,1.62,s.heading,s.bank,s.pitch);
+  ctx.restore();
+  // Ground-speed cue.
+  ctx.fillStyle='#071720d9';ctx.fillRect(W*.39,H*.84,W*.22,32);
+  ctx.fillStyle='#b9edff';ctx.font='800 11px Arial';ctx.textAlign='center';
+  ctx.fillText((s.onGround?'TAXI':'AIRBORNE')+'  •  '+Math.round(s.speed)+' KT  •  HDG '+String(Math.round(norm(s.heading))).padStart(3,'0'),W*.50,H*.862);
+  ctx.textAlign='left';
+}
 function drawExternal(){
   // High-detail external chase scene: airport, runway, terrain, atmospheric perspective.
+  if(s.onGround){drawGroundChase();return}
   drawSky();
   // Dynamic chase-camera: the airport/terrain moves beneath the aircraft while airborne.
   const camX=s.onGround?0:clamp(-s.x*2.8,-W*.38,W*.38);
