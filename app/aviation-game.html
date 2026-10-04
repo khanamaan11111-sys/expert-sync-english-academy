@@ -377,6 +377,18 @@ function drawGroundChase(){
   }
   // Active taxiway, slightly offset left like a training-airport scene.
   const tx=W*.19;
+  // Realistic airfield cues: hold-short marking and windsock.
+  ctx.strokeStyle='#f4f4f4';ctx.lineWidth=3;ctx.setLineDash([]);
+  const holdY=groundTop+H*.24;
+  ctx.beginPath();
+  ctx.moveTo(tx-W*.07,holdY);ctx.lineTo(tx+W*.07,holdY);
+  ctx.moveTo(tx-W*.07,holdY+10);ctx.lineTo(tx+W*.07,holdY+10);
+  ctx.stroke();
+  ctx.fillStyle='#f1d23e';ctx.font='700 11px Arial';ctx.fillText('HOLD SHORT',tx-W*.055,holdY-7);
+  ctx.strokeStyle='#77868a';ctx.lineWidth=3;ctx.beginPath();
+  ctx.moveTo(W*.285,groundTop+10);ctx.lineTo(W*.285,groundTop-45);ctx.stroke();
+  ctx.fillStyle='#e8edf0';ctx.beginPath();ctx.moveTo(W*.285,groundTop-45);ctx.lineTo(W*.34,groundTop-38);ctx.lineTo(W*.285,groundTop-30);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#ef5a5a';ctx.beginPath();ctx.moveTo(W*.305,groundTop-42);ctx.lineTo(W*.34,groundTop-38);ctx.lineTo(W*.305,groundTop-34);ctx.closePath();ctx.fill();
   ctx.fillStyle='#303739';ctx.beginPath();
   ctx.moveTo(tx-18,groundTop);ctx.lineTo(tx+18,groundTop);
   ctx.lineTo(tx+W*.08,H);ctx.lineTo(tx-W*.08,H);ctx.closePath();ctx.fill();
