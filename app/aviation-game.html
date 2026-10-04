@@ -1285,6 +1285,19 @@ function engineAndSpeed(dt){
  state.rpm+=(state.throttle*42-state.rpm)*Math.min(1,dt*4);
  let accel=thrust-drag-rollingDrag; if(state.brake&&state.onGround)accel-=.9;
  state.speed=clamp(state.speed+accel*22*dt,0,180);
+
+ // Realistic ground-speed discipline:
+ // taxi/alignment phases must not behave like a take-off roll.
+ if(state.onGround && mission===0) state.speed=Math.min(state.speed,22);
+ if(state.onGround && mission===1) state.speed=Math.min(state.speed,8);
+
+ // During take-off, prevent an uncontrolled 180 kt runway run.
+ // The aircraft must reach rotation speed and receive positive pitch input.
+ if(state.onGround && mission===2 && state.speed>78){
+   state.speed=78;
+   if(state.throttle>70) showMessage("ROTATE: At rotation speed. Raise the nose with UP.");
+ }
+
  state.fuel=Math.max(0,state.fuel-(.002+state.throttle*.000075+(state.speed>0?.0006:0))*dt);
  if(state.fuel<=0){state.throttle=0;showMessage("EMERGENCY: Fuel exhausted. Engine power unavailable.");}
 }
@@ -1295,8 +1308,14 @@ function flightModel(dt){
   state.x+=Math.sin(state.heading*Math.PI/180)*state.speed*groundScale*dt;
   state.y-=Math.cos(state.heading*Math.PI/180)*state.speed*groundScale*dt;
   state.x=clamp(state.x,6,94);state.y=clamp(state.y,18,82);
-  if(mission===2&&state.speed>=58&&state.throttle>=82&&state.pitch>=5){
-   state.onGround=false;state.airborne=true;state.altitude=20;state.verticalSpeed=650;state.y=58;showMessage("Tower: Airborne. Positive rate of climb.");
+  if(mission===2&&state.speed>=62&&state.throttle>=78&&state.pitch>=4){
+   state.onGround=false;
+   state.airborne=true;
+   state.altitude=20;
+   state.verticalSpeed=650;
+   state.y=58;
+   state.score+=25;
+   showMessage("Tower: Airborne. Positive rate of climb. Gear up when established.");
   }
  }else{
   const targetVS=state.pitch*520+(state.throttle-55)*5-Math.max(0,state.speed-115)*12;
@@ -1339,7 +1358,14 @@ function evaluateMission(dt){
   const runwayPosition=state.x>37&&state.x<63&&state.y<60;
   if(state.onGround&&aligned&&runwayPosition&&state.speed<8&&state.brake)gain=22*dt;
 }
- if(mission===2){state.radioMode="TOWER";if(state.onGround&&state.throttle>80&&state.speed>55&&Math.abs(headingDiff(state.heading,90))<8)gain=10*dt;if(state.airborne)gain=20*dt;}
+ if(mission===2){
+  state.radioMode="TOWER";
+  if(state.onGround&&state.throttle>78&&state.speed>55&&Math.abs(headingDiff(state.heading,90))<8){
+    gain=12*dt;
+    if(state.speed>=62&&state.pitch<4) showMessage("Tower: Rotate. Maintain runway centreline.");
+  }
+  if(state.airborne)gain=22*dt;
+}
  if(mission===3){state.radioMode="TOWER";if(!state.onGround&&state.altitude>1200&&state.altitude<3400&&state.speed>70&&state.speed<125&&Math.abs(headingDiff(state.heading,90))<10&&!state.gearDown)gain=13*dt;}
  if(mission===4){state.radioMode="CENTER";if(!state.onGround&&Math.abs(state.altitude-3000)<350&&state.speed>75&&state.speed<125&&Math.abs(headingDiff(state.heading,90))<8&&Math.abs(state.verticalSpeed)<350)gain=12*dt;}
  if(mission===5){state.radioMode="APPROACH";if(!state.onGround&&state.altitude<1800&&state.speed>55&&state.speed<95&&state.gearDown&&state.flaps>=1&&Math.abs(headingDiff(state.heading,90))<12&&Math.abs(state.verticalSpeed)<700)gain=14*dt;}
