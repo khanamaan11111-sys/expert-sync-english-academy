@@ -915,10 +915,57 @@ button{
         font-size:19px;
     }
 }
+
+/* ===== EXPERT SYNC FLIGHT MODEL V2 ===== */
+#flightView{
+ position:absolute;inset:0;overflow:hidden;z-index:5;pointer-events:none;
+ perspective:900px;
+}
+#flightHorizon{
+ position:absolute;left:-12%;right:-12%;top:0;height:70%;
+ background:linear-gradient(#4aa9d8 0%,#a8deef 72%,#79a26c 73%,#45633e 100%);
+ transform-origin:50% 100%;
+}
+#flightRunway{
+ position:absolute;left:50%;top:48%;width:28%;height:58%;
+ transform:translateX(-50%) perspective(700px) rotateX(48deg);
+ background:#292e31;
+ border-left:5px solid #d6bb48;border-right:5px solid #d6bb48;
+ box-shadow:0 -10px 35px rgba(0,0,0,.25);
+ opacity:.0;
+ transition:opacity .2s;
+}
+#flightRunway:before{
+ content:"";position:absolute;left:50%;top:0;bottom:0;width:5px;transform:translateX(-50%);
+ background:repeating-linear-gradient(to bottom,#fff 0 30px,transparent 30px 65px);
+}
+#flightRunway:after{
+ content:"09";position:absolute;left:50%;top:8%;transform:translateX(-50%);
+ color:#fff;font:bold 28px Arial;letter-spacing:3px;
+}
+#aircraft.airborne{
+ filter:drop-shadow(0 22px 20px rgba(0,0,0,.34));
+}
+#aircraft.airborne .gear{opacity:0!important}
+#aircraft.airborne{transition:transform .04s linear,left .04s linear,top .04s linear}
+.flight-warning{
+ position:absolute;left:50%;top:24%;transform:translateX(-50%);
+ z-index:80;padding:8px 14px;border-radius:7px;
+ background:rgba(130,12,12,.88);border:1px solid #ff6969;
+ color:#fff;font-weight:700;font-size:12px;letter-spacing:1px;
+ display:none;box-shadow:0 0 18px rgba(255,50,50,.35);
+}
+.flight-warning.show{display:block}
+@media(max-width:700px){#flightRunway{width:42%}}
 </style>
 </head>
 
-<body> 
+<body>
+<div id="flightView" aria-hidden="true">
+  <div id="flightHorizon"></div>
+  <div id="flightRunway"></div>
+  <div id="flightWarning" class="flight-warning">STALL WARNING</div>
+</div> 
     <!-- ===== EXPERT SYNC FLIGHT DECK INSTRUMENTS ===== -->
 <div class="flight-instruments" id="flightInstruments">
 
@@ -1217,13 +1264,26 @@ function updateHUD(){
  $("status").title="Phase: "+(state.onGround?"GROUND":state.phase)+" | Pitch "+state.pitch.toFixed(1)+"° | Bank "+state.bank.toFixed(1)+"° | VS "+Math.round(state.verticalSpeed)+" FPM";
 }
 function setAircraft(){
- const rect=$("game").getBoundingClientRect(),px=rect.width*state.x/100,py=rect.height*state.y/100;
+ const rect=$("game").getBoundingClientRect();
+ const px=rect.width*state.x/100, py=rect.height*state.y/100;
  aircraft.style.left=px+"px"; aircraft.style.top=py+"px";
- aircraft.style.transform="translate(-50%,-50%) rotate("+(state.heading+state.bank*.35)+"deg)";
- aircraft.style.filter=state.onGround?"drop-shadow(0 7px 5px rgba(0,0,0,.34))":"drop-shadow(0 12px 14px rgba(0,0,0,.28))";
+ aircraft.classList.toggle("airborne",!state.onGround);
+ // Aircraft attitude: heading remains the navigation direction; bank adds visual roll.
+ aircraft.style.transform="translate(-50%,-50%) rotate("+(state.heading+state.bank*.35)+"deg) scale("+(state.onGround?1:clamp(1.05+state.altitude/18000,1.05,1.35))+")";
+ aircraft.style.filter=state.onGround
+   ?"drop-shadow(0 7px 5px rgba(0,0,0,.34))"
+   :"drop-shadow(0 16px 18px rgba(0,0,0,.28))";
  const prop=aircraft.querySelector(".svg-propeller");
  if(prop)prop.setAttribute("transform","translate(56 11) rotate("+(performance.now()/8*clamp(state.rpm/800,0,1))+")");
  aircraft.querySelectorAll(".gear").forEach(g=>g.style.opacity=state.gearDown?"1":"0");
+
+ // Cockpit-style forward view cue during airborne flight.
+ const horizon=$("flightHorizon"), runway=$("flightRunway");
+ const pitchPx=state.pitch*9;
+ horizon.style.transform="translateY("+pitchPx+"px) rotate("+(-state.bank*.22)+"deg) scale(1.08)";
+ runway.style.opacity=state.onGround? (mission>=1?".55":"0") : "0";
+ runway.style.transform="translateX(-50%) perspective(700px) rotateX("+(48+state.pitch*.35)+"deg) translateY("+(Math.max(0,260-state.altitude*.035))+"px) scale("+(clamp(1.1-state.altitude/18000,.62,1.1))+")";
+ $("flightWarning").classList.toggle("show",state.airborne && state.speed<55);
 }
 function completeMission(){
  if(state.missionCompleteShown)return;
@@ -1261,80 +1321,105 @@ document.addEventListener("keyup",e=>{keys[e.key.toLowerCase()]=false;});
 window.addEventListener("blur",()=>{Object.keys(keys).forEach(k=>keys[k]=false);});
 
 function computeControls(dt){
- if(keys["w"])state.throttle+=28*dt; if(keys["s"])state.throttle-=38*dt; state.throttle=clamp(state.throttle,0,100);
+ if(keys["w"])state.throttle+=24*dt;
+ if(keys["s"])state.throttle-=32*dt;
+ state.throttle=clamp(state.throttle,0,100);
  state.brake=!!(keys["s"]&&state.onGround);
- const left=keys["a"]||keys["arrowleft"],right=keys["d"]||keys["arrowright"],pitchUp=keys["arrowup"],pitchDown=keys["arrowdown"];
+
+ const left=keys["a"]||keys["arrowleft"],right=keys["d"]||keys["arrowright"];
+ const pitchUp=keys["arrowup"],pitchDown=keys["arrowdown"];
+
  if(state.onGround){
-  if(left)state.heading=normHeading(state.heading-42*dt);
-  if(right)state.heading=normHeading(state.heading+42*dt);
-  state.bank*=Math.pow(0.02,dt);
+   if(left)state.heading=normHeading(state.heading-38*dt);
+   if(right)state.heading=normHeading(state.heading+38*dt);
+   state.bank*=Math.pow(0.02,dt);
  }else{
-  if(left)state.bank-=42*dt;
-  if(right)state.bank+=42*dt;
-  if(!left&&!right)state.bank*=Math.pow(0.04,dt);
+   if(left)state.bank-=36*dt;
+   if(right)state.bank+=36*dt;
+   if(!left&&!right)state.bank*=Math.pow(0.08,dt);
  }
- state.bank=clamp(state.bank,-32,32);
- if(pitchUp)state.pitch+=8*dt; if(pitchDown)state.pitch-=8*dt; if(!pitchUp&&!pitchDown)state.pitch*=Math.pow(0.35,dt);
+ state.bank=clamp(state.bank,-30,30);
+
+ if(pitchUp)state.pitch+=7.5*dt;
+ if(pitchDown)state.pitch-=7.5*dt;
+ if(!pitchUp&&!pitchDown)state.pitch*=Math.pow(0.45,dt);
  state.pitch=clamp(state.pitch,-8,14);
- if(!state.onGround)state.heading=normHeading(state.heading+state.bank*.055*dt);
+
+ if(!state.onGround)state.heading=normHeading(state.heading+state.bank*.060*dt);
  else state.heading=normHeading(state.heading);
 }
 function engineAndSpeed(dt){
- const drag=.012+state.speed*.00016+(state.flaps===2?.035:state.flaps===1?.018:0)+(state.gearDown&&!state.onGround?.018:0);
- const thrust=(state.throttle/100)*.95; const rollingDrag=state.onGround?.018:0;
- state.rpm+=(state.throttle*42-state.rpm)*Math.min(1,dt*4);
- let accel=thrust-drag-rollingDrag; if(state.brake&&state.onGround)accel-=.9;
- state.speed=clamp(state.speed+accel*22*dt,0,180);
+ // Simplified trainer-aircraft propulsion model: throttle -> RPM -> thrust -> acceleration.
+ const idleRpm=850, maxRpm=2700;
+ const targetRpm=idleRpm+(state.throttle/100)*(maxRpm-idleRpm);
+ state.rpm += (targetRpm-state.rpm)*Math.min(1,dt*2.8);
 
- // Realistic ground-speed discipline:
- // taxi/alignment phases must not behave like a take-off roll.
- if(state.onGround && mission===0) state.speed=Math.min(state.speed,22);
- if(state.onGround && mission===1) state.speed=Math.min(state.speed,8);
+ const flapDrag = state.flaps===2 ? .050 : state.flaps===1 ? .028 : 0;
+ const gearDrag = (!state.onGround && state.gearDown) ? .030 : 0;
+ const aerodynamicDrag = .006 + state.speed*.00011 + flapDrag + gearDrag;
+ const thrust = (state.rpm-idleRpm)/(maxRpm-idleRpm) * .82;
+ const rolling = state.onGround ? .010 : 0;
+ let acceleration=(thrust-aerodynamicDrag-rolling)*30;
 
- // During take-off, prevent an uncontrolled 180 kt runway run.
- // The aircraft must reach rotation speed and receive positive pitch input.
+ if(state.brake && state.onGround) acceleration-=1.8;
+ if(state.onGround && mission===0) state.speed=Math.min(state.speed+acceleration*dt,22);
+ else if(state.onGround && mission===1) state.speed=Math.min(state.speed+acceleration*dt,8);
+ else state.speed=clamp(state.speed+acceleration*dt,0,155);
+
+ // Fuel burn follows engine load.
+ state.fuel=Math.max(0,state.fuel-(0.00035+state.throttle*0.000018+state.rpm*0.00000004)*dt*60);
+ if(state.fuel<=0){state.throttle=0;showMessage("EMERGENCY: Fuel exhausted. Engine power unavailable.");}
+
+ // Take-off roll: reach a realistic trainer-aircraft rotation speed.
  if(state.onGround && mission===2 && state.speed>78){
    state.speed=78;
-   if(state.throttle>70) showMessage("ROTATE: At rotation speed. Raise the nose with UP.");
+   if(state.throttle>70)showMessage("ROTATE: Rotation speed reached. Raise the nose with UP.");
  }
-
- state.fuel=Math.max(0,state.fuel-(.002+state.throttle*.000075+(state.speed>0?.0006:0))*dt);
- if(state.fuel<=0){state.throttle=0;showMessage("EMERGENCY: Fuel exhausted. Engine power unavailable.");}
 }
 function flightModel(dt){
  if(state.onGround){
-  state.verticalSpeed=0;state.altitude=0;
-  const groundScale=0.0022;
-  state.x+=Math.sin(state.heading*Math.PI/180)*state.speed*groundScale*dt;
-  state.y-=Math.cos(state.heading*Math.PI/180)*state.speed*groundScale*dt;
-  state.x=clamp(state.x,6,94);state.y=clamp(state.y,18,82);
-  if(mission===2&&state.speed>=62&&state.throttle>=78&&state.pitch>=4){
-   state.onGround=false;
-   state.airborne=true;
-   state.altitude=20;
-   state.verticalSpeed=650;
-   state.y=58;
-   state.score+=25;
-   showMessage("Tower: Airborne. Positive rate of climb. Gear up when established.");
-  }
+   state.verticalSpeed=0;state.altitude=0;
+   const groundScale=0.0020;
+   state.x+=Math.sin(state.heading*Math.PI/180)*state.speed*groundScale*dt;
+   state.y-=Math.cos(state.heading*Math.PI/180)*state.speed*groundScale*dt;
+   state.x=clamp(state.x,6,94);state.y=clamp(state.y,18,82);
+
+   // Rotation requires speed, power, runway alignment and positive pitch.
+   if(mission===2 && state.speed>=62 && state.throttle>=78 &&
+      state.pitch>=4 && Math.abs(headingDiff(state.heading,90))<10){
+     state.onGround=false;state.airborne=true;
+     state.altitude=25;state.verticalSpeed=700;state.y=57;
+     state.score+=25;
+     showMessage("Tower: Airborne. Positive rate. Gear up when established.");
+   }
  }else{
-  const targetVS=state.pitch*520+(state.throttle-55)*5-Math.max(0,state.speed-115)*12;
-  state.verticalSpeed+= (targetVS-state.verticalSpeed)*Math.min(1,dt*2.4);
-  state.verticalSpeed=clamp(state.verticalSpeed,-1800,2200);
-  state.altitude=Math.max(0,state.altitude+state.verticalSpeed*dt/60);
-  state.y=clamp(60-state.altitude/65,12,60);
-  if(state.altitude<=8&&state.verticalSpeed<-250){
-   if(state.speed<=82&&state.gearDown&&state.flaps===2){
-    state.onGround=true;state.airborne=false;state.altitude=0;state.verticalSpeed=0;state.pitch=0;state.y=63;state.brake=false;
-    showMessage("Tower: Landing confirmed. Vacate runway when able.");
-   }else{state.score-=2;showMessage("CAUTION: Hard or unstable landing. Correct configuration required.");}
-  }
- }
- if(!state.onGround){
-  state.x+=Math.sin(state.heading*Math.PI/180)*state.speed*.0016*dt;
-  state.y-=Math.cos(state.heading*Math.PI/180)*state.speed*.0016*dt;
-  state.x=clamp(state.x,8,92);
-  state.y=clamp(state.y,10,60);
+   // Lift increases with speed and pitch; excessive pitch at low speed produces a stall.
+   const liftFactor=clamp((state.speed-45)/75,0,1.25);
+   const pitchLift=(state.pitch-1.5)*150;
+   const powerLift=(state.throttle-55)*4;
+   const targetVS=pitchLift*liftFactor+powerLift;
+   state.verticalSpeed+=(targetVS-state.verticalSpeed)*Math.min(1,dt*1.8);
+   state.verticalSpeed=clamp(state.verticalSpeed,-1800,2200);
+   state.altitude=Math.max(0,state.altitude+state.verticalSpeed*dt/60);
+
+   // Camera/aircraft position gives a stronger sense of altitude.
+   state.y=clamp(59-state.altitude/62,12,59);
+   state.x+=Math.sin(state.heading*Math.PI/180)*state.speed*.00145*dt;
+   state.y-=Math.cos(state.heading*Math.PI/180)*state.speed*.00145*dt;
+   state.x=clamp(state.x,8,92);state.y=clamp(state.y,10,60);
+
+   // Landing model: stable, configured approach required.
+   if(state.altitude<=8 && state.verticalSpeed<-220){
+     if(state.speed<=82 && state.gearDown && state.flaps===2){
+       state.onGround=true;state.airborne=false;state.altitude=0;state.verticalSpeed=0;
+       state.pitch=0;state.y=63;state.brake=false;
+       showMessage("Tower: Landing confirmed. Maintain centreline and vacate when able.");
+     }else{
+       state.score-=4;
+       state.altitude=12;
+       showMessage("CAUTION: Unstable approach. Maintain speed, gear and flap configuration.");
+     }
+   }
  }
 }
 function evaluateMission(dt){
