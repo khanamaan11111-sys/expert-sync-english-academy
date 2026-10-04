@@ -28,11 +28,19 @@ button{font:inherit}#sim{position:relative;width:100%;height:100%;overflow:hidde
 #menu,#complete{position:absolute;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%,#163c52,#02080d 72%)}
 .card{width:570px;max-width:92%;padding:34px;border-radius:18px;text-align:center;background:#061520f5;border:1px solid #3dbbe8;box-shadow:0 25px 100px #0009}.card h1{margin:0;color:#76e0ff;letter-spacing:3px;font-size:34px}.card h2{margin:5px 0 15px;font-size:14px;letter-spacing:4px}.card p{color:#b5cbd5;font-size:13px;line-height:1.6}.features{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:20px 0}.feature{padding:10px;border:1px solid #264653;border-radius:7px;background:#0a202c;font-size:11px}.primary{border:0;border-radius:8px;padding:13px 28px;background:#52d7ff;color:#03202a;font-weight:900;cursor:pointer}.primary:hover{filter:brightness(1.08)}
 #complete{display:none;background:#020a10e8}.result{width:440px}.result h1{font-size:28px}
-#cockpitOverlay{position:absolute;inset:0;pointer-events:none;display:none;z-index:10;background:linear-gradient(#0000 0 65%,#06101899 100%)}#preflight{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 32%,#183e52,#02080d 75%)}
-.preCard{width:min(760px,94vw);padding:26px;border-radius:18px;background:#061520f7;border:1px solid #3dbbe8;box-shadow:0 25px 100px #0009}
-.preHead{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.preHead h2{margin:0;color:#76e0ff;letter-spacing:2px}.preHead p{margin:6px 0 0;color:#a9c1ca;font-size:12px;line-height:1.5}
-.checkGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:18px 0}.check{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #294653;border-radius:9px;background:#0a202c}.check button{min-width:42px;border:1px solid #46616d;border-radius:7px;background:#122a35;color:#bcd0d7;padding:7px;cursor:pointer}.check button.ready{background:#165c4a;border-color:#49d7a1;color:#fff}.check b{font-size:11px}.check small{display:block;color:#8099a4;font-size:9px;margin-top:2px}
-.preActions{display:flex;justify-content:space-between;gap:10px;align-items:center}.procedure{font-size:10px;color:#9db5c1;line-height:1.6}.secondary{border:1px solid #41606c;border-radius:8px;padding:11px 17px;background:#0b202b;color:#d8e8ed;font-weight:800;cursor:pointer}.secondary:disabled{opacity:.45;cursor:not-allowed}
+#cockpitOverlay{position:absolute;inset:0;pointer-events:none;display:none;z-index:10;background:linear-gradient(#0000 0 65%,#06101899 100%)}#preflight{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:28px;background:rgba(1,8,13,.66);backdrop-filter:blur(3px)}
+.preCard{width:min(1120px,94vw);max-height:88%;overflow:auto;padding:28px;border-radius:20px;background:linear-gradient(145deg,#081b27f7,#030c13f8);border:1px solid #3dbbe8;box-shadow:0 25px 100px #000b}
+.preHead{display:flex;justify-content:space-between;gap:28px;align-items:flex-start;border-bottom:1px solid #254552;padding-bottom:18px}.preHead h2{margin:0;color:#76e0ff;letter-spacing:2px;font-size:22px}.preHead p{margin:7px 0 0;color:#a9c1ca;font-size:12px;line-height:1.55;max-width:760px}
+.preBadge{padding:7px 10px;border:1px solid #345765;border-radius:7px;color:#8fdcff;font-size:9px;letter-spacing:1px;white-space:nowrap}
+.preBody{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;margin-top:18px}
+.checkGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0}.check{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid #294653;border-radius:10px;background:linear-gradient(145deg,#0b2532,#071923)}.check button{min-width:54px;height:38px;border:1px solid #46616d;border-radius:7px;background:#122a35;color:#bcd0d7;padding:7px;cursor:pointer;font-size:10px;font-weight:900}.check button.ready{background:#165c4a;border-color:#49d7a1;color:#fff}.check b{font-size:11px}.check small{display:block;color:#8099a4;font-size:9px;margin-top:3px;line-height:1.4}
+.checklistTitle{font-size:10px;letter-spacing:1.3px;color:#8fdcff;font-weight:900;margin:0 0 9px}
+.prePanel{border:1px solid #294653;border-radius:12px;background:#06131c;padding:15px}.panelTitle{font-size:10px;color:#8fdcff;letter-spacing:1.2px;font-weight:900;margin-bottom:12px}
+.mockInstruments{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.mockGauge{height:76px;border:2px solid #506974;border-radius:50%;background:radial-gradient(circle,#142932,#050d13);display:grid;place-items:center;text-align:center}.mockGauge b{font-size:15px}.mockGauge small{display:block;font-size:7px;color:#829ba6;margin-top:2px}
+.systemStrip{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}.systemChip{padding:8px;border:1px solid #294653;border-radius:7px;text-align:center;background:#091e28;font-size:8px;color:#89a4af}.systemChip b{display:block;color:#ff7777;margin-top:3px;font-size:9px}
+.preActions{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-top:18px;padding-top:16px;border-top:1px solid #254552}.procedure{font-size:10px;color:#9db5c1;line-height:1.65}.procedure b{color:#dcecf1}.secondary{border:1px solid #41606c;border-radius:9px;padding:13px 22px;background:#0b202b;color:#d8e8ed;font-weight:900;cursor:pointer;white-space:nowrap}.secondary:not(:disabled){background:#176d87;border-color:#64ddff;color:#fff;box-shadow:0 0 18px #35cfff33}.secondary:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:800px){.preBody{grid-template-columns:1fr}.preHead{display:block}.preBadge{display:inline-block;margin-top:10px}.checkGrid{grid-template-columns:1fr 1fr}.mockInstruments{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){#preflight{padding:10px}.preCard{padding:18px;max-height:94%}.checkGrid{grid-template-columns:1fr}.preActions{display:block}.secondary{width:100%;margin-top:12px}}
 #systems{position:absolute;left:50%;top:82px;transform:translateX(-50%);z-index:28;display:none;padding:9px 12px;background:#061925dd;border:1px solid #3a819b;border-radius:10px;font-size:10px;color:#b9d2dc}
 #systems b{margin-left:6px}.sysOn{color:#49d7a1}.sysOff{color:#ff7777}
 #cockpitOverlay:before,#cockpitOverlay:after{content:"";position:absolute;bottom:-8%;width:23%;height:55%;background:#0a1319;border-radius:50% 50% 0 0;opacity:.92}#cockpitOverlay:before{left:-5%}#cockpitOverlay:after{right:-5%}
@@ -140,15 +148,45 @@ body.cockpit #cockpitDeck{display:block}
 <div id="warning">STALL WARNING</div><div id="toast"></div><div id="cockpitOverlay"></div><div id="systems"><span>BAT</span><b id="batState" class="sysOff">OFF</b><span>AVN</span><b id="avnState" class="sysOff">OFF</b><span>PUMP</span><b id="pumpState" class="sysOff">OFF</b><span>MIX</span><b id="mixState">0%</b></div>
 <div id="preflight">
   <div class="preCard">
-    <div class="preHead"><div><h2>PREFLIGHT • COCKPIT SETUP</h2><p>You are the pilot. Complete the aircraft setup before starting the engine. This is the training sequence: power → fuel → mixture → starter → engine instruments → taxi.</p></div></div>
-    <div class="checkGrid">
-      <div class="check"><button data-pre="battery">OFF</button><div><b>Battery / Master</b><small>Energize the electrical system.</small></div></div>
-      <div class="check"><button data-pre="avionics">OFF</button><div><b>Avionics</b><small>Power the radios and flight deck.</small></div></div>
-      <div class="check"><button data-pre="pump">OFF</button><div><b>Fuel Pump</b><small>Prime the fuel system before start.</small></div></div>
-      <div class="check"><button data-pre="mixture">SET</button><div><b>Mixture</b><small>Set mixture to 100% for engine start.</small></div></div>
+    <div class="preHead">
+      <div><h2>PREFLIGHT • COCKPIT SETUP</h2><p>You are now operating the aircraft. Do not treat this as a menu: these are the first cockpit actions before an engine start. Configure the electrical, fuel and engine systems, then monitor the instruments.</p></div>
+      <div class="preBadge">CESSNA-CLASS • SINGLE ENGINE • TRAINING AIRCRAFT</div>
+    </div>
+    <div class="preBody">
+      <div>
+        <div class="checklistTitle">BEFORE ENGINE START — COMPLETE EACH ITEM</div>
+        <div class="checkGrid">
+          <div class="check"><button data-pre="battery">OFF</button><div><b>MASTER / BATTERY</b><small>Apply electrical power. Radios and engine-start systems depend on it.</small></div></div>
+          <div class="check"><button data-pre="avionics">OFF</button><div><b>AVIONICS</b><small>Power the communication and navigation equipment after the master.</small></div></div>
+          <div class="check"><button data-pre="pump">OFF</button><div><b>FUEL PUMP</b><small>Prime the fuel system. Verify the engine can receive fuel.</small></div></div>
+          <div class="check"><button data-pre="mixture">OFF</button><div><b>MIXTURE</b><small>Set the mixture to RICH / 100% for the start sequence.</small></div></div>
+        </div>
+        <div class="prePanel" style="margin-top:12px">
+          <div class="panelTitle">COCKPIT START CHECK</div>
+          <div class="systemStrip">
+            <div class="systemChip">ELECTRICAL<b id="preBat">OFF</b></div>
+            <div class="systemChip">AVIONICS<b id="preAvn">OFF</b></div>
+            <div class="systemChip">FUEL<b id="prePump">OFF</b></div>
+            <div class="systemChip">MIXTURE<b id="preMix">LEAN</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="prePanel">
+        <div class="panelTitle">ENGINE & FLIGHT INSTRUMENTS — INITIAL STATE</div>
+        <div class="mockInstruments">
+          <div class="mockGauge"><div><b>0</b><small>KNOTS</small></div></div>
+          <div class="mockGauge"><div><b>0</b><small>RPM</small></div></div>
+          <div class="mockGauge"><div><b>0</b><small>ALTITUDE</small></div></div>
+          <div class="mockGauge"><div><b>100%</b><small>FUEL</small></div></div>
+        </div>
+        <div style="margin-top:14px;font-size:10px;color:#9db5c1;line-height:1.6">
+          <b style="color:#dcecf1">What you are learning:</b><br>
+          Engine operation • electrical power • fuel delivery • mixture control • instrument scan • ATC communication • aircraft configuration.
+        </div>
+      </div>
     </div>
     <div class="preActions">
-      <div class="procedure">START PROCEDURE: <b>Battery ON → Avionics ON → Fuel Pump ON → Mixture RICH → Starter.</b></div>
+      <div class="procedure">START SEQUENCE: <b>MASTER ON → AVIONICS ON → FUEL PUMP ON → MIXTURE RICH → STARTER.</b><br>After start: verify engine RPM, monitor the instruments, then release the brakes and begin taxi.</div>
       <button id="engineStart" class="secondary" disabled>START ENGINE</button>
     </div>
   </div>
@@ -238,8 +276,12 @@ function updateSystems(){
   $('mixState').textContent=Math.round(s.mixture)+'%';
   document.querySelectorAll('[data-pre]').forEach(b=>{
     const k=b.dataset.pre, on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.fuelPump:s.mixture>=95;
-    b.textContent=on?'ON':'OFF';b.classList.toggle('ready',on);
+    b.textContent=on?(k==='mixture'?'RICH':'ON'):(k==='mixture'?'LEAN':'OFF');b.classList.toggle('ready',on);
   });
+  $('preBat').textContent=s.battery?'ON':'OFF';$('preBat').className=s.battery?'sysOn':'sysOff';
+  $('preAvn').textContent=s.avionics?'ON':'OFF';$('preAvn').className=s.avionics?'sysOn':'sysOff';
+  $('prePump').textContent=s.fuelPump?'ON':'OFF';$('prePump').className=s.fuelPump?'sysOn':'sysOff';
+  $('preMix').textContent=s.mixture>=95?'RICH':'LEAN';$('preMix').className=s.mixture>=95?'sysOn':'sysOff';
   $('engineStart').disabled=!(s.battery&&s.avionics&&s.fuelPump&&s.mixture>=95)||s.engineStarted;
 }
 function startEngine(){
