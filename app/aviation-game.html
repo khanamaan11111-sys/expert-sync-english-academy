@@ -1,1599 +1,271 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Expert Sync Aviation Simulator</title>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Expert Sync Flight Deck — Aviation English Flight Simulator</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-
-html,body{
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#06111d;
-    font-family:Arial,Helvetica,sans-serif;
-    color:#fff;
-}
-
-button{
-    font-family:inherit;
-    cursor:pointer;
-}
-
-#game{
-    position:relative;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:
-        linear-gradient(#49a9d8 0%,#9dd9ed 48%,#6f9560 49%,#45623e 100%);
-}
-
-#sky{
-    position:absolute;
-    inset:0;
-    overflow:hidden;
-}
-
-.cloud{
-    position:absolute;
-    width:130px;
-    height:40px;
-    background:rgba(255,255,255,.78);
-    border-radius:50px;
-    filter:blur(.3px);
-}
-
-.cloud:before,
-.cloud:after{
-    content:"";
-    position:absolute;
-    background:inherit;
-    border-radius:50%;
-}
-
-.cloud:before{
-    width:65px;
-    height:65px;
-    left:20px;
-    top:-28px;
-}
-
-.cloud:after{
-    width:55px;
-    height:55px;
-    right:20px;
-    top:-20px;
-}
-
-#cloud1{top:16%;left:8%;transform:scale(.8)}
-#cloud2{top:25%;right:12%;transform:scale(1.15)}
-#cloud3{top:8%;left:52%;transform:scale(.65)}
-
-#airport{
-    position:absolute;
-    left:0;
-    right:0;
-    bottom:0;
-    height:48%;
-    background:#3e5e3b;
-}
-
-#taxiway{
-    position:absolute;
-    left:12%;
-    width:18%;
-    top:0;
-    bottom:0;
-    background:#343a3c;
-    border-left:3px solid #d5b84a;
-    border-right:3px solid #d5b84a;
-    box-shadow:inset 0 0 28px rgba(0,0,0,.25);
-}
-#taxiway:before{
-    content:"";
-    position:absolute;
-    left:50%;
-    top:0;
-    bottom:0;
-    width:4px;
-    transform:translateX(-50%);
-    background:repeating-linear-gradient(to bottom,#f6cf55 0 22px,transparent 22px 44px);
-    opacity:.9;
-}
-#taxiway:after{
-    content:"";
-    position:absolute;
-    left:100%;
-    top:43%;
-    width:230%;
-    height:25%;
-    background:#343a3c;
-    border-top:3px solid #d5b84a;
-    border-bottom:3px solid #d5b84a;
-    box-shadow:inset 0 0 22px rgba(0,0,0,.25);
-}
-
-#runway{
-    position:absolute;
-    left:30%;
-    right:2%;
-    top:43%;
-    height:25%;
-    background:#252a2d;
-    box-shadow:0 0 20px rgba(0,0,0,.35);
-}
-
-#runway:before{
-    content:"";
-    position:absolute;
-    left:0;
-    right:0;
-    top:50%;
-    height:5px;
-    transform:translateY(-50%);
-    background:repeating-linear-gradient(to right,#fff 0 35px,transparent 35px 70px);
-}
-#runway:after{
-    content:"09";
-    position:absolute;
-    right:5%;
-    top:50%;
-    transform:translateY(-50%);
-    color:#fff;
-    font:bold 34px/1 Arial,sans-serif;
-    letter-spacing:2px;
-    opacity:.9;
-}
-
-.hold{
-    position:absolute;
-    width:100%;
-    height:10px;
-    border-top:4px solid #fff;
-    border-bottom:4px solid #fff;
-    left:0;
-}
-
-#hold1{top:33%}
-#hold2{top:63%}
-
-#taxiHold{
-    position:absolute;
-    left:0;
-    top:58%;
-    width:100%;
-    height:18px;
-    border-top:4px double #f6cf55;
-    border-bottom:0;
-    z-index:4;
-    opacity:.95;
-}
-
-#terminal{
-    position:absolute;
-    left:2%;
-    bottom:5%;
-    width:150px;
-    height:80px;
-    background:#566064;
-    border:3px solid #343b3f;
-}
-
-#terminal:before{
-    content:"TERMINAL";
-    position:absolute;
-    top:10px;
-    left:20px;
-    font-weight:bold;
-    font-size:13px;
-}
-
-#terminal:after{
-    content:"▣ ▣ ▣ ▣ ▣";
-    position:absolute;
-    bottom:15px;
-    left:18px;
-    color:#9ee5ff;
-}
-
-#airport:before{
-    content:"";
-    position:absolute;
-    left:2%;
-    bottom:8%;
-    width:27%;
-    height:24%;
-    background:
-        repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0 2px,transparent 2px 42px),
-        #555e60;
-    border:2px solid #394245;
-    box-shadow:inset 0 0 35px rgba(0,0,0,.22);
-}
-
-#airport:after{
-    content:"A1     A2     A3";
-    position:absolute;
-    left:4%;
-    bottom:11%;
-    color:#d9e4e7;
-    font:bold 11px Arial,sans-serif;
-    letter-spacing:10px;
-    opacity:.8;
-}
-
-#aircraft{
-    position:absolute;
-    left:50%;
-    top:68%;
-    width:150px;
-    height:210px;
-    transform:translate(-50%,-50%) rotate(0deg);
-    z-index:20;
-    transition:transform .05s linear;
-    transform-origin:50% 50%;
-    filter:drop-shadow(0 8px 7px rgba(0,0,0,.38));
-}
-#aircraft .shadow{
-    position:absolute;
-    left:16px;
-    top:9px;
-    width:80px;
-    height:155px;
-    border-radius:50%;
-    background:rgba(0,0,0,.22);
-    filter:blur(7px);
-    transform:translate(5px,7px);
-    z-index:-2;
-}
-#aircraft .propeller{
-    position:absolute;
-    left:51px;
-    top:-10px;
-    width:10px;
-    height:34px;
-    z-index:8;
-}
-#aircraft .propeller:before,
-#aircraft .propeller:after{
-    content:"";
-    position:absolute;
-    left:3px;
-    top:0;
-    width:4px;
-    height:34px;
-    border-radius:50%;
-    background:rgba(38,45,49,.9);
-    transform-origin:50% 50%;
-}
-#aircraft .propeller:after{transform:rotate(90deg)}
-#aircraft .spinner{
-    position:absolute;
-    left:49px;
-    top:-2px;
-    width:14px;
-    height:14px;
-    border-radius:50%;
-    background:linear-gradient(135deg,#eef4f6,#7d8b91);
-    z-index:9;
-}
-#aircraft .fuselage{
-    position:absolute;
-    left:40px;
-    top:4px;
-    width:32px;
-    height:158px;
-    border-radius:48% 48% 32% 32%;
-    background:linear-gradient(90deg,#7f8b91 0%,#eef4f6 20%,#fff 48%,#c9d3d8 78%,#69767d 100%);
-    box-shadow:inset -3px 0 5px rgba(0,0,0,.2),inset 3px 0 5px rgba(255,255,255,.45),0 3px 7px rgba(0,0,0,.45);
-    z-index:3;
-}
-#aircraft .cowling{
-    position:absolute;
-    left:38px;
-    top:0;
-    width:36px;
-    height:29px;
-    border-radius:48% 48% 42% 42%;
-    background:linear-gradient(90deg,#a9b4b9,#f8fbfc 45%,#9aa7ad);
-    border:1px solid rgba(60,70,75,.35);
-    z-index:5;
-}
-#aircraft .windshield{
-    position:absolute;
-    left:42px;
-    top:25px;
-    width:28px;
-    height:31px;
-    border-radius:48% 48% 25% 25%;
-    background:linear-gradient(135deg,#173747,#3f8aa6 55%,#10242e);
-    border:2px solid #dfe8eb;
-    z-index:6;
-    box-shadow:inset 0 0 8px rgba(122,220,255,.28);
-}
-#aircraft .window{
-    position:absolute;
-    left:43px;
-    width:26px;
-    height:15px;
-    border-radius:7px;
-    background:linear-gradient(135deg,#183743,#438ba3 60%,#142932);
-    border:1px solid #c7d4d8;
-    z-index:6;
-}
-#aircraft .window.w1{top:59px}
-#aircraft .window.w2{top:77px}
-#aircraft .door{
-    position:absolute;
-    left:37px;
-    top:55px;
-    width:38px;
-    height:50px;
-    border-left:1px solid rgba(55,65,70,.35);
-    border-right:1px solid rgba(55,65,70,.35);
-    border-radius:8px;
-    z-index:5;
-}
-#aircraft .wing{
-    position:absolute;
-    top:55px;
-    left:-2px;
-    width:116px;
-    height:38px;
-    background:linear-gradient(#f8fbfc,#c9d4d9);
-    clip-path:polygon(0 37%,100% 0,86% 100%,14% 100%);
-    border-bottom:2px solid #8b999f;
-    z-index:2;
-    box-shadow:0 3px 5px rgba(0,0,0,.22);
-}
-#aircraft .wing:after{
-    content:"";
-    position:absolute;
-    left:53px;
-    top:6px;
-    width:5px;
-    height:28px;
-    background:#b8c5ca;
-    transform:rotate(-3deg);
-    opacity:.75;
-}
-#aircraft .tail{
-    position:absolute;
-    left:17px;
-    top:122px;
-    width:78px;
-    height:32px;
-    background:linear-gradient(#e9f0f2,#b9c6cb);
-    clip-path:polygon(0 45%,100% 0,84% 100%,16% 100%);
-    border-bottom:2px solid #87959b;
-    z-index:2;
-}
-#aircraft .horizontal-tail{
-    position:absolute;
-    left:27px;
-    top:126px;
-    width:58px;
-    height:20px;
-    background:#dbe4e8;
-    clip-path:polygon(0 50%,100% 0,86% 100%,14% 100%);
-    z-index:4;
-}
-#aircraft .vertical{
-    position:absolute;
-    left:45px;
-    top:104px;
-    width:22px;
-    height:53px;
-    background:linear-gradient(90deg,#aebbc0,#edf2f4);
-    clip-path:polygon(0 100%,18% 0,100% 0,82% 100%);
-    border-left:1px solid #8b999f;
-    z-index:5;
-}
-#aircraft .gear{
-    position:absolute;
-    width:5px;
-    height:24px;
-    background:#4c585e;
-    border-radius:3px;
-    z-index:1;
-    transform-origin:top center;
-}
-#aircraft .gear:after{
-    content:"";
-    position:absolute;
-    bottom:-5px;
-    left:-4px;
-    width:13px;
-    height:7px;
-    border-radius:50%;
-    background:#20272b;
-    border:1px solid #111;
-}
-#aircraft .noseGear{left:51px;top:12px;transform:rotate(8deg)}
-#aircraft .leftGear{left:24px;top:86px;transform:rotate(-18deg)}
-#aircraft .rightGear{left:83px;top:86px;transform:rotate(18deg)}
-#aircraft .navLight{
-    position:absolute;
-    width:5px;
-    height:5px;
-    border-radius:50%;
-    box-shadow:0 0 8px currentColor;
-    z-index:10;
-}
-#aircraft .redLight{left:6px;top:72px;color:#ff3344;background:#ff3344}
-#aircraft .greenLight{right:6px;top:72px;color:#45ff9a;background:#45ff9a}
-#aircraft .beacon{
-    position:absolute;
-    left:52px;
-    top:107px;
-    width:8px;
-    height:5px;
-    border-radius:50%;
-    background:#ff3030;
-    box-shadow:0 0 8px #ff3030;
-    z-index:10;
-}
-.aircraft-svg{
-    width:150px;
-    height:210px;
-    display:block;
-    overflow:visible;
-}
-.svg-propeller{
-    transform-origin:0 0;
-}
-.svg-light,.svg-beacon{
-    filter:drop-shadow(0 0 4px currentColor);
-}
-#aircraft .wheelFairing{
-    position:absolute;
-    left:48px;
-    top:143px;
-    width:16px;
-    height:9px;
-    border-radius:50%;
-    background:#aeb9be;
-    z-index:6;
-}
-
-
-#aircraft .fuselage{
-    position:absolute;
-    left:27px;
-    top:0;
-    width:24px;
-    height:150px;
-    border-radius:50% 50% 35% 35%;
-    background:linear-gradient(90deg,#d8e3e8,#fff,#9caab1);
-    box-shadow:0 3px 7px rgba(0,0,0,.45);
-}
-
-#aircraft .nose{
-    position:absolute;
-    left:27px;
-    top:-14px;
-    width:24px;
-    height:30px;
-    border-radius:50% 50% 30% 30%;
-    background:#f8fbfc;
-}
-
-#aircraft .wing{
-    position:absolute;
-    top:53px;
-    left:-2px;
-    width:82px;
-    height:32px;
-    background:#eef3f5;
-    clip-path:polygon(0 35%,100% 0,72% 100%,28% 100%);
-}
-
-#aircraft .tail{
-    position:absolute;
-    left:12px;
-    top:112px;
-    width:54px;
-    height:28px;
-    background:#dce5e9;
-    clip-path:polygon(0 45%,100% 0,82% 100%,18% 100%);
-}
-
-#aircraft .vertical{
-    position:absolute;
-    left:30px;
-    top:100px;
-    width:18px;
-    height:45px;
-    background:#c9d5da;
-    clip-path:polygon(0 100%,20% 0,100% 0,80% 100%);
-}
-
-#hud{
-    position:absolute;
-    top:14px;
-    right:14px;
-    display:flex;
-    gap:8px;
-    z-index:50;
-}
-
-.instrument{
-    min-width:82px;
-    padding:8px 10px;
-    text-align:center;
-    background:rgba(4,20,33,.88);
-    border:1px solid #328bb3;
-    border-radius:8px;
-}
-
-.instrument span{
-    display:block;
-    font-size:10px;
-    color:#7edcff;
-}
-
-.instrument strong{
-    font-size:18px;
-}
-
-#brand{
-    position:absolute;
-    top:14px;
-    left:14px;
-    z-index:50;
-    background:rgba(4,20,33,.9);
-    border:1px solid #2f91bd;
-    border-radius:8px;
-    padding:10px 14px;
-}
-
-#brand b{
-    color:#73dcff;
-    letter-spacing:2px;
-    font-size:13px;
-}
-
-#brand small{
-    display:block;
-    margin-top:4px;
-    color:#b7d9e7;
-}
-
-#mission{
-    position:absolute;
-    top:90px;
-    left:14px;
-    width:310px;
-    padding:14px;
-    background:rgba(4,20,33,.9);
-    border:1px solid #2f91bd;
-    border-radius:9px;
-    z-index:50;
-}
-
-#mission h3{
-    color:#6edaff;
-    font-size:14px;
-    margin-bottom:8px;
-}
-
-#missionText{
-    font-size:13px;
-    line-height:1.45;
-}
-
-#missionProgress{
-    height:7px;
-    margin-top:10px;
-    background:#233743;
-    border-radius:10px;
-    overflow:hidden;
-}
-
-#missionBar{
-    width:0%;
-    height:100%;
-    background:#48d4ff;
-    transition:width .2s;
-}
-
-#radio{
-    position:absolute;
-    top:90px;
-    right:14px;
-    width:300px;
-    padding:13px;
-    background:rgba(4,20,33,.9);
-    border:1px solid #328bb3;
-    border-radius:9px;
-    z-index:50;
-}
-
-#radioTitle{
-    color:#72ddff;
-    font-weight:bold;
-    font-size:12px;
-    margin-bottom:6px;
-}
-
-#radioText{
-    font-size:12px;
-    line-height:1.4;
-}
-
-#cockpit{
-    position:absolute;
-    left:50%;
-    bottom:0;
-    transform:translateX(-50%);
-    width:650px;
-    max-width:90%;
-    height:135px;
-    background:rgba(5,15,22,.94);
-    border:2px solid #385462;
-    border-bottom:0;
-    border-radius:30px 30px 0 0;
-    z-index:40;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    padding-top:15px;
-    gap:15px;
-}
-
-.gauge{
-    width:92px;
-    height:92px;
-    border-radius:50%;
-    border:3px solid #758894;
-    background:#08151e;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    position:relative;
-}
-
-.gauge b{
-    font-size:20px;
-    color:#75ddff;
-}
-
-.gauge small{
-    color:#91a8b4;
-    font-size:9px;
-    margin-top:4px;
-}
-
-.needle{
-    position:absolute;
-    width:3px;
-    height:32px;
-    background:#ffdb4a;
-    bottom:45px;
-    left:44px;
-    transform-origin:bottom center;
-    transform:rotate(25deg);
-}
-
-#controls{
-    position:absolute;
-    left:14px;
-    bottom:18px;
-    z-index:60;
-    background:rgba(4,20,33,.9);
-    border:1px solid #328bb3;
-    border-radius:9px;
-    padding:11px 13px;
-    font-size:11px;
-    line-height:1.7;
-}
-
-#controls kbd{
-    padding:2px 5px;
-    background:#263b46;
-    border:1px solid #506c79;
-    border-radius:4px;
-}
-
-#score{
-    position:absolute;
-    left:14px;
-    bottom:115px;
-    z-index:50;
-    background:rgba(4,20,33,.9);
-    border:1px solid #328bb3;
-    border-radius:8px;
-    padding:9px 13px;
-}
-
-#score span{
-    color:#74ddff;
-    font-weight:bold;
-}
-
-#status{
-    position:absolute;
-    right:14px;
-    bottom:18px;
-    z-index:50;
-    background:rgba(4,20,33,.9);
-    border:1px solid #328bb3;
-    border-radius:9px;
-    padding:10px 14px;
-    font-size:11px;
-    line-height:1.7;
-}
-
-#menu{
-    position:absolute;
-    inset:0;
-    z-index:100;
-    background:radial-gradient(circle at center,#102e40,#030b12 70%);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
-
-.menuCard{
-    width:520px;
-    max-width:92%;
-    background:rgba(5,18,29,.96);
-    border:1px solid #328bb3;
-    border-radius:18px;
-    padding:34px;
-    text-align:center;
-    box-shadow:0 20px 80px rgba(0,0,0,.5);
-}
-
-.menuCard h1{
-    color:#79ddff;
-    font-size:38px;
-    letter-spacing:3px;
-}
-
-.menuCard h2{
-    margin-top:5px;
-    color:#fff;
-    font-size:18px;
-    letter-spacing:5px;
-}
-
-.menuCard p{
-    margin:18px auto;
-    max-width:430px;
-    color:#b6d4df;
-    line-height:1.6;
-    font-size:13px;
-}
-
-.featureGrid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-    margin:18px 0;
-}
-
-.feature{
-    padding:9px;
-    border:1px solid #294957;
-    background:#0c202c;
-    border-radius:7px;
-    font-size:11px;
-}
-
-#startBtn{
-    margin-top:10px;
-    padding:14px 36px;
-    border:0;
-    border-radius:8px;
-    background:#55d4ff;
-    color:#03202c;
-    font-weight:bold;
-    letter-spacing:1px;
-    box-shadow:0 0 20px rgba(85,212,255,.35);
-}
-
-#startBtn:hover{
-    background:#8be7ff;
-}
-
-#missionComplete{
-    display:none;
-    position:absolute;
-    inset:0;
-    z-index:120;
-    background:rgba(2,10,16,.9);
-    justify-content:center;
-    align-items:center;
-}
-
-.completeCard{
-    background:#071a27;
-    border:1px solid #45cfff;
-    padding:35px;
-    width:430px;
-    max-width:90%;
-    border-radius:14px;
-    text-align:center;
-}
-
-.completeCard h1{
-    color:#70dcff;
-    margin-bottom:15px;
-}
-
-#nextMission{
-    margin-top:20px;
-    padding:11px 24px;
-    border:0;
-    border-radius:7px;
-    background:#54d4ff;
-    font-weight:bold;
-}
-
-@media(max-width:800px){
-    #radio{display:none}
-    #mission{width:260px}
-    .instrument{min-width:65px;padding:6px}
-    #cockpit{height:105px}
-    .gauge{width:70px;height:70px}
-    .gauge b{font-size:15px}
-    .needle{left:33px;bottom:34px;height:25px}
-}
-
-@media(max-width:600px){
-    #hud .instrument:nth-child(n+3){display:none}
-    #mission{top:78px}
-    #controls{display:none}
-    #status{display:none}
-}
-    /* ===== EXPERT SYNC FLIGHT DECK INSTRUMENTS ===== */
-.flight-instruments{
-    position:fixed;
-    left:50%;
-    bottom:148px;
-    transform:translateX(-50%);
-    width:min(900px,92vw);
-    display:grid;
-    grid-template-columns:repeat(6,1fr);
-    gap:10px;
-    padding:14px;
-    background:rgba(3,12,22,.94);
-    border:1px solid #35c8ff;
-    border-radius:18px;
-    box-shadow:0 0 30px rgba(0,180,255,.25);
-    z-index:45;
-    backdrop-filter:blur(8px);
-}
-
-.instrument{
-    min-height:78px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    border:1px solid rgba(255,255,255,.18);
-    border-radius:12px;
-    background:rgba(255,255,255,.04);
-}
-
-.instrument-label{
-    font-size:10px;
-    letter-spacing:1.5px;
-    color:#8fdfff;
-    margin-bottom:6px;
-}
-
-.instrument-value{
-    font-size:25px;
-    font-weight:700;
-    color:#fff;
-}
-
-.instrument-unit{
-    font-size:10px;
-    color:#9aaebe;
-    margin-top:3px;
-}
-
-@media(max-width:700px){
-    .flight-instruments{
-        grid-template-columns:repeat(3,1fr);
-        bottom:112px;
-        gap:6px;
-        padding:8px;
-    }
-
-    .instrument{
-        min-height:62px;
-    }
-
-    .instrument-value{
-        font-size:19px;
-    }
-}
-
-/* ===== EXPERT SYNC FLIGHT MODEL V2 ===== */
-#flightView{
- position:absolute;inset:0;overflow:hidden;z-index:5;pointer-events:none;
- perspective:900px;
-}
-#flightHorizon{
- position:absolute;left:-12%;right:-12%;top:0;height:70%;
- background:linear-gradient(#4aa9d8 0%,#a8deef 72%,#79a26c 73%,#45633e 100%);
- transform-origin:50% 100%;
-}
-#flightRunway{
- position:absolute;left:50%;top:48%;width:28%;height:58%;
- transform:translateX(-50%) perspective(700px) rotateX(48deg);
- background:#292e31;
- border-left:5px solid #d6bb48;border-right:5px solid #d6bb48;
- box-shadow:0 -10px 35px rgba(0,0,0,.25);
- opacity:.0;
- transition:opacity .2s;
-}
-#flightRunway:before{
- content:"";position:absolute;left:50%;top:0;bottom:0;width:5px;transform:translateX(-50%);
- background:repeating-linear-gradient(to bottom,#fff 0 30px,transparent 30px 65px);
-}
-#flightRunway:after{
- content:"09";position:absolute;left:50%;top:8%;transform:translateX(-50%);
- color:#fff;font:bold 28px Arial;letter-spacing:3px;
-}
-#aircraft.airborne{
- filter:drop-shadow(0 22px 20px rgba(0,0,0,.34));
-}
-#aircraft.airborne .gear{opacity:0!important}
-#aircraft.airborne{transition:transform .04s linear,left .04s linear,top .04s linear}
-.flight-warning{
- position:absolute;left:50%;top:24%;transform:translateX(-50%);
- z-index:80;padding:8px 14px;border-radius:7px;
- background:rgba(130,12,12,.88);border:1px solid #ff6969;
- color:#fff;font-weight:700;font-size:12px;letter-spacing:1px;
- display:none;box-shadow:0 0 18px rgba(255,50,50,.35);
-}
-.flight-warning.show{display:block}
-@media(max-width:700px){#flightRunway{width:42%}}
-
-/* ===== FLIGHT DECK V2 ===== */
-#flightView{
-  pointer-events:none;
-  z-index:12;
-  opacity:0;
-  transition:opacity .25s ease;
-}
-body.cockpit-mode #flightView{opacity:1}
-body.cockpit-mode #airport,
-body.cockpit-mode #aircraft{filter:brightness(.78)}
-#flightHorizon{
-  position:absolute;inset:-18%;
-  background:
-    linear-gradient(to bottom,
-      #4aa9d6 0 49%,
-      #c8a76b 49% 50%,
-      #31502f 50% 100%);
-  transform-origin:50% 50%;
-}
-#flightHorizon:before{
-  content:"";
-  position:absolute;left:50%;top:50%;
-  width:38%;height:2px;background:rgba(255,255,255,.85);
-  box-shadow:0 -22px 0 rgba(255,255,255,.55),0 22px 0 rgba(255,255,255,.55);
-  transform:translate(-50%,-50%);
-}
-#flightHorizon:after{
-  content:"";
-  position:absolute;left:50%;top:50%;
-  width:120px;height:120px;border:2px solid rgba(255,255,255,.6);
-  border-radius:50%;transform:translate(-50%,-50%);
-}
-#flightRunway{
-  position:absolute;left:50%;bottom:18%;width:34%;height:18%;
-  background:linear-gradient(#2b3033,#171b1d);
-  border:2px solid rgba(255,255,255,.55);
-  transform-origin:50% 100%;
-  opacity:0;
-}
-#cockpitFrame{
-  position:absolute;inset:0;z-index:70;pointer-events:none;
-  display:none;
-}
-body.cockpit-mode #cockpitFrame{display:block}
-#cockpitFrame .pillar{
-  position:absolute;top:0;bottom:0;width:8%;
-  background:linear-gradient(90deg,#08121a,#24313a,#08121a);
-  opacity:.94;
-}
-#cockpitFrame .pillar.left{left:0;clip-path:polygon(0 0,100% 8%,82% 100%,0 100%)}
-#cockpitFrame .pillar.right{right:0;clip-path:polygon(0 8%,100% 0,100% 100%,18% 100%)}
-#cockpitFrame .dash{
-  position:absolute;left:4%;right:4%;bottom:-3%;
-  height:23%;background:linear-gradient(#111c24,#050b10);
-  border-top:2px solid #344853;
-  box-shadow:0 -10px 40px rgba(0,0,0,.45);
-}
-#cockpitFrame .dash:after{
-  content:"EXPERT SYNC FLIGHT DECK";
-  position:absolute;left:50%;top:12px;transform:translateX(-50%);
-  color:#79c8e8;font:700 11px Arial;letter-spacing:2px;
-}
-#flightPanel{
-  position:absolute;left:50%;bottom:6%;transform:translateX(-50%);
-  width:min(720px,82vw);height:112px;
-  display:grid;grid-template-columns:repeat(6,1fr);gap:8px;
-}
-#flightPanel .p{
-  border:1px solid #2b4655;border-radius:9px;
-  background:rgba(3,12,18,.92);padding:9px;text-align:center;
-  box-shadow:inset 0 0 18px rgba(0,0,0,.35);
-}
-#flightPanel .v{font:700 20px/1.2 monospace;color:#e9f8ff}
-#flightPanel .l{font:9px/1.2 Arial;color:#75b9d4;letter-spacing:1px;margin-top:5px}
-#yoke{
-  position:absolute;left:50%;bottom:3.5%;width:110px;height:75px;
-  transform:translateX(-50%);z-index:76;
-}
-#yoke .bar{position:absolute;left:12px;right:12px;top:17px;height:12px;border-radius:10px;background:#171e23;border:2px solid #65747b}
-#yoke .hub{position:absolute;left:42px;top:22px;width:28px;height:40px;border-radius:8px;background:#11181c;border:2px solid #6b7a81}
-#yoke .hub:after{content:"ES";position:absolute;inset:0;display:grid;place-items:center;color:#8ed6ef;font:700 9px Arial}
-#throttleLever{
-  position:absolute;left:6%;bottom:7%;width:90px;height:120px;
-  z-index:76;background:#0b141a;border:2px solid #31444e;border-radius:10px;
-}
-#throttleLever .track{position:absolute;left:40px;top:12px;bottom:12px;width:10px;background:#1d2b31;border-radius:8px}
-#throttleLever .handle{position:absolute;left:29px;bottom:15px;width:32px;height:24px;border-radius:6px;background:#6e7d84;border:2px solid #b9c7cc}
-#viewBadge{
- position:absolute;right:18px;bottom:18px;z-index:90;
- padding:7px 10px;border:1px solid #315363;border-radius:7px;
- background:rgba(2,13,20,.86);font:700 10px Arial;letter-spacing:1px;
-}
+:root{--cyan:#4dd9ff;--panel:rgba(4,16,27,.88);--line:rgba(100,220,255,.32);--text:#f4fbff;--muted:#9db5c1;--danger:#ff6464;--ok:#4cff9b}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07121b;color:var(--text);font-family:Inter,Arial,sans-serif}
+button{font:inherit}#sim{position:relative;width:100%;height:100%;overflow:hidden;background:#78b6d2}
+#world{position:absolute;inset:0;width:100%;height:100%;display:block}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 35px #0007;backdrop-filter:blur(8px)}
+#topbar{position:absolute;left:14px;right:14px;top:12px;height:58px;display:flex;align-items:center;gap:16px;z-index:20}
+#brand{padding:9px 14px;min-width:235px}.brand1{font-weight:800;letter-spacing:1.8px;color:var(--cyan)}.brand2{font-size:10px;color:#b9d6e2;margin-top:3px;letter-spacing:.8px}
+#phases{display:flex;align-items:center;gap:4px;flex:1;justify-content:center}
+.phase{min-width:76px;text-align:center;color:#78909b;font-size:10px}.phase .dot{width:25px;height:25px;border:2px solid #536b77;border-radius:50%;margin:auto auto 3px;display:grid;place-items:center;font-size:10px}.phase.active{color:#fff}.phase.active .dot{border-color:var(--cyan);color:#031824;background:#42cfff}.phase.done .dot{border-color:var(--ok);color:#031824;background:var(--ok)}
+#views{display:flex;gap:5px}.viewBtn{border:1px solid #365563;background:#091a25;color:#b9d2dc;border-radius:8px;padding:8px 10px;font-size:10px}.viewBtn.active{background:#1a8ebc;color:#fff;border-color:#6ee3ff}
+#mission{position:absolute;left:14px;top:82px;width:330px;padding:14px;z-index:20}.eyebrow{font-size:10px;color:var(--cyan);font-weight:800;letter-spacing:1px}.missionTitle{font-size:17px;font-weight:800;margin:5px 0}.missionText{font-size:12px;line-height:1.5;color:#d5e5eb}.bar{height:6px;background:#20333e;border-radius:99px;overflow:hidden;margin-top:11px}.bar i{display:block;height:100%;width:0;background:var(--cyan);transition:width .15s}
+#atc{position:absolute;right:14px;top:82px;width:330px;padding:14px;z-index:20}.atcHead{display:flex;justify-content:space-between;color:var(--cyan);font-size:11px;font-weight:800}.freq{color:#fff}.atcBody{font-size:12px;line-height:1.5;margin-top:7px}.radioHint{font-size:10px;color:#a9c1ca;margin-top:8px}
+#status{position:absolute;right:14px;bottom:16px;width:245px;padding:12px;z-index:20;font-size:11px;line-height:1.65}.statusRow{display:flex;justify-content:space-between;border-bottom:1px solid #29404b;padding:2px 0}.statusRow span{color:#91aab5}.green{color:var(--ok)}.yellow{color:#ffd65a}.red{color:var(--danger)}
+#controls{position:absolute;left:14px;bottom:16px;width:255px;padding:12px;z-index:20;font-size:10px;line-height:1.8}.kbd{display:inline-block;min-width:20px;text-align:center;padding:1px 5px;background:#203640;border:1px solid #48636e;border-radius:4px;color:#fff}
+#score{position:absolute;left:14px;bottom:173px;padding:9px 12px;z-index:20;font-size:11px}.scoreNum{color:var(--cyan);font-size:18px;font-weight:800}
+#instruments{position:absolute;left:50%;bottom:15px;transform:translateX(-50%);width:min(930px,62vw);padding:10px;display:grid;grid-template-columns:repeat(6,1fr);gap:7px;z-index:25}
+.inst{min-height:75px;text-align:center;padding:8px;border:1px solid #294653;border-radius:9px;background:rgba(5,18,27,.82)}.instLabel{font-size:8px;letter-spacing:1.2px;color:#8fdcff}.instVal{font-size:23px;font-weight:800;margin-top:6px}.instUnit{font-size:8px;color:#8da4af}
+#gauges{position:absolute;left:50%;bottom:107px;transform:translateX(-50%);display:flex;gap:9px;z-index:24}.gauge{width:76px;height:76px;border-radius:50%;border:2px solid #657d89;background:radial-gradient(circle,#12242e,#071119);display:grid;place-items:center;text-align:center;box-shadow:0 4px 18px #0006}.gauge b{font-size:17px}.gauge small{font-size:7px;color:#8da8b4;display:block;margin-top:2px}
+#warning{position:absolute;top:29%;left:50%;transform:translateX(-50%);z-index:40;display:none;padding:9px 16px;border:1px solid #ff7777;background:#6d1212dd;border-radius:8px;font-size:12px;font-weight:900;letter-spacing:1px;box-shadow:0 0 22px #ff303055}.show{display:block!important}
+#toast{position:absolute;left:50%;top:16%;transform:translateX(-50%);z-index:35;display:none;padding:9px 14px;background:#061925ee;border:1px solid #3aa8ce;border-radius:8px;font-size:11px;max-width:70%;text-align:center}
+#menu,#complete{position:absolute;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%,#163c52,#02080d 72%)}
+.card{width:570px;max-width:92%;padding:34px;border-radius:18px;text-align:center;background:#061520f5;border:1px solid #3dbbe8;box-shadow:0 25px 100px #0009}.card h1{margin:0;color:#76e0ff;letter-spacing:3px;font-size:34px}.card h2{margin:5px 0 15px;font-size:14px;letter-spacing:4px}.card p{color:#b5cbd5;font-size:13px;line-height:1.6}.features{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:20px 0}.feature{padding:10px;border:1px solid #264653;border-radius:7px;background:#0a202c;font-size:11px}.primary{border:0;border-radius:8px;padding:13px 28px;background:#52d7ff;color:#03202a;font-weight:900;cursor:pointer}.primary:hover{filter:brightness(1.08)}
+#complete{display:none;background:#020a10e8}.result{width:440px}.result h1{font-size:28px}
+#cockpitOverlay{position:absolute;inset:0;pointer-events:none;display:none;z-index:10;background:linear-gradient(#0000 0 65%,#06101899 100%)}#cockpitOverlay:before,#cockpitOverlay:after{content:"";position:absolute;bottom:-8%;width:23%;height:55%;background:#0a1319;border-radius:50% 50% 0 0;opacity:.92}#cockpitOverlay:before{left:-5%}#cockpitOverlay:after{right:-5%}
+@media(max-width:1000px){#phases{display:none}#mission{width:290px}#atc{width:290px}#instruments{width:80vw}.inst{min-height:62px}.instVal{font-size:18px}}
+@media(max-width:700px){#mission,#atc,#controls,#status{display:none}#score{bottom:150px}.viewBtn{display:none}#instruments{width:96vw;grid-template-columns:repeat(3,1fr);bottom:8px}.inst{min-height:55px}.instVal{font-size:16px}#gauges{display:none}}
 </style>
 </head>
-
 <body>
-<div id="flightView" aria-hidden="true">
-  <div id="flightHorizon"></div>
-  <div id="flightRunway"></div>
-  <div id="flightWarning" class="flight-warning">STALL WARNING</div>
-</div> 
-    <!-- ===== EXPERT SYNC FLIGHT DECK INSTRUMENTS ===== -->
-<div class="flight-instruments" id="flightInstruments">
+<div id="sim">
+<canvas id="world"></canvas>
 
-    <div class="instrument">
-        <div class="instrument-label">AIRSPEED</div>
-        <div class="instrument-value" id="cockpitAirspeed">0</div>
-        <div class="instrument-unit">KNOTS</div>
-    </div>
-
-    <div class="instrument">
-        <div class="instrument-label">ALTITUDE</div>
-        <div class="instrument-value" id="cockpitAltitude">0</div>
-        <div class="instrument-unit">FEET</div>
-    </div>
-
-    <div class="instrument">
-        <div class="instrument-label">HEADING</div>
-        <div class="instrument-value" id="cockpitHeading">090</div>
-        <div class="instrument-unit">DEGREES</div>
-    </div>
-
-    <div class="instrument">
-        <div class="instrument-label">VERTICAL SPEED</div>
-        <div class="instrument-value" id="cockpitVerticalSpeed">0</div>
-        <div class="instrument-unit">FPM</div>
-    </div>
-
-    <div class="instrument">
-        <div class="instrument-label">ENGINE RPM</div>
-        <div class="instrument-value" id="cockpitRPM">0</div>
-        <div class="instrument-unit">RPM</div>
-    </div>
-
-    <div class="instrument">
-        <div class="instrument-label">FUEL</div>
-        <div class="instrument-value" id="cockpitFuel">100</div>
-        <div class="instrument-unit">%</div>
-    </div>
-
+<div id="topbar">
+  <div id="brand" class="panel"><div class="brand1">✈ EXPERT SYNC — FLIGHT DECK</div><div class="brand2">SINGLE-ENGINE TRAINING • AVIATION ENGLISH SIMULATOR</div></div>
+  <div id="phases"></div>
+  <div id="views">
+    <button class="viewBtn active" data-view="EXTERNAL">EXTERNAL</button>
+    <button class="viewBtn" data-view="COCKPIT">COCKPIT</button>
+    <button class="viewBtn" data-view="TOWER">TOWER</button>
+  </div>
 </div>
 
-<div id="game">
-
-    <div id="sky">
-        <div class="cloud" id="cloud1"></div>
-        <div class="cloud" id="cloud2"></div>
-        <div class="cloud" id="cloud3"></div>
-    </div>
-
-    <div id="airport">
-        <div id="taxiway"></div>
-        <div id="runway">
-            <div class="hold" id="hold1"></div>
-            <div class="hold" id="hold2"></div>
-        </div>
-        <div id="terminal"></div>
-    </div>
-
-    <div id="aircraft" aria-label="Single-engine training aircraft">
-    <svg class="aircraft-svg" viewBox="0 0 112 170" role="img" aria-label="Single-engine high-wing trainer aircraft">
-      <defs>
-        <linearGradient id="bodyMetal" x1="0" x2="1">
-          <stop offset="0" stop-color="#737f85"/><stop offset=".18" stop-color="#eef3f5"/>
-          <stop offset=".5" stop-color="#ffffff"/><stop offset=".78" stop-color="#c5d0d5"/>
-          <stop offset="1" stop-color="#68757b"/>
-        </linearGradient>
-        <linearGradient id="wingMetal" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#dbe4e8"/><stop offset="1" stop-color="#a9b7bd"/>
-        </linearGradient>
-        <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#10232c"/><stop offset=".45" stop-color="#3e8299"/><stop offset="1" stop-color="#0b1a22"/>
-        </linearGradient>
-        <filter id="planeShadow"><feGaussianBlur stdDeviation="3"/></filter>
-      </defs>
-      <ellipse cx="56" cy="91" rx="42" ry="73" fill="rgba(0,0,0,.22)" filter="url(#planeShadow)"/>
-      <!-- propeller -->
-      <g class="svg-propeller" transform="translate(56 11)">
-        <ellipse cx="0" cy="-8" rx="3.5" ry="18" fill="#303a3f"/>
-        <ellipse cx="0" cy="-8" rx="3.5" ry="18" fill="#303a3f" transform="rotate(90)"/>
-        <circle r="4.5" fill="#d9e2e6" stroke="#68767c"/>
-      </g>
-      <!-- main wing -->
-      <path d="M7 67 L105 51 L101 84 L11 79 Z" fill="url(#wingMetal)" stroke="#7b898f" stroke-width="1.2"/>
-      <path d="M9 70 L103 56" stroke="#f9fcfd" stroke-width="2" opacity=".75"/>
-      <!-- tailplane -->
-      <path d="M18 139 L94 124 L88 151 L24 153 Z" fill="url(#wingMetal)" stroke="#7b898f" stroke-width="1.2"/>
-      <!-- fuselage -->
-      <path d="M56 7 C47 12 43 27 43 46 L43 125 C43 145 48 159 56 164 C64 159 69 145 69 125 L69 46 C69 27 65 12 56 7 Z"
-            fill="url(#bodyMetal)" stroke="#647178" stroke-width="1.2"/>
-      <!-- engine cowling -->
-      <path d="M43 20 C44 9 49 5 56 5 C63 5 68 9 69 20 L66 30 L46 30 Z"
-            fill="url(#bodyMetal)" stroke="#66747a" stroke-width="1"/>
-      <!-- windshield -->
-      <path d="M45 31 Q56 23 67 31 L65 51 Q56 57 47 51 Z" fill="url(#glass)" stroke="#d8e3e7" stroke-width="1.4"/>
-      <path d="M56 28 L56 52" stroke="#b9d0d8" stroke-width="1" opacity=".7"/>
-      <!-- cabin windows -->
-      <path d="M46 56 Q56 52 66 56 L65 69 Q56 73 47 69 Z" fill="url(#glass)" stroke="#c7d5da" stroke-width="1"/>
-      <path d="M46 73 Q56 70 66 73 L65 86 Q56 89 47 86 Z" fill="url(#glass)" stroke="#c7d5da" stroke-width="1"/>
-      <!-- cabin door -->
-      <path d="M42 54 L42 105 Q56 110 70 105 L70 54" fill="none" stroke="#6d7a80" stroke-width="1"/>
-      <circle cx="66" cy="101" r="1.5" fill="#59676d"/>
-      <!-- tail fin -->
-      <path d="M48 119 L49 99 L64 91 L66 145 L56 158 L49 145 Z" fill="url(#wingMetal)" stroke="#78868c" stroke-width="1"/>
-      <!-- landing gear -->
-      <g class="svg-gear">
-        <path d="M56 21 L54 35" stroke="#3f4b50" stroke-width="2.5"/>
-        <circle cx="54" cy="37" r="4" fill="#20272b" stroke="#9aa5a9"/>
-        <path d="M38 86 L29 98" stroke="#3f4b50" stroke-width="2.5"/>
-        <circle cx="27" cy="100" r="5" fill="#20272b" stroke="#9aa5a9"/>
-        <path d="M74 86 L83 98" stroke="#3f4b50" stroke-width="2.5"/>
-        <circle cx="85" cy="100" r="5" fill="#20272b" stroke="#9aa5a9"/>
-      </g>
-      <!-- lights -->
-      <circle cx="9" cy="73" r="2.4" fill="#ff3045" class="svg-light"/>
-      <circle cx="103" cy="62" r="2.4" fill="#39ff93" class="svg-light"/>
-      <circle cx="56" cy="119" r="2.5" fill="#ff3030" class="svg-beacon"/>
-    </svg>
-  </div>
-
-    <div id="brand">
-        <b>EXPERT SYNC • FLIGHT DECK</b>
-        <small>SINGLE-ENGINE TRAINING • AVIATION ENGLISH SIMULATOR</small>
-    </div>
-
-    <div id="hud">
-        <div class="instrument">
-            <span>AIRSPEED</span>
-            <strong id="speed">0</strong>
-            <span>KT</span>
-        </div>
-
-        <div class="instrument">
-            <span>ALTITUDE</span>
-            <strong id="altitude">0</strong>
-            <span>FT</span>
-        </div>
-
-        <div class="instrument">
-            <span>HEADING</span>
-            <strong id="heading">000</strong>
-            <span>°</span>
-        </div>
-
-        <div class="instrument">
-            <span>FUEL</span>
-            <strong id="fuel">100</strong>
-            <span>%</span>
-        </div>
-    </div>
-
-    <div id="mission">
-        <h3>ACTIVE FLIGHT MISSION</h3>
-        <div id="missionText">
-            Taxi to the runway. Use throttle and steering to taxi toward the departure runway.
-        </div>
-        <div id="missionProgress">
-            <div id="missionBar"></div>
-        </div>
-    </div>
-
-    <div id="radio">
-        <div id="radioTitle">📡 ATC — GROUND FREQUENCY</div>
-        <div id="radioText">
-            "Welcome aboard. Pre-flight complete. Taxi to the runway."
-        </div>
-    </div>
-
-    <div id="score">
-        FLIGHT SCORE:
-        <span id="scoreValue">0</span>
-    </div>
-
-    <div id="status">
-        <b>AIRCRAFT STATUS</b><br>
-        Engine: <span id="engineStatus">IDLE</span><br>
-        Flaps: <span id="flapStatus">UP</span><br>
-        Gear: <span id="gearStatus">DOWN</span><br>
-        Weather: <span id="weatherStatus">CLEAR</span>
-    </div>
-
-    <div id="controls">
-        <b>FLIGHT CONTROLS</b><br>
-        <kbd>W</kbd> Throttle &nbsp; <kbd>S</kbd> Brake / Reduce Power<br>
-        <kbd>A</kbd>/<kbd>D</kbd> Steer Left / Right (ground) • Bank (air)<br>
-        <kbd>↑</kbd>/<kbd>↓</kbd> Pitch Up / Down<br>
-        <kbd>F</kbd> Flaps &nbsp; <kbd>G</kbd> Gear &nbsp; <kbd>R</kbd> Radio
-    </div>
-
-    <div id="cockpit">
-        <div class="gauge">
-            <div class="needle"></div>
-            <b id="gSpeed">0</b>
-            <small>AIRSPEED</small>
-        </div>
-
-        <div class="gauge">
-            <div class="needle"></div>
-            <b id="gRPM">0</b>
-            <small>ENGINE RPM</small>
-        </div>
-
-        <div class="gauge">
-            <div class="needle"></div>
-            <b id="gFuel">100</b>
-            <small>FUEL %</small>
-        </div>
-
-        <div class="gauge">
-            <div class="needle"></div>
-            <b id="gAlt">0</b>
-            <small>ALTITUDE</small>
-        </div>
-    </div>
-
-    
-<div id="cockpitFrame" aria-hidden="true">
-  <div class="pillar left"></div><div class="pillar right"></div>
-  <div class="dash"></div>
-  <div id="flightPanel">
-    <div class="p"><div class="v" id="fpSpeed">0</div><div class="l">AIRSPEED KTS</div></div>
-    <div class="p"><div class="v" id="fpAlt">0</div><div class="l">ALTITUDE FT</div></div>
-    <div class="p"><div class="v" id="fpHead">090</div><div class="l">HEADING DEG</div></div>
-    <div class="p"><div class="v" id="fpVS">0</div><div class="l">VERTICAL SPEED</div></div>
-    <div class="p"><div class="v" id="fpRPM">0</div><div class="l">ENGINE RPM</div></div>
-    <div class="p"><div class="v" id="fpFuel">100</div><div class="l">FUEL %</div></div>
-  </div>
-  <div id="yoke"><div class="bar"></div><div class="hub"></div></div>
-  <div id="throttleLever"><div class="track"></div><div class="handle"></div></div>
-  <div id="viewBadge">EXTERNAL VIEW • C = COCKPIT</div>
+<div id="mission" class="panel">
+  <div class="eyebrow">ACTIVE FLIGHT MISSION</div>
+  <div class="missionTitle" id="missionTitle">GROUND TAXI</div>
+  <div class="missionText" id="missionText"></div>
+  <div class="bar"><i id="missionBar"></i></div>
 </div>
+
+<div id="atc" class="panel">
+  <div class="atcHead"><span>🎧 ATC — <span id="freq">GROUND 121.90</span></span><span id="radioState">STANDBY</span></div>
+  <div class="atcBody" id="atcText"></div>
+  <div class="radioHint">Press <b>R</b> to acknowledge / transmit. Read back instructions using aviation English.</div>
+</div>
+
+<div id="score" class="panel">FLIGHT SCORE <span class="scoreNum" id="scoreVal">0</span></div>
+
+<div id="controls" class="panel">
+  <b>FLIGHT CONTROLS</b><br>
+  <span class="kbd">W</span> Throttle up &nbsp; <span class="kbd">S</span> Power down / brake<br>
+  <span class="kbd">A</span> Bank/steer left &nbsp; <span class="kbd">D</span> Bank/steer right<br>
+  <span class="kbd">↑</span> Pitch up &nbsp; <span class="kbd">↓</span> Pitch down<br>
+  <span class="kbd">F</span> Flaps &nbsp; <span class="kbd">G</span> Landing gear &nbsp; <span class="kbd">C</span> Camera<br>
+  <span class="kbd">R</span> Radio/ATC &nbsp; <span class="kbd">P</span> Reduce power
+</div>
+
+<div id="status" class="panel">
+  <div class="statusRow"><span>ENGINE</span><b id="engine" class="green">OFF</b></div>
+  <div class="statusRow"><span>GEAR</span><b id="gear">DOWN</b></div>
+  <div class="statusRow"><span>FLAPS</span><b id="flaps">0°</b></div>
+  <div class="statusRow"><span>LIGHTS</span><b class="green">ON</b></div>
+  <div class="statusRow"><span>SURFACE</span><b id="surface">RUNWAY</b></div>
+</div>
+
+<div id="gauges">
+  <div class="gauge"><div><b id="gSpd">0</b><small>KTS</small></div></div>
+  <div class="gauge"><div><b id="gRpm">0</b><small>RPM</small></div></div>
+  <div class="gauge"><div><b id="gAlt">0</b><small>FT</small></div></div>
+</div>
+
+<div id="instruments">
+  <div class="inst"><div class="instLabel">AIRSPEED</div><div class="instVal" id="speed">0</div><div class="instUnit">KNOTS</div></div>
+  <div class="inst"><div class="instLabel">ALTITUDE</div><div class="instVal" id="alt">0</div><div class="instUnit">FEET</div></div>
+  <div class="inst"><div class="instLabel">HEADING</div><div class="instVal" id="hdg">090</div><div class="instUnit">DEGREES</div></div>
+  <div class="inst"><div class="instLabel">VERTICAL SPEED</div><div class="instVal" id="vs">0</div><div class="instUnit">FT/MIN</div></div>
+  <div class="inst"><div class="instLabel">ENGINE RPM</div><div class="instVal" id="rpm">0</div><div class="instUnit">RPM</div></div>
+  <div class="inst"><div class="instLabel">FUEL</div><div class="instVal" id="fuel">100</div><div class="instUnit">%</div></div>
+</div>
+
+<div id="warning">STALL WARNING</div><div id="toast"></div><div id="cockpitOverlay"></div>
 
 <div id="menu">
-        <div class="menuCard">
-            <h1>EXPERT SYNC</h1>
-            <h2>AVIATION SIMULATOR</h2>
-
-            <p>
-                Welcome, Pilot. Complete aviation missions while practicing
-                terminology, communication, situational awareness and
-                operational English used in aviation environments.
-            </p>
-
-            <div class="featureGrid">
-                <div class="feature">✈️ Aircraft Flight</div>
-                <div class="feature">🛫 Take-off & Landing</div>
-                <div class="feature">🧭 Navigation</div>
-                <div class="feature">📡 ATC Communication</div>
-                <div class="feature">🎯 Aviation Missions</div>
-                <div class="feature">🏆 Pilot Score</div>
-            </div>
-
-            <button id="startBtn">START FLIGHT</button>
-        </div>
+  <div class="card">
+    <h1>EXPERT SYNC</h1><h2>AVIATION FLIGHT DECK</h2>
+    <p>Operate a responsive single-engine aircraft in a structured training mission. The aircraft has throttle, engine RPM, acceleration, lift, drag, pitch, bank, heading, gear, flaps, fuel burn, stall behaviour and landing logic.</p>
+    <div class="features">
+      <div class="feature">🛫 Taxi → Take-off → Climb</div><div class="feature">🧭 Heading & Navigation</div>
+      <div class="feature">📡 ATC / Readback Practice</div><div class="feature">🎛️ Real-time Flight Instruments</div>
+      <div class="feature">⚠️ Stall / Overspeed Warnings</div><div class="feature">🛬 Approach & Landing</div>
     </div>
+    <button class="primary" id="start">START FLIGHT</button>
+  </div>
+</div>
 
-    <div id="missionComplete">
-        <div class="completeCard">
-            <h1>MISSION COMPLETE</h1>
-            <p id="completeText">
-                Excellent operational performance, Pilot.
-            </p>
-            <button id="nextMission">CONTINUE FLIGHT</button>
-        </div>
-    </div>
-
+<div id="complete">
+  <div class="card result"><h1>MISSION COMPLETE</h1><p id="resultText"></p><button class="primary" id="continue">CONTINUE FLIGHT</button></div>
+</div>
 </div>
 
 <script>
-/* ===== EXPERT SYNC REALISTIC FLIGHT STATE ENGINE V1 ===== */
-const aircraft = document.getElementById("aircraft");
-const $ = id => document.getElementById(id);
-let gameStarted=false, lastTime=performance.now();
-const state={
- phase:"GROUND_TAXI",speed:0,altitude:0,heading:360,verticalSpeed:0,pitch:0,bank:0,
- throttle:0,rpm:0,fuel:100,x:20,y:78,flaps:0,gearDown:true,brake:false,
- score:0,missionProgress:0,missionCompleteShown:false,onGround:true,airborne:false,radioMode:"GROUND",
- view:"EXTERNAL",stall:false,trim:0,engineRunning:false
-};
-const keys={};
+(() => {
+const canvas=document.getElementById('world'),ctx=canvas.getContext('2d');
+const $=id=>document.getElementById(id);
+let W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2);
+function resize(){W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
+
+const phases=['Taxi','Take-off','Climb','Cruise','Approach','Landing'];
 const missions=[
- {phase:"GROUND_TAXI",title:"GROUND TAXI",text:"Taxi north on the marked taxiway. Reduce speed, follow the centreline, then turn east toward Runway 09 and hold short.",radio:"Ground: Taxi to Runway 09 via the marked taxiway. Hold short.",target:100},
- {phase:"RUNWAY_ALIGNMENT",title:"RUNWAY ALIGNMENT",text:"Line up with the runway centreline. Set take-off configuration and hold position.",radio:"Ground: Position and hold Runway 09. Report ready for departure.",target:100},
- {phase:"TAKEOFF",title:"TAKE-OFF",text:"Apply take-off power. Maintain runway centreline and rotate smoothly at take-off speed.",radio:"Tower: Runway 09 cleared for take-off. Wind calm.",target:100},
- {phase:"CLIMB",title:"CLIMB",text:"Establish a positive climb. Maintain heading 090 and monitor airspeed.",radio:"Tower: Climb to 3,000 feet. Maintain heading 090.",target:100},
- {phase:"CRUISE",title:"CRUISE & NAVIGATION",text:"Maintain a stable flight profile. Keep heading, altitude and airspeed within limits.",radio:"Center: Maintain 3,000 feet and heading 090.",target:100},
- {phase:"APPROACH",title:"APPROACH",text:"Reduce speed, configure the aircraft and establish a stable final approach.",radio:"Approach: Cleared for approach Runway 09. Report established.",target:100},
- {phase:"LANDING",title:"LANDING",text:"Touch down within the runway, maintain centreline and decelerate under control.",radio:"Tower: Cleared to land Runway 09. Wind calm.",target:100}
+ {key:'TAXI',title:'GROUND TAXI',freq:'GROUND 121.90',text:'Taxi north on the marked taxiway. Keep speed below 20 knots, follow the centreline, then turn east toward Runway 09 and hold short.',atc:'Ground: Cessna ES-01, taxi to Runway 09 via Alpha. Hold short.',target:100},
+ {key:'LINEUP',title:'RUNWAY ALIGNMENT',freq:'GROUND 121.90',text:'Line up on Runway 09. Stop on the centreline, set take-off configuration and wait for the departure clearance.',atc:'Ground: Position and hold Runway 09. Report ready for departure.',target:100},
+ {key:'TAKEOFF',title:'TAKE-OFF',freq:'TOWER 118.10',text:'Apply take-off power. Maintain the runway centreline. Rotate smoothly near 55 knots and establish a positive climb.',atc:'Tower: ES-01, Runway 09 cleared for take-off. Wind calm.',target:100},
+ {key:'CLIMB',title:'CLIMB',freq:'TOWER 118.10',text:'Climb through 1,500 feet toward 3,000 feet. Maintain heading 090 and a safe airspeed. Retract gear after a positive rate.',atc:'Tower: ES-01, climb 3,000 feet, maintain heading 090.',target:100},
+ {key:'CRUISE',title:'CRUISE & NAVIGATION',freq:'CENTER 124.70',text:'Stabilize at 3,000 feet. Maintain heading 090, airspeed 80–110 knots and a near-zero vertical speed.',atc:'Center: ES-01, maintain 3,000 feet and heading 090.',target:100},
+ {key:'APPROACH',title:'APPROACH',freq:'APPROACH 119.50',text:'Descend toward the runway. Reduce speed, extend gear and flaps, and establish a stable final approach.',atc:'Approach: ES-01, cleared approach Runway 09. Report established.',target:100},
+ {key:'LANDING',title:'LANDING',freq:'TOWER 118.10',text:'Touch down on Runway 09 with gear down, flaps configured, low bank and a controlled descent. Decelerate safely after touchdown.',atc:'Tower: ES-01, cleared to land Runway 09. Wind calm.',target:100}
 ];
-let mission=0;
-function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
-function normHeading(v){return((v%360)+360)%360;}
-function headingDiff(a,b){let d=normHeading(a-b);return d>180?d-360:d;}
 
-function updateMission(){
- const m=missions[mission]; state.phase=m.phase; state.missionProgress=0; state.missionCompleteShown=false;
- $("missionText").innerHTML="<b>"+m.title+"</b><br>"+m.text; $("radioText").textContent='"'+m.radio+'"';
+const s={
+phase:0,view:'EXTERNAL',started:false,score:0,progress:0,last:performance.now(),
+x:0,y:0,alt:0,speed:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,
+gear:true,flaps:0,onGround:true,stall:false,brake:false,engine:false,radioAck:false
+};
+const keys={};let toastTimer=0;
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function norm(a){return (a%360+360)%360}
+function diff(a,b){let d=norm(a-b);return d>180?d-360:d}
+function msg(t){$('toast').textContent=t;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2400)}
+function current(){return missions[s.phase]}
+function setupMission(){const m=current();$('missionTitle').textContent=m.title;$('missionText').textContent=m.text;$('atcText').textContent='"'+m.atc+'"';$('freq').textContent=m.freq;s.progress=0;s.radioAck=false;updatePhases()}
+function updatePhases(){document.getElementById('phases').innerHTML=phases.map((p,i)=>'<div class="phase '+(i<s.phase?'done ':'')+(i===s.phase?'active':'')+'"><div class="dot">'+(i+1)+'</div>'+p+'</div>').join('')}
+function next(){if(s.phase<missions.length-1){s.phase++;s.progress=0;if(s.phase===1){s.x=0;s.y=0;s.speed=0;s.heading=90;s.throttle=0;s.brake=true;s.gear=true;s.flaps=1}
+if(s.phase===2){s.speed=0;s.throttle=0;s.brake=true;s.x=0;s.y=0;s.heading=90;s.onGround=true;s.gear=true;s.flaps=1}
+if(s.phase===3){s.brake=false;s.flaps=1}
+if(s.phase===4){s.flaps=0}
+if(s.phase===5){s.flaps=1;s.gear=true}
+if(s.phase===6){s.flaps=2;s.gear=true}
+setupMission();$('complete').style.display='none';msg('New mission: '+current().title)}
+else{location.reload()}}
+function ack(){s.radioAck=true;msg('TRANSMISSION ACKNOWLEDGED — practice the ATC readback aloud.');$('radioState').textContent='ACK'}
+function start(){s.started=true;$('menu').style.display='none';s.last=performance.now();s.engine=true;s.rpm=700;setupMission();msg('Engine start confirmed. Taxi when ready.')}
+$('start').onclick=start;$('continue').onclick=next;
+document.querySelectorAll('.viewBtn').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+function setView(v){s.view=v;document.querySelectorAll('.viewBtn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));$('cockpitOverlay').style.display=v==='COCKPIT'?'block':'none'}
+
+addEventListener('keydown',e=>{let k=e.key.toLowerCase();keys[k]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();if(!s.started||e.repeat)return;
+if(k==='f'){s.flaps=s.flaps===0?1:s.flaps===1?2:0;msg('Flaps '+(s.flaps===0?'UP':s.flaps===1?'1 — take-off setting':'FULL — landing setting'))}
+if(k==='g'){if(s.onGround){s.gear=true;msg('Landing gear DOWN on ground.')}else if(s.speed<95){s.gear=!s.gear;msg('Landing gear '+(s.gear?'DOWN':'UP'))}else msg('CAUTION: Reduce airspeed before moving the landing gear.')}
+if(k==='r')ack();if(k==='c')setView(s.view==='EXTERNAL'?'COCKPIT':'EXTERNAL');if(k==='p'){s.throttle=Math.max(0,s.throttle-25);msg('Power reduced.')}}
+);addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);addEventListener('blur',()=>Object.keys(keys).forEach(k=>keys[k]=false));
+
+function controls(dt){
+if(keys.w)s.throttle+=34*dt;if(keys.s)s.throttle-=42*dt;s.throttle=clamp(s.throttle,0,100);
+s.brake=s.onGround&&keys.s;
+if(s.onGround){if(keys.a)s.heading=norm(s.heading-32*dt);if(keys.d)s.heading=norm(s.heading+32*dt);s.bank*=Math.pow(.03,dt)}
+else{if(keys.a)s.bank-=45*dt;if(keys.d)s.bank+=45*dt;if(!keys.a&&!keys.d)s.bank*=Math.pow(.08,dt)}
+s.bank=clamp(s.bank,-35,35);
+if(keys.arrowup)s.pitch+=10*dt;if(keys.arrowdown)s.pitch-=10*dt;if(!keys.arrowup&&!keys.arrowdown)s.pitch*=Math.pow(.38,dt);s.pitch=clamp(s.pitch,-12,15);
+if(!s.onGround)s.heading=norm(s.heading+(s.speed/90)*Math.sin(s.bank*Math.PI/180)*25*dt);
 }
-function showMessage(text){$("radioText").textContent='"'+text+'"';}
-function updateHUD(){
- const h=Math.round(normHeading(state.heading)).toString().padStart(3,"0");
- $("speed").textContent=Math.round(state.speed); $("altitude").textContent=Math.round(state.altitude);
- $("heading").textContent=h; $("fuel").textContent=Math.max(0,Math.round(state.fuel));
- $("cockpitAirspeed").textContent=Math.round(state.speed); $("cockpitAltitude").textContent=Math.round(state.altitude);
- $("cockpitHeading").textContent=h; $("cockpitVerticalSpeed").textContent=Math.round(state.verticalSpeed);
- $("cockpitRPM").textContent=Math.round(state.rpm); $("cockpitFuel").textContent=Math.max(0,Math.round(state.fuel));
- $("gSpeed").textContent=Math.round(state.speed); $("gRPM").textContent=Math.round(state.rpm);
- $("gFuel").textContent=Math.round(state.fuel); $("gAlt").textContent=Math.round(state.altitude);
- $("scoreValue").textContent=Math.round(state.score); $("engineStatus").textContent=state.rpm>450?"RUNNING":"IDLE";
- $("flapStatus").textContent=state.flaps===0?"UP":state.flaps===1?"1":"FULL";
- $("gearStatus").textContent=state.gearDown?"DOWN":"UP";
- $("weatherStatus").textContent=Math.abs(headingDiff(state.heading,90))>35?"CROSSWIND":"CLEAR";
- $("missionBar").style.width=clamp(state.missionProgress,0,100)+"%";
- ["fpSpeed","fpAlt","fpVS","fpRPM","fpFuel"].forEach((id,i)=>{
-   const vals=[state.speed,state.altitude,state.verticalSpeed,state.rpm,state.fuel];
-   $(id).textContent=Math.round(vals[i]);
- });
- $("fpHead").textContent=h;
- document.body.classList.toggle("cockpit-mode",state.view==="COCKPIT");
- $("viewBadge").textContent=state.view==="COCKPIT"?"COCKPIT VIEW • C = EXTERNAL":"EXTERNAL VIEW • C = COCKPIT";
- const th=$("throttleLever"); if(th) th.querySelector(".handle").style.bottom=(15+state.throttle*.82)+"px";
- $("radioTitle").textContent="📡 ATC — "+state.radioMode+" FREQUENCY";
- $("status").title="Phase: "+(state.onGround?"GROUND":state.phase)+" | Pitch "+state.pitch.toFixed(1)+"° | Bank "+state.bank.toFixed(1)+"° | VS "+Math.round(state.verticalSpeed)+" FPM";
+
+function engine(dt){
+const target=700+(s.throttle/100)*2000;s.rpm+=(target-s.rpm)*Math.min(1,dt*3.6);s.engine=s.rpm>450;
+const power=clamp((s.rpm-700)/2000,0,1),drag=.012+s.speed*.0001+(s.flaps===2?.045:s.flaps===1?.022:0)+(!s.onGround&&s.gear?.022:0);
+if(s.onGround){let a=power*4.0-drag*25-(s.brake?4.8:0);s.speed=clamp(s.speed+a*dt,0,92)}
+else{s.speed=clamp(s.speed+(power*2.7-drag*2.1)*dt,42,145)}
+s.fuel=Math.max(0,s.fuel-(.0002+s.throttle*.000015+s.rpm*.00000003)*dt*60);
 }
-function setAircraft(){
- const rect=$("game").getBoundingClientRect();
- const px=rect.width*state.x/100, py=rect.height*state.y/100;
- aircraft.style.left=px+"px"; aircraft.style.top=py+"px";
- aircraft.classList.toggle("airborne",!state.onGround);
- // Aircraft attitude: heading remains the navigation direction; bank adds visual roll.
- aircraft.style.transform="translate(-50%,-50%) rotate("+(state.onGround?state.heading:state.bank*.7)+"deg) scale("+(state.onGround?1:clamp(1.05+state.altitude/18000,1.05,1.35))+")";
- aircraft.style.filter=state.onGround
-   ?"drop-shadow(0 7px 5px rgba(0,0,0,.34))"
-   :"drop-shadow(0 16px 18px rgba(0,0,0,.28))";
- const prop=aircraft.querySelector(".svg-propeller");
- if(prop)prop.setAttribute("transform","translate(56 11) rotate("+(performance.now()/8*clamp(state.rpm/800,0,1))+")");
- aircraft.querySelectorAll(".svg-gear").forEach(g=>g.style.opacity=state.gearDown?"1":"0");
 
- // Cockpit-style forward view cue during airborne flight.
- const horizon=$("flightHorizon"), runway=$("flightRunway");
- const pitchPx=state.pitch*9;
- horizon.style.transform="translateY("+pitchPx+"px) rotate("+(-state.bank*.22)+"deg) scale(1.08)";
- runway.style.opacity=state.onGround? (mission>=1?".55":"0") : "0";
- runway.style.transform="translateX(-50%) perspective(700px) rotateX("+(48+state.pitch*.35)+"deg) translateY("+(Math.max(0,260-state.altitude*.035))+"px) scale("+(clamp(1.1-state.altitude/18000,.62,1.1))+")";
- $("flightWarning").classList.toggle("show",state.airborne && state.stall);
+function flight(dt){
+if(s.onGround){
+s.alt=0;s.vs=0;s.stall=false;
+const k=.00205;s.x+=Math.sin(s.heading*Math.PI/180)*s.speed*k*dt;s.y-=Math.cos(s.heading*Math.PI/180)*s.speed*k*dt;
+if(s.phase===2&&s.speed>=54&&s.throttle>=78&&s.pitch>=3&&Math.abs(diff(s.heading,90))<9){s.onGround=false;s.alt=35;s.vs=720;s.y=-2;s.gear=true;s.view='COCKPIT';setView('COCKPIT');msg('AIRBORNE — positive rate. Gear up when established.');s.score+=25}
+}else{
+const stallSpd=47+s.flaps*4, lift=clamp((s.speed-stallSpd)/55,0,1.4), bankLoad=1/Math.max(.7,Math.cos(s.bank*Math.PI/180));
+let target=((s.pitch*108)+120)*lift/bankLoad+(s.throttle-45)*3;
+if(s.speed<stallSpd||(s.pitch>11&&s.speed<66)){s.stall=true;target-=720}else s.stall=false;
+s.vs+=(target-s.vs)*Math.min(1,dt*1.5);s.vs=clamp(s.vs,-2300,2400);s.alt=Math.max(0,s.alt+s.vs*dt/60);
+s.x+=Math.sin(s.heading*Math.PI/180)*s.speed*.0014*dt;s.y-=Math.cos(s.heading*Math.PI/180)*s.speed*.0014*dt;
+if(s.alt<10&&s.vs<-170){
+if(s.speed<82&&s.gear&&s.flaps>=1&&Math.abs(s.bank)<8){s.onGround=true;s.alt=0;s.vs=0;s.pitch=0;s.bank=0;s.view='EXTERNAL';setView('EXTERNAL');msg('TOUCHDOWN — maintain centreline and decelerate.')}
+else{s.alt=18;s.score-=5;msg('UNSTABLE LANDING — correct speed, gear, flaps and descent.')}
 }
-function completeMission(){
- if(state.missionCompleteShown)return;
- state.missionCompleteShown=true; $("missionComplete").style.display="flex";
- $("completeText").textContent=missions[mission].title+" completed. Flight performance score: "+Math.round(state.score)+" points.";
 }
-function nextMission(){
- $("missionComplete").style.display="none";
- if(mission<missions.length-1){
-  mission++; updateMission();
-  if(mission===1){state.x=31;state.y=55;state.heading=90;state.speed=Math.min(state.speed,8);state.throttle=0;state.brake=true;state.flaps=1;state.gearDown=true;showMessage("Ground: Line up Runway 09 when ready.");}
-  if(mission===2){state.x=50;state.y=55;state.heading=90;state.speed=0;state.throttle=0;state.brake=true;state.onGround=true;showMessage("Tower: Runway 09 cleared for take-off.");}
-  if(mission===3){state.brake=false;state.flaps=1;showMessage("Tower: Positive rate. Gear up when established.");}
-  if(mission===4){state.flaps=0;showMessage("Center: Maintain 3,000 feet. Continue heading 090.");}
-  if(mission===5){state.flaps=1;showMessage("Approach: Reduce speed and configure for landing.");}
-  if(mission===6){state.flaps=2;state.gearDown=true;showMessage("Tower: Cleared to land Runway 09.");}
- }else{
-  mission=0; state.score+=100; state.altitude=0; state.speed=0; state.throttle=0; state.rpm=0; state.fuel=100;
-  state.onGround=true;state.airborne=false;state.x=20;state.y=78;state.heading=0;state.pitch=0;state.bank=0;
-  updateMission();showMessage("Flight cycle complete. Excellent operational performance.");
- }
 }
-$("startBtn").addEventListener("click",()=>{$("menu").style.display="none";gameStarted=true;state.brake=false;lastTime=performance.now();updateMission();showMessage("Welcome aboard. Complete your first aviation mission.");});
-$("nextMission").addEventListener("click",nextMission);
 
-document.addEventListener("keydown",e=>{
- const k=e.key.toLowerCase();keys[k]=true;
- if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))e.preventDefault();
- if(!gameStarted||e.repeat)return;
- if(k==="f"){state.flaps=state.flaps===0?1:state.flaps===1?2:0;showMessage(state.flaps===0?"Flaps up.":state.flaps===1?"Flaps 1 selected.":"Flaps full.");}
- if(k==="g"){if(state.onGround){state.gearDown=true;showMessage("Ground: Landing gear remains DOWN.");}else if(state.speed<120){state.gearDown=!state.gearDown;showMessage(state.gearDown?"Landing gear down.":"Landing gear up.");}else showMessage("Caution: reduce airspeed before changing landing gear.");}
- if(k==="r")showMessage("ATC: State your position, altitude and intentions.");
- if(k==="c"){state.view=state.view==="COCKPIT"?"EXTERNAL":"COCKPIT";showMessage(state.view==="COCKPIT"?"Cockpit view selected.":"External view selected.");}
- if(k==="p"){state.throttle=0;showMessage("Power reduced. Maintain aircraft control.");}
-});
-document.addEventListener("keyup",e=>{keys[e.key.toLowerCase()]=false;});
-window.addEventListener("blur",()=>{Object.keys(keys).forEach(k=>keys[k]=false);});
-
-function computeControls(dt){
- if(keys["w"])state.throttle+=30*dt;
- if(keys["s"])state.throttle-=38*dt;
- state.throttle=clamp(state.throttle,0,100);
- state.brake=!!(keys["s"]&&state.onGround);
-
- const left=keys["a"]||keys["arrowleft"],right=keys["d"]||keys["arrowright"];
- const pitchUp=keys["arrowup"],pitchDown=keys["arrowdown"];
-
- if(state.onGround){
-   const steering=state.speed>25?18:38;
-   if(left)state.heading=normHeading(state.heading-steering*dt);
-   if(right)state.heading=normHeading(state.heading+steering*dt);
-   state.bank*=Math.pow(0.03,dt);
- }else{
-   if(left)state.bank-=42*dt;
-   if(right)state.bank+=42*dt;
-   if(!left&&!right)state.bank*=Math.pow(0.10,dt);
- }
- state.bank=clamp(state.bank,-32,32);
-
- if(pitchUp)state.pitch+=9*dt;
- if(pitchDown)state.pitch-=9*dt;
- if(!pitchUp&&!pitchDown)state.pitch*=Math.pow(0.35,dt);
- state.pitch=clamp(state.pitch,-10,15);
-
- if(!state.onGround){
-   const turnRate=(state.speed/85)*Math.sin(state.bank*Math.PI/180)*22;
-   state.heading=normHeading(state.heading+turnRate*dt);
- }
+function evaluate(dt){
+let g=0,m=current();
+if(s.phase===0){if(s.onGround&&s.speed>3&&s.speed<22&&Math.abs(diff(s.heading,0))<15&&s.y<-2)g=15*dt;if(s.onGround&&s.x>1&&s.y<-2&&Math.abs(diff(s.heading,90))<15&&s.speed<20)g=25*dt}
+if(s.phase===1){if(s.onGround&&Math.abs(diff(s.heading,90))<4&&Math.abs(s.x)<5&&Math.abs(s.y)<4&&s.speed<5&&s.brake)g=25*dt}
+if(s.phase===2){if(s.onGround&&s.throttle>78&&s.speed>52&&Math.abs(diff(s.heading,90))<8)g=12*dt;if(!s.onGround)g=22*dt}
+if(s.phase===3){if(!s.onGround&&s.alt>1200&&s.alt<3400&&s.speed>70&&s.speed<125&&Math.abs(diff(s.heading,90))<10&&!s.gear)g=14*dt}
+if(s.phase===4){if(!s.onGround&&Math.abs(s.alt-3000)<350&&s.speed>78&&s.speed<115&&Math.abs(diff(s.heading,90))<8&&Math.abs(s.vs)<300)g=14*dt}
+if(s.phase===5){if(!s.onGround&&s.alt<1800&&s.speed>55&&s.speed<95&&s.gear&&s.flaps>=1&&Math.abs(diff(s.heading,90))<12&&Math.abs(s.vs)<750)g=16*dt}
+if(s.phase===6){if(s.onGround&&s.speed<55&&s.gear&&s.flaps===2)g=25*dt}
+if(g){s.progress=clamp(s.progress+g,0,100);s.score+=g*.7}else s.score=Math.max(0,s.score-.01*dt);
+if(s.speed>140)msg('OVERSPEED — reduce power and recover to a safe airspeed.');
+if(s.stall&&s.alt>40)msg('STALL WARNING — lower the nose and increase airspeed.');
+if(s.progress>=100&&$('complete').style.display!=='flex'){$('complete').style.display='flex';$('resultText').textContent=m.title+' completed. Operational score: '+Math.round(s.score)+'.';}
 }
-function engineAndSpeed(dt){
- const idleRpm=700, maxRpm=2700;
- const targetRpm=idleRpm+(state.throttle/100)*(maxRpm-idleRpm);
- state.rpm += (targetRpm-state.rpm)*Math.min(1,dt*3.5);
- state.engineRunning=state.rpm>500;
 
- const flapDrag=state.flaps===2?0.045:state.flaps===1?0.022:0;
- const gearDrag=(!state.onGround&&state.gearDown)?0.020:0;
- const drag=0.010+state.speed*0.000085+flapDrag+gearDrag;
- const power=clamp((state.rpm-idleRpm)/(maxRpm-idleRpm),0,1);
-
- if(state.onGround){
-   const rolling=0.018;
-   let accel=power*2.9-drag*18-rolling*18;
-   if(state.brake)accel-=3.8;
-   state.speed=clamp(state.speed+accel*dt,0,95);
- }else{
-   const excessPower=power*2.2-drag*1.9;
-   state.speed=clamp(state.speed+excessPower*dt,38,145);
- }
-
- state.fuel=Math.max(0,state.fuel-(0.00022+state.throttle*0.000014+state.rpm*0.000000028)*dt*60);
- if(state.fuel<=0){state.throttle=0;showMessage("EMERGENCY: Fuel exhausted. Engine power unavailable.");}
-
- if(state.onGround&&mission===2&&state.speed>=55&&state.throttle>75)
-   showMessage("Tower: Rotate at 55 knots. Maintain runway centreline.");
-}function flightModel(dt){
- if(state.onGround){
-   state.gearDown=true; state.altitude=0; state.verticalSpeed=0; state.stall=false;
-   const groundScale=0.0022;
-   state.x+=Math.sin(state.heading*Math.PI/180)*state.speed*groundScale*dt;
-   state.y-=Math.cos(state.heading*Math.PI/180)*state.speed*groundScale*dt;
-   state.x=clamp(state.x,6,94); state.y=clamp(state.y,18,82);
-
-   if(mission===2 && state.speed>=58 && state.throttle>=78 &&
-      state.pitch>=4 && Math.abs(headingDiff(state.heading,90))<10){
-     state.onGround=false; state.airborne=true; state.view="COCKPIT";
-     state.altitude=35; state.verticalSpeed=650; state.y=56;
-     state.score+=25;
-     showMessage("Tower: AIRBORNE. Positive rate. Gear up.");
-   }
- }else{
-   const stallSpeed=48+state.flaps*4;
-   const dynamicLift=clamp((state.speed-stallSpeed)/55,0,1.35);
-   const pitchLift=state.pitch*105;
-   const powerLift=(state.throttle-48)*2.8;
-   const bankLoad=1/Math.max(.72,Math.cos(state.bank*Math.PI/180));
-   let targetVS=(dynamicLift*(pitchLift+120)+powerLift)/bankLoad;
-   if(state.speed<stallSpeed || (state.pitch>11&&state.speed<65)){
-     state.stall=true; targetVS-=650;
-   }else state.stall=false;
-
-   state.verticalSpeed+=(targetVS-state.verticalSpeed)*Math.min(1,dt*1.45);
-   state.verticalSpeed=clamp(state.verticalSpeed,-2200,2400);
-   state.altitude=Math.max(0,state.altitude+state.verticalSpeed*dt/60);
-
-   state.x+=Math.sin(state.heading*Math.PI/180)*state.speed*.00145*dt;
-   state.y-=Math.cos(state.heading*Math.PI/180)*state.speed*.00145*dt;
-   state.x=clamp(state.x,8,92); state.y=clamp(59-state.altitude/62,10,60);
-
-   if(state.stall)showMessage("STALL WARNING: Lower the nose and increase airspeed.");
-
-   if(state.altitude<=8 && state.verticalSpeed<-180){
-     if(state.speed<=82&&state.gearDown&&state.flaps>=1&&Math.abs(state.bank)<8){
-       state.onGround=true;state.airborne=false;state.view="EXTERNAL";
-       state.altitude=0;state.verticalSpeed=0;state.pitch=0;state.bank=0;
-       state.y=63;state.brake=false;
-       showMessage("Tower: Touchdown. Maintain centreline and decelerate.");
-     }else{
-       state.score-=4; state.altitude=12;
-       showMessage("CAUTION: Unstable landing. Configure gear, flaps and airspeed.");
-     }
-   }
- }
-}function evaluateMission(dt){
- let gain=0;
- if(mission===0){
-  state.radioMode="GROUND";
-  const taxiSpeed=state.speed>3&&state.speed<22;
-  const nearTaxiway=state.x<34;
-  const nearRunway=state.x>34&&state.x<66;
-  const correctHeading=Math.abs(headingDiff(state.heading,0))<18;
-  const taxiHeading=state.y>62 && Math.abs(headingDiff(state.heading,0))<12;
-  const turnHeading=state.x>=28 && state.y<=66 && Math.abs(headingDiff(state.heading,90))<15;
-  if(state.onGround&&taxiSpeed&&nearTaxiway&&taxiHeading)gain=16*dt;
-  if(state.onGround&&nearRunway&&state.y<68&&state.y>42&&turnHeading){
-    gain=28*dt;
-  }
+function hud(){
+const h=String(Math.round(norm(s.heading))).padStart(3,'0');
+$('speed').textContent=Math.round(s.speed);$('alt').textContent=Math.round(s.alt);$('hdg').textContent=h;$('vs').textContent=Math.round(s.vs);$('rpm').textContent=Math.round(s.rpm);$('fuel').textContent=Math.round(s.fuel);
+$('gSpd').textContent=Math.round(s.speed);$('gRpm').textContent=Math.round(s.rpm);$('gAlt').textContent=Math.round(s.alt);$('scoreVal').textContent=Math.round(s.score);$('missionBar').style.width=s.progress+'%';
+$('engine').textContent=s.rpm>450?'RUNNING':'OFF';$('engine').className=s.rpm>450?'green':'red';$('gear').textContent=s.gear?'DOWN':'UP';$('flaps').textContent=s.flaps===0?'0°':s.flaps===1?'10°':'30°';$('surface').textContent=s.onGround?'RUNWAY / TAXIWAY':'AIRBORNE';
+$('warning').classList.toggle('show',s.stall);$('radioState').textContent=s.radioAck?'ACK':'STANDBY';
 }
- if(mission===1){
-  state.radioMode="GROUND";
-  const aligned=Math.abs(headingDiff(state.heading,90))<4;
-  const runwayPosition=state.x>37&&state.x<63&&state.y<60;
-  if(state.onGround&&aligned&&runwayPosition&&state.speed<8&&state.brake)gain=22*dt;
+
+function world(){
+ctx.clearRect(0,0,W,H);
+if(s.view==='COCKPIT'){drawCockpit();return}
+drawExternal();
 }
- if(mission===2){
-  state.radioMode="TOWER";
-  if(state.onGround&&state.throttle>78&&state.speed>55&&Math.abs(headingDiff(state.heading,90))<8){
-    gain=12*dt;
-    if(state.speed>=62&&state.pitch<4) showMessage("Tower: Rotate. Maintain runway centreline.");
-  }
-  if(state.airborne)gain=22*dt;
+function drawSky(){let g=ctx.createLinearGradient(0,0,0,H*.62);g.addColorStop(0,'#48a7d7');g.addColorStop(.72,'#a9dfef');g.addColorStop(1,'#7da76e');ctx.fillStyle=g;ctx.fillRect(0,0,W,H*.64)}
+function drawCloud(x,y,sc){ctx.fillStyle='rgba(255,255,255,.78)';ctx.beginPath();ctx.ellipse(x,y,55*sc,18*sc,0,0,Math.PI*2);ctx.ellipse(x-25*sc,y-10*sc,25*sc,22*sc,0,0,Math.PI*2);ctx.ellipse(x+25*sc,y-8*sc,30*sc,25*sc,0,0,Math.PI*2);ctx.fill()}
+function drawExternal(){
+drawSky();drawCloud(W*.18,H*.2,.9);drawCloud(W*.72,H*.16,1.15);drawCloud(W*.86,H*.3,.75);
+ctx.fillStyle='#3d6139';ctx.fillRect(0,H*.61,W,H*.39);
+for(let i=0;i<8;i++){ctx.fillStyle=i%2?'#466a41':'#4f7347';ctx.fillRect(i*W/8,H*.61, W/8+1,H*.39)}
+const horizon=H*.62,runY=horizon+H*.13;
+ctx.fillStyle='#2a2f32';ctx.fillRect(W*.30,runY,W*.68,H*.16);
+ctx.strokeStyle='#e0c64f';ctx.lineWidth=3;ctx.strokeRect(W*.30,runY,W*.68,H*.16);
+ctx.strokeStyle='#fff';ctx.lineWidth=4;for(let x=W*.34;x<W*.94;x+=55){ctx.beginPath();ctx.moveTo(x,runY+H*.08);ctx.lineTo(x+28,runY+H*.08);ctx.stroke()}
+ctx.font='bold 30px Arial';ctx.fillStyle='#fff';ctx.fillText('09',W*.91,runY+H*.105);
+ctx.fillStyle='#343b3d';ctx.fillRect(W*.08,horizon,W*.16,H*.39);ctx.strokeStyle='#d9c14e';ctx.strokeRect(W*.08,horizon,W*.16,H*.39);ctx.strokeStyle='#f3cf55';ctx.lineWidth=3;ctx.setLineDash([18,18]);ctx.beginPath();ctx.moveTo(W*.16,horizon);ctx.lineTo(W*.16,H);ctx.stroke();ctx.setLineDash([]);
+const ax=W*.16+s.x*4, ay=H*.78-s.y*4;drawPlane(ax,ay,1.05,s.heading,s.bank);
 }
- if(mission===3){state.radioMode="TOWER";if(!state.onGround&&state.altitude>1200&&state.altitude<3400&&state.speed>70&&state.speed<125&&Math.abs(headingDiff(state.heading,90))<10&&!state.gearDown)gain=13*dt;}
- if(mission===4){state.radioMode="CENTER";if(!state.onGround&&Math.abs(state.altitude-3000)<350&&state.speed>75&&state.speed<125&&Math.abs(headingDiff(state.heading,90))<8&&Math.abs(state.verticalSpeed)<350)gain=12*dt;}
- if(mission===5){state.radioMode="APPROACH";if(!state.onGround&&state.altitude<1800&&state.speed>55&&state.speed<95&&state.gearDown&&state.flaps>=1&&Math.abs(headingDiff(state.heading,90))<12&&Math.abs(state.verticalSpeed)<700)gain=14*dt;}
- if(mission===6){state.radioMode="TOWER";if(state.onGround&&state.speed<70&&state.gearDown&&state.flaps===2)gain=24*dt;}
- if(gain>0){state.missionProgress=clamp(state.missionProgress+gain,0,100);state.score+=gain*.65;}
- else if(gameStarted)state.score=Math.max(0,state.score-.015*dt);
- if(state.speed>145){showMessage("CAUTION: Overspeed. Reduce power and recover to a safe airspeed.");state.score=Math.max(0,state.score-.08*dt);}
- if(state.airborne&&state.altitude<300&&state.speed<55){showMessage("STALL WARNING: Increase airspeed and reduce excessive pitch.");state.score=Math.max(0,state.score-.2*dt);}
- if(state.airborne&&state.gearDown&&state.altitude>700)state.score=Math.max(0,state.score-.04*dt);
- if(state.missionProgress>=100)completeMission();
+function drawPlane(x,y,sc,heading,bank){
+ctx.save();ctx.translate(x,y);ctx.rotate((heading-90)*Math.PI/180);ctx.scale(sc,sc);
+ctx.shadowColor='#0008';ctx.shadowBlur=12;ctx.shadowOffsetY=9;
+ctx.fillStyle='#eef5f7';ctx.beginPath();ctx.ellipse(0,0,16,48,0,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#d5e0e4';ctx.beginPath();ctx.moveTo(-70,-2);ctx.lineTo(12,-17);ctx.lineTo(43,3);ctx.lineTo(12,18);ctx.closePath();ctx.fill();
+ctx.fillStyle='#c7d4d9';ctx.beginPath();ctx.moveTo(-37,31);ctx.lineTo(18,24);ctx.lineTo(34,37);ctx.lineTo(-15,42);ctx.closePath();ctx.fill();
+ctx.fillStyle='#1b4c61';ctx.beginPath();ctx.ellipse(8,-17,11,13,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ff3344';ctx.beginPath();ctx.arc(-65,0,3,0,Math.PI*2);ctx.fill();ctx.fillStyle='#48ff9c';ctx.beginPath();ctx.arc(65,0,3,0,Math.PI*2);ctx.fill();
+ctx.strokeStyle='#333';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-12,-46);ctx.lineTo(12,-46);ctx.moveTo(-10,-46);ctx.lineTo(10,-46);ctx.stroke();ctx.restore();
 }
-function physics(now){
- if(!gameStarted){requestAnimationFrame(physics);return;}
- let dt=clamp((now-lastTime)/1000,0,.05);lastTime=now;
- computeControls(dt);engineAndSpeed(dt);flightModel(dt);evaluateMission(dt);setAircraft();updateHUD();requestAnimationFrame(physics);
+function drawCockpit(){
+drawSky();ctx.fillStyle='#4d6b49';ctx.fillRect(0,H*.62,W,H*.38);
+ctx.save();ctx.translate(W/2,H*.56);ctx.rotate(-s.bank*.004);ctx.scale(1+Math.abs(s.pitch)*.012,1+Math.abs(s.pitch)*.012);
+ctx.fillStyle='#2d3235';ctx.fillRect(-W*.17,-H*.25,W*.34,H*.55);ctx.strokeStyle='#d8c14d';ctx.lineWidth=3;ctx.strokeRect(-W*.17,-H*.25,W*.34,H*.55);
+ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.setLineDash([20,25]);ctx.beginPath();ctx.moveTo(0,-H*.25);ctx.lineTo(0,H*.3);ctx.stroke();ctx.setLineDash([]);ctx.restore();
+ctx.fillStyle='#09131a';ctx.fillRect(0,H*.76,W,H*.24);
+ctx.fillStyle='#111e25';ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(0,H*.82);ctx.quadraticCurveTo(W*.15,H*.72,W*.32,H*.82);ctx.lineTo(W*.68,H*.82);ctx.quadraticCurveTo(W*.85,H*.72,W,H*.82);ctx.lineTo(W,H);ctx.fill();
+ctx.strokeStyle='#405863';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(W*.32,H);ctx.lineTo(W*.38,H*.79);ctx.moveTo(W*.68,H);ctx.lineTo(W*.62,H*.79);ctx.stroke();
 }
-state.view="EXTERNAL";
-updateMission();updateHUD();setAircraft();requestAnimationFrame(physics);
+
+function loop(now){let dt=clamp((now-s.last)/1000,0,.05);s.last=now;if(s.started){controls(dt);engine(dt);flight(dt);evaluate(dt);hud()}world();requestAnimationFrame(loop)}
+setupMission();hud();requestAnimationFrame(loop);
+})();
 </script>
-
 </body>
 </html>
