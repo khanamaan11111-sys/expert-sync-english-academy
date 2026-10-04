@@ -228,12 +228,224 @@ button{
     position:absolute;
     left:50%;
     top:68%;
-    width:78px;
-    height:150px;
+    width:112px;
+    height:170px;
     transform:translate(-50%,-50%) rotate(0deg);
     z-index:20;
     transition:transform .05s linear;
+    transform-origin:50% 50%;
+    filter:drop-shadow(0 8px 7px rgba(0,0,0,.38));
 }
+#aircraft .shadow{
+    position:absolute;
+    left:16px;
+    top:9px;
+    width:80px;
+    height:155px;
+    border-radius:50%;
+    background:rgba(0,0,0,.22);
+    filter:blur(7px);
+    transform:translate(5px,7px);
+    z-index:-2;
+}
+#aircraft .propeller{
+    position:absolute;
+    left:51px;
+    top:-10px;
+    width:10px;
+    height:34px;
+    z-index:8;
+}
+#aircraft .propeller:before,
+#aircraft .propeller:after{
+    content:"";
+    position:absolute;
+    left:3px;
+    top:0;
+    width:4px;
+    height:34px;
+    border-radius:50%;
+    background:rgba(38,45,49,.9);
+    transform-origin:50% 50%;
+}
+#aircraft .propeller:after{transform:rotate(90deg)}
+#aircraft .spinner{
+    position:absolute;
+    left:49px;
+    top:-2px;
+    width:14px;
+    height:14px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#eef4f6,#7d8b91);
+    z-index:9;
+}
+#aircraft .fuselage{
+    position:absolute;
+    left:40px;
+    top:4px;
+    width:32px;
+    height:158px;
+    border-radius:48% 48% 32% 32%;
+    background:linear-gradient(90deg,#7f8b91 0%,#eef4f6 20%,#fff 48%,#c9d3d8 78%,#69767d 100%);
+    box-shadow:inset -3px 0 5px rgba(0,0,0,.2),inset 3px 0 5px rgba(255,255,255,.45),0 3px 7px rgba(0,0,0,.45);
+    z-index:3;
+}
+#aircraft .cowling{
+    position:absolute;
+    left:38px;
+    top:0;
+    width:36px;
+    height:29px;
+    border-radius:48% 48% 42% 42%;
+    background:linear-gradient(90deg,#a9b4b9,#f8fbfc 45%,#9aa7ad);
+    border:1px solid rgba(60,70,75,.35);
+    z-index:5;
+}
+#aircraft .windshield{
+    position:absolute;
+    left:42px;
+    top:25px;
+    width:28px;
+    height:31px;
+    border-radius:48% 48% 25% 25%;
+    background:linear-gradient(135deg,#173747,#3f8aa6 55%,#10242e);
+    border:2px solid #dfe8eb;
+    z-index:6;
+    box-shadow:inset 0 0 8px rgba(122,220,255,.28);
+}
+#aircraft .window{
+    position:absolute;
+    left:43px;
+    width:26px;
+    height:15px;
+    border-radius:7px;
+    background:linear-gradient(135deg,#183743,#438ba3 60%,#142932);
+    border:1px solid #c7d4d8;
+    z-index:6;
+}
+#aircraft .window.w1{top:59px}
+#aircraft .window.w2{top:77px}
+#aircraft .door{
+    position:absolute;
+    left:37px;
+    top:55px;
+    width:38px;
+    height:50px;
+    border-left:1px solid rgba(55,65,70,.35);
+    border-right:1px solid rgba(55,65,70,.35);
+    border-radius:8px;
+    z-index:5;
+}
+#aircraft .wing{
+    position:absolute;
+    top:55px;
+    left:-2px;
+    width:116px;
+    height:38px;
+    background:linear-gradient(#f8fbfc,#c9d4d9);
+    clip-path:polygon(0 37%,100% 0,86% 100%,14% 100%);
+    border-bottom:2px solid #8b999f;
+    z-index:2;
+    box-shadow:0 3px 5px rgba(0,0,0,.22);
+}
+#aircraft .wing:after{
+    content:"";
+    position:absolute;
+    left:53px;
+    top:6px;
+    width:5px;
+    height:28px;
+    background:#b8c5ca;
+    transform:rotate(-3deg);
+    opacity:.75;
+}
+#aircraft .tail{
+    position:absolute;
+    left:17px;
+    top:122px;
+    width:78px;
+    height:32px;
+    background:linear-gradient(#e9f0f2,#b9c6cb);
+    clip-path:polygon(0 45%,100% 0,84% 100%,16% 100%);
+    border-bottom:2px solid #87959b;
+    z-index:2;
+}
+#aircraft .horizontal-tail{
+    position:absolute;
+    left:27px;
+    top:126px;
+    width:58px;
+    height:20px;
+    background:#dbe4e8;
+    clip-path:polygon(0 50%,100% 0,86% 100%,14% 100%);
+    z-index:4;
+}
+#aircraft .vertical{
+    position:absolute;
+    left:45px;
+    top:104px;
+    width:22px;
+    height:53px;
+    background:linear-gradient(90deg,#aebbc0,#edf2f4);
+    clip-path:polygon(0 100%,18% 0,100% 0,82% 100%);
+    border-left:1px solid #8b999f;
+    z-index:5;
+}
+#aircraft .gear{
+    position:absolute;
+    width:5px;
+    height:24px;
+    background:#4c585e;
+    border-radius:3px;
+    z-index:1;
+    transform-origin:top center;
+}
+#aircraft .gear:after{
+    content:"";
+    position:absolute;
+    bottom:-5px;
+    left:-4px;
+    width:13px;
+    height:7px;
+    border-radius:50%;
+    background:#20272b;
+    border:1px solid #111;
+}
+#aircraft .noseGear{left:51px;top:12px;transform:rotate(8deg)}
+#aircraft .leftGear{left:24px;top:86px;transform:rotate(-18deg)}
+#aircraft .rightGear{left:83px;top:86px;transform:rotate(18deg)}
+#aircraft .navLight{
+    position:absolute;
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    box-shadow:0 0 8px currentColor;
+    z-index:10;
+}
+#aircraft .redLight{left:6px;top:72px;color:#ff3344;background:#ff3344}
+#aircraft .greenLight{right:6px;top:72px;color:#45ff9a;background:#45ff9a}
+#aircraft .beacon{
+    position:absolute;
+    left:52px;
+    top:107px;
+    width:8px;
+    height:5px;
+    border-radius:50%;
+    background:#ff3030;
+    box-shadow:0 0 8px #ff3030;
+    z-index:10;
+}
+#aircraft .wheelFairing{
+    position:absolute;
+    left:48px;
+    top:143px;
+    width:16px;
+    height:9px;
+    border-radius:50%;
+    background:#aeb9be;
+    z-index:6;
+}
+
 
 #aircraft .fuselage{
     position:absolute;
@@ -753,17 +965,32 @@ button{
         <div id="terminal"></div>
     </div>
 
-    <div id="aircraft">
-        <div class="nose"></div>
+    <div id="aircraft" aria-label="Single-engine training aircraft">
+        <div class="shadow"></div>
+        <div class="propeller"></div>
+        <div class="spinner"></div>
+        <div class="cowling"></div>
         <div class="fuselage"></div>
+        <div class="windshield"></div>
+        <div class="window w1"></div>
+        <div class="window w2"></div>
+        <div class="door"></div>
         <div class="wing"></div>
         <div class="tail"></div>
+        <div class="horizontal-tail"></div>
         <div class="vertical"></div>
+        <div class="gear noseGear"></div>
+        <div class="gear leftGear"></div>
+        <div class="gear rightGear"></div>
+        <div class="wheelFairing"></div>
+        <div class="navLight redLight"></div>
+        <div class="navLight greenLight"></div>
+        <div class="beacon"></div>
     </div>
 
     <div id="brand">
         <b>EXPERT SYNC • FLIGHT DECK</b>
-        <small>AVIATION ENGLISH TRAINING SIMULATOR</small>
+        <small>SINGLE-ENGINE TRAINING • AVIATION ENGLISH SIMULATOR</small>
     </div>
 
     <div id="hud">
@@ -943,7 +1170,10 @@ function setAircraft(){
  const rect=$("game").getBoundingClientRect(),px=rect.width*state.x/100,py=rect.height*state.y/100;
  aircraft.style.left=px+"px"; aircraft.style.top=py+"px";
  aircraft.style.transform="translate(-50%,-50%) rotate("+(state.heading+state.bank*.35)+"deg)";
- aircraft.style.filter=state.onGround?"drop-shadow(0 5px 4px rgba(0,0,0,.35))":"drop-shadow(0 10px 12px rgba(0,0,0,.28))";
+ aircraft.style.filter=state.onGround?"drop-shadow(0 7px 5px rgba(0,0,0,.34))":"drop-shadow(0 12px 14px rgba(0,0,0,.28))";
+ const prop=aircraft.querySelector(".propeller");
+ if(prop)prop.style.transform="rotate("+(performance.now()/8*clamp(state.rpm/800,0,1))+"deg)";
+ aircraft.querySelectorAll(".gear").forEach(g=>g.style.opacity=state.gearDown?"1":"0");
 }
 function completeMission(){
  if(state.missionCompleteShown)return;
