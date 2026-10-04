@@ -245,7 +245,8 @@ const gearDrag=!s.onGround&&s.gear?.020:0;
 const aeroDrag=.010+s.speed*.00010+flapDrag+gearDrag;
 if(s.onGround){
   const accel=power*5.7-aeroDrag*30-(s.brake?7.5:0);
-  s.speed=clamp(s.speed+accel*dt,0,105);
+  const groundLimit=s.phase<2?20:105;
+  s.speed=clamp(s.speed+accel*dt,0,groundLimit);
 }else{
   const accel=power*3.2-aeroDrag*2.7;
   s.speed=clamp(s.speed+accel*dt,38,150);
@@ -384,17 +385,22 @@ function drawGroundChase(){
   ctx.fillStyle='#f1d23e';ctx.fillRect(W*.055,groundTop+H*.10,44,23);
   ctx.fillStyle='#071015';ctx.font='bold 14px Arial';ctx.fillText('A →',W*.064,groundTop+H*.116);
   // Aircraft is deliberately large and low in frame, matching a chase-camera composition.
-  const planeX=W*.50, planeY=H*.72;
+  let planeX=W*.50, planeY=H*.72, planeScale=1.62;
+  if(s.phase===0){
+    planeX=tx+s.x*5.2;
+    planeY=H*.73+s.y*5.2;
+    planeScale=1.34;
+  }
   ctx.save();
   ctx.translate(planeX,planeY);
-  // Small camera bob while taxiing gives motion without making the UI shake.
   ctx.translate(0,Math.sin(performance.now()/170)*Math.min(2.2,s.speed*.015));
-  drawPlane(0,0,1.62,s.heading,s.bank,s.pitch);
+  drawPlane(0,0,planeScale,s.heading,s.bank,s.pitch);
   ctx.restore();
   // Ground-speed cue.
   ctx.fillStyle='#071720d9';ctx.fillRect(W*.39,H*.84,W*.22,32);
   ctx.fillStyle='#b9edff';ctx.font='800 11px Arial';ctx.textAlign='center';
-  ctx.fillText((s.onGround?'TAXI':'AIRBORNE')+'  •  '+Math.round(s.speed)+' KT  •  HDG '+String(Math.round(norm(s.heading))).padStart(3,'0'),W*.50,H*.862);
+  const stateLabel=s.onGround?(s.phase===0?'TAXI':s.phase===1?'LINE-UP':'TAKE-OFF ROLL'):'AIRBORNE';
+  ctx.fillText(stateLabel+'  •  '+Math.round(s.speed)+' KT  •  HDG '+String(Math.round(norm(s.heading))).padStart(3,'0'),W*.50,H*.862);
   ctx.textAlign='left';
 }
 function drawExternal(){
