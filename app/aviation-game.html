@@ -230,8 +230,12 @@ if(!s.onGround)s.heading=norm(s.heading+(s.speed/90)*Math.sin(s.bank*Math.PI/180
 function engine(dt){
 const target=700+(s.throttle/100)*2000;s.rpm+=(target-s.rpm)*Math.min(1,dt*3.6);s.engine=s.rpm>450;
 const power=clamp((s.rpm-700)/2000,0,1),drag=.012+s.speed*.0001+(s.flaps===2?.045:s.flaps===1?.022:0)+(!s.onGround&&s.gear?.022:0);
-if(s.onGround){let a=power*4.0-drag*25-(s.brake?4.8:0);s.speed=clamp(s.speed+a*dt,0,92)}
-else{s.speed=clamp(s.speed+(power*2.7-drag*2.1)*dt,42,145)}
+if(s.onGround){
+ let groundLimit=(s.phase<=1)?20:95;
+ let a=power*4.0-drag*25-(s.brake?4.8:0);
+ s.speed=clamp(s.speed+a*dt,0,groundLimit);
+ if(s.phase<=1 && s.speed>=groundLimit && s.throttle>25) s.brake=true;
+}else{s.speed=clamp(s.speed+(power*2.7-drag*2.1)*dt,42,145)}
 s.fuel=Math.max(0,s.fuel-(.0002+s.throttle*.000015+s.rpm*.00000003)*dt*60);
 }
 
@@ -255,10 +259,17 @@ else{s.alt=18;s.score-=5;msg('UNSTABLE LANDING — correct speed, gear, flaps an
 
 function evaluate(dt){
 let g=0,m=current();
-if(s.phase===0){if(s.onGround&&s.speed>3&&s.speed<22&&Math.abs(diff(s.heading,0))<15&&s.y<-2)g=15*dt;if(s.onGround&&s.x>1&&s.y<-2&&Math.abs(diff(s.heading,90))<15&&s.speed<20)g=25*dt}
+if(s.phase===0){
+ if(s.onGround&&s.speed>3&&s.speed<=20&&Math.abs(diff(s.heading,0))<15&&s.y<-2)g=15*dt;
+ if(s.onGround&&s.x>1&&s.y<-2&&Math.abs(diff(s.heading,90))<15&&s.speed<20)g=25*dt;
+}
 if(s.phase===1){if(s.onGround&&Math.abs(diff(s.heading,90))<4&&Math.abs(s.x)<5&&Math.abs(s.y)<4&&s.speed<5&&s.brake)g=25*dt}
-if(s.phase===2){if(s.onGround&&s.throttle>78&&s.speed>52&&Math.abs(diff(s.heading,90))<8)g=12*dt;if(!s.onGround)g=22*dt}
-if(s.phase===3){if(!s.onGround&&s.alt>1200&&s.alt<3400&&s.speed>70&&s.speed<125&&Math.abs(diff(s.heading,90))<10&&!s.gear)g=14*dt}
+if(s.phase===2){
+ if(!s.onGround && s.alt>80 && s.throttle>70 && s.speed>55 && Math.abs(diff(s.heading,90))<10)g=24*dt;
+}
+if(s.phase===3){
+ if(!s.onGround&&s.alt>1200&&s.alt<3400&&s.speed>70&&s.speed<125&&Math.abs(diff(s.heading,90))<10&&!s.gear)g=14*dt;
+}
 if(s.phase===4){if(!s.onGround&&Math.abs(s.alt-3000)<350&&s.speed>78&&s.speed<115&&Math.abs(diff(s.heading,90))<8&&Math.abs(s.vs)<300)g=14*dt}
 if(s.phase===5){if(!s.onGround&&s.alt<1800&&s.speed>55&&s.speed<95&&s.gear&&s.flaps>=1&&Math.abs(diff(s.heading,90))<12&&Math.abs(s.vs)<750)g=16*dt}
 if(s.phase===6){if(s.onGround&&s.speed<55&&s.gear&&s.flaps===2)g=25*dt}
