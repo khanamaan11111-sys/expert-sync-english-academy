@@ -1275,7 +1275,7 @@ function setAircraft(){
    :"drop-shadow(0 16px 18px rgba(0,0,0,.28))";
  const prop=aircraft.querySelector(".svg-propeller");
  if(prop)prop.setAttribute("transform","translate(56 11) rotate("+(performance.now()/8*clamp(state.rpm/800,0,1))+")");
- aircraft.querySelectorAll(".gear").forEach(g=>g.style.opacity=state.gearDown?"1":"0");
+ aircraft.querySelectorAll(".svg-gear").forEach(g=>g.style.opacity=state.gearDown?"1":"0");
 
  // Cockpit-style forward view cue during airborne flight.
  const horizon=$("flightHorizon"), runway=$("flightRunway");
@@ -1314,7 +1314,7 @@ document.addEventListener("keydown",e=>{
  if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))e.preventDefault();
  if(!gameStarted||e.repeat)return;
  if(k==="f"){state.flaps=state.flaps===0?1:state.flaps===1?2:0;showMessage(state.flaps===0?"Flaps up.":state.flaps===1?"Flaps 1 selected.":"Flaps full.");}
- if(k==="g"){if(state.speed<120){state.gearDown=!state.gearDown;showMessage(state.gearDown?"Landing gear down.":"Landing gear up.");}else showMessage("Caution: reduce airspeed before changing landing gear.");}
+ if(k==="g"){if(state.onGround){state.gearDown=true;showMessage("Ground: Landing gear remains DOWN.");}else if(state.speed<120){state.gearDown=!state.gearDown;showMessage(state.gearDown?"Landing gear down.":"Landing gear up.");}else showMessage("Caution: reduce airspeed before changing landing gear.");}
  if(k==="r")showMessage("ATC: State your position, altitude and intentions.");
 });
 document.addEventListener("keyup",e=>{keys[e.key.toLowerCase()]=false;});
@@ -1362,8 +1362,8 @@ function engineAndSpeed(dt){
  let acceleration=(thrust-aerodynamicDrag-rolling)*30;
 
  if(state.brake && state.onGround) acceleration-=1.8;
- if(state.onGround && mission===0) state.speed=Math.min(state.speed+acceleration*dt,22);
- else if(state.onGround && mission===1) state.speed=Math.min(state.speed+acceleration*dt,8);
+ if(state.onGround && mission===0) state.speed=Math.min(state.speed+acceleration*dt,15);
+ else if(state.onGround && mission===1) state.speed=Math.min(state.speed+acceleration*dt,5);
  else state.speed=clamp(state.speed+acceleration*dt,0,155);
 
  // Fuel burn follows engine load.
@@ -1378,6 +1378,8 @@ function engineAndSpeed(dt){
 }
 function flightModel(dt){
  if(state.onGround){
+   // Realistic ground safety: landing gear stays down until airborne.
+   state.gearDown=true;
    state.verticalSpeed=0;state.altitude=0;
    const groundScale=0.0020;
    state.x+=Math.sin(state.heading*Math.PI/180)*state.speed*groundScale*dt;
