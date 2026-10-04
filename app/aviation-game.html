@@ -333,6 +333,11 @@ function drawCloud(x,y,sc){ctx.fillStyle='rgba(255,255,255,.78)';ctx.beginPath()
 function drawExternal(){
   // High-detail external chase scene: airport, runway, terrain, atmospheric perspective.
   drawSky();
+  // Dynamic chase-camera: the airport/terrain moves beneath the aircraft while airborne.
+  const camX=s.onGround?0:clamp(-s.x*2.8,-W*.38,W*.38);
+  const camY=s.onGround?0:clamp(s.alt*.018,-H*.14,H*.14);
+  ctx.save();
+  ctx.translate(camX,camY);
   const horizon=H*.53;
   const groundTop=horizon+H*.055;
   // atmospheric mountain layers
@@ -389,6 +394,8 @@ function drawExternal(){
     const ax=W*.117+s.x*5.2, ay=H*.78-s.y*5.2;
     drawPlane(ax,ay,1.08,s.heading,s.bank,s.pitch);
   }else{
+    // Keep the aircraft stable in frame while the world scrolls around it.
+    ctx.restore();
     const cx2=W*.50,cy=H*.45;
     // subtle camera parallax from bank/pitch
     ctx.save();ctx.translate(-s.bank*1.7,s.pitch*1.8);
@@ -398,6 +405,7 @@ function drawExternal(){
     ctx.fillStyle='#a9ebff';ctx.font='800 11px Arial';ctx.textAlign='center';
     ctx.fillText('AIRBORNE  •  '+Math.round(s.alt)+' FT  •  '+Math.round(s.speed)+' KT',W*.50,H*.691);ctx.textAlign='left';
   }
+  if(s.onGround) ctx.restore();
   drawAirportDetails();
 }
 function drawPlane(x,y,sc,heading,bank,pitch){
@@ -406,8 +414,11 @@ function drawPlane(x,y,sc,heading,bank,pitch){
   ctx.scale(sc,sc*(1+pitch*.008));
   ctx.transform(1,0,Math.sin(bank*Math.PI/180)*.12,1,0,0);
   ctx.shadowColor='#000b';ctx.shadowBlur=16;ctx.shadowOffsetY=10;
+  // Dynamic attitude lighting makes the aircraft read as a solid 3-D object.
+  const metal=ctx.createLinearGradient(-75,-55,75,55);
+  metal.addColorStop(0,'#8e9da2');metal.addColorStop(.18,'#f7fbfc');metal.addColorStop(.48,'#ffffff');metal.addColorStop(.78,'#c8d4d8');metal.addColorStop(1,'#75878d');
   // fuselage
-  ctx.fillStyle='#eef3f5';ctx.beginPath();ctx.ellipse(0,0,14,52,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=metal;ctx.beginPath();ctx.ellipse(0,0,14,52,0,0,Math.PI*2);ctx.fill();
   // blue lower fuselage stripe
   ctx.fillStyle='#4f8eaf';ctx.beginPath();ctx.ellipse(1,5,14,28,0,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#edf4f6';ctx.beginPath();ctx.ellipse(0,0,11,48,0,0,Math.PI*2);ctx.fill();
@@ -422,7 +433,16 @@ function drawPlane(x,y,sc,heading,bank,pitch){
   // cockpit windows
   ctx.fillStyle='#17465a';ctx.beginPath();ctx.ellipse(6,-20,10,15,0,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#78c9df';ctx.beginPath();ctx.ellipse(8,-22,6,8,0,0,Math.PI*2);ctx.fill();
-  // propeller
+  // Landing gear and wheel assemblies.
+  if(s.gear){
+    ctx.strokeStyle='#52656c';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(-8,17);ctx.lineTo(-13,33);ctx.moveTo(8,17);ctx.lineTo(13,33);ctx.stroke();
+    ctx.fillStyle='#171d20';ctx.beginPath();ctx.arc(-13,35,5,0,Math.PI*2);ctx.arc(13,35,5,0,Math.PI*2);ctx.fill();
+  }
+  // Landing/taxi lights.
+  ctx.fillStyle='#fff9c4';ctx.shadowColor='#fff9c4';ctx.shadowBlur=12;
+  ctx.beginPath();ctx.arc(-46,-5,2.5,0,Math.PI*2);ctx.arc(46,-5,2.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  // Propeller
   if(s.engine){
     ctx.strokeStyle='#dbe9ee66';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-57,19,0,Math.PI*2);ctx.stroke();
     ctx.strokeStyle='#fff8';ctx.beginPath();ctx.moveTo(-18,-57);ctx.lineTo(18,-57);ctx.stroke();
