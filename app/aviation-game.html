@@ -107,9 +107,9 @@ button{
     content:"";
     position:absolute;
     left:100%;
-    top:58%;
+    top:43%;
     width:230%;
-    height:24%;
+    height:25%;
     background:#343a3c;
     border-top:3px solid #d5b84a;
     border-bottom:3px solid #d5b84a;
@@ -118,10 +118,10 @@ button{
 
 #runway{
     position:absolute;
-    left:38%;
-    width:24%;
-    top:-20%;
-    bottom:-5%;
+    left:30%;
+    right:2%;
+    top:43%;
+    height:25%;
     background:#252a2d;
     box-shadow:0 0 20px rgba(0,0,0,.35);
 }
@@ -129,19 +129,19 @@ button{
 #runway:before{
     content:"";
     position:absolute;
-    left:50%;
-    top:0;
-    bottom:0;
-    width:5px;
-    transform:translateX(-50%);
-    background:repeating-linear-gradient(to bottom,#fff 0 35px,transparent 35px 70px);
+    left:0;
+    right:0;
+    top:50%;
+    height:5px;
+    transform:translateY(-50%);
+    background:repeating-linear-gradient(to right,#fff 0 35px,transparent 35px 70px);
 }
 #runway:after{
     content:"09";
     position:absolute;
-    top:5%;
-    left:50%;
-    transform:translateX(-50%);
+    right:5%;
+    top:50%;
+    transform:translateY(-50%);
     color:#fff;
     font:bold 34px/1 Arial,sans-serif;
     letter-spacing:2px;
@@ -898,7 +898,7 @@ const aircraft = document.getElementById("aircraft");
 const $ = id => document.getElementById(id);
 let gameStarted=false, lastTime=performance.now();
 const state={
- phase:"GROUND_TAXI",speed:0,altitude:0,heading:90,verticalSpeed:0,pitch:0,bank:0,
+ phase:"GROUND_TAXI",speed:0,altitude:0,heading:360,verticalSpeed:0,pitch:0,bank:0,
  throttle:0,rpm:0,fuel:100,x:20,y:78,flaps:0,gearDown:true,brake:false,
  score:0,missionProgress:0,missionCompleteShown:false,onGround:true,airborne:false,radioMode:"GROUND"
 };
@@ -942,7 +942,7 @@ function updateHUD(){
 function setAircraft(){
  const rect=$("game").getBoundingClientRect(),px=rect.width*state.x/100,py=rect.height*state.y/100;
  aircraft.style.left=px+"px"; aircraft.style.top=py+"px";
- aircraft.style.transform="translate(-50%,-50%) rotate("+((state.heading-90)*.45+state.bank*.35)+"deg)";
+ aircraft.style.transform="translate(-50%,-50%) rotate("+(state.heading+state.bank*.35)+"deg)";
  aircraft.style.filter=state.onGround?"drop-shadow(0 5px 4px rgba(0,0,0,.35))":"drop-shadow(0 10px 12px rgba(0,0,0,.28))";
 }
 function completeMission(){
@@ -954,8 +954,8 @@ function nextMission(){
  $("missionComplete").style.display="none";
  if(mission<missions.length-1){
   mission++; updateMission();
-  if(mission===1){state.x=20;state.y=62;state.heading=90;state.speed=Math.min(state.speed,8);state.throttle=0;state.brake=true;state.flaps=1;state.gearDown=true;showMessage("Ground: Line up Runway 09 when ready.");}
-  if(mission===2){state.x=50;state.y=60;state.heading=90;state.speed=0;state.throttle=0;state.brake=true;state.onGround=true;showMessage("Tower: Runway 09 cleared for take-off.");}
+  if(mission===1){state.x=31;state.y=55;state.heading=90;state.speed=Math.min(state.speed,8);state.throttle=0;state.brake=true;state.flaps=1;state.gearDown=true;showMessage("Ground: Line up Runway 09 when ready.");}
+  if(mission===2){state.x=50;state.y=55;state.heading=90;state.speed=0;state.throttle=0;state.brake=true;state.onGround=true;showMessage("Tower: Runway 09 cleared for take-off.");}
   if(mission===3){state.brake=false;state.flaps=1;state.gearDown=false;showMessage("Tower: Positive rate. Gear up. Climb 3,000 feet.");}
   if(mission===4){state.flaps=0;showMessage("Center: Maintain 3,000 feet. Continue heading 090.");}
   if(mission===5){state.flaps=1;showMessage("Approach: Reduce speed and configure for landing.");}
@@ -1004,8 +1004,8 @@ function flightModel(dt){
  if(state.onGround){
   state.verticalSpeed=0;state.altitude=0;
   const groundScale=0.0022;
-  state.x+=Math.sin((state.heading-90)*Math.PI/180)*state.speed*groundScale*dt;
-  state.y-=Math.cos((state.heading-90)*Math.PI/180)*state.speed*groundScale*dt;
+  state.x+=Math.sin(state.heading*Math.PI/180)*state.speed*groundScale*dt;
+  state.y-=Math.cos(state.heading*Math.PI/180)*state.speed*groundScale*dt;
   state.x=clamp(state.x,6,94);state.y=clamp(state.y,18,82);
   if(mission===2&&state.speed>=58&&state.throttle>=82&&state.pitch>=5){
    state.onGround=false;state.airborne=true;state.altitude=20;state.verticalSpeed=650;state.y=58;showMessage("Tower: Airborne. Positive rate of climb.");
@@ -1024,8 +1024,8 @@ function flightModel(dt){
   }
  }
  if(!state.onGround){
-  state.x+=Math.sin((state.heading-90)*Math.PI/180)*state.speed*.0016*dt;
-  state.y-=Math.cos((state.heading-90)*Math.PI/180)*state.speed*.0016*dt;
+  state.x+=Math.sin(state.heading*Math.PI/180)*state.speed*.0016*dt;
+  state.y-=Math.cos(state.heading*Math.PI/180)*state.speed*.0016*dt;
   state.x=clamp(state.x,8,92);
   state.y=clamp(state.y,10,60);
  }
