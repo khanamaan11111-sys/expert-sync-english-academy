@@ -198,7 +198,7 @@ function current(){return missions[s.phase]}
 function setupMission(){const m=current();$('missionTitle').textContent=m.title;$('missionText').textContent=m.text;$('atcText').textContent='"'+m.atc+'"';$('freq').textContent=m.freq;s.progress=0;s.radioAck=false;updatePhases()}
 function updatePhases(){document.getElementById('phases').innerHTML=phases.map((p,i)=>'<div class="phase '+(i<s.phase?'done ':'')+(i===s.phase?'active':'')+'"><div class="dot">'+(i+1)+'</div>'+p+'</div>').join('')}
 function next(){if(s.phase<missions.length-1){s.phase++;s.progress=0;if(s.phase===1){s.x=0;s.y=0;s.speed=0;s.heading=90;s.throttle=0;s.brake=true;s.gear=true;s.flaps=1}
-if(s.phase===2){s.speed=0;s.throttle=0;s.brake=true;s.x=0;s.y=0;s.heading=90;s.onGround=true;s.gear=true;s.flaps=1}
+if(s.phase===2){s.speed=0;s.throttle=0;s.brake=true;s.x=58;s.y=-12.5;s.heading=90;s.onGround=true;s.alt=0;s.vs=0;s.gear=true;s.flaps=1;msg('RUNWAY 09 — lined up. Apply take-off power when cleared.')}
 if(s.phase===3){s.brake=false;s.flaps=1}
 if(s.phase===4){s.flaps=0}
 if(s.phase===5){s.flaps=1;s.gear=true}
