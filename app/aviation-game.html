@@ -83,24 +83,43 @@ button{
 
 #taxiway{
     position:absolute;
-    left:16%;
-    right:16%;
+    left:12%;
+    width:18%;
     top:0;
     bottom:0;
-    background:
-        repeating-linear-gradient(
-            90deg,
-            #373d3e 0 18px,
-            #303536 18px 36px
-        );
-    border-left:4px solid #d5b84a;
-    border-right:4px solid #d5b84a;
+    background:#343a3c;
+    border-left:3px solid #d5b84a;
+    border-right:3px solid #d5b84a;
+    box-shadow:inset 0 0 28px rgba(0,0,0,.25);
+}
+#taxiway:before{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:0;
+    bottom:0;
+    width:4px;
+    transform:translateX(-50%);
+    background:repeating-linear-gradient(to bottom,#f6cf55 0 22px,transparent 22px 44px);
+    opacity:.9;
+}
+#taxiway:after{
+    content:"";
+    position:absolute;
+    left:100%;
+    top:58%;
+    width:230%;
+    height:24%;
+    background:#343a3c;
+    border-top:3px solid #d5b84a;
+    border-bottom:3px solid #d5b84a;
+    box-shadow:inset 0 0 22px rgba(0,0,0,.25);
 }
 
 #runway{
     position:absolute;
-    left:35%;
-    width:30%;
+    left:38%;
+    width:24%;
     top:-20%;
     bottom:-5%;
     background:#252a2d;
@@ -113,13 +132,20 @@ button{
     left:50%;
     top:0;
     bottom:0;
-    width:6px;
+    width:5px;
     transform:translateX(-50%);
-    background:repeating-linear-gradient(
-        to bottom,
-        #fff 0 35px,
-        transparent 35px 70px
-    );
+    background:repeating-linear-gradient(to bottom,#fff 0 35px,transparent 35px 70px);
+}
+#runway:after{
+    content:"09";
+    position:absolute;
+    top:5%;
+    left:50%;
+    transform:translateX(-50%);
+    color:#fff;
+    font:bold 34px/1 Arial,sans-serif;
+    letter-spacing:2px;
+    opacity:.9;
 }
 
 .hold{
@@ -567,7 +593,7 @@ button{
 .flight-instruments{
     position:fixed;
     left:50%;
-    bottom:18px;
+    bottom:148px;
     transform:translateX(-50%);
     width:min(900px,92vw);
     display:grid;
@@ -578,7 +604,7 @@ button{
     border:1px solid #35c8ff;
     border-radius:18px;
     box-shadow:0 0 30px rgba(0,180,255,.25);
-    z-index:50;
+    z-index:45;
     backdrop-filter:blur(8px);
 }
 
@@ -615,7 +641,7 @@ button{
 @media(max-width:700px){
     .flight-instruments{
         grid-template-columns:repeat(3,1fr);
-        bottom:8px;
+        bottom:112px;
         gap:6px;
         padding:8px;
     }
@@ -891,7 +917,7 @@ function nextMission(){
  $("missionComplete").style.display="none";
  if(mission<missions.length-1){
   mission++; updateMission();
-  if(mission===1){state.x=50;state.y=63;state.heading=90;state.speed=Math.min(state.speed,8);state.throttle=0;state.brake=true;state.flaps=1;state.gearDown=true;showMessage("Ground: Line up Runway 09 when ready.");}
+  if(mission===1){state.x=20;state.y=62;state.heading=90;state.speed=Math.min(state.speed,8);state.throttle=0;state.brake=true;state.flaps=1;state.gearDown=true;showMessage("Ground: Line up Runway 09 when ready.");}
   if(mission===2){state.x=50;state.y=60;state.heading=90;state.speed=0;state.throttle=0;state.brake=true;state.onGround=true;showMessage("Tower: Runway 09 cleared for take-off.");}
   if(mission===3){state.brake=false;state.flaps=1;state.gearDown=false;showMessage("Tower: Positive rate. Gear up. Climb 3,000 feet.");}
   if(mission===4){state.flaps=0;showMessage("Center: Maintain 3,000 feet. Continue heading 090.");}
@@ -899,7 +925,7 @@ function nextMission(){
   if(mission===6){state.flaps=2;state.gearDown=true;showMessage("Tower: Cleared to land Runway 09.");}
  }else{
   mission=0; state.score+=100; state.altitude=0; state.speed=0; state.throttle=0; state.rpm=0; state.fuel=100;
-  state.onGround=true;state.airborne=false;state.x=50;state.y=68;state.heading=90;state.pitch=0;state.bank=0;
+  state.onGround=true;state.airborne=false;state.x=20;state.y=78;state.heading=90;state.pitch=0;state.bank=0;
   updateMission();showMessage("Flight cycle complete. Excellent operational performance.");
  }
 }
@@ -915,6 +941,7 @@ document.addEventListener("keydown",e=>{
  if(k==="r")showMessage("ATC: State your position, altitude and intentions.");
 });
 document.addEventListener("keyup",e=>{keys[e.key.toLowerCase()]=false;});
+window.addEventListener("blur",()=>{Object.keys(keys).forEach(k=>keys[k]=false);});
 
 function computeControls(dt){
  if(keys["w"])state.throttle+=28*dt; if(keys["s"])state.throttle-=38*dt; state.throttle=clamp(state.throttle,0,100);
@@ -938,7 +965,11 @@ function engineAndSpeed(dt){
 }
 function flightModel(dt){
  if(state.onGround){
-  state.verticalSpeed=0;state.altitude=0;state.y=63+clamp((55-state.speed)*.025,0,1.8);
+  state.verticalSpeed=0;state.altitude=0;
+  const groundScale=0.0022;
+  state.x+=Math.sin((state.heading-90)*Math.PI/180)*state.speed*groundScale*dt;
+  state.y-=Math.cos((state.heading-90)*Math.PI/180)*state.speed*groundScale*dt;
+  state.x=clamp(state.x,6,94);state.y=clamp(state.y,18,82);
   if(mission===2&&state.speed>=58&&state.throttle>=82&&state.pitch>=5){
    state.onGround=false;state.airborne=true;state.altitude=20;state.verticalSpeed=650;state.y=58;showMessage("Tower: Airborne. Positive rate of climb.");
   }
@@ -955,13 +986,32 @@ function flightModel(dt){
    }else{state.score-=2;showMessage("CAUTION: Hard or unstable landing. Correct configuration required.");}
   }
  }
- state.x+=Math.sin((state.heading-90)*Math.PI/180)*state.speed*(state.onGround?.0025:.0016)*dt;
- state.x=clamp(state.x,8,92);
+ if(!state.onGround){
+  state.x+=Math.sin((state.heading-90)*Math.PI/180)*state.speed*.0016*dt;
+  state.y-=Math.cos((state.heading-90)*Math.PI/180)*state.speed*.0016*dt;
+  state.x=clamp(state.x,8,92);
+  state.y=clamp(state.y,10,60);
+ }
 }
 function evaluateMission(dt){
  let gain=0;
- if(mission===0){state.radioMode="GROUND";if(state.onGround&&state.speed>3&&state.speed<25&&Math.abs(headingDiff(state.heading,90))<15)gain=16*dt;}
- if(mission===1){state.radioMode="GROUND";if(state.onGround&&Math.abs(headingDiff(state.heading,90))<4&&state.speed<8&&state.brake)gain=22*dt;}
+ if(mission===0){
+  state.radioMode="GROUND";
+  const taxiSpeed=state.speed>3&&state.speed<22;
+  const nearTaxiway=state.x<34;
+  const nearRunway=state.x>34&&state.x<66;
+  const correctHeading=Math.abs(headingDiff(state.heading,90))<18;
+  if(state.onGround&&taxiSpeed&&nearTaxiway&&correctHeading)gain=16*dt;
+  if(state.onGround&&nearRunway&&state.y<58&&state.y>42&&Math.abs(headingDiff(state.heading,90))<12){
+    gain=28*dt;
+  }
+}
+ if(mission===1){
+  state.radioMode="GROUND";
+  const aligned=Math.abs(headingDiff(state.heading,90))<4;
+  const runwayPosition=state.x>37&&state.x<63&&state.y<60;
+  if(state.onGround&&aligned&&runwayPosition&&state.speed<8&&state.brake)gain=22*dt;
+}
  if(mission===2){state.radioMode="TOWER";if(state.onGround&&state.throttle>80&&state.speed>55&&Math.abs(headingDiff(state.heading,90))<8)gain=10*dt;if(state.airborne)gain=20*dt;}
  if(mission===3){state.radioMode="TOWER";if(!state.onGround&&state.altitude>1200&&state.altitude<3400&&state.speed>70&&state.speed<125&&Math.abs(headingDiff(state.heading,90))<10&&!state.gearDown)gain=13*dt;}
  if(mission===4){state.radioMode="CENTER";if(!state.onGround&&Math.abs(state.altitude-3000)<350&&state.speed>75&&state.speed<125&&Math.abs(headingDiff(state.heading,90))<8&&Math.abs(state.verticalSpeed)<350)gain=12*dt;}
