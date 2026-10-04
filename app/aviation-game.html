@@ -781,7 +781,7 @@ button{
 
         <div class="instrument">
             <span>HEADING</span>
-            <strong id="heading">090</strong>
+            <strong id="heading">000</strong>
             <span>°</span>
         </div>
 
@@ -825,7 +825,7 @@ button{
     <div id="controls">
         <b>FLIGHT CONTROLS</b><br>
         <kbd>W</kbd> Throttle &nbsp; <kbd>S</kbd> Brake / Reduce Power<br>
-        <kbd>A</kbd>/<kbd>D</kbd> Bank Left / Right<br>
+        <kbd>A</kbd>/<kbd>D</kbd> Steer Left / Right (ground) • Bank (air)<br>
         <kbd>↑</kbd>/<kbd>↓</kbd> Pitch Up / Down<br>
         <kbd>F</kbd> Flaps &nbsp; <kbd>G</kbd> Gear &nbsp; <kbd>R</kbd> Radio
     </div>
@@ -904,7 +904,7 @@ const state={
 };
 const keys={};
 const missions=[
- {phase:"GROUND_TAXI",title:"GROUND TAXI",text:"Taxi to the runway. Maintain safe ground speed and follow the taxiway.",radio:"Ground: Taxi to Runway 09 via the marked taxiway. Hold short.",target:100},
+ {phase:"GROUND_TAXI",title:"GROUND TAXI",text:"Taxi north on the marked taxiway. Reduce speed, follow the centreline, then turn east toward Runway 09 and hold short.",radio:"Ground: Taxi to Runway 09 via the marked taxiway. Hold short.",target:100},
  {phase:"RUNWAY_ALIGNMENT",title:"RUNWAY ALIGNMENT",text:"Line up with the runway centreline. Set take-off configuration and hold position.",radio:"Ground: Position and hold Runway 09. Report ready for departure.",target:100},
  {phase:"TAKEOFF",title:"TAKE-OFF",text:"Apply take-off power. Maintain runway centreline and rotate smoothly at take-off speed.",radio:"Tower: Runway 09 cleared for take-off. Wind calm.",target:100},
  {phase:"CLIMB",title:"CLIMB",text:"Establish a positive climb. Maintain heading 090 and monitor airspeed.",radio:"Tower: Climb to 3,000 feet. Maintain heading 090.",target:100},
@@ -962,7 +962,7 @@ function nextMission(){
   if(mission===6){state.flaps=2;state.gearDown=true;showMessage("Tower: Cleared to land Runway 09.");}
  }else{
   mission=0; state.score+=100; state.altitude=0; state.speed=0; state.throttle=0; state.rpm=0; state.fuel=100;
-  state.onGround=true;state.airborne=false;state.x=20;state.y=78;state.heading=90;state.pitch=0;state.bank=0;
+  state.onGround=true;state.airborne=false;state.x=20;state.y=78;state.heading=0;state.pitch=0;state.bank=0;
   updateMission();showMessage("Flight cycle complete. Excellent operational performance.");
  }
 }
@@ -984,12 +984,20 @@ function computeControls(dt){
  if(keys["w"])state.throttle+=28*dt; if(keys["s"])state.throttle-=38*dt; state.throttle=clamp(state.throttle,0,100);
  state.brake=!!(keys["s"]&&state.onGround);
  const left=keys["a"]||keys["arrowleft"],right=keys["d"]||keys["arrowright"],pitchUp=keys["arrowup"],pitchDown=keys["arrowdown"];
- if(left)state.bank-=42*dt; if(right)state.bank+=42*dt; if(!left&&!right)state.bank*=Math.pow(0.04,dt);
+ if(state.onGround){
+  if(left)state.heading=normHeading(state.heading-42*dt);
+  if(right)state.heading=normHeading(state.heading+42*dt);
+  state.bank*=Math.pow(0.02,dt);
+ }else{
+  if(left)state.bank-=42*dt;
+  if(right)state.bank+=42*dt;
+  if(!left&&!right)state.bank*=Math.pow(0.04,dt);
+ }
  state.bank=clamp(state.bank,-32,32);
  if(pitchUp)state.pitch+=8*dt; if(pitchDown)state.pitch-=8*dt; if(!pitchUp&&!pitchDown)state.pitch*=Math.pow(0.35,dt);
  state.pitch=clamp(state.pitch,-8,14);
  if(!state.onGround)state.heading=normHeading(state.heading+state.bank*.055*dt);
- else if(Math.abs(state.bank)>2)state.heading=normHeading(state.heading+state.bank*.02*dt);
+ else state.heading=normHeading(state.heading);
 }
 function engineAndSpeed(dt){
  const drag=.012+state.speed*.00016+(state.flaps===2?.035:state.flaps===1?.018:0)+(state.gearDown&&!state.onGround?.018:0);
@@ -1037,9 +1045,11 @@ function evaluateMission(dt){
   const taxiSpeed=state.speed>3&&state.speed<22;
   const nearTaxiway=state.x<34;
   const nearRunway=state.x>34&&state.x<66;
-  const correctHeading=Math.abs(headingDiff(state.heading,90))<18;
-  if(state.onGround&&taxiSpeed&&nearTaxiway&&correctHeading)gain=16*dt;
-  if(state.onGround&&nearRunway&&state.y<58&&state.y>42&&Math.abs(headingDiff(state.heading,90))<12){
+  const correctHeading=Math.abs(headingDiff(state.heading,0))<18;
+  const taxiHeading=state.y>62 && Math.abs(headingDiff(state.heading,0))<12;
+  const turnHeading=state.x>=28 && state.y<=66 && Math.abs(headingDiff(state.heading,90))<15;
+  if(state.onGround&&taxiSpeed&&nearTaxiway&&taxiHeading)gain=16*dt;
+  if(state.onGround&&nearRunway&&state.y<68&&state.y>42&&turnHeading){
     gain=28*dt;
   }
 }
