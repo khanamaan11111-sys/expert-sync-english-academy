@@ -374,9 +374,13 @@ function drawTower(){
 }
 const oldWorld=world;
 world=function(){
- if(s.view==='TOWER')drawTower();else oldWorld();
- if(s.view!=='COCKPIT')drawTraffic(performance.now()/1000);
- drawAirportDetails();
+ if(s.view==='TOWER'){
+  drawTower();
+ }else{
+  oldWorld();
+  if(s.view!=='COCKPIT')drawTraffic(performance.now()/1000);
+  drawAirportDetails();
+ }
 };
 const oldSetView=setView;
 setView=function(v){oldSetView(v);document.body.classList.toggle('cockpit',v==='COCKPIT');};
