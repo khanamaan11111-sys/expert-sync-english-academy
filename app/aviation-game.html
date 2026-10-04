@@ -31,6 +31,41 @@ button{font:inherit}#sim{position:relative;width:100%;height:100%;overflow:hidde
 #cockpitOverlay{position:absolute;inset:0;pointer-events:none;display:none;z-index:10;background:linear-gradient(#0000 0 65%,#06101899 100%)}#cockpitOverlay:before,#cockpitOverlay:after{content:"";position:absolute;bottom:-8%;width:23%;height:55%;background:#0a1319;border-radius:50% 50% 0 0;opacity:.92}#cockpitOverlay:before{left:-5%}#cockpitOverlay:after{right:-5%}
 @media(max-width:1000px){#phases{display:none}#mission{width:290px}#atc{width:290px}#instruments{width:80vw}.inst{min-height:62px}.instVal{font-size:18px}}
 @media(max-width:700px){#mission,#atc,#controls,#status{display:none}#score{bottom:150px}.viewBtn{display:none}#instruments{width:96vw;grid-template-columns:repeat(3,1fr);bottom:8px}.inst{min-height:55px}.instVal{font-size:16px}#gauges{display:none}}
+
+/* ===== EXPERT SYNC FLIGHT DECK V3 ===== */
+#cockpitDeck{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(1120px,96vw);height:205px;z-index:27;display:none;pointer-events:none}
+body.cockpit #cockpitDeck{display:block}
+.deckFrame{position:absolute;inset:0;background:linear-gradient(#101b22,#050b10);border:2px solid #334d59;border-bottom:0;border-radius:28px 28px 0 0;box-shadow:0 -12px 40px #0008}
+.deckGlare{position:absolute;left:8%;right:8%;top:9px;height:2px;background:#7be5ff66}
+.panelRow{position:absolute;left:50%;top:25px;transform:translateX(-50%);display:flex;gap:9px}
+.roundInst{width:112px;height:112px;border-radius:50%;border:3px solid #718892;background:radial-gradient(circle,#142932 0,#071117 68%);box-shadow:inset 0 0 15px #000,0 4px 15px #0008;position:relative;text-align:center}
+.roundInst .ring{position:absolute;inset:8px;border:1px solid #49636e;border-radius:50%}
+.roundInst .instName{position:absolute;top:16px;left:0;right:0;font-size:8px;letter-spacing:1px;color:#8bdfff}
+.roundInst .instNum{position:absolute;top:43px;left:0;right:0;font-size:21px;font-weight:900}
+.roundInst .instUnit{position:absolute;bottom:19px;left:0;right:0;font-size:7px;color:#8fa5af}
+#attitude .sky{position:absolute;left:12px;right:12px;top:12px;height:48%;background:#397fa4;border-radius:55px 55px 0 0;overflow:hidden}
+#attitude .ground{position:absolute;left:12px;right:12px;bottom:12px;height:40%;background:#66533a;border-radius:0 0 55px 55px}
+#attitude .hline{position:absolute;left:25px;right:25px;top:55px;border-top:2px solid #fff;transform:rotate(0deg)}
+#attitude .aircraftCue{position:absolute;left:31px;right:31px;top:53px;border-top:3px solid #ffd85a}
+#compassNeedle{position:absolute;left:54px;top:28px;width:4px;height:56px;background:#ffdb4a;transform-origin:2px 52px}
+#yoke{position:absolute;left:50%;bottom:5px;transform:translateX(-50%);width:125px;height:62px}
+#yoke .stem{position:absolute;left:58px;top:24px;width:9px;height:38px;background:#687983;border-radius:5px}
+#yoke .wheel{position:absolute;left:13px;top:3px;width:100px;height:46px;border:8px solid #222d33;border-radius:50% 50% 35% 35%;box-shadow:0 2px 8px #000}
+#throttleBox{position:absolute;right:45px;bottom:27px;width:90px;height:125px;border:1px solid #3c5661;border-radius:10px;background:#09141b}
+#throttleBox .rail{position:absolute;left:42px;top:12px;bottom:12px;width:6px;background:#263d47;border-radius:6px}
+#throttleBox .handle{position:absolute;left:33px;bottom:18px;width:24px;height:28px;background:#bdc9ce;border-radius:5px;box-shadow:0 2px 5px #000;transition:bottom .08s}
+#throttleBox label{position:absolute;left:0;right:0;top:3px;text-align:center;font-size:7px;color:#8edfff;letter-spacing:1px}
+#deckBrand{position:absolute;left:35px;bottom:24px;font-size:9px;letter-spacing:1.4px;color:#78929d}
+#navCompass{position:absolute;right:160px;bottom:34px;width:125px;height:125px;border:2px solid #627a84;border-radius:50%;background:#071117;box-shadow:inset 0 0 20px #000}
+#navCompass .tick{position:absolute;left:60px;top:8px;color:#fff;font-size:8px}
+#navCompass .cardinal{position:absolute;font-size:8px;color:#8fdfff;font-weight:800}
+#navCompass .n{top:19px;left:58px}.navCompass .s{bottom:19px;left:58px}.navCompass .e{right:18px;top:57px}.navCompass .w{left:18px;top:57px}
+#navCompass:after{content:"";position:absolute;left:61px;top:25px;width:3px;height:73px;background:#ffdb4a;transform-origin:1.5px 37px;transform:rotate(0deg)}
+#trafficTag{position:absolute;left:50%;top:74px;transform:translateX(-50%);z-index:21;padding:5px 9px;border-radius:6px;background:#071824dd;border:1px solid #3a819b;color:#a9e8ff;font-size:9px;letter-spacing:1px}
+#soundBtn{border:1px solid #365563;background:#091a25;color:#b9d2dc;border-radius:8px;padding:8px 10px;font-size:10px}
+#soundBtn.on{background:#126c83;border-color:#67e0ff;color:#fff}
+@media(max-width:800px){#cockpitDeck{height:150px}.panelRow{gap:4px;top:14px}.roundInst{width:72px;height:72px}.roundInst .ring{inset:5px}.roundInst .instName{top:10px;font-size:6px}.roundInst .instNum{top:28px;font-size:14px}.roundInst .instUnit{bottom:10px;font-size:5px}#navCompass,#throttleBox,#deckBrand{display:none}}
+
 </style>
 </head>
 <body>
@@ -43,7 +78,7 @@ button{font:inherit}#sim{position:relative;width:100%;height:100%;overflow:hidde
   <div id="views">
     <button class="viewBtn active" data-view="EXTERNAL">EXTERNAL</button>
     <button class="viewBtn" data-view="COCKPIT">COCKPIT</button>
-    <button class="viewBtn" data-view="TOWER">TOWER</button>
+    <button class="viewBtn" data-view="TOWER">TOWER</button><button id="soundBtn">🔊 SOUND OFF</button>
   </div>
 </div>
 
@@ -95,6 +130,22 @@ button{font:inherit}#sim{position:relative;width:100%;height:100%;overflow:hidde
 </div>
 
 <div id="warning">STALL WARNING</div><div id="toast"></div><div id="cockpitOverlay"></div>
+<div id="trafficTag">TRAFFIC • ES-01 • TRAINING AIRSPACE</div>
+<div id="cockpitDeck">
+  <div class="deckFrame"></div><div class="deckGlare"></div>
+  <div class="panelRow">
+    <div class="roundInst" id="attitude"><div class="sky"></div><div class="ground"></div><div class="hline"></div><div class="aircraftCue"></div><div class="instName">ATTITUDE</div><div class="instUnit">PITCH / BANK</div></div>
+    <div class="roundInst"><div class="ring"></div><div class="instName">AIRSPEED</div><div class="instNum" id="deckSpeed">0</div><div class="instUnit">KNOTS</div></div>
+    <div class="roundInst"><div class="ring"></div><div class="instName">ALTIMETER</div><div class="instNum" id="deckAlt">0</div><div class="instUnit">FEET</div></div>
+    <div class="roundInst"><div class="ring"></div><div class="instName">VERTICAL SPEED</div><div class="instNum" id="deckVs">0</div><div class="instUnit">FT/MIN</div></div>
+    <div class="roundInst"><div class="ring"></div><div class="instName">RPM</div><div class="instNum" id="deckRpm">0</div><div class="instUnit">ENGINE</div></div>
+  </div>
+  <div id="navCompass"><span class="cardinal n">N</span><span class="cardinal s">S</span><span class="cardinal e">E</span><span class="cardinal w">W</span></div>
+  <div id="throttleBox"><label>THROTTLE</label><div class="rail"></div><div class="handle" id="deckThrottle"></div></div>
+  <div id="yoke"><div class="wheel"></div><div class="stem"></div></div>
+  <div id="deckBrand">EXPERT SYNC • TRAINING FLIGHT DECK</div>
+</div>
+
 
 <div id="menu">
   <div class="card">
@@ -262,6 +313,84 @@ ctx.fillStyle='#09131a';ctx.fillRect(0,H*.76,W,H*.24);
 ctx.fillStyle='#111e25';ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(0,H*.82);ctx.quadraticCurveTo(W*.15,H*.72,W*.32,H*.82);ctx.lineTo(W*.68,H*.82);ctx.quadraticCurveTo(W*.85,H*.72,W,H*.82);ctx.lineTo(W,H);ctx.fill();
 ctx.strokeStyle='#405863';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(W*.32,H);ctx.lineTo(W*.38,H*.79);ctx.moveTo(W*.68,H);ctx.lineTo(W*.62,H*.79);ctx.stroke();
 }
+
+
+/* ===== V3 ENVIRONMENT, COCKPIT & AUDIO ===== */
+const traffic=[
+ {x:.72,y:.24,phase:0.0,speed:0.42,scale:.72},
+ {x:.55,y:.31,phase:2.1,speed:.28,scale:.52},
+ {x:.84,y:.42,phase:4.4,speed:.34,scale:.62}
+];
+let audioCtx=null,engineOsc=null,engineGain=null,soundOn=false;
+function startAudio(){
+ try{
+  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  if(!engineOsc){
+   engineOsc=audioCtx.createOscillator();engineGain=audioCtx.createGain();
+   engineOsc.type='sawtooth';engineOsc.frequency.value=70;engineGain.gain.value=.0001;
+   engineOsc.connect(engineGain).connect(audioCtx.destination);engineOsc.start();
+  }
+  soundOn=true;$('soundBtn').textContent='🔊 SOUND ON';$('soundBtn').classList.add('on');
+ }catch(e){}
+}
+function stopAudio(){soundOn=false;$('soundBtn').textContent='🔇 SOUND OFF';$('soundBtn').classList.remove('on')}
+$('soundBtn').onclick=()=>soundOn?stopAudio():startAudio();
+function audioTick(){
+ if(!engineOsc||!engineGain)return;
+ engineOsc.frequency.setTargetAtTime(55+s.rpm*.065,audioCtx.currentTime,.05);
+ engineGain.gain.setTargetAtTime(soundOn?(0.006+s.throttle*.000045):.0001,audioCtx.currentTime,.08);
+}
+function drawTraffic(t){
+ for(const a of traffic){
+  const px=((a.x+Math.sin(t*a.speed+a.phase)*.08)%1)*W;
+  const py=(a.y+Math.cos(t*a.speed*.7+a.phase)*.045)*H;
+  ctx.save();ctx.translate(px,py);ctx.scale(a.scale,a.scale);
+  ctx.globalAlpha=.72;ctx.fillStyle='#eef6f8';ctx.beginPath();ctx.ellipse(0,0,10,26,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#c9d7dc';ctx.beginPath();ctx.moveTo(-35,0);ctx.lineTo(8,-7);ctx.lineTo(22,0);ctx.lineTo(8,7);ctx.closePath();ctx.fill();
+  ctx.restore();
+ }
+}
+function drawAirportDetails(){
+ const base=H*.61,runY=base+H*.13;
+ ctx.fillStyle='#536066';ctx.fillRect(W*.03,base-38,W*.12,38);
+ ctx.fillStyle='#67757b';ctx.fillRect(W*.04,base-58,W*.09,20);
+ ctx.fillStyle='#26343a';ctx.fillRect(W*.07,base-75,4,17);
+ ctx.fillStyle='#d9c14e';ctx.fillRect(W*.068,base-82,8,7);
+ ctx.fillStyle='#fff';ctx.font='bold 10px Arial';ctx.fillText('TERMINAL',W*.055,base-44);
+ ctx.strokeStyle='#ffebe0';ctx.lineWidth=2;
+ for(let i=0;i<12;i++){const x=W*.31+i*(W*.66/11);ctx.beginPath();ctx.arc(x,runY-4,2.2,0,Math.PI*2);ctx.stroke()}
+ ctx.fillStyle='#e74b4b';ctx.fillRect(W*.25,base-35,3,35);ctx.fillStyle='#fff';ctx.fillRect(W*.25,base-35,25,3);
+}
+function drawTower(){
+ drawSky();drawCloud(W*.2,H*.2,.8);drawCloud(W*.7,H*.17,1.1);
+ ctx.fillStyle='#405f3c';ctx.fillRect(0,H*.61,W,H*.39);
+ const rw=H*.18;const ry=H*.54;
+ ctx.fillStyle='#292f32';ctx.fillRect(W*.17,ry,W*.66,rw);ctx.strokeStyle='#dec44e';ctx.lineWidth=3;ctx.strokeRect(W*.17,ry,W*.66,rw);
+ ctx.strokeStyle='#fff';ctx.lineWidth=4;for(let x=W*.21;x<W*.79;x+=55){ctx.beginPath();ctx.moveTo(x,ry+rw/2);ctx.lineTo(x+28,ry+rw/2);ctx.stroke()}
+ ctx.fillStyle='#fff';ctx.font='bold 30px Arial';ctx.fillText('09',W*.75,ry+rw*.58);
+ ctx.fillStyle='#58656a';ctx.fillRect(W*.86,H*.28,42,H*.33);ctx.fillStyle='#78939e';ctx.fillRect(W*.845,H*.25,72,22);ctx.fillStyle='#a7e6ff';ctx.fillRect(W*.855,H*.27,52,7);
+ drawTraffic(performance.now()/1000);
+}
+const oldWorld=world;
+world=function(){
+ if(s.view==='TOWER')drawTower();else oldWorld();
+ if(s.view!=='COCKPIT')drawTraffic(performance.now()/1000);
+ drawAirportDetails();
+};
+const oldSetView=setView;
+setView=function(v){oldSetView(v);document.body.classList.toggle('cockpit',v==='COCKPIT');};
+const oldHud=hud;
+hud=function(){
+ oldHud();
+ $('deckSpeed').textContent=Math.round(s.speed);$('deckAlt').textContent=Math.round(s.alt);$('deckVs').textContent=Math.round(s.vs);$('deckRpm').textContent=Math.round(s.rpm);
+ $('deckThrottle').style.bottom=(18+s.throttle*.86)+'px';
+ $('attitude').style.transform='rotate('+(-s.bank*.45)+'deg)';
+ $('navCompass').style.transform='rotate('+(-s.heading)+'deg)';
+ audioTick();
+};
+const oldStart=start;
+start=function(){oldStart();startAudio();};
 
 function loop(now){let dt=clamp((now-s.last)/1000,0,.05);s.last=now;if(s.started){controls(dt);engine(dt);flight(dt);evaluate(dt);hud()}world();requestAnimationFrame(loop)}
 setupMission();hud();requestAnimationFrame(loop);
