@@ -160,6 +160,18 @@ button{
 #hold1{top:33%}
 #hold2{top:63%}
 
+#taxiHold{
+    position:absolute;
+    left:0;
+    top:58%;
+    width:100%;
+    height:18px;
+    border-top:4px double #f6cf55;
+    border-bottom:0;
+    z-index:4;
+    opacity:.95;
+}
+
 #terminal{
     position:absolute;
     left:2%;
@@ -185,6 +197,31 @@ button{
     bottom:15px;
     left:18px;
     color:#9ee5ff;
+}
+
+#airport:before{
+    content:"";
+    position:absolute;
+    left:2%;
+    bottom:8%;
+    width:27%;
+    height:24%;
+    background:
+        repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0 2px,transparent 2px 42px),
+        #555e60;
+    border:2px solid #394245;
+    box-shadow:inset 0 0 35px rgba(0,0,0,.22);
+}
+
+#airport:after{
+    content:"A1     A2     A3";
+    position:absolute;
+    left:4%;
+    bottom:11%;
+    color:#d9e4e7;
+    font:bold 11px Arial,sans-serif;
+    letter-spacing:10px;
+    opacity:.8;
 }
 
 #aircraft{
@@ -862,7 +899,7 @@ const $ = id => document.getElementById(id);
 let gameStarted=false, lastTime=performance.now();
 const state={
  phase:"GROUND_TAXI",speed:0,altitude:0,heading:90,verticalSpeed:0,pitch:0,bank:0,
- throttle:0,rpm:0,fuel:100,x:50,y:68,flaps:0,gearDown:true,brake:false,
+ throttle:0,rpm:0,fuel:100,x:20,y:78,flaps:0,gearDown:true,brake:false,
  score:0,missionProgress:0,missionCompleteShown:false,onGround:true,airborne:false,radioMode:"GROUND"
 };
 const keys={};
