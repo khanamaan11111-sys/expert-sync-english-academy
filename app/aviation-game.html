@@ -28,7 +28,14 @@ button{font:inherit}#sim{position:relative;width:100%;height:100%;overflow:hidde
 #menu,#complete{position:absolute;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%,#163c52,#02080d 72%)}
 .card{width:570px;max-width:92%;padding:34px;border-radius:18px;text-align:center;background:#061520f5;border:1px solid #3dbbe8;box-shadow:0 25px 100px #0009}.card h1{margin:0;color:#76e0ff;letter-spacing:3px;font-size:34px}.card h2{margin:5px 0 15px;font-size:14px;letter-spacing:4px}.card p{color:#b5cbd5;font-size:13px;line-height:1.6}.features{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:20px 0}.feature{padding:10px;border:1px solid #264653;border-radius:7px;background:#0a202c;font-size:11px}.primary{border:0;border-radius:8px;padding:13px 28px;background:#52d7ff;color:#03202a;font-weight:900;cursor:pointer}.primary:hover{filter:brightness(1.08)}
 #complete{display:none;background:#020a10e8}.result{width:440px}.result h1{font-size:28px}
-#cockpitOverlay{position:absolute;inset:0;pointer-events:none;display:none;z-index:10;background:linear-gradient(#0000 0 65%,#06101899 100%)}#cockpitOverlay:before,#cockpitOverlay:after{content:"";position:absolute;bottom:-8%;width:23%;height:55%;background:#0a1319;border-radius:50% 50% 0 0;opacity:.92}#cockpitOverlay:before{left:-5%}#cockpitOverlay:after{right:-5%}
+#cockpitOverlay{position:absolute;inset:0;pointer-events:none;display:none;z-index:10;background:linear-gradient(#0000 0 65%,#06101899 100%)}#preflight{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 32%,#183e52,#02080d 75%)}
+.preCard{width:min(760px,94vw);padding:26px;border-radius:18px;background:#061520f7;border:1px solid #3dbbe8;box-shadow:0 25px 100px #0009}
+.preHead{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.preHead h2{margin:0;color:#76e0ff;letter-spacing:2px}.preHead p{margin:6px 0 0;color:#a9c1ca;font-size:12px;line-height:1.5}
+.checkGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:18px 0}.check{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #294653;border-radius:9px;background:#0a202c}.check button{min-width:42px;border:1px solid #46616d;border-radius:7px;background:#122a35;color:#bcd0d7;padding:7px;cursor:pointer}.check button.ready{background:#165c4a;border-color:#49d7a1;color:#fff}.check b{font-size:11px}.check small{display:block;color:#8099a4;font-size:9px;margin-top:2px}
+.preActions{display:flex;justify-content:space-between;gap:10px;align-items:center}.procedure{font-size:10px;color:#9db5c1;line-height:1.6}.secondary{border:1px solid #41606c;border-radius:8px;padding:11px 17px;background:#0b202b;color:#d8e8ed;font-weight:800;cursor:pointer}.secondary:disabled{opacity:.45;cursor:not-allowed}
+#systems{position:absolute;left:50%;top:82px;transform:translateX(-50%);z-index:28;display:none;padding:9px 12px;background:#061925dd;border:1px solid #3a819b;border-radius:10px;font-size:10px;color:#b9d2dc}
+#systems b{margin-left:6px}.sysOn{color:#49d7a1}.sysOff{color:#ff7777}
+#cockpitOverlay:before,#cockpitOverlay:after{content:"";position:absolute;bottom:-8%;width:23%;height:55%;background:#0a1319;border-radius:50% 50% 0 0;opacity:.92}#cockpitOverlay:before{left:-5%}#cockpitOverlay:after{right:-5%}
 @media(max-width:1000px){#phases{display:none}#mission{width:290px}#atc{width:290px}#instruments{width:80vw}.inst{min-height:62px}.instVal{font-size:18px}}
 @media(max-width:700px){#mission,#atc,#controls,#status{display:none}#score{bottom:150px}.viewBtn{display:none}#instruments{width:96vw;grid-template-columns:repeat(3,1fr);bottom:8px}.inst{min-height:55px}.instVal{font-size:16px}#gauges{display:none}}
 
@@ -100,6 +107,7 @@ body.cockpit #cockpitDeck{display:block}
 <div id="controls" class="panel">
   <b>FLIGHT CONTROLS</b><br>
   <span class="kbd">W</span> Throttle up &nbsp; <span class="kbd">S</span> Power down / brake<br>
+  <span class="kbd">M</span> Mixture rich &nbsp; <span class="kbd">N</span> Mixture lean<br>
   <span class="kbd">A</span> Bank/steer left &nbsp; <span class="kbd">D</span> Bank/steer right<br>
   <span class="kbd">↑</span> Pitch up &nbsp; <span class="kbd">↓</span> Pitch down<br>
   <span class="kbd">F</span> Flaps &nbsp; <span class="kbd">G</span> Landing gear &nbsp; <span class="kbd">C</span> Camera<br>
@@ -129,7 +137,22 @@ body.cockpit #cockpitDeck{display:block}
   <div class="inst"><div class="instLabel">FUEL</div><div class="instVal" id="fuel">100</div><div class="instUnit">%</div></div>
 </div>
 
-<div id="warning">STALL WARNING</div><div id="toast"></div><div id="cockpitOverlay"></div>
+<div id="warning">STALL WARNING</div><div id="toast"></div><div id="cockpitOverlay"></div><div id="systems"><span>BAT</span><b id="batState" class="sysOff">OFF</b><span>AVN</span><b id="avnState" class="sysOff">OFF</b><span>PUMP</span><b id="pumpState" class="sysOff">OFF</b><span>MIX</span><b id="mixState">0%</b></div>
+<div id="preflight">
+  <div class="preCard">
+    <div class="preHead"><div><h2>PREFLIGHT • COCKPIT SETUP</h2><p>You are the pilot. Complete the aircraft setup before starting the engine. This is the training sequence: power → fuel → mixture → starter → engine instruments → taxi.</p></div></div>
+    <div class="checkGrid">
+      <div class="check"><button data-pre="battery">OFF</button><div><b>Battery / Master</b><small>Energize the electrical system.</small></div></div>
+      <div class="check"><button data-pre="avionics">OFF</button><div><b>Avionics</b><small>Power the radios and flight deck.</small></div></div>
+      <div class="check"><button data-pre="pump">OFF</button><div><b>Fuel Pump</b><small>Prime the fuel system before start.</small></div></div>
+      <div class="check"><button data-pre="mixture">SET</button><div><b>Mixture</b><small>Set mixture to 100% for engine start.</small></div></div>
+    </div>
+    <div class="preActions">
+      <div class="procedure">START PROCEDURE: <b>Battery ON → Avionics ON → Fuel Pump ON → Mixture RICH → Starter.</b></div>
+      <button id="engineStart" class="secondary" disabled>START ENGINE</button>
+    </div>
+  </div>
+</div>
 <div id="trafficTag">TRAFFIC • ES-01 • TRAINING AIRSPACE</div>
 <div id="cockpitDeck">
   <div class="deckFrame"></div><div class="deckGlare"></div>
@@ -150,9 +173,9 @@ body.cockpit #cockpitDeck{display:block}
 <div id="menu">
   <div class="card">
     <h1>EXPERT SYNC</h1><h2>AVIATION FLIGHT DECK</h2>
-    <p>Operate a responsive single-engine aircraft in a structured training mission. The aircraft has throttle, engine RPM, acceleration, lift, drag, pitch, bank, heading, gear, flaps, fuel burn, stall behaviour and landing logic.</p>
+    <p>This is a pilot-training simulator, not an arcade flight game. You will enter the cockpit, configure the aircraft, start the engine, taxi, line up, take off, climb, cruise, approach and land while monitoring the instruments and responding to ATC.</p>
     <div class="features">
-      <div class="feature">🛫 Taxi → Take-off → Climb</div><div class="feature">🧭 Heading & Navigation</div>
+      <div class="feature">🧰 Preflight & engine start</div><div class="feature">🎛️ Cockpit systems & instruments</div>
       <div class="feature">📡 ATC / Readback Practice</div><div class="feature">🎛️ Real-time Flight Instruments</div>
       <div class="feature">⚠️ Stall / Overspeed Warnings</div><div class="feature">🛬 Approach & Landing</div>
     </div>
@@ -186,7 +209,8 @@ const missions=[
 const s={
 phase:0,view:'EXTERNAL',started:false,score:0,progress:0,last:performance.now(),
 x:0,y:0,alt:0,speed:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,
-gear:true,flaps:0,onGround:true,stall:false,brake:false,engine:false,radioAck:false
+gear:true,flaps:0,onGround:true,stall:false,brake:false,engine:false,radioAck:false,
+battery:false,avionics:false,fuelPump:false,mixture:0,starter:false,engineStarted:false
 };
 const keys={};let toastTimer=0;
 
@@ -206,12 +230,40 @@ if(s.phase===6){s.flaps=2;s.gear=true}
 setupMission();$('complete').style.display='none';msg('New mission: '+current().title)}
 else{location.reload()}}
 function ack(){s.radioAck=true;msg('TRANSMISSION ACKNOWLEDGED — practice the ATC readback aloud.');$('radioState').textContent='ACK'}
-function start(){s.started=true;$('menu').style.display='none';s.last=performance.now();s.engine=true;s.rpm=700;setupMission();msg('Engine start confirmed. Taxi when ready.')}
-$('start').onclick=start;$('continue').onclick=next;
+function start(){s.started=true;$('menu').style.display='none';$('preflight').style.display='flex';s.last=performance.now();msg('Cockpit entered. Complete the preflight procedure.')}
+function updateSystems(){
+  $('batState').textContent=s.battery?'ON':'OFF';$('batState').className=s.battery?'sysOn':'sysOff';
+  $('avnState').textContent=s.avionics?'ON':'OFF';$('avnState').className=s.avionics?'sysOn':'sysOff';
+  $('pumpState').textContent=s.fuelPump?'ON':'OFF';$('pumpState').className=s.fuelPump?'sysOn':'sysOff';
+  $('mixState').textContent=Math.round(s.mixture)+'%';
+  document.querySelectorAll('[data-pre]').forEach(b=>{
+    const k=b.dataset.pre, on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.fuelPump:s.mixture>=95;
+    b.textContent=on?'ON':'OFF';b.classList.toggle('ready',on);
+  });
+  $('engineStart').disabled=!(s.battery&&s.avionics&&s.fuelPump&&s.mixture>=95)||s.engineStarted;
+}
+function startEngine(){
+  if($('engineStart').disabled)return;
+  s.starter=true;s.engine=true;s.engineStarted=true;s.rpm=900;s.throttle=0;
+  $('preflight').style.display='none';$('systems').style.display='block';setupMission();
+  msg('ENGINE START — monitor RPM and oil pressure. Engine running at idle.');s.score+=10;
+}
+$('start').onclick=start;$('continue').onclick=next;$('engineStart').onclick=startEngine;
+document.querySelectorAll('[data-pre]').forEach(b=>b.addEventListener('click',()=>{
+  const k=b.dataset.pre;
+  if(k==='battery')s.battery=!s.battery;
+  if(k==='avionics'){if(!s.battery){msg('Battery must be ON first.');return}s.avionics=!s.avionics}
+  if(k==='pump'){if(!s.battery){msg('Battery must be ON first.');return}s.fuelPump=!s.fuelPump}
+  if(k==='mixture')s.mixture=s.mixture>=95?0:100;
+  updateSystems();
+}));
+updateSystems();
 document.querySelectorAll('.viewBtn').forEach(b=>b.onclick=()=>setView(b.dataset.view));
 function setView(v){s.view=v;document.querySelectorAll('.viewBtn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));$('cockpitOverlay').style.display=v==='COCKPIT'?'block':'none'}
 
 addEventListener('keydown',e=>{let k=e.key.toLowerCase();keys[k]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();if(!s.started||e.repeat)return;
+if(k==='m'){s.mixture=clamp(s.mixture+10,0,100);updateSystems();msg('Mixture '+Math.round(s.mixture)+'%.')}
+if(k==='n'){s.mixture=clamp(s.mixture-10,0,100);updateSystems();msg('Mixture '+Math.round(s.mixture)+'%.')}
 if(k==='f'){s.flaps=s.flaps===0?1:s.flaps===1?2:0;msg('Flaps '+(s.flaps===0?'UP':s.flaps===1?'1 — take-off setting':'FULL — landing setting'))}
 if(k==='g'){if(s.onGround){s.gear=true;msg('Landing gear DOWN on ground.')}else if(s.speed<95){s.gear=!s.gear;msg('Landing gear '+(s.gear?'DOWN':'UP'))}else msg('CAUTION: Reduce airspeed before moving the landing gear.')}
 if(k==='r')ack();if(k==='c')setView(s.view==='EXTERNAL'?'COCKPIT':'EXTERNAL');if(k==='p'){s.throttle=Math.max(0,s.throttle-25);msg('Power reduced.')}}
@@ -219,6 +271,7 @@ if(k==='r')ack();if(k==='c')setView(s.view==='EXTERNAL'?'COCKPIT':'EXTERNAL');if
 
 function controls(dt){
 if(keys.w)s.throttle+=38*dt;if(keys.s)s.throttle-=55*dt;s.throttle=clamp(s.throttle,0,100);
+if(keys.m)s.mixture=clamp(s.mixture+45*dt,0,100);if(keys.n)s.mixture=clamp(s.mixture-45*dt,0,100);
 s.brake=s.onGround&&keys.s;
 if(s.onGround){
   if(keys.a||keys.arrowleft)s.heading=norm(s.heading-28*dt);
@@ -237,7 +290,7 @@ s.pitch=clamp(s.pitch,-14,16);
 }
 
 function engine(dt){
-const idle=720, max=2650, target=idle+(s.throttle/100)*(max-idle);
+const idle=s.engineStarted?720:0, max=2650, target=s.engineStarted?idle+(s.throttle/100)*(max-idle):0;
 s.rpm+=(target-s.rpm)*Math.min(1,dt*4.2);s.engine=s.rpm>500;
 const power=clamp((s.rpm-idle)/(max-idle),0,1);
 const flapDrag=s.flaps===2?.050:s.flaps===1?.024:0;
