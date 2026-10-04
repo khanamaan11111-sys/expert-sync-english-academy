@@ -218,42 +218,78 @@ if(k==='r')ack();if(k==='c')setView(s.view==='EXTERNAL'?'COCKPIT':'EXTERNAL');if
 );addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);addEventListener('blur',()=>Object.keys(keys).forEach(k=>keys[k]=false));
 
 function controls(dt){
-if(keys.w)s.throttle+=34*dt;if(keys.s)s.throttle-=42*dt;s.throttle=clamp(s.throttle,0,100);
+if(keys.w)s.throttle+=38*dt;if(keys.s)s.throttle-=55*dt;s.throttle=clamp(s.throttle,0,100);
 s.brake=s.onGround&&keys.s;
-if(s.onGround){if(keys.a)s.heading=norm(s.heading-32*dt);if(keys.d)s.heading=norm(s.heading+32*dt);s.bank*=Math.pow(.03,dt)}
-else{if(keys.a)s.bank-=45*dt;if(keys.d)s.bank+=45*dt;if(!keys.a&&!keys.d)s.bank*=Math.pow(.08,dt)}
-s.bank=clamp(s.bank,-35,35);
-if(keys.arrowup)s.pitch+=10*dt;if(keys.arrowdown)s.pitch-=10*dt;if(!keys.arrowup&&!keys.arrowdown)s.pitch*=Math.pow(.38,dt);s.pitch=clamp(s.pitch,-12,15);
-if(!s.onGround)s.heading=norm(s.heading+(s.speed/90)*Math.sin(s.bank*Math.PI/180)*25*dt);
+if(s.onGround){
+  if(keys.a||keys.arrowleft)s.heading=norm(s.heading-28*dt);
+  if(keys.d||keys.arrowright)s.heading=norm(s.heading+28*dt);
+  s.bank*=Math.pow(.02,dt);
+}else{
+  if(keys.a||keys.arrowleft)s.bank-=42*dt;
+  if(keys.d||keys.arrowright)s.bank+=42*dt;
+  if(!keys.a&&!keys.d&&!keys.arrowleft&&!keys.arrowright)s.bank*=Math.pow(.10,dt);
+}
+s.bank=clamp(s.bank,-38,38);
+if(keys.arrowup)s.pitch+=11*dt;
+if(keys.arrowdown)s.pitch-=11*dt;
+if(!keys.arrowup&&!keys.arrowdown)s.pitch*=Math.pow(.45,dt);
+s.pitch=clamp(s.pitch,-14,16);
 }
 
 function engine(dt){
-const target=700+(s.throttle/100)*2000;s.rpm+=(target-s.rpm)*Math.min(1,dt*3.6);s.engine=s.rpm>450;
-const power=clamp((s.rpm-700)/2000,0,1),drag=.012+s.speed*.0001+(s.flaps===2?.045:s.flaps===1?.022:0)+(!s.onGround&&s.gear?.022:0);
+const idle=720, max=2650, target=idle+(s.throttle/100)*(max-idle);
+s.rpm+=(target-s.rpm)*Math.min(1,dt*4.2);s.engine=s.rpm>500;
+const power=clamp((s.rpm-idle)/(max-idle),0,1);
+const flapDrag=s.flaps===2?.050:s.flaps===1?.024:0;
+const gearDrag=!s.onGround&&s.gear?.020:0;
+const aeroDrag=.010+s.speed*.00010+flapDrag+gearDrag;
 if(s.onGround){
- let groundLimit=(s.phase<=1)?20:95;
- let a=power*4.0-drag*25-(s.brake?4.8:0);
- s.speed=clamp(s.speed+a*dt,0,groundLimit);
- if(s.phase<=1 && s.speed>=groundLimit && s.throttle>25) s.brake=true;
-}else{s.speed=clamp(s.speed+(power*2.7-drag*2.1)*dt,42,145)}
-s.fuel=Math.max(0,s.fuel-(.0002+s.throttle*.000015+s.rpm*.00000003)*dt*60);
+  const accel=power*5.7-aeroDrag*30-(s.brake?7.5:0);
+  s.speed=clamp(s.speed+accel*dt,0,105);
+}else{
+  const accel=power*3.2-aeroDrag*2.7;
+  s.speed=clamp(s.speed+accel*dt,38,150);
+}
+s.fuel=Math.max(0,s.fuel-(.00018+s.throttle*.000018+s.rpm*.000000035)*dt*60);
 }
 
 function flight(dt){
+const rad=Math.PI/180;
 if(s.onGround){
-s.alt=0;s.vs=0;s.stall=false;
-const k=.00205;s.x+=Math.sin(s.heading*Math.PI/180)*s.speed*k*dt;s.y-=Math.cos(s.heading*Math.PI/180)*s.speed*k*dt;
-if(s.phase===2&&s.speed>=54&&s.throttle>=78&&s.pitch>=3&&Math.abs(diff(s.heading,90))<9){s.onGround=false;s.alt=35;s.vs=720;s.y=-2;s.gear=true;s.view='COCKPIT';setView('COCKPIT');msg('AIRBORNE — positive rate. Gear up when established.');s.score+=25}
+  s.alt=0;s.vs=0;s.stall=false;
+  const groundScale=.00265;
+  s.x+=Math.sin(s.heading*rad)*s.speed*groundScale*dt;
+  s.y-=Math.cos(s.heading*rad)*s.speed*groundScale*dt;
+  // Take-off roll: realistic rotation threshold and positive pitch.
+  if(s.phase===2 && s.speed>=55 && s.throttle>=72 && s.pitch>=4 && Math.abs(diff(s.heading,90))<10){
+    s.onGround=false;s.alt=12;s.vs=620;s.gear=true;
+    msg('ROTATE — positive rate. Maintain runway heading 090.');
+    s.score+=30;
+  }
 }else{
-const stallSpd=47+s.flaps*4, lift=clamp((s.speed-stallSpd)/55,0,1.4), bankLoad=1/Math.max(.7,Math.cos(s.bank*Math.PI/180));
-let target=((s.pitch*108)+120)*lift/bankLoad+(s.throttle-45)*3;
-if(s.speed<stallSpd||(s.pitch>11&&s.speed<66)){s.stall=true;target-=720}else s.stall=false;
-s.vs+=(target-s.vs)*Math.min(1,dt*1.5);s.vs=clamp(s.vs,-2300,2400);s.alt=Math.max(0,s.alt+s.vs*dt/60);
-s.x+=Math.sin(s.heading*Math.PI/180)*s.speed*.0014*dt;s.y-=Math.cos(s.heading*Math.PI/180)*s.speed*.0014*dt;
-if(s.alt<10&&s.vs<-170){
-if(s.speed<82&&s.gear&&s.flaps>=1&&Math.abs(s.bank)<8){s.onGround=true;s.alt=0;s.vs=0;s.pitch=0;s.bank=0;s.view='EXTERNAL';setView('EXTERNAL');msg('TOUCHDOWN — maintain centreline and decelerate.')}
-else{s.alt=18;s.score-=5;msg('UNSTABLE LANDING — correct speed, gear, flaps and descent.')}
-}
+  const stallSpeed=48+s.flaps*5;
+  const aoaLift=clamp((s.pitch+2)/14,0,1.35);
+  const speedLift=clamp((s.speed-stallSpeed)/48,0,1.45);
+  const bankLoad=1/Math.max(.72,Math.cos(s.bank*rad));
+  let targetVS=(aoaLift*speedLift*980)/bankLoad;
+  targetVS+=(s.throttle-52)*2.8;
+  if(s.speed<stallSpeed || (s.pitch>12&&s.speed<70)){s.stall=true;targetVS-=900}else s.stall=false;
+  s.vs+=(targetVS-s.vs)*Math.min(1,dt*1.8);
+  s.vs=clamp(s.vs,-2400,2600);
+  s.alt=Math.max(0,s.alt+s.vs*dt/60);
+  s.heading=norm(s.heading+(s.speed/105)*Math.sin(s.bank*rad)*31*dt);
+  const airScale=.00155;
+  s.x+=Math.sin(s.heading*rad)*s.speed*airScale*dt;
+  s.y-=Math.cos(s.heading*rad)*s.speed*airScale*dt;
+  if(s.alt<14 && s.vs<-180){
+    if(s.speed<88&&s.gear&&s.flaps>=1&&Math.abs(s.bank)<10){
+      s.onGround=true;s.alt=0;s.vs=0;s.pitch=0;s.bank=0;
+      msg('TOUCHDOWN — hold the centreline and reduce power.');
+    }else{
+      s.alt=22;s.vs=120;s.score=Math.max(0,s.score-8);
+      msg('UNSTABLE APPROACH — correct speed, configuration and descent.');
+    }
+  }
 }
 }
 
@@ -296,52 +332,64 @@ function drawSky(){let g=ctx.createLinearGradient(0,0,0,H*.62);g.addColorStop(0,
 function drawCloud(x,y,sc){ctx.fillStyle='rgba(255,255,255,.78)';ctx.beginPath();ctx.ellipse(x,y,55*sc,18*sc,0,0,Math.PI*2);ctx.ellipse(x-25*sc,y-10*sc,25*sc,22*sc,0,0,Math.PI*2);ctx.ellipse(x+25*sc,y-8*sc,30*sc,25*sc,0,0,Math.PI*2);ctx.fill()}
 function drawExternal(){
 drawSky();
-drawCloud(W*.18,H*.2,.9);drawCloud(W*.72,H*.16,1.15);drawCloud(W*.86,H*.3,.75);
-ctx.fillStyle='#3d6139';ctx.fillRect(0,H*.61,W,H*.39);
-for(let i=0;i<8;i++){ctx.fillStyle=i%2?'#466a41':'#4f7347';ctx.fillRect(i*W/8,H*.61,W/8+1,H*.39)}
-const airborne=!s.onGround;
-const camX=airborne?s.x:0, camY=airborne?s.y:0;
-const horizon=H*.61;
-if(!airborne){
-  const taxiX=W*.08, taxiW=W*.16;
-  ctx.fillStyle='#303638';ctx.fillRect(taxiX,horizon,taxiW,H*.39);
-  ctx.strokeStyle='#dec64e';ctx.lineWidth=3;ctx.strokeRect(taxiX,horizon,taxiW,H*.39);
-  ctx.strokeStyle='#f4d45b';ctx.setLineDash([18,18]);ctx.beginPath();ctx.moveTo(taxiX+taxiW/2,horizon);ctx.lineTo(taxiX+taxiW/2,H);ctx.stroke();ctx.setLineDash([]);
-}
-const vanY=horizon+H*.10;
-ctx.fillStyle='#252a2d';ctx.beginPath();ctx.moveTo(W*.30,vanY);ctx.lineTo(W*.96,vanY);ctx.lineTo(W*.99,H*.92);ctx.lineTo(W*.30,H*.92);ctx.closePath();ctx.fill();
-ctx.strokeStyle='#d9c14e';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(W*.30,vanY);ctx.lineTo(W*.96,vanY);ctx.lineTo(W*.99,H*.92);ctx.lineTo(W*.30,H*.92);ctx.closePath();ctx.stroke();
-ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.setLineDash([28,24]);ctx.beginPath();ctx.moveTo(W*.60,vanY+4);ctx.lineTo(W*.60,H*.92);ctx.stroke();ctx.setLineDash([]);
-ctx.fillStyle='#fff';ctx.font='bold 32px Arial';ctx.fillText('09',W*.86,vanY+H*.06);
-for(let i=0;i<12;i++){const yy=vanY+H*.02+i*H*.055;const half=(yy-vanY)*.18+25;ctx.strokeStyle=i%2?'#9fb0b6':'#f4d45b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(W*.60-half,yy);ctx.lineTo(W*.60-half+7,yy);ctx.moveTo(W*.60+half,yy);ctx.lineTo(W*.60+half-7,yy);ctx.stroke()}
-if(airborne){
-  const cx=W*.52, cy=H*.49;
-  const altitudeScale=clamp(1.15-s.alt/9000,.62,1.12);
-  drawPlane(cx,cy,altitudeScale,s.heading,s.bank,s.pitch);
-  ctx.strokeStyle='#ffffff44';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx,cy+35);ctx.lineTo(cx,cy+110);ctx.stroke();
-  ctx.fillStyle='#071722cc';ctx.fillRect(W*.39,H*.69,W*.22,30);ctx.fillStyle='#9eeaff';ctx.font='bold 11px Arial';ctx.textAlign='center';ctx.fillText('AIRBORNE • '+Math.round(s.alt)+' FT • '+Math.round(s.speed)+' KT',W*.50,H*.71);ctx.textAlign='left';
+drawCloud(W*.16,H*.19,.85);drawCloud(W*.71,H*.15,1.1);drawCloud(W*.88,H*.30,.65);
+const horizon=H*.57;
+ctx.fillStyle='#56794e';ctx.fillRect(0,horizon,W,H-horizon);
+for(let i=0;i<12;i++){ctx.fillStyle=i%2?'#4f7149':'#5b7d52';ctx.fillRect(i*W/12,horizon,W/12+1,H-horizon)}
+// distant hills
+ctx.fillStyle='#53705f';ctx.beginPath();ctx.moveTo(0,horizon);for(let x=0;x<=W;x+=80)ctx.lineTo(x,horizon-25-Math.sin(x*.009)*25-Math.sin(x*.022)*12);ctx.lineTo(W,horizon);ctx.fill();
+ctx.fillStyle='#6f8668';ctx.beginPath();ctx.moveTo(0,horizon);for(let x=0;x<=W;x+=60)ctx.lineTo(x,horizon-12-Math.sin(x*.013+1)*18);ctx.lineTo(W,horizon);ctx.fill();
+// airport apron and runway in strong perspective
+const vanY=horizon+H*.075;
+ctx.fillStyle='#20272b';ctx.beginPath();ctx.moveTo(W*.28,vanY);ctx.lineTo(W*.96,vanY);ctx.lineTo(W*.99,H*.94);ctx.lineTo(W*.28,H*.94);ctx.closePath();ctx.fill();
+ctx.strokeStyle='#d9c34d';ctx.lineWidth=3;ctx.stroke();
+ctx.strokeStyle='#f7f7f7';ctx.lineWidth=4;ctx.setLineDash([30,26]);ctx.beginPath();ctx.moveTo(W*.60,vanY+5);ctx.lineTo(W*.60,H*.94);ctx.stroke();ctx.setLineDash([]);
+ctx.fillStyle='#fff';ctx.font='900 34px Arial';ctx.fillText('09',W*.86,vanY+H*.055);
+// runway edge lights
+for(let i=0;i<18;i++){const t=i/18,y=vanY+t*(H*.94-vanY),half=30+t*W*.22;ctx.fillStyle=i%2?'#b9d8ff':'#fff';ctx.fillRect(W*.60-half,y,4,4);ctx.fillRect(W*.60+half,y,4,4)}
+// taxiway
+ctx.fillStyle='#30373a';ctx.beginPath();ctx.moveTo(W*.05,horizon);ctx.lineTo(W*.22,horizon);ctx.lineTo(W*.22,H);ctx.lineTo(W*.05,H);ctx.closePath();ctx.fill();
+ctx.strokeStyle='#e0c746';ctx.lineWidth=3;ctx.strokeRect(W*.05,horizon,W*.17,H-horizon);
+ctx.strokeStyle='#f2d54f';ctx.setLineDash([20,18]);ctx.beginPath();ctx.moveTo(W*.135,horizon);ctx.lineTo(W*.135,H);ctx.stroke();ctx.setLineDash([]);
+if(s.onGround){
+  const ax=W*.135+s.x*5.2, ay=H*.78-s.y*5.2;
+  drawPlane(ax,ay,1.18,s.heading,s.bank,s.pitch);
 }else{
-  const ax=W*.16+s.x*5, ay=H*.78-s.y*5;
-  drawPlane(ax,ay,1.12,s.heading,s.bank,s.pitch);
+  // chase-camera aircraft, with the runway/terrain sliding beneath it
+  const cx=W*.50,cy=H*.46;
+  drawPlane(cx,cy,1.20,s.heading,s.bank,s.pitch);
+  ctx.fillStyle='#071722cc';ctx.fillRect(W*.37,H*.68,W*.26,34);
+  ctx.fillStyle='#a7ebff';ctx.font='800 12px Arial';ctx.textAlign='center';
+  ctx.fillText('AIRBORNE  •  '+Math.round(s.alt)+' FT  •  '+Math.round(s.speed)+' KT',W*.50,H*.702);ctx.textAlign='left';
 }
 }
+
 function drawPlane(x,y,sc,heading,bank,pitch){
 ctx.save();ctx.translate(x,y);
 ctx.rotate((heading-90)*Math.PI/180);
-ctx.scale(sc,sc*(1+pitch*.012));
-ctx.transform(1,0,Math.sin(bank*Math.PI/180)*.12,1,0,0);
-ctx.shadowColor='#0009';ctx.shadowBlur=14;ctx.shadowOffsetY=10;
-ctx.fillStyle='#f3f7f8';ctx.beginPath();ctx.ellipse(0,0,17,51,0,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#d8e3e7';ctx.beginPath();ctx.moveTo(-76,-2);ctx.lineTo(10,-18);ctx.lineTo(48,3);ctx.lineTo(10,19);ctx.closePath();ctx.fill();
-ctx.fillStyle='#c6d4d9';ctx.beginPath();ctx.moveTo(-42,32);ctx.lineTo(18,24);ctx.lineTo(35,38);ctx.lineTo(-15,43);ctx.closePath();ctx.fill();
-ctx.fillStyle='#174a60';ctx.beginPath();ctx.ellipse(8,-19,12,14,0,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#79d9f5';ctx.beginPath();ctx.ellipse(13,-20,7,8,0,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#ff3045';ctx.beginPath();ctx.arc(-67,0,3.5,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#48ff9c';ctx.beginPath();ctx.arc(67,0,3.5,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#f7fbfc';ctx.beginPath();ctx.moveTo(-15,-45);ctx.lineTo(0,-59);ctx.lineTo(15,-45);ctx.closePath();ctx.fill();
-ctx.strokeStyle='#71848b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-12,-47);ctx.lineTo(12,-47);ctx.stroke();
+ctx.scale(sc,sc*(1+pitch*.010));
+ctx.transform(1,0,Math.sin(bank*Math.PI/180)*.16,1,0,0);
+ctx.shadowColor='#000b';ctx.shadowBlur=18;ctx.shadowOffsetY=11;
+// fuselage
+ctx.fillStyle='#f5f8f9';ctx.beginPath();ctx.ellipse(0,0,15,54,0,0,Math.PI*2);ctx.fill();
+// main wing
+ctx.fillStyle='#dbe5e8';ctx.beginPath();ctx.moveTo(-86,-4);ctx.lineTo(-8,-19);ctx.lineTo(18,-8);ctx.lineTo(9,7);ctx.lineTo(-8,16);ctx.closePath();ctx.fill();
+ctx.fillStyle='#c6d3d8';ctx.beginPath();ctx.moveTo(8,-4);ctx.lineTo(86,-4);ctx.lineTo(8,16);ctx.closePath();ctx.fill();
+// tailplane + fin
+ctx.fillStyle='#d0dce0';ctx.beginPath();ctx.moveTo(-42,30);ctx.lineTo(32,26);ctx.lineTo(38,40);ctx.lineTo(-18,44);ctx.closePath();ctx.fill();
+ctx.fillStyle='#eef3f5';ctx.beginPath();ctx.moveTo(-4,-40);ctx.lineTo(0,-62);ctx.lineTo(8,-43);ctx.closePath();ctx.fill();
+// cabin
+ctx.fillStyle='#174c63';ctx.beginPath();ctx.ellipse(7,-19,11,15,0,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#83dcf2';ctx.beginPath();ctx.ellipse(10,-21,6,9,0,0,Math.PI*2);ctx.fill();
+// nose light + nav lights
+ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,-54,2.5,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#ff3047';ctx.beginPath();ctx.arc(-70,-2,3.5,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#45ff9d';ctx.beginPath();ctx.arc(70,-2,3.5,0,Math.PI*2);ctx.fill();
+// propeller blur
+if(s.engine){ctx.strokeStyle='#d8e4e8aa';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-57,17,0,Math.PI*2);ctx.stroke()}
 ctx.restore();
 }
+
 function drawCockpit(){
 drawSky();ctx.fillStyle='#4d6b49';ctx.fillRect(0,H*.62,W,H*.38);
 ctx.save();ctx.translate(W/2,H*.56);ctx.rotate(-s.bank*.004);ctx.scale(1+Math.abs(s.pitch)*.012,1+Math.abs(s.pitch)*.012);
