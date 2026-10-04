@@ -761,13 +761,10 @@ button{
 
     <div id="controls">
         <b>FLIGHT CONTROLS</b><br>
-        <kbd>W</kbd>/<kbd>↑</kbd> Throttle &nbsp;
-        <kbd>S</kbd>/<kbd>↓</kbd> Brake<br>
-        <kbd>A</kbd>/<kbd>←</kbd> Turn Left &nbsp;
-        <kbd>D</kbd>/<kbd>→</kbd> Turn Right<br>
-        <kbd>F</kbd> Flaps &nbsp;
-        <kbd>G</kbd> Landing Gear &nbsp;
-        <kbd>R</kbd> Radio
+        <kbd>W</kbd> Throttle &nbsp; <kbd>S</kbd> Brake / Reduce Power<br>
+        <kbd>A</kbd>/<kbd>D</kbd> Bank Left / Right<br>
+        <kbd>↑</kbd>/<kbd>↓</kbd> Pitch Up / Down<br>
+        <kbd>F</kbd> Flaps &nbsp; <kbd>G</kbd> Gear &nbsp; <kbd>R</kbd> Radio
     </div>
 
     <div id="cockpit">
@@ -833,384 +830,156 @@ button{
 </div>
 
 <script>
+/* ===== EXPERT SYNC REALISTIC FLIGHT STATE ENGINE V1 ===== */
 const aircraft = document.getElementById("aircraft");
-
-let gameStarted = false;
-
-let speed = 0;
-let altitude = 0;
-let heading = 90;
-let fuel = 100;
-
-let x = 50;
-let y = 68;
-
-let throttle = 0;
-let score = 0;
-
-let flaps = false;
-let gearDown = true;
-
-let mission = 0;
-let missionProgress = 0;
-
-const missions = [
-    {
-        title:"GROUND TAXI",
-        text:"Taxi to the runway. Maintain safe ground speed and follow the taxiway.",
-        radio:"Ground: Taxi to Runway 09 via the marked taxiway. Hold short.",
-        target:25
-    },
-    {
-        title:"RUNWAY ALIGNMENT",
-        text:"Align the aircraft with the runway centreline and prepare for departure.",
-        radio:"Ground: You are cleared to position and hold.",
-        target:45
-    },
-    {
-        title:"TAKE-OFF",
-        text:"Apply take-off power. Maintain runway alignment and rotate smoothly.",
-        radio:"Tower: Cleared for take-off Runway 09. Wind calm.",
-        target:70
-    },
-    {
-        title:"CLIMB",
-        text:"Establish a safe climb. Maintain heading and monitor airspeed.",
-        radio:"Tower: Climb to 3,000 feet. Maintain present heading.",
-        target:100
-    },
-    {
-        title:"APPROACH",
-        text:"Reduce speed, configure the aircraft and establish a stable approach.",
-        radio:"Approach: Cleared for approach. Report established.",
-        target:120
-    },
-    {
-        title:"LANDING",
-        text:"Land safely on the runway. Reduce power and maintain centreline.",
-        radio:"Tower: Cleared to land. Runway 09.",
-        target:145
-    }
+const $ = id => document.getElementById(id);
+let gameStarted=false, lastTime=performance.now();
+const state={
+ phase:"GROUND_TAXI",speed:0,altitude:0,heading:90,verticalSpeed:0,pitch:0,bank:0,
+ throttle:0,rpm:0,fuel:100,x:50,y:68,flaps:0,gearDown:true,brake:false,
+ score:0,missionProgress:0,missionCompleteShown:false,onGround:true,airborne:false,radioMode:"GROUND"
+};
+const keys={};
+const missions=[
+ {phase:"GROUND_TAXI",title:"GROUND TAXI",text:"Taxi to the runway. Maintain safe ground speed and follow the taxiway.",radio:"Ground: Taxi to Runway 09 via the marked taxiway. Hold short.",target:100},
+ {phase:"RUNWAY_ALIGNMENT",title:"RUNWAY ALIGNMENT",text:"Line up with the runway centreline. Set take-off configuration and hold position.",radio:"Ground: Position and hold Runway 09. Report ready for departure.",target:100},
+ {phase:"TAKEOFF",title:"TAKE-OFF",text:"Apply take-off power. Maintain runway centreline and rotate smoothly at take-off speed.",radio:"Tower: Runway 09 cleared for take-off. Wind calm.",target:100},
+ {phase:"CLIMB",title:"CLIMB",text:"Establish a positive climb. Maintain heading 090 and monitor airspeed.",radio:"Tower: Climb to 3,000 feet. Maintain heading 090.",target:100},
+ {phase:"CRUISE",title:"CRUISE & NAVIGATION",text:"Maintain a stable flight profile. Keep heading, altitude and airspeed within limits.",radio:"Center: Maintain 3,000 feet and heading 090.",target:100},
+ {phase:"APPROACH",title:"APPROACH",text:"Reduce speed, configure the aircraft and establish a stable final approach.",radio:"Approach: Cleared for approach Runway 09. Report established.",target:100},
+ {phase:"LANDING",title:"LANDING",text:"Touch down within the runway, maintain centreline and decelerate under control.",radio:"Tower: Cleared to land Runway 09. Wind calm.",target:100}
 ];
+let mission=0;
+function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
+function normHeading(v){return((v%360)+360)%360;}
+function headingDiff(a,b){let d=normHeading(a-b);return d>180?d-360:d;}
 
 function updateMission(){
-    const m = missions[mission];
-
-    document.getElementById("missionText").innerHTML =
-        "<b>"+m.title+"</b><br>"+m.text;
-
-    document.getElementById("radioText").textContent =
-        '"'+m.radio+'"';
+ const m=missions[mission]; state.phase=m.phase; state.missionProgress=0; state.missionCompleteShown=false;
+ $("missionText").innerHTML="<b>"+m.title+"</b><br>"+m.text; $("radioText").textContent='"'+m.radio+'"';
 }
-
+function showMessage(text){$("radioText").textContent='"'+text+'"';}
 function updateHUD(){
-
-    document.getElementById("speed").textContent =
-        Math.round(speed);
-
-    document.getElementById("altitude").textContent =
-        Math.round(altitude);
-
-    document.getElementById("heading").textContent =
-        String(Math.round(heading)%360).padStart(3,"0");
-
-    document.getElementById("fuel").textContent =
-        Math.max(0,Math.round(fuel));
-
-    document.getElementById("gSpeed").textContent =
-        Math.round(speed);
-
-    document.getElementById("gRPM").textContent =
-        Math.round(throttle);
-
-    document.getElementById("gFuel").textContent =
-        Math.round(fuel);
-
-    document.getElementById("gAlt").textContent =
-        Math.round(altitude);
-
-    document.getElementById("scoreValue").textContent =
-        Math.round(score);
-
-    document.getElementById("engineStatus").textContent =
-        throttle > 5 ? "RUNNING" : "IDLE";
-
-    document.getElementById("flapStatus").textContent =
-        flaps ? "DOWN" : "UP";
-
-    document.getElementById("gearStatus").textContent =
-        gearDown ? "DOWN" : "UP";
-
-    document.getElementById("missionBar").style.width =
-        Math.min(100,(missionProgress/missions[mission].target)*100)+"%";
+ const h=Math.round(normHeading(state.heading)).toString().padStart(3,"0");
+ $("speed").textContent=Math.round(state.speed); $("altitude").textContent=Math.round(state.altitude);
+ $("heading").textContent=h; $("fuel").textContent=Math.max(0,Math.round(state.fuel));
+ $("cockpitAirspeed").textContent=Math.round(state.speed); $("cockpitAltitude").textContent=Math.round(state.altitude);
+ $("cockpitHeading").textContent=h; $("cockpitVerticalSpeed").textContent=Math.round(state.verticalSpeed);
+ $("cockpitRPM").textContent=Math.round(state.rpm); $("cockpitFuel").textContent=Math.max(0,Math.round(state.fuel));
+ $("gSpeed").textContent=Math.round(state.speed); $("gRPM").textContent=Math.round(state.rpm);
+ $("gFuel").textContent=Math.round(state.fuel); $("gAlt").textContent=Math.round(state.altitude);
+ $("scoreValue").textContent=Math.round(state.score); $("engineStatus").textContent=state.rpm>450?"RUNNING":"IDLE";
+ $("flapStatus").textContent=state.flaps===0?"UP":state.flaps===1?"1":"FULL";
+ $("gearStatus").textContent=state.gearDown?"DOWN":"UP";
+ $("weatherStatus").textContent=Math.abs(headingDiff(state.heading,90))>35?"CROSSWIND":"CLEAR";
+ $("missionBar").style.width=clamp(state.missionProgress,0,100)+"%";
+ $("radioTitle").textContent="📡 ATC — "+state.radioMode+" FREQUENCY";
+ $("status").title="Phase: "+(state.onGround?"GROUND":state.phase)+" | Pitch "+state.pitch.toFixed(1)+"° | Bank "+state.bank.toFixed(1)+"° | VS "+Math.round(state.verticalSpeed)+" FPM";
 }
-
 function setAircraft(){
-
-    const game = document.getElementById("game");
-
-    const rect = game.getBoundingClientRect();
-
-    const px = rect.width*x/100;
-    const py = rect.height*y/100;
-
-    aircraft.style.left = px+"px";
-    aircraft.style.top = py+"px";
-
-    aircraft.style.transform =
-        "translate(-50%,-50%) rotate("+
-        ((heading-90)*.8)+"deg)";
+ const rect=$("game").getBoundingClientRect(),px=rect.width*state.x/100,py=rect.height*state.y/100;
+ aircraft.style.left=px+"px"; aircraft.style.top=py+"px";
+ aircraft.style.transform="translate(-50%,-50%) rotate("+((state.heading-90)*.45+state.bank*.35)+"deg)";
+ aircraft.style.filter=state.onGround?"drop-shadow(0 5px 4px rgba(0,0,0,.35))":"drop-shadow(0 10px 12px rgba(0,0,0,.28))";
 }
-
-function showMessage(text){
-    document.getElementById("radioText").textContent =
-        '"'+text+'"';
-}
-
 function completeMission(){
-
-    document.getElementById("missionComplete").style.display =
-        "flex";
-
-    document.getElementById("completeText").textContent =
-        missions[mission].title+
-        " completed. Aviation English and operational awareness score: "+
-        Math.round(score)+" points.";
+ if(state.missionCompleteShown)return;
+ state.missionCompleteShown=true; $("missionComplete").style.display="flex";
+ $("completeText").textContent=missions[mission].title+" completed. Flight performance score: "+Math.round(state.score)+" points.";
 }
-
-document.getElementById("startBtn").addEventListener("click",()=>{
-    document.getElementById("menu").style.display="none";
-    gameStarted=true;
-    updateMission();
-    showMessage("Welcome aboard. Complete your first aviation mission.");
-});
-
-document.getElementById("nextMission").addEventListener("click",()=>{
-
-    document.getElementById("missionComplete").style.display =
-        "none";
-
-    if(mission < missions.length-1){
-
-        mission++;
-
-        missionProgress=0;
-
-        updateMission();
-
-        showMessage(missions[mission].radio);
-
-    }else{
-
-        mission=0;
-        missionProgress=0;
-
-        score+=100;
-
-        updateMission();
-
-        showMessage("Flight cycle reset. Excellent work, Pilot.");
-    }
-});
-
-const keys={};
+function nextMission(){
+ $("missionComplete").style.display="none";
+ if(mission<missions.length-1){
+  mission++; updateMission();
+  if(mission===1){state.x=50;state.y=63;state.heading=90;state.speed=Math.min(state.speed,8);state.throttle=0;state.brake=true;state.flaps=1;state.gearDown=true;showMessage("Ground: Line up Runway 09 when ready.");}
+  if(mission===2){state.x=50;state.y=60;state.heading=90;state.speed=0;state.throttle=0;state.brake=true;state.onGround=true;showMessage("Tower: Runway 09 cleared for take-off.");}
+  if(mission===3){state.brake=false;state.flaps=1;state.gearDown=false;showMessage("Tower: Positive rate. Gear up. Climb 3,000 feet.");}
+  if(mission===4){state.flaps=0;showMessage("Center: Maintain 3,000 feet. Continue heading 090.");}
+  if(mission===5){state.flaps=1;showMessage("Approach: Reduce speed and configure for landing.");}
+  if(mission===6){state.flaps=2;state.gearDown=true;showMessage("Tower: Cleared to land Runway 09.");}
+ }else{
+  mission=0; state.score+=100; state.altitude=0; state.speed=0; state.throttle=0; state.rpm=0; state.fuel=100;
+  state.onGround=true;state.airborne=false;state.x=50;state.y=68;state.heading=90;state.pitch=0;state.bank=0;
+  updateMission();showMessage("Flight cycle complete. Excellent operational performance.");
+ }
+}
+$("startBtn").addEventListener("click",()=>{$("menu").style.display="none";gameStarted=true;state.brake=false;lastTime=performance.now();updateMission();showMessage("Welcome aboard. Complete your first aviation mission.");});
+$("nextMission").addEventListener("click",nextMission);
 
 document.addEventListener("keydown",e=>{
-
-    keys[e.key.toLowerCase()]=true;
-
-    if(!gameStarted)return;
-
-    if(e.key.toLowerCase()==="f"){
-        flaps=!flaps;
-        showMessage(flaps ?
-            "Flaps selected." :
-            "Flaps retracted.");
-    }
-
-    if(e.key.toLowerCase()==="g"){
-        gearDown=!gearDown;
-        showMessage(gearDown ?
-            "Landing gear down." :
-            "Landing gear up.");
-    }
-
-    if(e.key.toLowerCase()==="r"){
-        showMessage("ATC: State your position and intentions.");
-    }
-
+ const k=e.key.toLowerCase();keys[k]=true;
+ if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))e.preventDefault();
+ if(!gameStarted||e.repeat)return;
+ if(k==="f"){state.flaps=state.flaps===0?1:state.flaps===1?2:0;showMessage(state.flaps===0?"Flaps up.":state.flaps===1?"Flaps 1 selected.":"Flaps full.");}
+ if(k==="g"){if(state.speed<120){state.gearDown=!state.gearDown;showMessage(state.gearDown?"Landing gear down.":"Landing gear up.");}else showMessage("Caution: reduce airspeed before changing landing gear.");}
+ if(k==="r")showMessage("ATC: State your position, altitude and intentions.");
 });
-
-document.addEventListener("keyup",e=>{
-    keys[e.key.toLowerCase()]=false;
-});
-
-function physics(){
-
-    if(!gameStarted)return;
-
-    const accelerate =
-        keys["w"] || keys["arrowup"];
-
-    const brake =
-        keys["s"] || keys["arrowdown"];
-
-    const left =
-        keys["a"] || keys["arrowleft"];
-
-    const right =
-        keys["d"] || keys["arrowright"];
-
-    if(accelerate){
-
-        throttle=Math.min(100,throttle+0.8);
-
-        speed += throttle>70 ? .18 : .09;
-
-    }else{
-
-        throttle=Math.max(0,throttle-.15);
-
-        speed*=.997;
-    }
-
-    if(brake){
-        speed=Math.max(0,speed-.35);
-        throttle=Math.max(0,throttle-.5);
-    }
-
-    if(left){
-        heading-=1.2;
-        x-=.08;
-    }
-
-    if(right){
-        heading+=1.2;
-        x+=.08;
-    }
-
-    if(speed>45 && throttle>65){
-
-        altitude += .15;
-
-        y -= .03;
-
-    }else if(speed<25){
-
-        altitude=Math.max(0,altitude-.05);
-
-    }else{
-
-        altitude += .02;
-    }
-
-    x=Math.max(10,Math.min(90,x));
-    y=Math.max(12,Math.min(82,y));
-
-    fuel-=Math.max(0,throttle)*.00035;
-
-    if(fuel<0)fuel=0;
-
-    /*
-     * Mission progression
-     */
-
-    if(mission===0){
-
-        if(speed>8){
-
-            missionProgress+=.12;
-
-            score+=.015;
-
-        }
-
-    }
-
-    if(mission===1){
-
-        if(Math.abs(heading-90)<12){
-
-            missionProgress+=.13;
-
-            score+=.02;
-
-        }
-
-    }
-
-    if(mission===2){
-
-        if(speed>55){
-
-            missionProgress+=.16;
-
-            score+=.03;
-
-        }
-
-    }
-
-    if(mission===3){
-
-        if(altitude>800){
-
-            missionProgress+=.12;
-
-            score+=.025;
-
-        }
-
-    }
-
-    if(mission===4){
-
-        if(speed>35 && speed<85 && flaps){
-
-            missionProgress+=.12;
-
-            score+=.025;
-
-        }
-
-    }
-
-    if(mission===5){
-
-        if(altitude<500 && speed<45 && gearDown){
-
-            missionProgress+=.14;
-
-            score+=.04;
-
-        }
-
-    }
-
-    if(missionProgress>=missions[mission].target){
-
-        missionProgress=missions[mission].target;
-
-        completeMission();
-
-    }
-
-    setAircraft();
-
-    updateHUD();
+document.addEventListener("keyup",e=>{keys[e.key.toLowerCase()]=false;});
+
+function computeControls(dt){
+ if(keys["w"])state.throttle+=28*dt; if(keys["s"])state.throttle-=38*dt; state.throttle=clamp(state.throttle,0,100);
+ state.brake=!!(keys["s"]&&state.onGround);
+ const left=keys["a"]||keys["arrowleft"],right=keys["d"]||keys["arrowright"],pitchUp=keys["arrowup"],pitchDown=keys["arrowdown"];
+ if(left)state.bank-=42*dt; if(right)state.bank+=42*dt; if(!left&&!right)state.bank*=Math.pow(0.04,dt);
+ state.bank=clamp(state.bank,-32,32);
+ if(pitchUp)state.pitch+=8*dt; if(pitchDown)state.pitch-=8*dt; if(!pitchUp&&!pitchDown)state.pitch*=Math.pow(0.35,dt);
+ state.pitch=clamp(state.pitch,-8,14);
+ if(!state.onGround)state.heading=normHeading(state.heading+state.bank*.055*dt);
+ else if(Math.abs(state.bank)>2)state.heading=normHeading(state.heading+state.bank*.02*dt);
 }
-
-function animate(){
-
-    physics();
-
-    requestAnimationFrame(animate);
+function engineAndSpeed(dt){
+ const drag=.012+state.speed*.00016+(state.flaps===2?.035:state.flaps===1?.018:0)+(state.gearDown&&!state.onGround?.018:0);
+ const thrust=(state.throttle/100)*.95; const rollingDrag=state.onGround?.018:0;
+ state.rpm+=(state.throttle*42-state.rpm)*Math.min(1,dt*4);
+ let accel=thrust-drag-rollingDrag; if(state.brake&&state.onGround)accel-=.9;
+ state.speed=clamp(state.speed+accel*22*dt,0,180);
+ state.fuel=Math.max(0,state.fuel-(.002+state.throttle*.000075+(state.speed>0?.0006:0))*dt);
+ if(state.fuel<=0){state.throttle=0;showMessage("EMERGENCY: Fuel exhausted. Engine power unavailable.");}
 }
-
-updateMission();
-updateHUD();
-setAircraft();
-animate();
+function flightModel(dt){
+ if(state.onGround){
+  state.verticalSpeed=0;state.altitude=0;state.y=63+clamp((55-state.speed)*.025,0,1.8);
+  if(mission===2&&state.speed>=58&&state.throttle>=82&&state.pitch>=5){
+   state.onGround=false;state.airborne=true;state.altitude=20;state.verticalSpeed=650;state.y=58;showMessage("Tower: Airborne. Positive rate of climb.");
+  }
+ }else{
+  const targetVS=state.pitch*520+(state.throttle-55)*5-Math.max(0,state.speed-115)*12;
+  state.verticalSpeed+= (targetVS-state.verticalSpeed)*Math.min(1,dt*2.4);
+  state.verticalSpeed=clamp(state.verticalSpeed,-1800,2200);
+  state.altitude=Math.max(0,state.altitude+state.verticalSpeed*dt/60);
+  state.y=clamp(60-state.altitude/65,12,60);
+  if(state.altitude<=8&&state.verticalSpeed<-250){
+   if(state.speed<=82&&state.gearDown&&state.flaps===2){
+    state.onGround=true;state.airborne=false;state.altitude=0;state.verticalSpeed=0;state.pitch=0;state.y=63;state.brake=false;
+    showMessage("Tower: Landing confirmed. Vacate runway when able.");
+   }else{state.score-=2;showMessage("CAUTION: Hard or unstable landing. Correct configuration required.");}
+  }
+ }
+ state.x+=Math.sin((state.heading-90)*Math.PI/180)*state.speed*(state.onGround?.0025:.0016)*dt;
+ state.x=clamp(state.x,8,92);
+}
+function evaluateMission(dt){
+ let gain=0;
+ if(mission===0){state.radioMode="GROUND";if(state.onGround&&state.speed>3&&state.speed<25&&Math.abs(headingDiff(state.heading,90))<15)gain=16*dt;}
+ if(mission===1){state.radioMode="GROUND";if(state.onGround&&Math.abs(headingDiff(state.heading,90))<4&&state.speed<8&&state.brake)gain=22*dt;}
+ if(mission===2){state.radioMode="TOWER";if(state.onGround&&state.throttle>80&&state.speed>55&&Math.abs(headingDiff(state.heading,90))<8)gain=10*dt;if(state.airborne)gain=20*dt;}
+ if(mission===3){state.radioMode="TOWER";if(!state.onGround&&state.altitude>1200&&state.altitude<3400&&state.speed>70&&state.speed<125&&Math.abs(headingDiff(state.heading,90))<10&&!state.gearDown)gain=13*dt;}
+ if(mission===4){state.radioMode="CENTER";if(!state.onGround&&Math.abs(state.altitude-3000)<350&&state.speed>75&&state.speed<125&&Math.abs(headingDiff(state.heading,90))<8&&Math.abs(state.verticalSpeed)<350)gain=12*dt;}
+ if(mission===5){state.radioMode="APPROACH";if(!state.onGround&&state.altitude<1800&&state.speed>55&&state.speed<95&&state.gearDown&&state.flaps>=1&&Math.abs(headingDiff(state.heading,90))<12&&Math.abs(state.verticalSpeed)<700)gain=14*dt;}
+ if(mission===6){state.radioMode="TOWER";if(state.onGround&&state.speed<70&&state.gearDown&&state.flaps===2)gain=24*dt;}
+ if(gain>0){state.missionProgress=clamp(state.missionProgress+gain,0,100);state.score+=gain*.65;}
+ else if(gameStarted)state.score=Math.max(0,state.score-.015*dt);
+ if(state.speed>145){showMessage("CAUTION: Overspeed. Reduce power and recover to a safe airspeed.");state.score=Math.max(0,state.score-.08*dt);}
+ if(state.airborne&&state.altitude<300&&state.speed<55){showMessage("STALL WARNING: Increase airspeed and reduce excessive pitch.");state.score=Math.max(0,state.score-.2*dt);}
+ if(state.airborne&&state.gearDown&&state.altitude>700)state.score=Math.max(0,state.score-.04*dt);
+ if(state.missionProgress>=100)completeMission();
+}
+function physics(now){
+ if(!gameStarted){requestAnimationFrame(physics);return;}
+ let dt=clamp((now-lastTime)/1000,0,.05);lastTime=now;
+ computeControls(dt);engineAndSpeed(dt);flightModel(dt);evaluateMission(dt);setAircraft();updateHUD();requestAnimationFrame(physics);
+}
+updateMission();updateHUD();setAircraft();requestAnimationFrame(physics);
 </script>
 
 </body>
