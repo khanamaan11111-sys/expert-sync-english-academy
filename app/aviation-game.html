@@ -331,64 +331,108 @@ drawExternal();
 function drawSky(){let g=ctx.createLinearGradient(0,0,0,H*.62);g.addColorStop(0,'#48a7d7');g.addColorStop(.72,'#a9dfef');g.addColorStop(1,'#7da76e');ctx.fillStyle=g;ctx.fillRect(0,0,W,H*.64)}
 function drawCloud(x,y,sc){ctx.fillStyle='rgba(255,255,255,.78)';ctx.beginPath();ctx.ellipse(x,y,55*sc,18*sc,0,0,Math.PI*2);ctx.ellipse(x-25*sc,y-10*sc,25*sc,22*sc,0,0,Math.PI*2);ctx.ellipse(x+25*sc,y-8*sc,30*sc,25*sc,0,0,Math.PI*2);ctx.fill()}
 function drawExternal(){
-drawSky();
-drawCloud(W*.16,H*.19,.85);drawCloud(W*.71,H*.15,1.1);drawCloud(W*.88,H*.30,.65);
-const horizon=H*.57;
-ctx.fillStyle='#56794e';ctx.fillRect(0,horizon,W,H-horizon);
-for(let i=0;i<12;i++){ctx.fillStyle=i%2?'#4f7149':'#5b7d52';ctx.fillRect(i*W/12,horizon,W/12+1,H-horizon)}
-// distant hills
-ctx.fillStyle='#53705f';ctx.beginPath();ctx.moveTo(0,horizon);for(let x=0;x<=W;x+=80)ctx.lineTo(x,horizon-25-Math.sin(x*.009)*25-Math.sin(x*.022)*12);ctx.lineTo(W,horizon);ctx.fill();
-ctx.fillStyle='#6f8668';ctx.beginPath();ctx.moveTo(0,horizon);for(let x=0;x<=W;x+=60)ctx.lineTo(x,horizon-12-Math.sin(x*.013+1)*18);ctx.lineTo(W,horizon);ctx.fill();
-// airport apron and runway in strong perspective
-const vanY=horizon+H*.075;
-ctx.fillStyle='#20272b';ctx.beginPath();ctx.moveTo(W*.28,vanY);ctx.lineTo(W*.96,vanY);ctx.lineTo(W*.99,H*.94);ctx.lineTo(W*.28,H*.94);ctx.closePath();ctx.fill();
-ctx.strokeStyle='#d9c34d';ctx.lineWidth=3;ctx.stroke();
-ctx.strokeStyle='#f7f7f7';ctx.lineWidth=4;ctx.setLineDash([30,26]);ctx.beginPath();ctx.moveTo(W*.60,vanY+5);ctx.lineTo(W*.60,H*.94);ctx.stroke();ctx.setLineDash([]);
-ctx.fillStyle='#fff';ctx.font='900 34px Arial';ctx.fillText('09',W*.86,vanY+H*.055);
-// runway edge lights
-for(let i=0;i<18;i++){const t=i/18,y=vanY+t*(H*.94-vanY),half=30+t*W*.22;ctx.fillStyle=i%2?'#b9d8ff':'#fff';ctx.fillRect(W*.60-half,y,4,4);ctx.fillRect(W*.60+half,y,4,4)}
-// taxiway
-ctx.fillStyle='#30373a';ctx.beginPath();ctx.moveTo(W*.05,horizon);ctx.lineTo(W*.22,horizon);ctx.lineTo(W*.22,H);ctx.lineTo(W*.05,H);ctx.closePath();ctx.fill();
-ctx.strokeStyle='#e0c746';ctx.lineWidth=3;ctx.strokeRect(W*.05,horizon,W*.17,H-horizon);
-ctx.strokeStyle='#f2d54f';ctx.setLineDash([20,18]);ctx.beginPath();ctx.moveTo(W*.135,horizon);ctx.lineTo(W*.135,H);ctx.stroke();ctx.setLineDash([]);
-if(s.onGround){
-  const ax=W*.135+s.x*5.2, ay=H*.78-s.y*5.2;
-  drawPlane(ax,ay,1.18,s.heading,s.bank,s.pitch);
-}else{
-  // chase-camera aircraft, with the runway/terrain sliding beneath it
-  const cx=W*.50,cy=H*.46;
-  drawPlane(cx,cy,1.20,s.heading,s.bank,s.pitch);
-  ctx.fillStyle='#071722cc';ctx.fillRect(W*.37,H*.68,W*.26,34);
-  ctx.fillStyle='#a7ebff';ctx.font='800 12px Arial';ctx.textAlign='center';
-  ctx.fillText('AIRBORNE  •  '+Math.round(s.alt)+' FT  •  '+Math.round(s.speed)+' KT',W*.50,H*.702);ctx.textAlign='left';
+  // High-detail external chase scene: airport, runway, terrain, atmospheric perspective.
+  drawSky();
+  const horizon=H*.53;
+  const groundTop=horizon+H*.055;
+  // atmospheric mountain layers
+  const mountain=(base,amp,phase,alpha)=>{
+    ctx.save();ctx.globalAlpha=alpha;ctx.fillStyle='#4c6570';ctx.beginPath();ctx.moveTo(0,base);
+    for(let x=0;x<=W;x+=42)ctx.lineTo(x,base-amp-Math.sin(x*.008+phase)*amp*.45-Math.sin(x*.021+phase)*amp*.22);
+    ctx.lineTo(W,base);ctx.closePath();ctx.fill();ctx.restore();
+  };
+  mountain(horizon+18,42,.4,.42);mountain(horizon+28,32,1.8,.56);
+  // airport grass
+  ctx.fillStyle='#486f42';ctx.fillRect(0,groundTop,W,H-groundTop);
+  for(let i=0;i<18;i++){ctx.fillStyle=i%2?'#4d7447':'#52794c';ctx.fillRect(i*W/18,groundTop,W/18+1,H-groundTop)}
+  // terminal + hangars
+  const base=groundTop+H*.045;
+  ctx.fillStyle='#c8d1d3';ctx.fillRect(W*.035,base-54,W*.20,54);
+  ctx.fillStyle='#8d9da2';ctx.fillRect(W*.035,base-70,W*.20,16);
+  ctx.fillStyle='#33454c';ctx.fillRect(W*.06,base-98,W*.055,28);
+  ctx.fillStyle='#6f858d';ctx.fillRect(W*.052,base-104,W*.07,10);
+  ctx.fillStyle='#e8f5f7';ctx.font='bold 10px Arial';ctx.fillText('EXPERT SYNC AIRPORT',W*.05,base-76);
+  for(let i=0;i<8;i++){ctx.fillStyle='#83c7dc';ctx.fillRect(W*(.045+i*.022),base-42,14,16)}
+  // control tower
+  ctx.fillStyle='#7e8f95';ctx.fillRect(W*.225,base-125,18,125);
+  ctx.fillStyle='#2d414a';ctx.fillRect(W*.214,base-138,40,18);
+  ctx.fillStyle='#94d8ec';ctx.fillRect(W*.219,base-135,30,10);
+  ctx.fillStyle='#b9c5c8';ctx.fillRect(W*.232,base-150,5,12);
+  // runway perspective
+  const vanY=groundTop+H*.11, bottomY=H*.91, cx=W*.60;
+  ctx.fillStyle='#20272b';ctx.beginPath();ctx.moveTo(W*.31,vanY);ctx.lineTo(W*.91,vanY);ctx.lineTo(W*.99,bottomY);ctx.lineTo(W*.23,bottomY);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#d6bd42';ctx.lineWidth=3;ctx.stroke();
+  // centerline and threshold markings
+  ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.setLineDash([30,26]);ctx.beginPath();ctx.moveTo(cx,vanY);ctx.lineTo(cx,bottomY);ctx.stroke();ctx.setLineDash([]);
+  const ty=vanY+H*.055;
+  ctx.fillStyle='#fff';
+  for(let i=-2;i<=2;i++){ctx.fillRect(cx+i*28,ty,12,4)}
+  ctx.font='900 38px Arial';ctx.fillText('09',cx+W*.105,ty+18);
+  // runway edge lights
+  for(let i=0;i<25;i++){
+    const t=i/24,y=vanY+t*(bottomY-vanY),half=(W*.30)+t*(W*.09);
+    ctx.fillStyle=i%3?'#b7d8ff':'#fff';
+    ctx.shadowColor='#bde8ff';ctx.shadowBlur=6;
+    ctx.fillRect(cx-half,y,4,4);ctx.fillRect(cx+half,y,4,4);ctx.shadowBlur=0;
+  }
+  // parallel taxiway and yellow centreline
+  ctx.fillStyle='#30383b';ctx.beginPath();ctx.moveTo(W*.055,groundTop);ctx.lineTo(W*.18,groundTop);ctx.lineTo(W*.18,H);ctx.lineTo(W*.055,H);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#e3c73e';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(W*.117,groundTop);ctx.lineTo(W*.117,H);ctx.stroke();
+  ctx.setLineDash([20,18]);ctx.strokeStyle='#f4d951';ctx.beginPath();ctx.moveTo(W*.117,groundTop);ctx.lineTo(W*.117,H);ctx.stroke();ctx.setLineDash([]);
+  // taxiway sign
+  ctx.fillStyle='#f1d13d';ctx.fillRect(W*.035,groundTop+H*.13,45,24);ctx.fillStyle='#071015';ctx.font='bold 15px Arial';ctx.fillText('A →',W*.043,groundTop+H*.147);
+  // runway lights/approach lights
+  ctx.fillStyle='#fff';for(let i=0;i<12;i++){const x=cx+(i-6)*12,y=vanY-7-i*2;ctx.fillRect(x,y,3,3)}
+  // traffic
+  drawTraffic(performance.now()/1000);
+  if(s.onGround){
+    const ax=W*.117+s.x*5.2, ay=H*.78-s.y*5.2;
+    drawPlane(ax,ay,1.08,s.heading,s.bank,s.pitch);
+  }else{
+    const cx2=W*.50,cy=H*.45;
+    // subtle camera parallax from bank/pitch
+    ctx.save();ctx.translate(-s.bank*1.7,s.pitch*1.8);
+    drawPlane(cx2,cy,1.16,s.heading,s.bank,s.pitch);
+    ctx.restore();
+    ctx.fillStyle='#061823d9';ctx.fillRect(W*.38,H*.67,W*.24,31);
+    ctx.fillStyle='#a9ebff';ctx.font='800 11px Arial';ctx.textAlign='center';
+    ctx.fillText('AIRBORNE  •  '+Math.round(s.alt)+' FT  •  '+Math.round(s.speed)+' KT',W*.50,H*.691);ctx.textAlign='left';
+  }
+  drawAirportDetails();
 }
+function drawPlane(x,y,sc,heading,bank,pitch){
+  ctx.save();ctx.translate(x,y);
+  const r=(heading-90)*Math.PI/180;ctx.rotate(r);
+  ctx.scale(sc,sc*(1+pitch*.008));
+  ctx.transform(1,0,Math.sin(bank*Math.PI/180)*.12,1,0,0);
+  ctx.shadowColor='#000b';ctx.shadowBlur=16;ctx.shadowOffsetY=10;
+  // fuselage
+  ctx.fillStyle='#eef3f5';ctx.beginPath();ctx.ellipse(0,0,14,52,0,0,Math.PI*2);ctx.fill();
+  // blue lower fuselage stripe
+  ctx.fillStyle='#4f8eaf';ctx.beginPath();ctx.ellipse(1,5,14,28,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#edf4f6';ctx.beginPath();ctx.ellipse(0,0,11,48,0,0,Math.PI*2);ctx.fill();
+  // wings
+  ctx.fillStyle='#dce7ea';ctx.beginPath();ctx.moveTo(-84,-4);ctx.lineTo(-8,-18);ctx.lineTo(18,-8);ctx.lineTo(10,8);ctx.lineTo(-8,15);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#cbd9de';ctx.beginPath();ctx.moveTo(8,-5);ctx.lineTo(84,-4);ctx.lineTo(9,15);ctx.closePath();ctx.fill();
+  // wing struts
+  ctx.strokeStyle='#81969d';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-12,4);ctx.lineTo(-58,-2);ctx.moveTo(12,4);ctx.lineTo(58,0);ctx.stroke();
+  // tail
+  ctx.fillStyle='#d1dde1';ctx.beginPath();ctx.moveTo(-40,30);ctx.lineTo(32,26);ctx.lineTo(37,39);ctx.lineTo(-18,43);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#f2f6f7';ctx.beginPath();ctx.moveTo(-5,-39);ctx.lineTo(1,-63);ctx.lineTo(9,-42);ctx.closePath();ctx.fill();
+  // cockpit windows
+  ctx.fillStyle='#17465a';ctx.beginPath();ctx.ellipse(6,-20,10,15,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#78c9df';ctx.beginPath();ctx.ellipse(8,-22,6,8,0,0,Math.PI*2);ctx.fill();
+  // propeller
+  if(s.engine){
+    ctx.strokeStyle='#dbe9ee66';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-57,19,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle='#fff8';ctx.beginPath();ctx.moveTo(-18,-57);ctx.lineTo(18,-57);ctx.stroke();
+  }
+  // nav lights
+  ctx.fillStyle='#ff334d';ctx.shadowColor='#ff334d';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(-69,-2,3.5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#45ff9d';ctx.shadowColor='#45ff9d';ctx.beginPath();ctx.arc(69,-2,3.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  ctx.restore();
 }
 
-function drawPlane(x,y,sc,heading,bank,pitch){
-ctx.save();ctx.translate(x,y);
-ctx.rotate((heading-90)*Math.PI/180);
-ctx.scale(sc,sc*(1+pitch*.010));
-ctx.transform(1,0,Math.sin(bank*Math.PI/180)*.16,1,0,0);
-ctx.shadowColor='#000b';ctx.shadowBlur=18;ctx.shadowOffsetY=11;
-// fuselage
-ctx.fillStyle='#f5f8f9';ctx.beginPath();ctx.ellipse(0,0,15,54,0,0,Math.PI*2);ctx.fill();
-// main wing
-ctx.fillStyle='#dbe5e8';ctx.beginPath();ctx.moveTo(-86,-4);ctx.lineTo(-8,-19);ctx.lineTo(18,-8);ctx.lineTo(9,7);ctx.lineTo(-8,16);ctx.closePath();ctx.fill();
-ctx.fillStyle='#c6d3d8';ctx.beginPath();ctx.moveTo(8,-4);ctx.lineTo(86,-4);ctx.lineTo(8,16);ctx.closePath();ctx.fill();
-// tailplane + fin
-ctx.fillStyle='#d0dce0';ctx.beginPath();ctx.moveTo(-42,30);ctx.lineTo(32,26);ctx.lineTo(38,40);ctx.lineTo(-18,44);ctx.closePath();ctx.fill();
-ctx.fillStyle='#eef3f5';ctx.beginPath();ctx.moveTo(-4,-40);ctx.lineTo(0,-62);ctx.lineTo(8,-43);ctx.closePath();ctx.fill();
-// cabin
-ctx.fillStyle='#174c63';ctx.beginPath();ctx.ellipse(7,-19,11,15,0,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#83dcf2';ctx.beginPath();ctx.ellipse(10,-21,6,9,0,0,Math.PI*2);ctx.fill();
-// nose light + nav lights
-ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,-54,2.5,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#ff3047';ctx.beginPath();ctx.arc(-70,-2,3.5,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#45ff9d';ctx.beginPath();ctx.arc(70,-2,3.5,0,Math.PI*2);ctx.fill();
-// propeller blur
-if(s.engine){ctx.strokeStyle='#d8e4e8aa';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-57,17,0,Math.PI*2);ctx.stroke()}
-ctx.restore();
-}
 
 function drawCockpit(){
 drawSky();ctx.fillStyle='#4d6b49';ctx.fillRect(0,H*.62,W,H*.38);
