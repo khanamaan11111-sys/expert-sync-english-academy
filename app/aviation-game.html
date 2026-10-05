@@ -285,6 +285,7 @@ x:0,y:0,alt:0,speed:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,
 gear:true,flaps:0,onGround:true,stall:false,brake:false,parkingBrake:true,engine:false,radioAck:false,
 taxiReadback:false,holdShortReached:false,towerContact:false,lineupCleared:false,takeoffCleared:false,
 battery:false,avionics:false,fuelPump:false,mixture:0,starter:false,engineStarted:false,
+starterUntil:0,oilPressure:0,oilTemp:20,volts:0,
 yokeX:0,yokeY:0,yokeActive:false
 };
 const keys={};let toastTimer=0;
@@ -377,12 +378,13 @@ function updateSystems(){
 function startEngine(){
   if($('engineStart').disabled)return;
   startAudio();
-  s.starter=true;s.engine=true;s.engineStarted=true;s.rpm=900;s.throttle=0;
+  s.starter=true;s.engine=false;s.engineStarted=false;s.starterUntil=performance.now()+3200;
+  s.rpm=0;s.throttle=0;s.oilPressure=0;s.oilTemp=20;s.volts=24;
   s.parkingBrake=true;s.brake=true;
   $('preflight').style.display='none';$('systems').style.display='block';
   setView('COCKPIT');setupMission();
   $('deckBrake').textContent='PARKING BRAKE: ON';$('deckBrake').classList.add('on');
-  msg('ENGINE START — scan RPM, oil pressure and electrical indications. You now have control of the aircraft.');
+  msg('STARTER ENGAGED — monitor RPM. When the engine fires, check oil pressure and electrical indications.');
   s.score+=10;
 }
 $('start').onclick=start;$('continue').onclick=next;$('engineStart').onclick=startEngine;
@@ -461,8 +463,18 @@ s.pitch=clamp(s.pitch,-14,16);
 }
 
 function engine(dt){
-const idle=s.engineStarted?720:0, max=2650, target=s.engineStarted?idle+(s.throttle/100)*(max-idle):0;
-s.rpm+=(target-s.rpm)*Math.min(1,dt*4.2);s.engine=s.rpm>500;
+  if(s.starter && performance.now()>=s.starterUntil){
+    s.starter=false;s.engineStarted=true;s.engine=true;s.rpm=850;
+    msg('ENGINE FIRED — starter OFF. Verify oil pressure, RPM and volts.');
+  }
+  const idle=s.engineStarted?720:0, max=2650;
+  const starterTarget=s.starter?Math.min(1100,180+(performance.now()-(s.starterUntil-3200))*.32):0;
+  const target=s.starter?starterTarget:(s.engineStarted?idle+(s.throttle/100)*(max-idle):0);
+  s.rpm+=(target-s.rpm)*Math.min(1,dt*(s.starter?2.2:4.2));
+  s.engine=s.rpm>500;
+  s.oilPressure=s.engine?clamp((s.rpm-500)*.042,0,65):0;
+  s.oilTemp=s.engine?clamp(s.oilTemp+dt*(2+s.rpm/1800),20,95):Math.max(20,s.oilTemp-dt*.15);
+  s.volts=s.battery?(s.engine?28.2:24.3):0;
 const power=clamp((s.rpm-idle)/(max-idle),0,1);
 const flapDrag=s.flaps===2?.050:s.flaps===1?.024:0;
 const gearDrag=!s.onGround&&s.gear?.020:0;
@@ -552,7 +564,25 @@ $('gSpd').textContent=Math.round(s.speed);$('gRpm').textContent=Math.round(s.rpm
 $('engine').textContent=s.rpm>450?'RUNNING':'OFF';$('engine').className=s.rpm>450?'green':'red';$('gear').textContent=s.gear?'DOWN':'UP';$('flaps').textContent=s.flaps===0?'0°':s.flaps===1?'10°':'30°';$('surface').textContent=s.onGround?'RUNWAY / TAXIWAY':'AIRBORNE';
 $('warning').classList.toggle('show',s.stall);$('radioState').textContent=s.radioAck?'ACK':'STANDBY';updateMissionChecklist();
 if($('deckHeading'))$('deckHeading').textContent=String(Math.round(norm(s.heading))).padStart(3,'0');
+if($('deckSpeed'))$('deckSpeed').textContent=Math.round(s.speed);
+if($('deckAlt'))$('deckAlt').textContent=Math.round(s.alt);
+if($('deckVs'))$('deckVs').textContent=Math.round(s.vs);
+if($('deckRpm'))$('deckRpm').textContent=Math.round(s.rpm);
 if($('throttleReadout'))$('throttleReadout').textContent=Math.round(s.throttle)+'%';
+if($('deckThrottle')){
+  $('deckThrottle').style.bottom=(18+s.throttle*.78)+'px';
+}
+if($('attitude')){
+  const a=$('attitude');
+  a.style.transform='rotate('+clamp(s.bank,-35,35)+'deg)';
+  const sky=a.querySelector('.sky'),ground=a.querySelector('.ground');
+  if(sky)sky.style.transform='translateY('+(s.pitch*2)+'px)';
+  if(ground)ground.style.transform='translateY('+(-s.pitch*2)+'px)';
+}
+if($('preflight') && $('preflight').style.display!=='none'){
+  const vals=document.querySelectorAll('#preflight .realGauge .gvalue');
+  if(vals.length>=6){vals[0].textContent=Math.round(s.speed);vals[1].textContent=Math.round(s.pitch)+'°';vals[2].textContent=Math.round(s.alt);vals[4].textContent=String(Math.round(norm(s.heading))).padStart(3,'0');vals[5].textContent=Math.round(s.vs);}
+}
 if($('yokeReadout'))$('yokeReadout').textContent=(Math.abs(s.yokeX)<.08&&Math.abs(s.yokeY)<.08)?'CENTER':('X '+Math.round(s.yokeX*100)+' / Y '+Math.round(s.yokeY*100));
 if($('deckBrake'))$('deckBrake').classList.toggle('on',s.parkingBrake);
 }
