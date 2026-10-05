@@ -28,19 +28,40 @@ button{font:inherit}#sim{position:relative;width:100%;height:100%;overflow:hidde
 #menu,#complete{position:absolute;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%,#163c52,#02080d 72%)}
 .card{width:570px;max-width:92%;padding:34px;border-radius:18px;text-align:center;background:#061520f5;border:1px solid #3dbbe8;box-shadow:0 25px 100px #0009}.card h1{margin:0;color:#76e0ff;letter-spacing:3px;font-size:34px}.card h2{margin:5px 0 15px;font-size:14px;letter-spacing:4px}.card p{color:#b5cbd5;font-size:13px;line-height:1.6}.features{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:20px 0}.feature{padding:10px;border:1px solid #264653;border-radius:7px;background:#0a202c;font-size:11px}.primary{border:0;border-radius:8px;padding:13px 28px;background:#52d7ff;color:#03202a;font-weight:900;cursor:pointer}.primary:hover{filter:brightness(1.08)}
 #complete{display:none;background:#020a10e8}.result{width:440px}.result h1{font-size:28px}
-#cockpitOverlay{position:absolute;inset:0;pointer-events:none;display:none;z-index:10;background:linear-gradient(#0000 0 65%,#06101899 100%)}#preflight{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:28px;background:rgba(1,8,13,.66);backdrop-filter:blur(3px)}
-.preCard{width:min(1120px,94vw);max-height:88%;overflow:auto;padding:28px;border-radius:20px;background:linear-gradient(145deg,#081b27f7,#030c13f8);border:1px solid #3dbbe8;box-shadow:0 25px 100px #000b}
-.preHead{display:flex;justify-content:space-between;gap:28px;align-items:flex-start;border-bottom:1px solid #254552;padding-bottom:18px}.preHead h2{margin:0;color:#76e0ff;letter-spacing:2px;font-size:22px}.preHead p{margin:7px 0 0;color:#a9c1ca;font-size:12px;line-height:1.55;max-width:760px}
-.preBadge{padding:7px 10px;border:1px solid #345765;border-radius:7px;color:#8fdcff;font-size:9px;letter-spacing:1px;white-space:nowrap}
-.preBody{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;margin-top:18px}
-.checkGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0}.check{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid #294653;border-radius:10px;background:linear-gradient(145deg,#0b2532,#071923)}.check button{min-width:54px;height:38px;border:1px solid #46616d;border-radius:7px;background:#122a35;color:#bcd0d7;padding:7px;cursor:pointer;font-size:10px;font-weight:900}.check button.ready{background:#165c4a;border-color:#49d7a1;color:#fff}.check b{font-size:11px}.check small{display:block;color:#8099a4;font-size:9px;margin-top:3px;line-height:1.4}
-.checklistTitle{font-size:10px;letter-spacing:1.3px;color:#8fdcff;font-weight:900;margin:0 0 9px}
-.prePanel{border:1px solid #294653;border-radius:12px;background:#06131c;padding:15px}.panelTitle{font-size:10px;color:#8fdcff;letter-spacing:1.2px;font-weight:900;margin-bottom:12px}
-.mockInstruments{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.mockGauge{height:76px;border:2px solid #506974;border-radius:50%;background:radial-gradient(circle,#142932,#050d13);display:grid;place-items:center;text-align:center}.mockGauge b{font-size:15px}.mockGauge small{display:block;font-size:7px;color:#829ba6;margin-top:2px}
-.systemStrip{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}.systemChip{padding:8px;border:1px solid #294653;border-radius:7px;text-align:center;background:#091e28;font-size:8px;color:#89a4af}.systemChip b{display:block;color:#ff7777;margin-top:3px;font-size:9px}
-.preActions{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-top:18px;padding-top:16px;border-top:1px solid #254552}.procedure{font-size:10px;color:#9db5c1;line-height:1.65}.procedure b{color:#dcecf1}.secondary{border:1px solid #41606c;border-radius:9px;padding:13px 22px;background:#0b202b;color:#d8e8ed;font-weight:900;cursor:pointer;white-space:nowrap}.secondary:not(:disabled){background:#176d87;border-color:#64ddff;color:#fff;box-shadow:0 0 18px #35cfff33}.secondary:disabled{opacity:.45;cursor:not-allowed}
-@media(max-width:800px){.preBody{grid-template-columns:1fr}.preHead{display:block}.preBadge{display:inline-block;margin-top:10px}.checkGrid{grid-template-columns:1fr 1fr}.mockInstruments{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:520px){#preflight{padding:10px}.preCard{padding:18px;max-height:94%}.checkGrid{grid-template-columns:1fr}.preActions{display:block}.secondary{width:100%;margin-top:12px}}
+#cockpitOverlay{position:absolute;inset:0;pointer-events:none;display:none;z-index:10;background:linear-gradient(#0000 0 65%,#06101899 100%)}#preflight{position:absolute;inset:0;z-index:90;display:none;align-items:stretch;justify-content:stretch;padding:0;background:transparent;backdrop-filter:none;overflow:hidden}
+#preflight .preCard{position:absolute;inset:0;width:100%;max-height:none;overflow:hidden;padding:0;border:0;border-radius:0;background:linear-gradient(180deg,#17242b 0 12%,#0b1216 12% 100%);box-shadow:none}
+#preflight .preCard:before{content:"";position:absolute;left:0;right:0;top:0;height:34%;background:linear-gradient(180deg,#07131b99,#07131b22 70%,transparent);pointer-events:none}
+#preflight .preHead{position:absolute;left:28px;right:28px;top:16px;height:58px;padding:0 0 8px;border:0;z-index:2}
+#preflight .preHead h2{font-size:14px;letter-spacing:2px;color:#e5f4f8}
+#preflight .preHead p{font-size:9px;max-width:700px;color:#9db0b7;margin-top:4px}
+#preflight .preBadge{font-size:8px;color:#c7d9df;border-color:#536771;background:#07121899}
+#preflight .preBody{position:absolute;left:28px;right:28px;top:82px;bottom:112px;display:grid;grid-template-columns:1fr 1.65fr;gap:14px;margin:0;z-index:2}
+#preflight .preBody:after{content:"";position:absolute;left:25%;right:0;top:0;bottom:0;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#111d22,#0a1115);border:1px solid #3c4e55;box-shadow:inset 0 0 50px #0008;z-index:-1}
+#preflight .checklistTitle{font-size:9px;margin:0 0 7px;color:#a8c8d2}
+#preflight .checkGrid{display:grid;grid-template-columns:1fr;gap:7px}
+#preflight .check{min-height:55px;padding:8px 10px;border-radius:5px;background:linear-gradient(180deg,#17252b,#0d171c);border:1px solid #45565d;box-shadow:inset 0 1px #ffffff08}
+#preflight .check button{min-width:48px;height:38px;border-radius:4px;background:linear-gradient(#313d41,#12191c);border:1px solid #5a6a70;color:#b9c7cb;font-size:9px;box-shadow:0 3px 0 #06090a;transform:translateY(-1px)}
+#preflight .check button.ready{background:linear-gradient(#2b826b,#124b3e);border-color:#59d8ad;color:#fff}
+#preflight .check b{font-size:9px;letter-spacing:.7px;color:#d6e2e5}
+#preflight .check small{font-size:7px;color:#7e9198;line-height:1.35}
+#preflight .prePanel{border:1px solid #43545b;border-radius:5px;background:#091216cc;padding:10px}
+#preflight .panelTitle{font-size:8px;color:#9fc6d1;margin-bottom:8px;letter-spacing:1px}
+#preflight .preBody>div:nth-child(2){position:relative;padding:12px 16px;background:linear-gradient(180deg,#18262c,#0b1216);border:1px solid #4b5c62;border-radius:6px;box-shadow:inset 0 0 45px #0009}
+#preflight .preBody>div:nth-child(2):before{content:"";position:absolute;left:9%;right:9%;top:11%;height:44%;border-radius:50%;background:radial-gradient(circle,#244452 0,#132b35 50%,#091217 72%);border:2px solid #64777d;box-shadow:0 0 0 6px #172329,inset 0 0 35px #000}
+#preflight .mockInstruments{position:relative;display:grid;grid-template-columns:repeat(4,120px);justify-content:center;gap:12px;margin-top:16px;z-index:2}
+#preflight .mockGauge{height:120px;border:3px solid #77878c;border-radius:50%;background:radial-gradient(circle,#202e33 0,#090f12 65%);box-shadow:inset 0 0 18px #000,0 2px 7px #000;position:relative}
+#preflight .mockGauge:before{content:"";position:absolute;left:50%;top:15px;width:2px;height:38px;background:#f0f4f5;transform-origin:1px 45px;transform:rotate(25deg)}
+#preflight .mockGauge b{font-size:17px;color:#f4f7f8}
+#preflight .mockGauge small{font-size:7px;color:#a9b9be}
+#preflight .systemStrip{position:absolute;left:16px;right:16px;bottom:13px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0;z-index:3}
+#preflight .systemChip{padding:7px 5px;border:1px solid #465960;border-radius:4px;background:#0a151a;text-align:center;font-size:7px;color:#839aa3}
+#preflight .systemChip b{font-size:9px;margin-top:3px}
+#preflight .preActions{position:absolute;left:28px;right:28px;bottom:22px;height:74px;margin:0;padding:11px 14px;border:1px solid #42545b;border-radius:5px;background:linear-gradient(180deg,#16242a,#091115);z-index:3}
+#preflight .procedure{font-size:8px;line-height:1.5;max-width:75%;color:#8fa4ab}
+#preflight .secondary{padding:12px 20px;border-radius:4px;background:linear-gradient(#303c40,#151d20);border:1px solid #62747a;box-shadow:0 3px 0 #050708;font-size:10px}
+#preflight .secondary:not(:disabled){background:linear-gradient(#3b9b7e,#175b49);border-color:#63d9b1;box-shadow:0 3px 0 #09261f,0 0 20px #4be0b055}
+@media(max-width:900px){#preflight .preBody{grid-template-columns:1fr}.mockInstruments{grid-template-columns:repeat(4,90px);gap:6px}.mockGauge{width:90px;height:90px}.preBody:after{display:none}.preBody>div:nth-child(2){margin-top:5px}}
+@media(max-width:650px){#preflight .preHead{left:12px;right:12px}.preBadge{display:none}#preflight .preBody{left:12px;right:12px;top:72px;bottom:100px}.mockInstruments{grid-template-columns:repeat(2,90px)}#preflight .preActions{left:12px;right:12px}.procedure{display:none!important}.secondary{width:100%}}
 #systems{position:absolute;left:50%;top:82px;transform:translateX(-50%);z-index:28;display:none;padding:9px 12px;background:#061925dd;border:1px solid #3a819b;border-radius:10px;font-size:10px;color:#b9d2dc}
 #systems b{margin-left:6px}.sysOn{color:#49d7a1}.sysOff{color:#ff7777}
 #cockpitOverlay:before,#cockpitOverlay:after{content:"";position:absolute;bottom:-8%;width:23%;height:55%;background:#0a1319;border-radius:50% 50% 0 0;opacity:.92}#cockpitOverlay:before{left:-5%}#cockpitOverlay:after{right:-5%}
@@ -149,45 +170,42 @@ body.cockpit #cockpitDeck{display:block}
 <div id="preflight">
   <div class="preCard">
     <div class="preHead">
-      <div><h2>PREFLIGHT • COCKPIT SETUP</h2><p>You are now operating the aircraft. Do not treat this as a menu: these are the first cockpit actions before an engine start. Configure the electrical, fuel and engine systems, then monitor the instruments.</p></div>
-      <div class="preBadge">CESSNA-CLASS • SINGLE ENGINE • TRAINING AIRCRAFT</div>
+      <div><h2>EXPERT SYNC • COCKPIT — BEFORE START</h2><p>Operate the aircraft from the flight deck. These are physical-style cockpit controls: configure the electrical and fuel systems, set the mixture, then use the starter and verify the engine instruments.</p></div>
+      <div class="preBadge">TRAINING AIRCRAFT • CESSNA-CLASS • N-ES01</div>
     </div>
     <div class="preBody">
       <div>
-        <div class="checklistTitle">BEFORE ENGINE START — COMPLETE EACH ITEM</div>
+        <div class="checklistTitle">ENGINE START CHECKLIST</div>
         <div class="checkGrid">
-          <div class="check"><button data-pre="battery">OFF</button><div><b>MASTER / BATTERY</b><small>Apply electrical power. Radios and engine-start systems depend on it.</small></div></div>
-          <div class="check"><button data-pre="avionics">OFF</button><div><b>AVIONICS</b><small>Power the communication and navigation equipment after the master.</small></div></div>
-          <div class="check"><button data-pre="pump">OFF</button><div><b>FUEL PUMP</b><small>Prime the fuel system. Verify the engine can receive fuel.</small></div></div>
-          <div class="check"><button data-pre="mixture">OFF</button><div><b>MIXTURE</b><small>Set the mixture to RICH / 100% for the start sequence.</small></div></div>
+          <div class="check"><button data-pre="battery">OFF</button><div><b>MASTER / BATTERY</b><small>Electrical master. Power the aircraft bus before starting.</small></div></div>
+          <div class="check"><button data-pre="avionics">OFF</button><div><b>AVIONICS MASTER</b><small>Power communication and navigation equipment.</small></div></div>
+          <div class="check"><button data-pre="pump">OFF</button><div><b>ELECTRIC FUEL PUMP</b><small>Prime the fuel system for engine start.</small></div></div>
+          <div class="check"><button data-pre="mixture">LEAN</button><div><b>MIXTURE CONTROL</b><small>Move to RICH / 100% before engaging the starter.</small></div></div>
         </div>
-        <div class="prePanel" style="margin-top:12px">
-          <div class="panelTitle">COCKPIT START CHECK</div>
-          <div class="systemStrip">
-            <div class="systemChip">ELECTRICAL<b id="preBat">OFF</b></div>
+        <div class="prePanel" style="margin-top:8px">
+          <div class="panelTitle">SYSTEMS / ELECTRICAL BUS</div>
+          <div class="systemStrip" style="position:static">
+            <div class="systemChip">MASTER<b id="preBat">OFF</b></div>
             <div class="systemChip">AVIONICS<b id="preAvn">OFF</b></div>
-            <div class="systemChip">FUEL<b id="prePump">OFF</b></div>
+            <div class="systemChip">FUEL PUMP<b id="prePump">OFF</b></div>
             <div class="systemChip">MIXTURE<b id="preMix">LEAN</b></div>
           </div>
         </div>
       </div>
-      <div class="prePanel">
-        <div class="panelTitle">ENGINE & FLIGHT INSTRUMENTS — INITIAL STATE</div>
+      <div>
+        <div class="panelTitle">PRIMARY FLIGHT / ENGINE INSTRUMENTS</div>
         <div class="mockInstruments">
-          <div class="mockGauge"><div><b>0</b><small>KNOTS</small></div></div>
-          <div class="mockGauge"><div><b>0</b><small>RPM</small></div></div>
-          <div class="mockGauge"><div><b>0</b><small>ALTITUDE</small></div></div>
+          <div class="mockGauge"><div><b>0</b><small>AIRSPEED • KT</small></div></div>
+          <div class="mockGauge"><div><b>0</b><small>RPM • x1000</small></div></div>
+          <div class="mockGauge"><div><b>0</b><small>ALTITUDE • FT</small></div></div>
           <div class="mockGauge"><div><b>100%</b><small>FUEL</small></div></div>
         </div>
-        <div style="margin-top:14px;font-size:10px;color:#9db5c1;line-height:1.6">
-          <b style="color:#dcecf1">What you are learning:</b><br>
-          Engine operation • electrical power • fuel delivery • mixture control • instrument scan • ATC communication • aircraft configuration.
-        </div>
+        <div style="position:absolute;left:16px;right:16px;bottom:54px;font-size:8px;color:#8ea3aa;line-height:1.5;text-align:center">INSTRUMENT SCAN • ENGINE RPM • AIRSPEED • ALTITUDE • FUEL • SYSTEM STATUS</div>
       </div>
     </div>
     <div class="preActions">
-      <div class="procedure">START SEQUENCE: <b>MASTER ON → AVIONICS ON → FUEL PUMP ON → MIXTURE RICH → STARTER.</b><br>After start: verify engine RPM, monitor the instruments, then release the brakes and begin taxi.</div>
-      <button id="engineStart" class="secondary" disabled>START ENGINE</button>
+      <div class="procedure">START: <b>MASTER ON → AVIONICS ON → FUEL PUMP ON → MIXTURE RICH → STARTER.</b><br>After start, confirm stable RPM and engine indications before releasing the brakes.</div>
+      <button id="engineStart" class="secondary" disabled>STARTER • OFF</button>
     </div>
   </div>
 </div>
