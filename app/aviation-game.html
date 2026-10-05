@@ -317,9 +317,9 @@ function updateMissionChecklist(){
   ['CONTACT / READ BACK TOWER',s.towerContact]
  ]:s.phase===1?[
   ['TOWER: LINE UP AND WAIT',s.lineupCleared],
-  ['ENTER RUNWAY ONLY AFTER CLEARANCE',s.lineupCleared&&s.x>=58],
+  ['ENTER RUNWAY ONLY AFTER CLEARANCE',s.lineupCleared&&s.x>60],
   ['RUNWAY HEADING 090',Math.abs(diff(s.heading,90))<4],
-  ['STOP ON CENTRELINE',Math.abs(s.x-58)<5&&Math.abs(s.y)<4&&s.speed<3&&s.parkingBrake]
+  ['STOP ON CENTRELINE',s.x>64&&s.x<73&&Math.abs(s.y+12.5)<3&&s.speed<3&&s.parkingBrake]
  ]:s.phase===2?[
   ['TAKEOFF CLEARANCE',s.takeoffCleared],
   ['TAKE-OFF CONFIGURATION',s.flaps>=1&&s.gear],
@@ -329,8 +329,8 @@ function updateMissionChecklist(){
  ]:[];
  box.innerHTML=items.map(([t,on])=>'<div class="missionCheck '+(on?'done':'')+'"><span>'+ (on?'✓':'○') +'</span>'+t+'</div>').join('');
 }
-function next(){if(s.phase<missions.length-1){s.phase++;s.progress=0;if(s.phase===1){s.x=0;s.y=0;s.speed=0;s.heading=90;s.throttle=0;s.brake=true;s.gear=true;s.flaps=1}
-if(s.phase===2){s.speed=0;s.throttle=0;s.brake=true;s.x=58;s.y=-12.5;s.heading=90;s.onGround=true;s.alt=0;s.vs=0;s.gear=true;s.flaps=1;msg('RUNWAY 09 — lined up. Apply take-off power when cleared.')}
+function next(){if(s.phase<missions.length-1){s.phase++;s.progress=0;if(s.phase===1){s.x=58;s.y=-12.5;s.speed=0;s.heading=90;s.throttle=0;s.brake=true;s.parkingBrake=true;s.gear=true;s.flaps=1;s.onGround=true;msg('HOLD SHORT — contact Tower, then line up and wait only when instructed.')}
+if(s.phase===2){s.speed=0;s.throttle=0;s.brake=true;s.parkingBrake=true;s.x=58;s.y=-12.5;s.heading=90;s.onGround=true;s.alt=0;s.vs=0;s.gear=true;s.flaps=1;msg('RUNWAY 09 — cleared for takeoff only after the takeoff clearance.')}
 if(s.phase===3){s.brake=false;s.flaps=1}
 if(s.phase===4){s.flaps=0}
 if(s.phase===5){s.flaps=1;s.gear=true}
@@ -527,7 +527,8 @@ if(s.phase===0){
  if(s.holdShortReached&&s.x>60){s.score=Math.max(0,s.score-2);msg('RUNWAY INCURSION RISK — hold short until cleared.')}
 }
 if(s.phase===1){
- if(s.lineupCleared&&s.onGround&&Math.abs(diff(s.heading,90))<4&&Math.abs(s.x-58)<5&&Math.abs(s.y)<4&&s.speed<3&&s.parkingBrake)g=25*dt;
+ if(s.lineupCleared&&s.onGround&&Math.abs(diff(s.heading,90))<4&&s.x>64&&s.x<73&&Math.abs(s.y+12.5)<3&&s.speed<3&&s.parkingBrake)g=25*dt;
+ if(s.onGround&&s.x>60&&!s.lineupCleared){s.score=Math.max(0,s.score-3);msg('RUNWAY INCURSION RISK — do not enter Runway 09 before LINE UP AND WAIT.');}
 }
 if(s.phase===2){
  if(s.takeoffCleared&&!s.onGround && s.alt>80 && s.throttle>70 && s.speed>55 && Math.abs(diff(s.heading,90))<10)g=24*dt;
