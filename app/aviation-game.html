@@ -814,3 +814,27 @@ function startAudio(){
 function stopAudio(){soundOn=false;$('soundBtn').textContent='🔇 SOUND OFF';$('soundBtn').classList.remove('on')}
 $('soundBtn').onclick=()=>soundOn?stopAudio():startAudio();
 function audioTick(){
+ if(!soundOn||!engineOsc||!engineGain)return;
+ const rpm=Math.max(0,s.rpm);
+ engineOsc.frequency.setTargetAtTime(55+rpm*.035,audioCtx.currentTime,.04);
+ engineGain.gain.setTargetAtTime(.012+Math.min(.035,rpm/2650*.028),audioCtx.currentTime,.08);
+}
+function frame(now){
+ const dt=Math.min(.05,Math.max(.001,(now-(s.last||now))/1000));
+ s.last=now;
+ if(s.started){
+  controls(dt);
+  engine(dt);
+  flight(dt);
+  evaluate(dt);
+  hud();
+  audioTick();
+ }
+ world();
+ requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
