@@ -121,6 +121,13 @@ body.cockpit #cockpitDeck{display:block}
 #controlReadout{position:absolute;left:14px;bottom:12px;padding:7px 9px;border:1px solid #294653;border-radius:6px;background:#07141bdd;color:#9fb6bf;font-size:8px;z-index:9;pointer-events:none}
 #controlReadout b{color:#fff}
 @media(max-width:900px){#operationHint{min-width:260px;font-size:8px}#deckBrake{left:20px;bottom:20px}}
+
+/* ===== EXPERT SYNC V5 — TAXI / ATC / RUNWAY OPERATIONS ===== */
+#missionChecklist{margin-top:10px;border-top:1px solid #294653;padding-top:8px}
+.missionCheck{font-size:9px;line-height:1.65;color:#8ea7b1}
+.missionCheck span{display:inline-block;width:17px;color:#667f89;font-weight:900}
+.missionCheck.done{color:#72e2b1}.missionCheck.done span{color:#49d7a1}
+#atc{box-shadow:0 12px 35px #0008,0 0 0 1px #3a8fa9}
 </style>
 </head>
 <body>
@@ -141,7 +148,7 @@ body.cockpit #cockpitDeck{display:block}
   <div class="eyebrow">ACTIVE FLIGHT MISSION</div>
   <div class="missionTitle" id="missionTitle">GROUND TAXI</div>
   <div class="missionText" id="missionText"></div>
-  <div class="bar"><i id="missionBar"></i></div>
+  <div class="bar"><i id="missionBar"></i></div><div id="missionChecklist"></div>
 </div>
 
 <div id="atc" class="panel">
@@ -261,11 +268,11 @@ const $=id=>document.getElementById(id);
 let W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2);
 function resize(){W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
 
-const phases=['Taxi','Take-off','Climb','Cruise','Approach','Landing'];
+const phases=['Taxi','Line-Up','Take-off','Climb','Cruise','Approach','Landing'];
 const missions=[
- {key:'TAXI',title:'GROUND TAXI',freq:'GROUND 121.90',text:'Taxi north on the marked taxiway. Keep speed below 20 knots, follow the centreline, then turn east toward Runway 09 and hold short.',atc:'Ground: Cessna ES-01, taxi to Runway 09 via Alpha. Hold short.',target:100},
- {key:'LINEUP',title:'RUNWAY ALIGNMENT',freq:'GROUND 121.90',text:'Line up on Runway 09. Stop on the centreline, set take-off configuration and wait for the departure clearance.',atc:'Ground: Position and hold Runway 09. Report ready for departure.',target:100},
- {key:'TAKEOFF',title:'TAKE-OFF',freq:'TOWER 118.10',text:'Apply take-off power. Maintain the runway centreline. Rotate smoothly near 55 knots and establish a positive climb.',atc:'Tower: ES-01, Runway 09 cleared for take-off. Wind calm.',target:100},
+ {key:'TAXI',title:'GROUND TAXI • HOLD SHORT',freq:'GROUND 121.90',text:'Read back the taxi clearance, taxi via Alpha at ≤20 kt, follow the yellow centreline, then stop before Runway 09. Do not enter the runway without a runway-entry clearance.',atc:'Ground: Cessna ES-01, taxi to Runway 09 via Alpha. Hold short of Runway 09.',target:100},
+ {key:'LINEUP',title:'LINE UP & WAIT',freq:'TOWER 118.10',text:'After the hold-short handoff, contact Tower. Read back the runway and line-up instruction, enter Runway 09 only when authorized, align with the centreline and stop. Line Up and Wait is NOT takeoff clearance.',atc:'Tower: ES-01, Runway 09, line up and wait.',target:100},
+ {key:'TAKEOFF',title:'TAKE-OFF CLEARANCE',freq:'TOWER 118.10',text:'From the runway, request/receive takeoff clearance. Do not roll until cleared. Then apply take-off power, maintain runway heading and rotate smoothly near 55 knots.',atc:'Tower: ES-01, Runway 09, cleared for take-off. Wind calm.',target:100},
  {key:'CLIMB',title:'CLIMB',freq:'TOWER 118.10',text:'Climb through 1,500 feet toward 3,000 feet. Maintain heading 090 and a safe airspeed. Retract gear after a positive rate.',atc:'Tower: ES-01, climb 3,000 feet, maintain heading 090.',target:100},
  {key:'CRUISE',title:'CRUISE & NAVIGATION',freq:'CENTER 124.70',text:'Stabilize at 3,000 feet. Maintain heading 090, airspeed 80–110 knots and a near-zero vertical speed.',atc:'Center: ES-01, maintain 3,000 feet and heading 090.',target:100},
  {key:'APPROACH',title:'APPROACH',freq:'APPROACH 119.50',text:'Descend toward the runway. Reduce speed, extend gear and flaps, and establish a stable final approach.',atc:'Approach: ES-01, cleared approach Runway 09. Report established.',target:100},
@@ -276,6 +283,7 @@ const s={
 phase:0,view:'EXTERNAL',started:false,score:0,progress:0,last:performance.now(),
 x:0,y:0,alt:0,speed:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,
 gear:true,flaps:0,onGround:true,stall:false,brake:false,parkingBrake:true,engine:false,radioAck:false,
+taxiReadback:false,holdShortReached:false,towerContact:false,lineupCleared:false,takeoffCleared:false,
 battery:false,avionics:false,fuelPump:false,mixture:0,starter:false,engineStarted:false,
 yokeX:0,yokeY:0,yokeActive:false
 };
@@ -286,8 +294,41 @@ function norm(a){return (a%360+360)%360}
 function diff(a,b){let d=norm(a-b);return d>180?d-360:d}
 function msg(t){$('toast').textContent=t;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2400)}
 function current(){return missions[s.phase]}
-function setupMission(){const m=current();$('missionTitle').textContent=m.title;$('missionText').textContent=m.text;$('atcText').textContent='"'+m.atc+'"';$('freq').textContent=m.freq;s.progress=0;s.radioAck=false;updatePhases()}
+function setupMission(){
+ const m=current();
+ $('missionTitle').textContent=m.title;
+ $('missionText').textContent=m.text;
+ $('atcText').textContent='"'+m.atc+'"';
+ $('freq').textContent=m.freq;
+ s.progress=0;s.radioAck=false;
+ if(s.phase===0){s.taxiReadback=false;s.holdShortReached=false;s.towerContact=false;s.lineupCleared=false;s.takeoffCleared=false}
+ if(s.phase===1){s.towerContact=false;s.lineupCleared=false}
+ if(s.phase===2){s.takeoffCleared=false}
+ updatePhases();updateMissionChecklist();
+}
 function updatePhases(){document.getElementById('phases').innerHTML=phases.map((p,i)=>'<div class="phase '+(i<s.phase?'done ':'')+(i===s.phase?'active':'')+'"><div class="dot">'+(i+1)+'</div>'+p+'</div>').join('')}
+function updateMissionChecklist(){
+ const box=$('missionChecklist');if(!box)return;
+ const items=s.phase===0?[
+  ['READ BACK TAXI',s.taxiReadback],
+  ['TAXI VIA ALPHA ≤20 KT',s.holdShortReached],
+  ['STOP AT HOLD SHORT',s.holdShortReached&&s.speed<3&&s.parkingBrake],
+  ['HOLD SHORT — NO RUNWAY ENTRY',s.holdShortReached&&s.onGround&&s.x<58.5],
+  ['CONTACT / READ BACK TOWER',s.towerContact]
+ ]:s.phase===1?[
+  ['TOWER: LINE UP AND WAIT',s.lineupCleared],
+  ['ENTER RUNWAY ONLY AFTER CLEARANCE',s.lineupCleared&&s.x>=58],
+  ['RUNWAY HEADING 090',Math.abs(diff(s.heading,90))<4],
+  ['STOP ON CENTRELINE',Math.abs(s.x-58)<5&&Math.abs(s.y)<4&&s.speed<3&&s.parkingBrake]
+ ]:s.phase===2?[
+  ['TAKEOFF CLEARANCE',s.takeoffCleared],
+  ['TAKE-OFF CONFIGURATION',s.flaps>=1&&s.gear],
+  ['POWER ≥70%',s.throttle>=70],
+  ['ROTATE ≈55 KT',!s.onGround&&s.speed>=55],
+  ['POSITIVE CLIMB',!s.onGround&&s.vs>200]
+ ]:[];
+ box.innerHTML=items.map(([t,on])=>'<div class="missionCheck '+(on?'done':'')+'"><span>'+ (on?'✓':'○') +'</span>'+t+'</div>').join('');
+}
 function next(){if(s.phase<missions.length-1){s.phase++;s.progress=0;if(s.phase===1){s.x=0;s.y=0;s.speed=0;s.heading=90;s.throttle=0;s.brake=true;s.gear=true;s.flaps=1}
 if(s.phase===2){s.speed=0;s.throttle=0;s.brake=true;s.x=58;s.y=-12.5;s.heading=90;s.onGround=true;s.alt=0;s.vs=0;s.gear=true;s.flaps=1;msg('RUNWAY 09 — lined up. Apply take-off power when cleared.')}
 if(s.phase===3){s.brake=false;s.flaps=1}
@@ -296,7 +337,27 @@ if(s.phase===5){s.flaps=1;s.gear=true}
 if(s.phase===6){s.flaps=2;s.gear=true}
 setupMission();$('complete').style.display='none';msg('New mission: '+current().title)}
 else{location.reload()}}
-function ack(){s.radioAck=true;msg('TRANSMISSION ACKNOWLEDGED — practice the ATC readback aloud.');$('radioState').textContent='ACK'}
+function ack(){
+ if(s.phase===0){
+  if(!s.taxiReadback){
+   s.taxiReadback=true;s.radioAck=true;
+   msg('TAXI CLEARANCE READ BACK — taxi via Alpha, hold short Runway 09.');
+  }else if(s.holdShortReached && s.speed<3 && s.parkingBrake){
+   s.towerContact=true;s.radioAck=true;
+   $('freq').textContent='TOWER 118.10';
+   $('atcText').textContent='"Ground: ES-01, hold short Runway 09. Contact Tower 118.10."';
+   msg('HOLD SHORT CONFIRMED — contact Tower on 118.10.');
+  }else msg('Do not transmit yet. Stop at the Runway 09 hold-short line first.');
+ }else if(s.phase===1){
+  if(!s.towerContact){s.towerContact=true;s.radioAck=true;msg('TOWER CONTACT — read back: Runway 09, line up and wait.');}
+  else if(s.holdShortReached){s.lineupCleared=true;s.radioAck=true;msg('LINE UP AND WAIT — enter Runway 09, align, stop. NOT cleared for takeoff.');}
+ }else if(s.phase===2){
+  s.takeoffCleared=true;s.radioAck=true;msg('TAKEOFF CLEARANCE — Runway 09 cleared for take-off.'); 
+ }else{
+  s.radioAck=true;msg('TRANSMISSION ACKNOWLEDGED — practice the ATC readback aloud.');
+ }
+ $('radioState').textContent=s.radioAck?'ACK':'STANDBY';updateMissionChecklist();
+}
 function start(){s.started=true;$('menu').style.display='none';$('preflight').style.display='flex';s.last=performance.now();msg('Cockpit entered. Complete the preflight procedure.')}
 function updateSystems(){
   $('batState').textContent=s.battery?'ON':'OFF';$('batState').className=s.battery?'sysOn':'sysOff';
@@ -425,7 +486,7 @@ if(s.onGround){
   s.x+=Math.sin(s.heading*rad)*s.speed*groundScale*dt;
   s.y-=Math.cos(s.heading*rad)*s.speed*groundScale*dt;
   // Take-off roll: realistic rotation threshold and positive pitch.
-  if(s.phase===2 && s.speed>=55 && s.throttle>=72 && s.pitch>=4 && Math.abs(diff(s.heading,90))<10){
+  if(s.phase===2 && s.takeoffCleared && s.speed>=55 && s.throttle>=72 && s.pitch>=4 && Math.abs(diff(s.heading,90))<10){
     s.onGround=false;s.alt=12;s.vs=620;s.gear=true;
     msg('ROTATE — positive rate. Maintain runway heading 090.');
     s.score+=30;
@@ -460,12 +521,16 @@ if(s.onGround){
 function evaluate(dt){
 let g=0,m=current();
 if(s.phase===0){
- if(s.onGround&&s.speed>3&&s.speed<=20&&Math.abs(diff(s.heading,0))<15&&s.y<-2)g=15*dt;
- if(s.onGround&&s.x>1&&s.y<-2&&Math.abs(diff(s.heading,90))<15&&s.speed<20)g=25*dt;
+ const atHold=s.onGround&&s.x>=58&&s.y<-10&&Math.abs(diff(s.heading,90))<6&&s.speed<4;
+ if(atHold&&!s.holdShortReached){s.holdShortReached=true;msg('HOLD SHORT LINE — stop, set parking brake, then contact Tower.');}
+ if(s.taxiReadback&&s.holdShortReached&&s.speed<3&&s.parkingBrake&&s.x<60)g=22*dt;
+ if(s.holdShortReached&&s.x>60){s.score=Math.max(0,s.score-2);msg('RUNWAY INCURSION RISK — hold short until cleared.')}
 }
-if(s.phase===1){if(s.onGround&&Math.abs(diff(s.heading,90))<4&&Math.abs(s.x)<5&&Math.abs(s.y)<4&&s.speed<5&&s.brake)g=25*dt}
+if(s.phase===1){
+ if(s.lineupCleared&&s.onGround&&Math.abs(diff(s.heading,90))<4&&Math.abs(s.x-58)<5&&Math.abs(s.y)<4&&s.speed<3&&s.parkingBrake)g=25*dt;
+}
 if(s.phase===2){
- if(!s.onGround && s.alt>80 && s.throttle>70 && s.speed>55 && Math.abs(diff(s.heading,90))<10)g=24*dt;
+ if(s.takeoffCleared&&!s.onGround && s.alt>80 && s.throttle>70 && s.speed>55 && Math.abs(diff(s.heading,90))<10)g=24*dt;
 }
 if(s.phase===3){
  if(!s.onGround&&s.alt>1200&&s.alt<3400&&s.speed>70&&s.speed<125&&Math.abs(diff(s.heading,90))<10&&!s.gear)g=14*dt;
@@ -484,7 +549,7 @@ const h=String(Math.round(norm(s.heading))).padStart(3,'0');
 $('speed').textContent=Math.round(s.speed);$('alt').textContent=Math.round(s.alt);$('hdg').textContent=h;$('vs').textContent=Math.round(s.vs);$('rpm').textContent=Math.round(s.rpm);$('fuel').textContent=Math.round(s.fuel);
 $('gSpd').textContent=Math.round(s.speed);$('gRpm').textContent=Math.round(s.rpm);$('gAlt').textContent=Math.round(s.alt);$('scoreVal').textContent=Math.round(s.score);$('missionBar').style.width=s.progress+'%';
 $('engine').textContent=s.rpm>450?'RUNNING':'OFF';$('engine').className=s.rpm>450?'green':'red';$('gear').textContent=s.gear?'DOWN':'UP';$('flaps').textContent=s.flaps===0?'0°':s.flaps===1?'10°':'30°';$('surface').textContent=s.onGround?'RUNWAY / TAXIWAY':'AIRBORNE';
-$('warning').classList.toggle('show',s.stall);$('radioState').textContent=s.radioAck?'ACK':'STANDBY';
+$('warning').classList.toggle('show',s.stall);$('radioState').textContent=s.radioAck?'ACK':'STANDBY';updateMissionChecklist();
 if($('deckHeading'))$('deckHeading').textContent=String(Math.round(norm(s.heading))).padStart(3,'0');
 if($('throttleReadout'))$('throttleReadout').textContent=Math.round(s.throttle)+'%';
 if($('yokeReadout'))$('yokeReadout').textContent=(Math.abs(s.yokeX)<.08&&Math.abs(s.yokeY)<.08)?'CENTER':('X '+Math.round(s.yokeX*100)+' / Y '+Math.round(s.yokeY*100));
@@ -748,69 +813,3 @@ function startAudio(){
 function stopAudio(){soundOn=false;$('soundBtn').textContent='🔇 SOUND OFF';$('soundBtn').classList.remove('on')}
 $('soundBtn').onclick=()=>soundOn?stopAudio():startAudio();
 function audioTick(){
- if(!engineOsc||!engineGain)return;
- engineOsc.frequency.setTargetAtTime(55+s.rpm*.065,audioCtx.currentTime,.05);
- engineGain.gain.setTargetAtTime(soundOn?(0.006+s.throttle*.000045):.0001,audioCtx.currentTime,.08);
-}
-function drawTraffic(t){
- for(const a of traffic){
-  const px=((a.x+Math.sin(t*a.speed+a.phase)*.08)%1)*W;
-  const py=(a.y+Math.cos(t*a.speed*.7+a.phase)*.045)*H;
-  ctx.save();ctx.translate(px,py);ctx.scale(a.scale,a.scale);
-  ctx.globalAlpha=.72;ctx.fillStyle='#eef6f8';ctx.beginPath();ctx.ellipse(0,0,10,26,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#c9d7dc';ctx.beginPath();ctx.moveTo(-35,0);ctx.lineTo(8,-7);ctx.lineTo(22,0);ctx.lineTo(8,7);ctx.closePath();ctx.fill();
-  ctx.restore();
- }
-}
-function drawAirportDetails(){
- const base=H*.61,runY=base+H*.13;
- ctx.fillStyle='#536066';ctx.fillRect(W*.03,base-38,W*.12,38);
- ctx.fillStyle='#67757b';ctx.fillRect(W*.04,base-58,W*.09,20);
- ctx.fillStyle='#26343a';ctx.fillRect(W*.07,base-75,4,17);
- ctx.fillStyle='#d9c14e';ctx.fillRect(W*.068,base-82,8,7);
- ctx.fillStyle='#fff';ctx.font='bold 10px Arial';ctx.fillText('TERMINAL',W*.055,base-44);
- ctx.strokeStyle='#ffebe0';ctx.lineWidth=2;
- for(let i=0;i<12;i++){const x=W*.31+i*(W*.66/11);ctx.beginPath();ctx.arc(x,runY-4,2.2,0,Math.PI*2);ctx.stroke()}
- ctx.fillStyle='#e74b4b';ctx.fillRect(W*.25,base-35,3,35);ctx.fillStyle='#fff';ctx.fillRect(W*.25,base-35,25,3);
-}
-function drawTower(){
- drawSky();drawCloud(W*.2,H*.2,.8);drawCloud(W*.7,H*.17,1.1);
- ctx.fillStyle='#405f3c';ctx.fillRect(0,H*.61,W,H*.39);
- const rw=H*.18;const ry=H*.54;
- ctx.fillStyle='#292f32';ctx.fillRect(W*.17,ry,W*.66,rw);ctx.strokeStyle='#dec44e';ctx.lineWidth=3;ctx.strokeRect(W*.17,ry,W*.66,rw);
- ctx.strokeStyle='#fff';ctx.lineWidth=4;for(let x=W*.21;x<W*.79;x+=55){ctx.beginPath();ctx.moveTo(x,ry+rw/2);ctx.lineTo(x+28,ry+rw/2);ctx.stroke()}
- ctx.fillStyle='#fff';ctx.font='bold 30px Arial';ctx.fillText('09',W*.75,ry+rw*.58);
- ctx.fillStyle='#58656a';ctx.fillRect(W*.86,H*.28,42,H*.33);ctx.fillStyle='#78939e';ctx.fillRect(W*.845,H*.25,72,22);ctx.fillStyle='#a7e6ff';ctx.fillRect(W*.855,H*.27,52,7);
- drawTraffic(performance.now()/1000);
-}
-const oldWorld=world;
-world=function(){
- if(s.view==='TOWER'){
-  drawTower();
- }else{
-  oldWorld();
-  if(s.view!=='COCKPIT')drawTraffic(performance.now()/1000);
-  drawAirportDetails();
- }
-};
-const oldSetView=setView;
-setView=function(v){oldSetView(v);document.body.classList.toggle('cockpit',v==='COCKPIT');};
-const oldHud=hud;
-hud=function(){
- oldHud();
- $('deckSpeed').textContent=Math.round(s.speed);$('deckAlt').textContent=Math.round(s.alt);$('deckVs').textContent=Math.round(s.vs);$('deckRpm').textContent=Math.round(s.rpm);
- $('deckThrottle').style.bottom=(18+s.throttle*.86)+'px';
-$('deckThrottle').style.transform='translateX(0)';
- $('attitude').style.transform='rotate('+(-s.bank*.45)+'deg)';
- $('navCompass').style.transform='rotate('+(-s.heading)+'deg)';
- audioTick();
-};
-const oldStart=start;
-start=function(){oldStart();startAudio();};
-
-function loop(now){let dt=clamp((now-s.last)/1000,0,.05);s.last=now;if(s.started){controls(dt);engine(dt);flight(dt);evaluate(dt);hud()}world();requestAnimationFrame(loop)}
-setupMission();hud();requestAnimationFrame(loop);
-})();
-</script>
-</body>
-</html>
