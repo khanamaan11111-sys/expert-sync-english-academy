@@ -104,6 +104,23 @@ body.cockpit #cockpitDeck{display:block}
 #soundBtn.on{background:#126c83;border-color:#67e0ff;color:#fff}
 @media(max-width:800px){#cockpitDeck{height:150px}.panelRow{gap:4px;top:14px}.roundInst{width:72px;height:72px}.roundInst .ring{inset:5px}.roundInst .instName{top:10px;font-size:6px}.roundInst .instNum{top:28px;font-size:14px}.roundInst .instUnit{bottom:10px;font-size:5px}#navCompass,#throttleBox,#deckBrand{display:none}}
 
+
+/* ===== EXPERT SYNC V4 — HANDS-ON FLIGHT OPERATION ===== */
+#cockpitDeck{pointer-events:auto;cursor:default}
+#cockpitDeck .roundInst{transition:filter .12s,transform .12s}
+#cockpitDeck .roundInst:hover{filter:brightness(1.15)}
+#cockpitDeck .interactiveControl{pointer-events:auto;user-select:none;touch-action:none;cursor:grab}
+#cockpitDeck .interactiveControl:active{cursor:grabbing}
+#yoke{pointer-events:auto;z-index:8}
+#yoke .wheel{transition:transform .08s}
+#throttleBox{pointer-events:auto;z-index:8;cursor:ns-resize}
+#deckBrake{position:absolute;left:170px;bottom:28px;z-index:9;padding:8px 12px;border:1px solid #4a626d;border-radius:7px;background:linear-gradient(#26383f,#10191e);color:#dce9ed;font-size:8px;font-weight:900;letter-spacing:.8px;cursor:pointer;pointer-events:auto}
+#deckBrake.on{background:linear-gradient(#8a3e3e,#41191b);border-color:#ff8585;color:#fff}
+#operationHint{position:absolute;left:50%;top:-42px;transform:translateX(-50%);min-width:360px;padding:8px 12px;text-align:center;background:#061721eF;border:1px solid #3d93b2;border-radius:7px;color:#ccefff;font-size:9px;line-height:1.35;box-shadow:0 5px 20px #0008;pointer-events:none}
+#operationHint b{color:#75ddff}
+#controlReadout{position:absolute;left:14px;bottom:12px;padding:7px 9px;border:1px solid #294653;border-radius:6px;background:#07141bdd;color:#9fb6bf;font-size:8px;z-index:9;pointer-events:none}
+#controlReadout b{color:#fff}
+@media(max-width:900px){#operationHint{min-width:260px;font-size:8px}#deckBrake{left:20px;bottom:20px}}
 </style>
 </head>
 <body>
@@ -206,11 +223,15 @@ body.cockpit #cockpitDeck{display:block}
     <div class="roundInst"><div class="ring"></div><div class="instName">AIRSPEED</div><div class="instNum" id="deckSpeed">0</div><div class="instUnit">KNOTS</div></div>
     <div class="roundInst"><div class="ring"></div><div class="instName">ALTIMETER</div><div class="instNum" id="deckAlt">0</div><div class="instUnit">FEET</div></div>
     <div class="roundInst"><div class="ring"></div><div class="instName">VERTICAL SPEED</div><div class="instNum" id="deckVs">0</div><div class="instUnit">FT/MIN</div></div>
+    <div class="roundInst"><div class="ring"></div><div class="instName">HEADING</div><div class="instNum" id="deckHeading">090</div><div class="instUnit">DEGREES</div></div>
     <div class="roundInst"><div class="ring"></div><div class="instName">RPM</div><div class="instNum" id="deckRpm">0</div><div class="instUnit">ENGINE</div></div>
   </div>
   <div id="navCompass"><span class="cardinal n">N</span><span class="cardinal s">S</span><span class="cardinal e">E</span><span class="cardinal w">W</span></div>
   <div id="throttleBox"><label>THROTTLE</label><div class="rail"></div><div class="handle" id="deckThrottle"></div></div>
-  <div id="yoke"><div class="wheel"></div><div class="stem"></div></div>
+  <div id="yoke" class="interactiveControl" title="Drag the yoke: left/right = bank/steering, up/down = pitch"><div class="wheel"></div><div class="stem"></div></div>
+  <button id="deckBrake">PARKING BRAKE: ON</button>
+  <div id="operationHint"><b>YOU ARE NOW THE PILOT</b> — Use the throttle and yoke. Watch airspeed, attitude, heading, altitude and RPM. Keyboard still works: W/S throttle • A/D roll/steer • ↑/↓ pitch • F flaps • G gear • R radio.</div>
+  <div id="controlReadout">YOKE <b id="yokeReadout">CENTER</b> &nbsp; THROTTLE <b id="throttleReadout">0%</b></div>
   <div id="deckBrand">EXPERT SYNC • TRAINING FLIGHT DECK</div>
 </div>
 
@@ -254,8 +275,9 @@ const missions=[
 const s={
 phase:0,view:'EXTERNAL',started:false,score:0,progress:0,last:performance.now(),
 x:0,y:0,alt:0,speed:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,
-gear:true,flaps:0,onGround:true,stall:false,brake:false,engine:false,radioAck:false,
-battery:false,avionics:false,fuelPump:false,mixture:0,starter:false,engineStarted:false
+gear:true,flaps:0,onGround:true,stall:false,brake:false,parkingBrake:true,engine:false,radioAck:false,
+battery:false,avionics:false,fuelPump:false,mixture:0,starter:false,engineStarted:false,
+yokeX:0,yokeY:0,yokeActive:false
 };
 const keys={};let toastTimer=0;
 
@@ -295,10 +317,40 @@ function startEngine(){
   if($('engineStart').disabled)return;
   startAudio();
   s.starter=true;s.engine=true;s.engineStarted=true;s.rpm=900;s.throttle=0;
-  $('preflight').style.display='none';$('systems').style.display='block';setupMission();
-  msg('ENGINE START — monitor RPM and oil pressure. Engine running at idle.');s.score+=10;
+  s.parkingBrake=true;s.brake=true;
+  $('preflight').style.display='none';$('systems').style.display='block';
+  setView('COCKPIT');setupMission();
+  $('deckBrake').textContent='PARKING BRAKE: ON';$('deckBrake').classList.add('on');
+  msg('ENGINE START — scan RPM, oil pressure and electrical indications. You now have control of the aircraft.');
+  s.score+=10;
 }
 $('start').onclick=start;$('continue').onclick=next;$('engineStart').onclick=startEngine;
+$('deckBrake').onclick=()=>{
+  if(!s.onGround){msg('Parking brake is a ground control only.');return}
+  s.parkingBrake=!s.parkingBrake;
+  s.brake=s.parkingBrake;
+  $('deckBrake').textContent='PARKING BRAKE: '+(s.parkingBrake?'ON':'OFF');
+  $('deckBrake').classList.toggle('on',s.parkingBrake);
+  msg('Parking brake '+(s.parkingBrake?'SET.':'RELEASED.'));
+};
+const yokeEl=$('yoke'), throttleEl=$('throttleBox');
+function setYokeFromPointer(e){
+  const r=yokeEl.getBoundingClientRect();
+  s.yokeX=clamp((e.clientX-(r.left+r.width/2))/(r.width*.42),-1,1);
+  s.yokeY=clamp((e.clientY-(r.top+r.height/2))/(r.height*.42),-1,1);
+  s.yokeActive=true;
+}
+yokeEl.addEventListener('pointerdown',e=>{yokeEl.setPointerCapture(e.pointerId);setYokeFromPointer(e)});
+yokeEl.addEventListener('pointermove',e=>{if(s.yokeActive)setYokeFromPointer(e)});
+yokeEl.addEventListener('pointerup',()=>{s.yokeActive=false;s.yokeX*=.45;s.yokeY*=.45});
+yokeEl.addEventListener('pointercancel',()=>{s.yokeActive=false});
+function setThrottleFromPointer(e){
+  const r=throttleEl.getBoundingClientRect();
+  const pct=clamp((r.bottom-e.clientY)/r.height*100,0,100);
+  s.throttle=pct;
+}
+throttleEl.addEventListener('pointerdown',e=>{throttleEl.setPointerCapture(e.pointerId);setThrottleFromPointer(e)});
+throttleEl.addEventListener('pointermove',e=>{if(e.buttons)setThrottleFromPointer(e)});
 document.querySelectorAll('[data-pre]').forEach(b=>b.addEventListener('click',()=>{
   const k=b.dataset.pre;
   if(k==='battery')s.battery=!s.battery;
@@ -316,15 +368,23 @@ if(k==='m'){s.mixture=clamp(s.mixture+10,0,100);updateSystems();msg('Mixture '+M
 if(k==='n'){s.mixture=clamp(s.mixture-10,0,100);updateSystems();msg('Mixture '+Math.round(s.mixture)+'%.')}
 if(k==='f'){s.flaps=s.flaps===0?1:s.flaps===1?2:0;msg('Flaps '+(s.flaps===0?'UP':s.flaps===1?'1 — take-off setting':'FULL — landing setting'))}
 if(k==='g'){if(s.onGround){s.gear=true;msg('Landing gear DOWN on ground.')}else if(s.speed<95){s.gear=!s.gear;msg('Landing gear '+(s.gear?'DOWN':'UP'))}else msg('CAUTION: Reduce airspeed before moving the landing gear.')}
+if(k==='b'&&s.onGround){s.parkingBrake=!s.parkingBrake;s.brake=s.parkingBrake;$('deckBrake').textContent='PARKING BRAKE: '+(s.parkingBrake?'ON':'OFF');$('deckBrake').classList.toggle('on',s.parkingBrake);msg('Parking brake '+(s.parkingBrake?'SET.':'RELEASED.'))}
 if(k==='r')ack();if(k==='c')setView(s.view==='EXTERNAL'?'COCKPIT':'EXTERNAL');if(k==='p'){s.throttle=Math.max(0,s.throttle-25);msg('Power reduced.')}}
 );addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);addEventListener('blur',()=>Object.keys(keys).forEach(k=>keys[k]=false));
 
 function controls(dt){
 if(keys.w)s.throttle+=38*dt;if(keys.s)s.throttle-=55*dt;s.throttle=clamp(s.throttle,0,100);
+if(s.yokeActive){
+  if(s.onGround)s.heading=norm(s.heading+s.yokeX*34*dt);
+  else s.bank+=s.yokeX*42*dt;
+  s.pitch-=s.yokeY*12*dt;
+}
+if(!s.yokeActive){s.yokeX*=Math.pow(.05,dt);s.yokeY*=Math.pow(.05,dt);}
 if(keys.m)s.mixture=clamp(s.mixture+45*dt,0,100);if(keys.n)s.mixture=clamp(s.mixture-45*dt,0,100);
 s.brake=s.onGround&&keys.s;
 if(s.onGround){
   if(keys.a||keys.arrowleft)s.heading=norm(s.heading-28*dt);
+  if(s.parkingBrake){s.throttle=Math.min(s.throttle,8);s.brake=true}
   if(keys.d||keys.arrowright)s.heading=norm(s.heading+28*dt);
   s.bank*=Math.pow(.02,dt);
 }else{
@@ -347,7 +407,7 @@ const flapDrag=s.flaps===2?.050:s.flaps===1?.024:0;
 const gearDrag=!s.onGround&&s.gear?.020:0;
 const aeroDrag=.010+s.speed*.00010+flapDrag+gearDrag;
 if(s.onGround){
-  const accel=power*5.7-aeroDrag*30-(s.brake?7.5:0);
+  const accel=power*5.7-aeroDrag*30-(s.brake?7.5:0)-(s.parkingBrake?14:0);
   const groundLimit=s.phase<2?20:105;
   s.speed=clamp(s.speed+accel*dt,0,groundLimit);
 }else{
@@ -425,6 +485,10 @@ $('speed').textContent=Math.round(s.speed);$('alt').textContent=Math.round(s.alt
 $('gSpd').textContent=Math.round(s.speed);$('gRpm').textContent=Math.round(s.rpm);$('gAlt').textContent=Math.round(s.alt);$('scoreVal').textContent=Math.round(s.score);$('missionBar').style.width=s.progress+'%';
 $('engine').textContent=s.rpm>450?'RUNNING':'OFF';$('engine').className=s.rpm>450?'green':'red';$('gear').textContent=s.gear?'DOWN':'UP';$('flaps').textContent=s.flaps===0?'0°':s.flaps===1?'10°':'30°';$('surface').textContent=s.onGround?'RUNWAY / TAXIWAY':'AIRBORNE';
 $('warning').classList.toggle('show',s.stall);$('radioState').textContent=s.radioAck?'ACK':'STANDBY';
+if($('deckHeading'))$('deckHeading').textContent=String(Math.round(norm(s.heading))).padStart(3,'0');
+if($('throttleReadout'))$('throttleReadout').textContent=Math.round(s.throttle)+'%';
+if($('yokeReadout'))$('yokeReadout').textContent=(Math.abs(s.yokeX)<.08&&Math.abs(s.yokeY)<.08)?'CENTER':('X '+Math.round(s.yokeX*100)+' / Y '+Math.round(s.yokeY*100));
+if($('deckBrake'))$('deckBrake').classList.toggle('on',s.parkingBrake);
 }
 
 function world(){
@@ -736,6 +800,7 @@ hud=function(){
  oldHud();
  $('deckSpeed').textContent=Math.round(s.speed);$('deckAlt').textContent=Math.round(s.alt);$('deckVs').textContent=Math.round(s.vs);$('deckRpm').textContent=Math.round(s.rpm);
  $('deckThrottle').style.bottom=(18+s.throttle*.86)+'px';
+$('deckThrottle').style.transform='translateX(0)';
  $('attitude').style.transform='rotate('+(-s.bank*.45)+'deg)';
  $('navCompass').style.transform='rotate('+(-s.heading)+'deg)';
  audioTick();
