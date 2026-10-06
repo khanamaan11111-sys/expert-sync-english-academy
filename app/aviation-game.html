@@ -78,20 +78,100 @@ const missions=[
 ['GROUND TAXI • HOLD SHORT','GROUND 121.90','Taxi via Alpha at 20 kt or less. Follow the centreline and stop at the Runway 09 hold-short line.','Ground: Cessna ES-01, taxi to Runway 09 via Alpha. Hold short.'],
 ['LINE UP & WAIT','TOWER 118.10','Contact Tower. Enter Runway 09 only after line-up clearance. Align with the centreline and stop.','Tower: ES-01, Runway 09, line up and wait.'],
 ['TAKE-OFF • ROTATE','TOWER 118.10','Read back take-off clearance. Set at least 70% power, keep the centreline, rotate smoothly at 55–65 kt, establish 7–12° pitch, confirm positive climb, then retract the gear.','Tower: ES-01, Runway 09, cleared for take-off.'],
-['CLIMB • 3,000 FT','TOWER 118.10','After take-off, establish a steady climb. Maintain runway heading 090, target 85–100 kt, pitch about 8–12°, positive vertical speed, and retract the gear after confirming a positive rate. Level at 3,000 ft.','Tower: ES-01, climb 3,000 feet, maintain 090.'],
-['CRUISE','CENTER 124.70','Stabilize around 3,000 ft, 80–110 kt and near-zero vertical speed.','Center: ES-01, maintain 3,000 feet and heading 090.'],
-['APPROACH','APPROACH 119.50','Descend, slow down, extend gear and flaps, and establish a stable final approach.','Approach: ES-01, cleared approach Runway 09.'],
-['LANDING','TOWER 118.10','Touch down under control, keep the centreline, then decelerate safely.','Tower: ES-01, cleared to land Runway 09.']
+['CLIMB • 3,000 FT','TOWER 118.10','Read back the climb clearance. Maintain runway heading 090, target 85–100 kt, pitch about 8–12°, positive vertical speed, and retract the gear after confirming a positive rate. Level at 3,000 ft.','Tower: ES-01, climb 3,000 feet, maintain 090.'],
+['CRUISE','CENTER 124.70','Read back Center. Stabilize at 3,000 ft, 80–110 kt, heading 090, and near-zero vertical speed.','Center: ES-01, maintain 3,000 feet and heading 090.'],
+['APPROACH','APPROACH 119.50','Read back the approach clearance. Descend toward the runway, slow to 65–90 kt, extend gear and flaps, and establish a stable final approach.','Approach: ES-01, cleared approach Runway 09.'],
+['LANDING','TOWER 118.10','Read back landing clearance. Maintain centreline, land with gear DOWN and FULL FLAPS, then reduce power and decelerate below 55 kt.','Tower: ES-01, cleared to land Runway 09.']
 ];
 const s={phase:0,view:'COCKPIT',started:false,score:0,progress:0,taxiDistance:0,speed:0,alt:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,gear:true,flaps:0,onGround:true,parkingBrake:true,brake:true,stall:false,battery:false,avionics:false,pump:false,mixture:0,starter:false,engine:false,engineStarted:false,starterAt:0,yx:0,yy:0,yoke:false,radio:false,xp:0,yp:0,last:performance.now()};
 const keys={};let toastT=0;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),norm=a=>(a%360+360)%360,diff=(a,b)=>{let q=norm(a-b);return q>180?q-360:q};
 function toast(t){let e=document.getElementById('toast');e.textContent=t;e.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>e.style.display='none',2300)}
-function setPhase(){let hint=document.getElementById('stageHint');hint.style.display=s.phase===0||s.phase===1||s.phase===2?'block':'none';hint.textContent=s.phase===0?'TAXI: keep ≤20 kt • follow centreline to HOLD SHORT • brake ON • press R for readback':s.phase===1?'LINE-UP: press R • brake OFF • enter Runway 09 • centreline 090 • brake ON':s.phase===2?'TAKE-OFF: press R • brake OFF • throttle ≥70% • rotate 55–65 kt • pitch 7–12° • gear UP after positive climb':'';let na=document.getElementById('nextAction');if(na){na.style.display=s.phase===0||s.phase===1||s.phase===2?'block':'none';na.textContent=s.phase===0?'NEXT → Stop at HOLD SHORT':s.phase===1?'NEXT → Read TAKE-OFF clearance':s.phase===2?'NEXT → Rotate at 55–65 kt':'';}document.getElementById('phasebar').innerHTML=phases.map((p,i)=>'<div class="phase '+(i<s.phase?'done ':'')+(i===s.phase?'active':'')+'"><div class="dot">'+(i+1)+'</div>'+p+'</div>').join('');let m=missions[s.phase];document.getElementById('mtitle').textContent=m[0];document.getElementById('mcopy').textContent=m[2];document.getElementById('freq').textContent=m[1];document.getElementById('atcText').textContent='"'+m[3]+'"';document.getElementById('bar').style.width=s.progress+'%';check()}
-function check(){let a=[];if(s.phase===0)a=[['READ BACK TAXI',s.radio],['TAXI VIA ALPHA ≤20 KT',s.xp>52],['STOP AT HOLD SHORT',s.xp>52&&s.speed<3&&s.parkingBrake],['NO RUNWAY ENTRY',s.xp<58],['CONTACT TOWER',s.phase===0&&s.radio&&s.xp>52]];if(s.phase===1)a=[['LINE-UP CLEARANCE',s.radio],['PARKING BRAKE RELEASED',s.radio&&s.xp>59&&s.speed>0],['ENTER RUNWAY AFTER CLEARANCE',s.radio&&s.xp>64],['RUNWAY HEADING 090',Math.abs(diff(s.heading,90))<4],['STOP ON CENTRELINE',s.xp>64&&s.xp<73&&Math.abs(s.yp+12.5)<3&&s.speed<3&&s.parkingBrake]];if(s.phase===2)a=[['TAKE-OFF CLEARANCE',s.radio],['TAKE-OFF POWER ≥70%',s.throttle>=70],['RUNWAY HEADING 090',Math.abs(diff(s.heading,90))<5],['ROTATE 55–65 KT',!s.onGround&&s.speed>=55&&s.speed<=90],['POSITIVE CLIMB',!s.onGround&&s.vs>200],['PITCH 7–12°',!s.onGround&&s.pitch>=7&&s.pitch<=12],['GEAR UP AFTER POSITIVE RATE',!s.onGround&&s.vs>200&&!s.gear]];if(s.phase===3)a=[['AIRBORNE',!s.onGround],['POSITIVE RATE',!s.onGround&&s.vs>200],['GEAR UP',!s.onGround&&!s.gear],['HEADING 090',Math.abs(diff(s.heading,90))<6],['CLIMB SPEED 85–100 KT',s.speed>=85&&s.speed<=105],['PITCH 8–12°',s.pitch>=8&&s.pitch<=12],['ALTITUDE 3,000 FT',s.alt>=2650&&s.alt<=3350]];document.getElementById('check').innerHTML=a.map(q=>'<div class="'+(q[1]?'done':'')+'">'+(q[1]?'✓':'○')+' '+q[0]+'</div>').join('');
-if(s.phase===1){
-document.getElementById('check').innerHTML += '<div style="margin-top:5px;color:#9bb5be">RUNWAY STATE: '+(s.xp>64?'ON RUNWAY':'HOLD SHORT')+' • HDG '+String(Math.round(norm(s.heading))).padStart(3,'0')+' • BRAKE '+(s.parkingBrake?'ON':'OFF')+'</div>';
+function setPhase(){
+let hint=document.getElementById('stageHint');
+const hints=[
+'TAXI: press R for Ground readback • brake OFF • W to move • keep ≤20 kt • follow centreline • stop HOLD SHORT',
+'LINE-UP: press R for Tower clearance • B brake OFF • enter Runway 09 • align 090 • stop on centreline • B brake ON',
+'TAKE-OFF: press R • B brake OFF • W to ≥70% • keep 090 • rotate 55–65 kt with ↑ • climb positive • G gear UP',
+'CLIMB: press R • maintain 090 • 85–100 kt • 8–12° pitch • VS positive • gear UP • level at 3,000 ft',
+'CRUISE: press R • maintain 3,000 ft • 80–110 kt • 090° • VS near 0 • keep stable',
+'APPROACH: press R • descend • 65–90 kt • gear DOWN • F to take-off/full flaps • stable final',
+'LANDING: press R • gear DOWN • full flaps • centreline • touchdown • reduce power • below 55 kt'
+];
+const nexts=[
+'NEXT → Stop at HOLD SHORT',
+'NEXT → Read LINE-UP clearance',
+'NEXT → Read TAKE-OFF clearance',
+'NEXT → Level at 3,000 FT',
+'NEXT → Set up approach when cleared',
+'NEXT → Continue stable final to landing',
+'NEXT → Land, slow below 55 KT'
+];
+hint.style.display='block';hint.textContent=hints[s.phase]||'';
+let na=document.getElementById('nextAction');
+if(na){na.style.display='block';na.textContent=nexts[s.phase]||'';}
+document.getElementById('phasebar').innerHTML=phases.map((p,i)=>'<div class="phase '+(i<s.phase?'done ':'')+(i===s.phase?'active':'')+'"><div class="dot">'+(i+1)+'</div>'+p+'</div>').join('');
+let m=missions[s.phase];document.getElementById('mtitle').textContent=m[0];document.getElementById('mcopy').textContent=m[2];document.getElementById('freq').textContent=m[1];document.getElementById('atcText').textContent='"'+m[3]+'"';document.getElementById('bar').style.width=s.progress+'%';check()
 }
+function check(){
+let a=[];
+if(s.phase===0)a=[
+['READ BACK TAXI',s.radio],
+['TAXI VIA ALPHA ≤20 KT',s.xp>52&&s.speed<=20],
+['STOP AT HOLD SHORT',s.xp>52&&s.speed<3&&s.parkingBrake],
+['NO RUNWAY ENTRY',s.xp<58],
+['CONTACT TOWER',s.phase===0&&s.radio&&s.xp>52]
+];
+if(s.phase===1)a=[
+['LINE-UP CLEARANCE',s.radio],
+['PARKING BRAKE RELEASED',s.radio&&s.xp>59&&s.speed>0],
+['ENTER RUNWAY AFTER CLEARANCE',s.radio&&s.xp>64],
+['RUNWAY HEADING 090',Math.abs(diff(s.heading,90))<4],
+['STOP ON CENTRELINE',s.xp>64&&Math.abs(s.yp+12.5)<4&&s.speed<3&&s.parkingBrake]
+];
+if(s.phase===2)a=[
+['TAKE-OFF CLEARANCE',s.radio],
+['TAKE-OFF POWER ≥70%',s.throttle>=70],
+['RUNWAY HEADING 090',Math.abs(diff(s.heading,90))<5],
+['ROTATE 55–65 KT',!s.onGround&&s.speed>=55&&s.speed<=90],
+['POSITIVE CLIMB',!s.onGround&&s.vs>200],
+['PITCH 7–12°',!s.onGround&&s.pitch>=7&&s.pitch<=12],
+['GEAR UP AFTER POSITIVE RATE',!s.onGround&&s.vs>200&&!s.gear]
+];
+if(s.phase===3)a=[
+['CLIMB CLEARANCE READBACK',s.radio],
+['AIRBORNE',!s.onGround],
+['GEAR UP',!s.onGround&&!s.gear],
+['HEADING 090',Math.abs(diff(s.heading,90))<6],
+['CLIMB SPEED 85–100 KT',s.speed>=85&&s.speed<=105],
+['PITCH 8–12°',s.pitch>=8&&s.pitch<=12],
+['ALTITUDE 3,000 FT',s.alt>=2650&&s.alt<=3350]
+];
+if(s.phase===4)a=[
+['CENTER READBACK',s.radio],
+['ALTITUDE 3,000 FT',s.alt>=2700&&s.alt<=3300],
+['CRUISE SPEED 80–110 KT',s.speed>=80&&s.speed<=110],
+['HEADING 090',Math.abs(diff(s.heading,90))<6],
+['LEVEL FLIGHT',Math.abs(s.vs)<250]
+];
+if(s.phase===5)a=[
+['APPROACH READBACK',s.radio],
+['DESCENDING',s.vs<-100],
+['APPROACH SPEED 65–90 KT',s.speed>=65&&s.speed<=95],
+['GEAR DOWN',s.gear],
+['FLAPS CONFIGURED',s.flaps>=1],
+['STABLE DESCENT',Math.abs(s.bank)<10&&Math.abs(s.vs)<900]
+];
+if(s.phase===6)a=[
+['LANDING CLEARANCE',s.radio],
+['GEAR DOWN',s.gear],
+['FULL FLAPS',s.flaps===2],
+['CENTRELINE / LOW BANK',Math.abs(s.bank)<10],
+['TOUCHDOWN',s.onGround],
+['DECELERATE <55 KT',s.onGround&&s.speed<55]
+];
+document.getElementById('check').innerHTML=a.map(q=>'<div class="'+(q[1]?'done':'')+'">'+(q[1]?'✓':'○')+' '+q[0]+'</div>').join('');
+if(s.phase===1)document.getElementById('check').innerHTML+='<div style="margin-top:5px;color:#9bb5be">RUNWAY STATE: '+(s.xp>64?'ON RUNWAY':'HOLD SHORT')+' • HDG '+String(Math.round(norm(s.heading))).padStart(3,'0')+' • BRAKE '+(s.parkingBrake?'ON':'OFF')+'</div>';
 }
 function ready(){return s.battery&&s.avionics&&s.pump&&s.mixture>=95}
 function updatePre(){document.querySelectorAll('[data-pre]').forEach(b=>{let k=b.dataset.pre,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:s.mixture>=95;b.textContent=on?(k==='mixture'?'RICH':'ON'):(k==='mixture'?'LEAN':'OFF');b.classList.toggle('on',on)});document.getElementById('starter').disabled=!ready()||s.engineStarted;document.getElementById('premsg').textContent=ready()?'CHECK COMPLETE — press START ENGINE.':'Complete the checklist in order: MASTER → AVIONICS → PUMP → MIXTURE RICH.'}
@@ -131,29 +211,61 @@ s.brake=s.parkingBrake||keys.s
 }else{if(keys.a||keys.arrowleft)s.bank-=42*dt;if(keys.d||keys.arrowright)s.bank+=42*dt;s.bank*=Math.pow(.12,dt)}if(keys.arrowup)s.pitch+=11*dt;if(keys.arrowdown)s.pitch-=11*dt;if(!keys.arrowup&&!keys.arrowdown&&!s.yoke)s.pitch*=Math.pow(.45,dt);s.bank=clamp(s.bank,-38,38);s.pitch=clamp(s.pitch,-14,16)}
 function engine(dt){if(s.starter&&performance.now()-s.starterAt>2800){s.starter=false;s.engineStarted=true;s.engine=true;s.rpm=850;toast('ENGINE FIRED — oil pressure should rise now.')}let idle=s.engineStarted?720:0,max=2650,target=s.starter?900:(s.engineStarted?idle+s.throttle/100*(max-idle):0);s.rpm+=(target-s.rpm)*Math.min(1,dt*(s.starter?2:4));s.engine=s.rpm>500;let power=clamp((s.rpm-idle)/(max-idle),0,1);let drag=.010+s.speed*.00010+(s.flaps===1?.024:s.flaps===2?.05:0)+(!s.onGround&&s.gear?.02:0);if(s.onGround){let a=power*5.7-drag*30-(s.brake?7.5:0)-(s.parkingBrake?14:0);let groundLimit=s.phase===0?20:s.phase===1?(s.radio?18:0):110;s.speed=clamp(s.speed+a*dt,0,groundLimit)}else{s.speed=clamp(s.speed+(power*3.2-drag*2.7)*dt,38,150)}s.fuel=Math.max(0,s.fuel-(.00018+s.throttle*.000018+s.rpm*.000000035)*dt*60)}
 function flight(dt){let r=Math.PI/180;if(s.onGround){s.alt=0;s.vs=0;s.stall=false;if(s.phase===0&&s.speed>0.5&&!s.parkingBrake)s.taxiDistance+=s.speed*0.5144*dt;s.xp+=Math.sin(s.heading*r)*s.speed*.00265*dt;s.yp-=Math.cos(s.heading*r)*s.speed*.00265*dt;if(s.phase===2&&s.radio&&!s.parkingBrake&&s.speed>=55&&s.speed<=90&&s.throttle>=70&&s.pitch>=7&&s.pitch<=14&&Math.abs(diff(s.heading,90))<8){s.onGround=false;s.alt=12;s.vs=620;toast('ROTATE — positive rate. Maintain runway heading 090.');s.score+=30}}else{let stallSpd=48+s.flaps*5,liftA=clamp((s.pitch+2)/14,0,1.35),liftS=clamp((s.speed-stallSpd)/48,0,1.45),load=1/Math.max(.72,Math.cos(s.bank*r));let tvs=(liftA*liftS*980)/load+(s.throttle-52)*3.6;s.stall=s.speed<stallSpd||(s.pitch>12&&s.speed<70);if(s.stall)tvs-=900;s.vs+=(tvs-s.vs)*Math.min(1,dt*1.8);s.vs=clamp(s.vs,-2400,2600);s.alt=Math.max(0,s.alt+s.vs*dt/60);s.heading=norm(s.heading+(s.speed/105)*Math.sin(s.bank*r)*31*dt);s.xp+=Math.sin(s.heading*r)*s.speed*.00155*dt;s.yp-=Math.cos(s.heading*r)*s.speed*.00155*dt;if(s.alt<14&&s.vs<-180){if(s.speed<88&&s.gear&&s.flaps>=1&&Math.abs(s.bank)<10){s.onGround=true;s.alt=0;s.vs=0;s.pitch=0;s.bank=0;toast('TOUCHDOWN — hold centreline and reduce power.')}else{s.alt=22;s.vs=120;s.score=Math.max(0,s.score-8);toast('UNSTABLE APPROACH — correct speed, configuration and descent.')}}}}
-function evaluate(dt){let g=0;if(s.phase===0){const taxiHeading=Math.abs(diff(s.heading,90));s.progress=clamp((s.taxiDistance/120)*70,0,70);if(s.speed>20.5)toast('TAXI OVERSPEED — keep ground speed at or below 20 kt.');if(taxiHeading>35&&s.speed>2)toast('TAXI HEADING — turn toward 090 and follow the yellow centreline.');if(s.radio&&s.speed<3&&s.parkingBrake&&taxiHeading<55){g=1000*dt;s.progress=100;toast('HOLD SHORT — taxi complete. Tower is ready for LINE UP & WAIT.')}}if(s.phase===1){
-const runwayHeading=Math.abs(diff(s.heading,90));
-const atEntry=s.xp>64;
-const centred=Math.abs(s.yp+12.5)<4;
-if(!s.radio&&atEntry&&s.speed>1){
-s.parkingBrake=true;s.brake=true;
-toast('RUNWAY ENTRY STOP — obtain Tower line-up clearance first.');
+function evaluate(dt){
+let g=0;
+if(s.phase===0){
+const taxiHeading=Math.abs(diff(s.heading,90));s.progress=clamp((s.taxiDistance/120)*70,0,70);
+if(s.speed>20.5)toast('TAXI OVERSPEED — keep ground speed at or below 20 kt.');
+if(taxiHeading>35&&s.speed>2)toast('TAXI HEADING — turn toward 090 and follow the yellow centreline.');
+if(s.radio&&s.speed<3&&s.parkingBrake&&taxiHeading<55){g=1000*dt;s.progress=100;toast('HOLD SHORT — taxi complete. Tower is ready for LINE UP & WAIT.')}
 }
-if(s.radio&&atEntry&&s.xp<73&&s.speed<3&&s.parkingBrake&&runwayHeading<8&&centred){
-g=1000*dt;s.progress=100;
-toast('LINE-UP COMPLETE — aircraft stopped on Runway 09 centreline. TAKE-OFF clearance is next.');
+if(s.phase===1){
+const runwayHeading=Math.abs(diff(s.heading,90)),atEntry=s.xp>64,centred=Math.abs(s.yp+12.5)<4;
+if(!s.radio&&atEntry&&s.speed>1){s.parkingBrake=true;s.brake=true;toast('RUNWAY ENTRY STOP — obtain Tower line-up clearance first.')}
+if(s.radio&&atEntry&&s.speed<3&&s.parkingBrake&&runwayHeading<8&&centred){g=1000*dt;s.progress=100;toast('LINE-UP COMPLETE — stopped on Runway 09 centreline. TAKE-OFF clearance is next.')}
+if(s.radio&&atEntry&&s.speed<3&&s.parkingBrake&&runwayHeading>=8)toast('ALIGN WITH RUNWAY 09 — target heading 090.');
+if(s.radio&&!atEntry&&s.speed<1)toast('LINE-UP CLEARANCE RECEIVED — release parking brake and taxi straight onto Runway 09.');
+if(s.radio&&atEntry&&s.speed>3&&runwayHeading<8)toast('RUNWAY 09 — continue straight, then STOP and set parking brake.');
+if(s.radio&&s.xp>=73&&s.speed<3&&s.parkingBrake&&runwayHeading<8&&centred){s.xp=73;s.yp=-12.5;s.progress=100;toast('LINE-UP COMPLETE — stopped on Runway 09 centreline. Tower take-off clearance next.')}
 }
-if(s.radio&&atEntry&&s.speed<3&&s.parkingBrake&&runwayHeading>=8)
-toast('ALIGN WITH RUNWAY 09 — target heading 090.');
-if(s.radio&&!atEntry&&s.speed<1)
-toast('LINE-UP CLEARANCE RECEIVED — release parking brake and taxi straight onto Runway 09.');
-if(s.radio&&atEntry&&s.speed>3&&runwayHeading<8)
-toast('RUNWAY 09 — continue straight, then STOP and set parking brake.');
-if(s.radio&&s.xp>=73&&s.speed<3&&s.parkingBrake&&runwayHeading<8&&centred){
-s.xp=73;s.yp=-12.5;s.progress=100;
-toast('LINE-UP COMPLETE — stopped on Runway 09 centreline. Tower take-off clearance next.');
+if(s.phase===2&&s.radio&&!s.onGround&&s.alt>250&&s.speed>=70&&s.speed<=115&&s.throttle>=70&&Math.abs(diff(s.heading,90))<6&&s.vs>200&&s.pitch>=7&&s.pitch<=12&&!s.gear){g=24*dt;if(s.progress>55)toast('TAKE-OFF PROFILE GOOD — maintain 090 and 8–12° pitch.')}
+if(s.phase===2&&s.onGround&&s.speed>55&&s.pitch<4)toast('ROTATE — gently raise the nose at 55–65 kt.');
+if(s.phase===2&&s.onGround&&s.speed>75&&s.pitch<7)toast('ROTATE NOW — maintain runway centreline.');
+if(s.phase===3&&!s.onGround){
+if(!s.radio)toast('CLIMB CLEARANCE — press R to read back.');
+if(s.speed<82&&s.throttle<85)toast('CLIMB — add power and hold 8–12° pitch.');
+if(s.speed>108&&s.pitch<10)toast('CLIMB SPEED HIGH — raise pitch slightly or reduce power.');
+if(Math.abs(diff(s.heading,90))>7)toast('Correct heading — keep 090 during the climb.');
+if(s.alt>2850&&s.pitch>5)toast('Approaching 3,000 ft — reduce pitch and prepare to level.');
 }
-}if(s.phase===1&&s.xp>64&&!s.radio)toast('RUNWAY ENTRY NOT CLEARED — contact Tower first.');if(s.phase===2&&s.radio&&!s.onGround&&s.alt>250&&s.speed>=70&&s.speed<=115&&s.throttle>=70&&Math.abs(diff(s.heading,90))<6&&s.vs>200&&s.pitch>=7&&s.pitch<=12&&!s.gear){g=24*dt;if(s.progress>55)toast('TAKE-OFF PROFILE GOOD — maintain 090 and 8–12° pitch.');}if(s.phase===2&&s.onGround&&s.speed>55&&s.pitch<4)toast('ROTATE — gently raise the nose at 55–65 kt.');if(s.phase===2&&s.onGround&&s.speed>75&&s.pitch<7)toast('ROTATE NOW — maintain runway centreline.');if(s.phase===3&&!s.onGround){if(s.speed<82&&s.throttle<85)toast('CLIMB — add power and hold 8–12° pitch.');if(s.speed>108&&s.pitch<10)toast('CLIMB SPEED HIGH — raise pitch slightly or reduce power.');if(Math.abs(diff(s.heading,90))>7)toast('Correct heading — keep 090 during the climb.');if(s.alt>2850&&s.pitch>5)toast('Approaching 3,000 ft — reduce pitch and prepare to level.');}if(s.phase===3&&!s.onGround&&s.alt>1200&&s.alt<3400&&s.speed>=85&&s.speed<=105&&!s.gear&&s.vs>250&&s.vs<1200&&s.throttle>=65&&s.throttle<=95&&s.pitch>=8&&s.pitch<=12&&Math.abs(diff(s.heading,90))<6)g=18*dt;if(s.phase===4&&!s.onGround&&Math.abs(s.alt-3000)<350&&s.speed>78&&s.speed<115&&Math.abs(s.vs)<300&&Math.abs(diff(s.heading,90))<8)g=15*dt;if(s.phase===5&&!s.onGround&&s.alt<1800&&s.speed>55&&s.speed<95&&s.gear&&s.flaps>=1&&Math.abs(s.vs)<750)g=16*dt;if(s.phase===6&&s.onGround&&s.speed<55&&s.flaps===2&&s.gear)g=28*dt;if(g){s.progress=clamp(s.progress+g,0,100);s.score+=g*.7}else s.score=Math.max(0,s.score-.006*dt);if(s.progress>=100&&s.phase<6){next()}if(s.stall&&s.alt>40)document.getElementById('warning').style.display='block';else document.getElementById('warning').style.display='none'}
+if(s.phase===3&&!s.onGround&&s.radio&&s.alt>1200&&s.alt<3400&&s.speed>=85&&s.speed<=105&&!s.gear&&s.vs>250&&s.vs<1200&&s.throttle>=65&&s.throttle<=95&&s.pitch>=8&&s.pitch<=12&&Math.abs(diff(s.heading,90))<6)g=18*dt;
+if(s.phase===4&&!s.onGround){
+if(!s.radio)toast('CENTER — press R to read back the 3,000 ft clearance.');
+if(Math.abs(s.alt-3000)<350&&s.speed>78&&s.speed<115&&Math.abs(s.vs)<300&&Math.abs(diff(s.heading,90))<8&&s.radio)g=15*dt;
+}
+if(s.phase===5&&!s.onGround){
+if(!s.radio)toast('APPROACH — press R to read back the approach clearance.');
+if(s.alt<1800&&s.speed>55&&s.speed<100&&s.gear&&s.flaps>=1&&Math.abs(s.vs)<850&&s.radio)g=16*dt;
+if(s.speed>95)toast('APPROACH SPEED HIGH — reduce power / lower the nose as appropriate.');
+}
+if(s.phase===6){
+if(!s.radio)toast('TOWER — press R to read back landing clearance.');
+if(s.onGround&&s.speed<55&&s.flaps===2&&s.gear&&s.radio){g=30*dt;toast('LANDING COMPLETE — aircraft slowed safely. Mission complete.')}
+}
+if(g){s.progress=clamp(s.progress+g,0,100);s.score+=g*.7}else s.score=Math.max(0,s.score-.006*dt);
+if(s.progress>=100&&s.phase<6){next()}
+if(s.progress>=100&&s.phase===6){finishMission()}
+if(s.stall&&s.alt>40)document.getElementById('warning').style.display='block';else document.getElementById('warning').style.display='none'
+}
+function finishMission(){
+if(document.getElementById('complete'))return;
+const e=document.createElement('div');e.id='complete';e.className='ui panel';
+e.style='left:50%;top:50%;transform:translate(-50%,-50%);z-index:50;padding:24px 30px;text-align:center;min-width:320px';
+e.innerHTML='<div style="color:#54e6a6;font-size:11px;font-weight:900;letter-spacing:2px">MISSION COMPLETE</div><div style="font-size:26px;font-weight:900;margin:8px 0">EXPERT SYNC — FLIGHT 01</div><div style="color:#9bb5be;font-size:12px">Taxi • Line-Up • Take-off • Climb • Cruise • Approach • Landing</div><div style="margin:14px 0;font-size:18px">SCORE: '+Math.round(s.score)+'</div><button id="replay" class="atcBtn" style="width:100%">RESTART TRAINING</button>';
+document.getElementById('game').appendChild(e);
+document.getElementById('replay').onclick=()=>location.reload();
+toast('MISSION COMPLETE — excellent flight.');
+}
 function hud(){let h=String(Math.round(norm(s.heading))).padStart(3,'0');document.getElementById('hspd').textContent=Math.round(s.speed);document.getElementById('halt').textContent=Math.round(s.alt);document.getElementById('hhdg').textContent=h;document.getElementById('hvs').textContent=Math.round(s.vs);document.getElementById('hrpm').textContent=Math.round(s.rpm);document.getElementById('hfuel').textContent=Math.round(s.fuel);document.getElementById('gs').textContent=Math.round(s.speed);document.getElementById('ga').textContent=Math.round(s.pitch)+'°';document.getElementById('galt').textContent=Math.round(s.alt);document.getElementById('gh').textContent=h;document.getElementById('gv').textContent=Math.round(s.vs);document.getElementById('stEngine').textContent=s.engine?'RUNNING':'OFF';document.getElementById('stEngine').className=s.engine?'green':'red';document.getElementById('stOil').textContent=Math.round(s.engine?clamp((s.rpm-500)*.042,0,65):0)+' PSI';document.getElementById('stGear').textContent=s.gear?'DOWN':'UP';document.getElementById('stFlaps').textContent=s.flaps===0?'UP':s.flaps===1?'10°':'30°';document.getElementById('stSurface').textContent=s.onGround?'GROUND':'AIRBORNE';document.getElementById('tp').textContent=Math.round(s.throttle)+'%';document.getElementById('lever').style.bottom=(20+s.throttle*.8)+'px';document.getElementById('radioState').textContent=s.radio?'ACK':'STANDBY';setPhase();document.getElementById('bar').style.width=s.progress+'%';document.querySelectorAll('.switch').forEach(e=>{let k=e.dataset.s,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:false;e.classList.toggle('on',on)});document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}
 function draw(){x.clearRect(0,0,W,H);let sky=x.createLinearGradient(0,0,0,H*.62);sky.addColorStop(0,'#49a7d5');sky.addColorStop(.7,'#a6dce8');sky.addColorStop(1,'#7da66f');x.fillStyle=sky;x.fillRect(0,0,W,H*.64);let horizon=H*.48 - s.pitch*H*.018;x.save();x.translate(W*.5,horizon);x.rotate(s.bank*Math.PI/180);x.translate(-W*.5,-horizon);x.fillStyle='#526e6b';x.beginPath();x.moveTo(0,horizon+25);for(let i=0;i<=W;i+=35)x.lineTo(i,horizon+5-Math.sin(i*.008)*32-Math.sin(i*.018)*15);x.lineTo(W,horizon+25);x.fill();x.fillStyle='#4d7448';x.fillRect(-W,horizon+25,W*3,H);x.restore();for(let i=0;i<18;i++){x.fillStyle=i%2?'#52794d':'#4a7046';x.fillRect(i*W/18,horizon+25,W/18+1,H)}let cx=W*.58,top=horizon+H*.10,bottom=H*1.05;x.fillStyle='#252c2f';x.beginPath();x.moveTo(cx-W*.20,top);x.lineTo(cx+W*.20,top);x.lineTo(cx+W*.48,bottom);x.lineTo(cx-W*.48,bottom);x.closePath();x.fill();x.strokeStyle='#d8bf45';x.lineWidth=3;x.stroke();x.strokeStyle='#fff';x.lineWidth=4;x.setLineDash([28,24]);x.beginPath();x.moveTo(cx,top);x.lineTo(cx,bottom);x.stroke();x.setLineDash([]);x.fillStyle='#fff';x.font='900 35px Arial';x.fillText('09',cx+W*.08,top+H*.06);if(s.phase===1&&s.xp>64){
 x.strokeStyle='#54e6a6';x.lineWidth=5;x.setLineDash([18,12]);x.beginPath();x.moveTo(cx-W*.12,top+H*.105);x.lineTo(cx+W*.12,top+H*.105);x.stroke();x.setLineDash([]);
