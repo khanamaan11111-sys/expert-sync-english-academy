@@ -48,6 +48,9 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #failureBtn{background:#0a202a;border:1px solid #8b5555;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer}
 #controlGuide b{font-size:9px;letter-spacing:1px;color:#54e6a6}
 #guideText{margin-top:4px;font-size:9px;line-height:1.5;color:#c6d7dc}
+#eventPanel{right:14px;top:700px;padding:8px 9px;width:300px;z-index:24}
+#eventPanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
+#eventLog{font-size:8px;color:#9bb5be;margin-top:5px;line-height:1.45;max-height:92px;overflow:auto}
 #trafficPanel{left:14px;top:600px;padding:8px 9px;width:220px;z-index:24}
 #trafficPanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
 #trafficText{font-size:9px;color:#54e6a6;margin-top:5px}
@@ -84,6 +87,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="mission" class="ui panel"><div class="eyebrow">ACTIVE TRAINING</div><div id="mtitle" class="title"></div><div id="mcopy" class="copy"></div><div class="progress"><i id="bar"></i></div><div id="check"></div></div>
 <div id="atc" class="ui panel"><div class="atcHead"><span>ATC • <span id="freq"></span></span><span id="radioState">STANDBY</span></div><div id="atcText" class="atcBody"></div><div class="radio">Press <b>R</b> to transmit/read back.</div><button id="atcBtn" class="atcBtn">TRANSMIT / READ BACK</button></div>
 <div id="warning" class="ui">STALL WARNING — LOWER NOSE / INCREASE AIRSPEED</div><div id="stageHint" class="ui panel" style="left:50%;top:64%;transform:translateX(-50%);padding:7px 12px;font-size:9px;color:#bfefff;display:none;z-index:20"></div><div id="nextAction" class="ui panel" style="left:50%;top:70%;transform:translateX(-50%);padding:6px 10px;font-size:8px;color:#54e6a6;display:none;z-index:20"></div><div id="toast" class="ui"></div><div id="cockpitLabel" class="ui panel">PRIMARY FLIGHT DISPLAY • LIVE</div>
+<div id="eventPanel" class="ui panel"><b>INSTRUCTOR EVENT LOG</b><div id="eventLog">No events yet.</div></div>
 <div id="trafficPanel" class="ui panel"><b>TRAFFIC / SITUATIONAL AWARENESS</b><div id="trafficText">NO CONFLICTS</div><div id="trafficList"></div></div>
 <div id="approachPanel" class="ui panel"><b>ILS-STYLE APPROACH</b><div class="ils"><div class="ilsBox"><span>LOC</span><strong id="locDev">0.0</strong><small>DOTS</small></div><div class="ilsBox"><span>GS</span><strong id="gsDev">0.0</strong><small>DOTS</small></div></div><div id="ilsStatus">RUNWAY 09 • ILS ARMED</div></div>
 <div id="mapPanel" class="ui panel"><b>MINI MOVING MAP</b><canvas id="mapCanvas" width="220" height="145"></canvas><div id="mapInfo">RWY 09 • ROUTE ALPHA</div></div>
@@ -136,6 +140,7 @@ const missions=[
 ['AFTER LANDING • PARK & SHUTDOWN','GROUND 121.90','After touchdown, keep the centreline, slow to taxi speed, exit the runway, set parking brake, reduce power to idle, and shut down the engine.','Ground: ES-01, taxi to parking via Alpha.']
 ];
 const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,trim:0,selectedHeading:90,ilsArmed:false,failure:null,
+events:[],lastLoggedPhase:-1,
 traffic:[
 {id:'ES-T01',x:18,y:14,alt:3100,hdg:270,speed:95},
 {id:'ES-T02',x:58,y:-8,alt:2850,hdg:90,speed:85},
@@ -367,7 +372,7 @@ const sys=document.getElementById('sysMsg');
 if(s.fuel<25&&s.fuel>10)sys.textContent='LOW FUEL — plan for landing / monitor fuel.';
 else if(s.fuel<=10)sys.textContent='FUEL CRITICAL — LAND AS SOON AS PRACTICAL.';
 else if(s.oilPressure<20&&s.engine)sys.textContent='LOW OIL PRESSURE — ENGINE CHECK REQUIRED.';
-else if(s.failure==='ENGINE')sys.textContent='ENGINE FAILURE — MAINTAIN CONTROL / GLIDE / LAND.';
+else if(s.failure==='ENGINE'){sys.textContent='ENGINE FAILURE — MAINTAIN CONTROL / GLIDE / LAND.';if(!s.lastFailureLogged){logEvent('ENGINE FAILURE DRILL ACTIVE','WARNING');s.lastFailureLogged=true;}}
 else sys.textContent='SYSTEMS NORMAL';
 
 if(s.phase===0){
@@ -425,14 +430,19 @@ const score=Math.round(s.score);
 const grade=score>=850?'EXCELLENT':score>=650?'GOOD':'NEEDS PRACTICE';
 const e=document.createElement('div');e.id='complete';e.className='ui panel';
 e.style='left:50%;top:50%;transform:translate(-50%,-50%);z-index:50;padding:24px 30px;text-align:center;min-width:360px;max-width:90vw';
+logEvent('FLIGHT ASSESSMENT COMPLETE','SUCCESS');
 e.innerHTML='<div style="color:#54e6a6;font-size:11px;font-weight:900;letter-spacing:2px">FLIGHT ASSESSMENT COMPLETE</div>'+
 '<div style="font-size:26px;font-weight:900;margin:8px 0">EXPERT SYNC — FLIGHT 01</div>'+
 '<div style="color:#9bb5be;font-size:12px">Taxi → Line-Up → Take-off → Climb → Cruise → Approach → Landing</div>'+
 '<div style="margin:16px 0 8px;font-size:28px;font-weight:900">'+score+' <span style="font-size:12px;color:#9bb5be">POINTS</span></div>'+
 '<div style="font-size:14px;color:#54e6a6;font-weight:900;letter-spacing:1px">'+grade+'</div>'+
 '<div style="margin:14px 0;color:#9bb5be;font-size:11px;line-height:1.7">ATC discipline • aircraft control • configuration • speed/altitude management • runway handling</div>'+
-'<button id="replay" class="atcBtn" style="width:100%">RESTART TRAINING</button>';
+'<button id="copyDebrief" class="atcBtn" style="width:100%;margin-bottom:6px">COPY FLIGHT DEBRIEF</button><button id="replay" class="atcBtn" style="width:100%">RESTART TRAINING</button>';
 document.getElementById('game').appendChild(e);
+document.getElementById('copyDebrief').onclick=async()=>{
+const report='EXPERT SYNC FLIGHT 01 DEBRIEF\nScore: '+score+'\nGrade: '+grade+'\n'+s.events.slice().reverse().map(e=>e.t+' '+e.msg).join('\n');
+try{await navigator.clipboard.writeText(report);toast('FLIGHT DEBRIEF COPIED.')}catch(e){toast('Copy unavailable — review the event log.')}
+};
 document.getElementById('replay').onclick=()=>location.reload();
 toast('FLIGHT ASSESSMENT COMPLETE — training record ready.');
 }
@@ -467,6 +477,19 @@ const g=[
 'LANDING: R Tower • gear DOWN • FULL FLAPS • centreline • touchdown • reduce power • <55 KT.'
 ];
 document.getElementById('guideText').textContent=s.failure==='ENGINE'?'ENGINE FAILURE: lower nose • maintain control • best glide • choose a landing area • configure for landing.':(s.started?(g[s.phase]||'Flight complete.'):'Complete pre-flight checklist to begin.');
+}
+function logEvent(msg,type='INFO'){
+const now=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+s.events.unshift({t:now,msg,type});
+if(s.events.length>18)s.events.pop();
+const el=document.getElementById('eventLog');
+if(el)el.innerHTML=s.events.map(e=>'<div><b>'+e.t+'</b> '+e.msg+'</div>').join('');
+}
+function updateEventLog(){
+if(s.lastLoggedPhase!==s.phase){
+s.lastLoggedPhase=s.phase;
+logEvent('PHASE '+(s.phase+1)+' — '+(missions[s.phase]?.[0]||'TRAINING COMPLETE'),'PHASE');
+}
 }
 function updateTraffic(dt){
 for(const t of s.traffic){
@@ -524,7 +547,7 @@ document.getElementById('strobeLight').textContent=s.strobe?'ON':'OFF';
 document.getElementById('landingLight').textContent=s.landingLight?'ON':'OFF';document.getElementById('tp').textContent=Math.round(s.throttle)+'%';document.getElementById('lever').style.bottom=(20+s.throttle*.8)+'px';document.getElementById('radioState').textContent=s.radio?'ACK':'STANDBY';
 document.getElementById('selHdg').textContent=String(Math.round(s.selectedHeading)).padStart(3,'0')+'°';
 document.getElementById('courseErr').textContent=(Math.abs(diff(s.heading,s.selectedHeading))<1?'0':(diff(s.heading,s.selectedHeading)>0?'+':'')+Math.round(diff(s.heading,s.selectedHeading)))+'°';
-setPhase();updateGuide();updateWeather();updateChecklist();updateTraffic(dt);updateILS();drawMap();document.getElementById('bar').style.width=s.progress+'%';document.querySelectorAll('.switch').forEach(e=>{let k=e.dataset.s,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:false;e.classList.toggle('on',on)});document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}
+setPhase();updateGuide();updateWeather();updateChecklist();updateTraffic(dt);updateILS();updateEventLog();drawMap();document.getElementById('bar').style.width=s.progress+'%';document.querySelectorAll('.switch').forEach(e=>{let k=e.dataset.s,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:false;e.classList.toggle('on',on)});document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}
 function draw(){x.clearRect(0,0,W,H);let sky=x.createLinearGradient(0,0,0,H*.62);sky.addColorStop(0,'#49a7d5');sky.addColorStop(.7,'#a6dce8');sky.addColorStop(1,'#7da66f');x.fillStyle=sky;x.fillRect(0,0,W,H*.64);let horizon=H*.48 - s.pitch*H*.018;x.save();x.translate(W*.5,horizon);x.rotate(s.bank*Math.PI/180);x.translate(-W*.5,-horizon);x.fillStyle='#526e6b';x.beginPath();x.moveTo(0,horizon+25);for(let i=0;i<=W;i+=35)x.lineTo(i,horizon+5-Math.sin(i*.008)*32-Math.sin(i*.018)*15);x.lineTo(W,horizon+25);x.fill();x.fillStyle='#4d7448';x.fillRect(-W,horizon+25,W*3,H);x.restore();for(let i=0;i<18;i++){x.fillStyle=i%2?'#52794d':'#4a7046';x.fillRect(i*W/18,horizon+25,W/18+1,H)}let cx=W*.58,top=horizon+H*.10,bottom=H*1.05;x.fillStyle='#252c2f';x.beginPath();x.moveTo(cx-W*.20,top);x.lineTo(cx+W*.20,top);x.lineTo(cx+W*.48,bottom);x.lineTo(cx-W*.48,bottom);x.closePath();x.fill();x.strokeStyle='#d8bf45';x.lineWidth=3;x.stroke();x.strokeStyle='#fff';x.lineWidth=4;x.setLineDash([28,24]);x.beginPath();x.moveTo(cx,top);x.lineTo(cx,bottom);x.stroke();x.setLineDash([]);x.fillStyle='#fff';x.font='900 35px Arial';x.fillText('09',cx+W*.08,top+H*.06);if(s.phase===1&&s.xp>64){
 x.strokeStyle='#54e6a6';x.lineWidth=5;x.setLineDash([18,12]);x.beginPath();x.moveTo(cx-W*.12,top+H*.105);x.lineTo(cx+W*.12,top+H*.105);x.stroke();x.setLineDash([]);
 x.fillStyle='#54e6a6';x.font='900 12px Arial';x.fillText('RUNWAY 09 • LINE UP',cx-W*.055,top+H*.14);
