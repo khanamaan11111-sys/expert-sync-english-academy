@@ -38,7 +38,8 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #guideText{margin-top:4px;font-size:9px;line-height:1.5;color:#c6d7dc}
 #weather{right:14px;bottom:52px;padding:9px 11px;max-width:245px;z-index:30}
 #weatherText{margin:4px 0 7px;font-size:9px;color:#c6d7dc}
-#weatherBtn{background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer}
+#weatherBtn,#audioBtn{background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer}
+#audioBtn{margin-left:5px}
 </style>
 </head>
 <body>
@@ -49,7 +50,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="views" class="ui"><button class="view active" data-v="COCKPIT">COCKPIT</button><button class="view" data-v="EXTERNAL">EXTERNAL</button></div>
 <div id="testbar" class="ui panel"><button id="pauseBtn">PAUSE</button><button id="restartBtn">RESTART</button><span id="testState">TRAINING LIVE</span></div>
 <div id="controlGuide" class="ui panel"><b>CONTROL GUIDE</b><div id="guideText">Complete pre-flight checklist to begin.</div></div>
-<div id="weather" class="ui panel"><b>WEATHER / CONDITIONS</b><div id="weatherText">WIND 120° / 8 KT • VIS 10 KM • TEMP 24°C</div><button id="weatherBtn">CHANGE CONDITIONS</button></div>
+<div id="weather" class="ui panel"><b>WEATHER / CONDITIONS</b><div id="weatherText">WIND 120° / 8 KT • VIS 10 KM • TEMP 24°C</div><button id="weatherBtn">CHANGE CONDITIONS</button><button id="audioBtn">AUDIO ON</button></div>
 <div id="mission" class="ui panel"><div class="eyebrow">ACTIVE TRAINING</div><div id="mtitle" class="title"></div><div id="mcopy" class="copy"></div><div class="progress"><i id="bar"></i></div><div id="check"></div></div>
 <div id="atc" class="ui panel"><div class="atcHead"><span>ATC • <span id="freq"></span></span><span id="radioState">STANDBY</span></div><div id="atcText" class="atcBody"></div><div class="radio">Press <b>R</b> to transmit/read back.</div><button id="atcBtn" class="atcBtn">TRANSMIT / READ BACK</button></div>
 <div id="warning" class="ui">STALL WARNING — LOWER NOSE / INCREASE AIRSPEED</div><div id="stageHint" class="ui panel" style="left:50%;top:64%;transform:translateX(-50%);padding:7px 12px;font-size:9px;color:#bfefff;display:none;z-index:20"></div><div id="nextAction" class="ui panel" style="left:50%;top:70%;transform:translateX(-50%);padding:6px 10px;font-size:8px;color:#54e6a6;display:none;z-index:20"></div><div id="toast" class="ui"></div><div id="cockpitLabel" class="ui panel">PRIMARY FLIGHT DISPLAY • LIVE</div>
@@ -100,6 +101,29 @@ const missions=[
 ];
 const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,taxiDistance:0,speed:0,alt:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,gear:true,flaps:0,onGround:true,parkingBrake:true,brake:true,stall:false,battery:false,avionics:false,pump:false,mixture:0,starter:false,engine:false,engineStarted:false,starterAt:0,yx:0,yy:0,yoke:false,radio:false,xp:0,yp:0,last:performance.now()};
 const keys={};let toastT=0;
+let audioCtx=null,engineOsc=null,engineGain=null,warningOsc=null,warningGain=null;
+function initAudio(){
+if(audioCtx)return;
+try{
+audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+engineOsc=audioCtx.createOscillator();engineGain=audioCtx.createGain();
+engineOsc.type='sawtooth';engineOsc.frequency.value=95;engineGain.gain.value=0;
+engineOsc.connect(engineGain).connect(audioCtx.destination);engineOsc.start();
+warningOsc=audioCtx.createOscillator();warningGain=audioCtx.createGain();
+warningOsc.type='square';warningOsc.frequency.value=880;warningGain.gain.value=0;
+warningOsc.connect(warningGain).connect(audioCtx.destination);warningOsc.start();
+}catch(e){audioCtx=null}
+}
+function updateAudio(){
+if(!audioCtx)return;
+if(audioCtx.state==='suspended')audioCtx.resume();
+const eg=s.engine?Math.min(.045,.008+s.throttle*.00028):0;
+engineGain.gain.setTargetAtTime(eg,audioCtx.currentTime,.04);
+engineOsc.frequency.setTargetAtTime(72+s.rpm*.075,audioCtx.currentTime,.04);
+const warn=s.stall||s.speed>20.5&&s.phase===0?0.025:0;
+warningGain.gain.setTargetAtTime(warn,audioCtx.currentTime,.02);
+warningOsc.frequency.setTargetAtTime(s.stall?960:520,audioCtx.currentTime,.02);
+}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),norm=a=>(a%360+360)%360,diff=(a,b)=>{let q=norm(a-b);return q>180?q-360:q};
 function toast(t){let e=document.getElementById('toast');e.textContent=t;e.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>e.style.display='none',2300)}
 function setPhase(){
@@ -200,8 +224,8 @@ if(s.phase===1)document.getElementById('check').innerHTML+='<div style="margin-t
 }
 function ready(){return s.battery&&s.avionics&&s.pump&&s.mixture>=95}
 function updatePre(){document.querySelectorAll('[data-pre]').forEach(b=>{let k=b.dataset.pre,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:s.mixture>=95;b.textContent=on?(k==='mixture'?'RICH':'ON'):(k==='mixture'?'LEAN':'OFF');b.classList.toggle('on',on)});document.getElementById('starter').disabled=!ready()||s.engineStarted;document.getElementById('premsg').textContent=ready()?'CHECK COMPLETE — press START ENGINE.':'Complete the checklist in order: MASTER → AVIONICS → PUMP → MIXTURE RICH.'}
-function start(){s.started=true;document.getElementById('preflight').style.display='flex';updatePre();toast('You are in the cockpit. Complete the engine-start checklist.')}
-function startEngine(){if(!ready()){toast('STARTER INHIBITED — complete the checklist first.');return}s.starter=true;s.starterAt=performance.now();document.getElementById('preflight').style.display='none';toast('STARTER ENGAGED — monitor RPM and oil pressure.')}
+function start(){initAudio();s.started=true;document.getElementById('preflight').style.display='flex';updatePre();toast('You are in the cockpit. Complete the engine-start checklist.')}
+function startEngine(){initAudio();if(!ready()){toast('STARTER INHIBITED — complete the checklist first.');return}s.starter=true;s.starterAt=performance.now();document.getElementById('preflight').style.display='none';toast('STARTER ENGAGED — monitor RPM and oil pressure.')}
 function next(){
 if(s.phase>=7)return;
 s.phase++;s.progress=0;s.radio=false;s.taxiDistance=0;
@@ -239,6 +263,12 @@ document.getElementById('testState').textContent=s.paused?'TRAINING PAUSED':'TRA
 toast(s.paused?'Training paused.':'Training resumed.');
 };
 document.getElementById('restartBtn').onclick=()=>{if(confirm('Restart the complete flight training?'))location.reload()};
+document.getElementById('audioBtn').onclick=()=>{
+initAudio();
+if(!audioCtx)return;
+if(audioCtx.state==='running'){audioCtx.suspend();document.getElementById('audioBtn').textContent='AUDIO OFF';}
+else{audioCtx.resume();document.getElementById('audioBtn').textContent='AUDIO ON';}
+};
 document.getElementById('weatherBtn').onclick=()=>{
 const presets=[
 [120,8,10,24,'LIGHT CROSSWIND'],
@@ -363,8 +393,8 @@ x.fillStyle='#54e6a6';x.font='900 13px Arial';x.fillText('RUNWAY 09 • LINE UP'
 }
 if(s.phase===0){x.strokeStyle='#fff';x.lineWidth=5;x.setLineDash([18,10]);x.beginPath();x.moveTo(cx-W*.13,top+H*.105);x.lineTo(cx+W*.13,top+H*.105);x.stroke();x.setLineDash([]);x.fillStyle='#ffd84a';x.font='700 14px Arial';x.fillText('HOLD SHORT',cx-W*.045,top+H*.145)}else if(s.phase===1){x.strokeStyle='#54e6a6';x.lineWidth=4;x.setLineDash([14,12]);x.beginPath();x.moveTo(cx-W*.08,top+H*.15);x.lineTo(cx+W*.08,top+H*.15);x.stroke();x.setLineDash([]);x.fillStyle='#54e6a6';x.font='700 14px Arial';x.fillText('LINE UP • RUNWAY 09',cx-W*.055,top+H*.185)}for(let i=0;i<22;i++){let t=i/21,y=top+t*(bottom-top),half=W*.20+t*W*.28;x.fillStyle=i%3?'#bfe0ff':'#fff';x.fillRect(cx-half,y,4,4);x.fillRect(cx+half,y,4,4)}x.fillStyle='#c4cfd1';x.fillRect(W*.05,horizon-15,W*.18,40);x.fillStyle='#718187';x.fillRect(W*.235,horizon-105,18,105);x.fillStyle='#2e4148';x.fillRect(W*.224,horizon-118,40,15);x.fillStyle='#f2f7f8';x.font='bold 10px Arial';x.fillText('EXPERT SYNC AIRPORT',W*.06,horizon+10);x.fillStyle='#30393c';x.beginPath();x.moveTo(W*.10,horizon+25);x.lineTo(W*.16,horizon+25);x.lineTo(W*.20,H);x.lineTo(W*.06,H);x.closePath();x.fill();x.strokeStyle='#e4ca3e';x.setLineDash([18,16]);x.beginPath();x.moveTo(W*.13,horizon+25);x.lineTo(W*.13,H);x.stroke();x.setLineDash([]);if(s.view==='EXTERNAL'){let px=W*.5,py=clamp(H*.72-s.alt*.00006*H,H*.24,H*.78);drawPlane(px,py,1.5,s.heading,s.bank)}}
 function drawPlane(px,py,sc,hdg,bank){x.save();x.translate(px,py);x.rotate((hdg-90)*Math.PI/180);x.scale(sc,sc);x.transform(1,0,Math.sin(bank*Math.PI/180)*.12,1,0,0);x.shadowColor='#000b';x.shadowBlur=15;x.shadowOffsetY=8;let g=x.createLinearGradient(-60,-40,60,40);g.addColorStop(0,'#8b9ba0');g.addColorStop(.25,'#f8fbfc');g.addColorStop(.55,'#fff');g.addColorStop(1,'#7a8c92');x.fillStyle=g;x.beginPath();x.ellipse(0,0,14,52,0,0,Math.PI*2);x.fill();x.fillStyle='#dce6e9';x.beginPath();x.moveTo(-84,-5);x.lineTo(-8,-18);x.lineTo(18,-8);x.lineTo(10,9);x.lineTo(-8,15);x.closePath();x.fill();x.beginPath();x.moveTo(8,-5);x.lineTo(84,-5);x.lineTo(9,15);x.closePath();x.fill();x.fillStyle='#17485c';x.beginPath();x.ellipse(5,-20,10,15,0,0,Math.PI*2);x.fill();if(s.gear){x.strokeStyle='#596a70';x.lineWidth=3;x.beginPath();x.moveTo(-8,17);x.lineTo(-13,33);x.moveTo(8,17);x.lineTo(13,33);x.stroke();x.fillStyle='#171d20';x.beginPath();x.arc(-13,35,5,0,7);x.arc(13,35,5,0,7);x.fill()}if(s.engine){x.strokeStyle='#fff8';x.lineWidth=2;x.beginPath();x.arc(0,-57,19,0,7);x.moveTo(-18,-57);x.lineTo(18,-57);x.stroke()}x.fillStyle='#ff3048';x.beginPath();x.arc(-70,0,3.5,0,7);x.fill();x.fillStyle='#42ff9a';x.beginPath();x.arc(70,0,3.5,0,7);x.fill();x.restore()}
-function tick(t){let dt=Math.min(.05,Math.max(.001,(t-s.last)/1000));s.last=t;if(s.started&&!s.paused){controls(dt);engine(dt);flight(dt);evaluate(dt);hud()}draw();requestAnimationFrame(tick)}
-document.getElementById('game').addEventListener('click',()=>{if(!s.started)start()},{once:true});setPhase();setView('COCKPIT');requestAnimationFrame(tick);
+function tick(t){let dt=Math.min(.05,Math.max(.001,(t-s.last)/1000));s.last=t;if(s.started&&!s.paused){controls(dt);engine(dt);flight(dt);evaluate(dt);hud();updateAudio()}draw();requestAnimationFrame(tick)}
+document.getElementById('game').addEventListener('click',()=>{initAudio();if(!s.started)start()},{once:true});setPhase();setView('COCKPIT');requestAnimationFrame(tick);
 })();
 </script>
 </body>
