@@ -53,7 +53,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div class="read"><b>AIRSPEED</b><strong id="hspd">0</strong><small>KT</small></div><div class="read"><b>ALTITUDE</b><strong id="halt">0</strong><small>FT</small></div><div class="read"><b>HEADING</b><strong id="hhdg">090</strong><small>°</small></div><div class="read"><b>VERTICAL SPEED</b><strong id="hvs">0</strong><small>FT/MIN</small></div><div class="read"><b>RPM</b><strong id="hrpm">0</strong><small>RPM</small></div><div class="read"><b>FUEL</b><strong id="hfuel">100</strong><small>%</small></div>
 </div>
 <div id="status" class="ui panel"><div class="row"><span>ENGINE</span><b id="stEngine">OFF</b></div><div class="row"><span>OIL PRESSURE</span><b id="stOil">0 PSI</b></div><div class="row"><span>GEAR</span><b id="stGear">DOWN</b></div><div class="row"><span>FLAPS</span><b id="stFlaps">UP</b></div><div class="row"><span>SURFACE</span><b id="stSurface">GROUND</b></div></div>
-<div id="help" class="ui panel"><b>FLY THE AIRCRAFT</b><br><span class="key">W</span>/<span class="key">S</span> throttle &nbsp; <span class="key">↑</span>/<span class="key">↓</span> pitch<br><span class="key">A</span>/<span class="key">D</span> bank/rudder &nbsp; <span class="key">F</span> flaps &nbsp; <span class="key">G</span> gear<br><span class="key">B</span> parking brake &nbsp; <span class="key">R</span> ATC &nbsp; <span class="key">C</span> camera</div>
+<div id="help" class="ui panel"><b>FLY THE AIRCRAFT</b><br><span class="key">W</span>/<span class="key">S</span> throttle &nbsp; <span class="key">↑</span>/<span class="key">↓</span> pitch<br><span class="key">A</span>/<span class="key">D</span> bank/rudder &nbsp; <span class="key">F</span> flaps &nbsp; <span class="key">G</span> gear<br><span class="key">B</span> parking brake &nbsp; <span class="key">R</span> ATC &nbsp; <span class="key">X</span> shutdown &nbsp; <span class="key">C</span> camera</div>
 
 <div id="cockpit"><div class="glass"><div class="runway"></div><div class="nose"></div><div class="prop"></div></div><div id="panel">
 <div class="sixpack">
@@ -83,7 +83,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <script>
 (()=>{const c=document.getElementById('scene'),x=c.getContext('2d');let W=innerWidth,H=innerHeight,D=Math.min(devicePixelRatio||1,2);
 function resize(){W=innerWidth;H=innerHeight;c.width=W*D;c.height=H*D;c.style.width=W+'px';c.style.height=H+'px';x.setTransform(D,0,0,D,0,0)}addEventListener('resize',resize);resize();
-const phases=['Taxi','Line-Up','Take-off','Climb','Cruise','Approach','Landing'];
+const phases=['Taxi','Line-Up','Take-off','Climb','Cruise','Approach','Landing','After Landing'];
 const missions=[
 ['GROUND TAXI • HOLD SHORT','GROUND 121.90','Taxi via Alpha at 20 kt or less. Follow the centreline and stop at the Runway 09 hold-short line.','Ground: Cessna ES-01, taxi to Runway 09 via Alpha. Hold short.'],
 ['LINE UP & WAIT','TOWER 118.10','Contact Tower. Enter Runway 09 only after line-up clearance. Align with the centreline and stop.','Tower: ES-01, Runway 09, line up and wait.'],
@@ -91,7 +91,8 @@ const missions=[
 ['CLIMB • 3,000 FT','TOWER 118.10','Read back the climb clearance. Maintain runway heading 090, target 85–100 kt, pitch about 8–12°, positive vertical speed, and retract the gear after confirming a positive rate. Level at 3,000 ft.','Tower: ES-01, climb 3,000 feet, maintain 090.'],
 ['CRUISE','CENTER 124.70','Read back Center. Stabilize at 3,000 ft, 80–110 kt, heading 090, and near-zero vertical speed.','Center: ES-01, maintain 3,000 feet and heading 090.'],
 ['APPROACH','APPROACH 119.50','Read back the approach clearance. Descend toward the runway, slow to 65–90 kt, extend gear and flaps, and establish a stable final approach.','Approach: ES-01, cleared approach Runway 09.'],
-['LANDING','TOWER 118.10','Read back landing clearance. Maintain centreline, land with gear DOWN and FULL FLAPS, then reduce power and decelerate below 55 kt.','Tower: ES-01, cleared to land Runway 09.']
+['LANDING','TOWER 118.10','Read back landing clearance. Maintain centreline, land with gear DOWN and FULL FLAPS, then reduce power and decelerate below 55 kt.','Tower: ES-01, cleared to land Runway 09.'],
+['AFTER LANDING • PARK & SHUTDOWN','GROUND 121.90','After touchdown, keep the centreline, slow to taxi speed, exit the runway, set parking brake, reduce power to idle, and shut down the engine.','Ground: ES-01, taxi to parking via Alpha.']
 ];
 const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,taxiDistance:0,speed:0,alt:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,gear:true,flaps:0,onGround:true,parkingBrake:true,brake:true,stall:false,battery:false,avionics:false,pump:false,mixture:0,starter:false,engine:false,engineStarted:false,starterAt:0,yx:0,yy:0,yoke:false,radio:false,xp:0,yp:0,last:performance.now()};
 const keys={};let toastT=0;
@@ -180,6 +181,16 @@ if(s.phase===6)a=[
 ['TOUCHDOWN',s.onGround],
 ['DECELERATE <55 KT',s.onGround&&s.speed<55]
 ];
+if(s.phase===7)a=[
+['GROUND CLEARANCE',s.radio],
+['AIRCRAFT ON GROUND',s.onGround],
+['TAXI SPEED ≤20 KT',s.speed<=20],
+['LANDING GEAR DOWN',s.gear],
+['FLAPS RETRACTED',s.flaps===0],
+['PARKING BRAKE ON',s.parkingBrake],
+['THROTTLE IDLE',s.throttle<=5],
+['ENGINE SHUT DOWN',!s.engine]
+];
 document.getElementById('check').innerHTML=a.map(q=>'<div class="'+(q[1]?'done':'')+'">'+(q[1]?'✓':'○')+' '+q[0]+'</div>').join('');
 if(s.phase===1)document.getElementById('check').innerHTML+='<div style="margin-top:5px;color:#9bb5be">RUNWAY STATE: '+(s.xp>64?'ON RUNWAY':'HOLD SHORT')+' • HDG '+String(Math.round(norm(s.heading))).padStart(3,'0')+' • BRAKE '+(s.parkingBrake?'ON':'OFF')+'</div>';
 }
@@ -188,7 +199,7 @@ function updatePre(){document.querySelectorAll('[data-pre]').forEach(b=>{let k=b
 function start(){s.started=true;document.getElementById('preflight').style.display='flex';updatePre();toast('You are in the cockpit. Complete the engine-start checklist.')}
 function startEngine(){if(!ready()){toast('STARTER INHIBITED — complete the checklist first.');return}s.starter=true;s.starterAt=performance.now();document.getElementById('preflight').style.display='none';toast('STARTER ENGAGED — monitor RPM and oil pressure.')}
 function next(){
-if(s.phase>=6)return;
+if(s.phase>=7)return;
 s.phase++;s.progress=0;s.radio=false;s.taxiDistance=0;
 if(s.phase===1){
 s.xp=60;s.yp=-12.5;s.speed=0;s.heading=90;s.parkingBrake=true;s.brake=true;s.flaps=1;
@@ -196,7 +207,8 @@ toast('STAGE 2 — STOPPED AT HOLD SHORT. Read back TOWER LINE-UP clearance with
 }if(s.phase===2){
 s.xp=73;s.yp=-12.5;s.speed=0;s.heading=90;s.parkingBrake=true;s.brake=true;s.flaps=1;
 toast('STAGE 3 — TAKE-OFF. Read back clearance, brake OFF, throttle ≥70%, rotate 55–65 kt.')
-}if(s.phase===3){s.parkingBrake=false;s.brake=false;s.flaps=1;s.gear=true;s.pitch=8;s.throttle=85}if(s.phase===4)s.flaps=0;if(s.phase===5){s.flaps=1;s.gear=true}if(s.phase===6){s.flaps=2;s.gear=true}setPhase();toast('New training stage: '+missions[s.phase][0])}
+}if(s.phase===3){s.parkingBrake=false;s.brake=false;s.flaps=1;s.gear=true;s.pitch=8;s.throttle=85}if(s.phase===4)s.flaps=0;if(s.phase===5){s.flaps=1;s.gear=true}if(s.phase===6){s.flaps=2;s.gear=true}
+if(s.phase===7){s.flaps=0;s.gear=true;s.throttle=0;s.parkingBrake=false;s.brake=false;s.radio=false;s.onGround=true;s.speed=0;s.vs=0;s.pitch=0;s.bank=0;toast('AFTER LANDING — exit the runway, park, brake ON, then shut down.')} setPhase();toast('New training stage: '+missions[s.phase][0])}
 function transmit(){
 s.radio=true;
 document.getElementById('radioState').textContent='ACK';
@@ -272,11 +284,16 @@ if(s.speed>95)toast('APPROACH SPEED HIGH — reduce power / lower the nose as ap
 }
 if(s.phase===6){
 if(!s.radio)toast('TOWER — press R to read back landing clearance.');
-if(s.onGround&&s.speed<55&&s.flaps===2&&s.gear&&s.radio){g=30*dt;toast('LANDING COMPLETE — aircraft slowed safely. Mission complete.')}
+if(s.onGround&&s.speed<55&&s.flaps===2&&s.gear&&s.radio){g=30*dt;toast('LANDING COMPLETE — continue to AFTER LANDING taxi.')}
+}
+if(s.phase===7){
+if(!s.radio)toast('GROUND — press R for taxi-to-parking clearance.');
+if(s.speed>20)toast('AFTER LANDING — keep taxi speed at or below 20 kt.');
+if(s.onGround&&s.speed<3&&s.parkingBrake&&s.flaps===0&&s.throttle<=5&&!s.engine&&s.radio){g=30*dt;toast('AIRCRAFT SECURED — shutdown complete.')}
 }
 if(g){s.progress=clamp(s.progress+g,0,100);s.score+=g*.7}else s.score=Math.max(0,s.score-.006*dt);
-if(s.progress>=100&&s.phase<6){next()}
-if(s.progress>=100&&s.phase===6){finishMission()}
+if(s.progress>=100&&s.phase<7){next()}
+if(s.progress>=100&&s.phase===7){finishMission()}
 if(s.stall&&s.alt>40)document.getElementById('warning').style.display='block';else document.getElementById('warning').style.display='none'
 }
 function finishMission(){
