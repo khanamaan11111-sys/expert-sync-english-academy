@@ -35,6 +35,10 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #testState{font-size:9px;color:#54e6a6;padding:0 6px;letter-spacing:.5px}
 #controlGuide{left:14px;bottom:14px;padding:9px 11px;max-width:330px;z-index:30}
 #abnormal{left:14px;top:132px;padding:9px 11px;z-index:25;max-width:220px}
+#lightsPanel{left:14px;top:310px;padding:9px 11px;z-index:25;min-width:150px}
+#lightsPanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
+.lightRow{display:flex;justify-content:space-between;margin-top:5px;font-size:9px;color:#9bb5be}
+.lightRow b{color:#fff}
 #abnormal b{font-size:9px;letter-spacing:1px;color:#54e6a6}
 #sysMsg{font-size:9px;color:#c6d7dc;margin:5px 0}
 #failureBtn{background:#0a202a;border:1px solid #8b5555;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer}
@@ -67,8 +71,9 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div class="read"><b>AIRSPEED</b><strong id="hspd">0</strong><small>KT</small></div><div class="read"><b>ALTITUDE</b><strong id="halt">0</strong><small>FT</small></div><div class="read"><b>HEADING</b><strong id="hhdg">090</strong><small>°</small></div><div class="read"><b>VERTICAL SPEED</b><strong id="hvs">0</strong><small>FT/MIN</small></div><div class="read"><b>RPM</b><strong id="hrpm">0</strong><small>RPM</small></div><div class="read"><b>FUEL</b><strong id="hfuel">100</strong><small>%</small></div>
 </div>
 <div id="abnormal" class="ui panel"><b>ABNORMAL / SYSTEMS</b><div id="sysMsg">SYSTEMS NORMAL</div><button id="failureBtn">RUN FAILURE DRILL</button></div>
+<div id="lightsPanel" class="ui panel"><b>LIGHTING</b><div class="lightRow"><span>1 NAV</span><b id="navLight">OFF</b></div><div class="lightRow"><span>2 BEACON</span><b id="beaconLight">OFF</b></div><div class="lightRow"><span>3 STROBE</span><b id="strobeLight">OFF</b></div><div class="lightRow"><span>4 LANDING</span><b id="landingLight">OFF</b></div></div>
 <div id="status" class="ui panel"><div class="row"><span>ENGINE</span><b id="stEngine">OFF</b></div><div class="row"><span>OIL PRESSURE</span><b id="stOil">0 PSI</b></div><div class="row"><span>OIL TEMP</span><b id="stOilTemp">0°C</b></div><div class="row"><span>GEAR</span><b id="stGear">DOWN</b></div><div class="row"><span>FLAPS</span><b id="stFlaps">UP</b></div><div class="row"><span>ELEVATOR TRIM</span><b id="stTrim">0%</b></div><div class="row"><span>SURFACE</span><b id="stSurface">GROUND</b></div></div>
-<div id="help" class="ui panel"><b>FLY THE AIRCRAFT</b><br><span class="key">W</span>/<span class="key">S</span> throttle &nbsp; <span class="key">↑</span>/<span class="key">↓</span> pitch<br><span class="key">A</span>/<span class="key">D</span> bank/rudder &nbsp; <span class="key">T</span>/<span class="key">Y</span> trim &nbsp; <span class="key">F</span> flaps &nbsp; <span class="key">G</span> gear<br><span class="key">B</span> parking brake &nbsp; <span class="key">R</span> ATC &nbsp; <span class="key">X</span> shutdown &nbsp; <span class="key">C</span> camera</div>
+<div id="help" class="ui panel"><b>FLY THE AIRCRAFT</b><br><span class="key">1–4</span> lights &nbsp; <span class="key">W</span>/<span class="key">S</span> throttle &nbsp; <span class="key">↑</span>/<span class="key">↓</span> pitch<br><span class="key">A</span>/<span class="key">D</span> bank/rudder &nbsp; <span class="key">T</span>/<span class="key">Y</span> trim &nbsp; <span class="key">F</span> flaps &nbsp; <span class="key">G</span> gear<br><span class="key">B</span> parking brake &nbsp; <span class="key">R</span> ATC &nbsp; <span class="key">X</span> shutdown &nbsp; <span class="key">C</span> camera</div>
 
 <div id="cockpit"><div class="glass"><div class="runway"></div><div class="nose"></div><div class="prop"></div></div><div id="panel">
 <div class="sixpack">
@@ -109,7 +114,7 @@ const missions=[
 ['LANDING','TOWER 118.10','Read back landing clearance. Maintain centreline, land with gear DOWN and FULL FLAPS, then reduce power and decelerate below 55 kt.','Tower: ES-01, cleared to land Runway 09.'],
 ['AFTER LANDING • PARK & SHUTDOWN','GROUND 121.90','After touchdown, keep the centreline, slow to taxi speed, exit the runway, set parking brake, reduce power to idle, and shut down the engine.','Ground: ES-01, taxi to parking via Alpha.']
 ];
-const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,trim:0,selectedHeading:90,failure:null,oilTemp:75,oilPressure:0,taxiDistance:0,speed:0,alt:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,gear:true,flaps:0,onGround:true,parkingBrake:true,brake:true,stall:false,battery:false,avionics:false,pump:false,mixture:0,starter:false,engine:false,engineStarted:false,starterAt:0,yx:0,yy:0,yoke:false,radio:false,xp:0,yp:0,last:performance.now()};
+const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,trim:0,selectedHeading:90,failure:null,oilTemp:75,oilPressure:0,navLights:false,beacon:false,strobe:false,landingLight:false,taxiDistance:0,speed:0,alt:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,gear:true,flaps:0,onGround:true,parkingBrake:true,brake:true,stall:false,battery:false,avionics:false,pump:false,mixture:0,starter:false,engine:false,engineStarted:false,starterAt:0,yx:0,yy:0,yoke:false,radio:false,xp:0,yp:0,last:performance.now()};
 const keys={};let toastT=0;
 let audioCtx=null,engineOsc=null,engineGain=null,warningOsc=null,warningGain=null;
 function initAudio(){
@@ -166,6 +171,7 @@ function check(){
 let a=[];
 if(s.phase===0)a=[
 ['READ BACK TAXI',s.radio],
+['NAV + BEACON',s.navLights&&s.beacon],
 ['TAXI VIA ALPHA ≤20 KT',s.xp>52&&s.speed<=20],
 ['STOP AT HOLD SHORT',s.xp>52&&s.speed<3&&s.parkingBrake],
 ['NO RUNWAY ENTRY',s.xp<58],
@@ -180,6 +186,7 @@ if(s.phase===1)a=[
 ];
 if(s.phase===2)a=[
 ['TAKE-OFF CLEARANCE',s.radio],
+['NAV + BEACON + STROBE',s.navLights&&s.beacon&&s.strobe],
 ['TAKE-OFF POWER ≥70%',s.throttle>=70],
 ['RUNWAY HEADING 090',Math.abs(diff(s.heading,90))<5],
 ['ROTATE 55–65 KT',!s.onGround&&s.speed>=55&&s.speed<=90],
@@ -205,6 +212,7 @@ if(s.phase===4)a=[
 ];
 if(s.phase===5)a=[
 ['APPROACH READBACK',s.radio],
+['NAV + BEACON + LANDING LIGHT',s.navLights&&s.beacon&&s.landingLight],
 ['DESCENDING',s.vs<-100],
 ['APPROACH SPEED 65–90 KT',s.speed>=65&&s.speed<=95],
 ['GEAR DOWN',s.gear],
@@ -405,13 +413,13 @@ document.getElementById('weatherText').textContent='WIND '+String(Math.round(nor
 }
 function updateGuide(){
 const g=[
-'ENGINE START: click MASTER → AVIONICS → FUEL PUMP → MIXTURE RICH → START ENGINE.',
-'TAXI: R readback • B brake OFF • W power • A/D steering • use J/L to set 090° • keep ≤20 KT • stop HOLD SHORT.',
+'ENGINE START: click MASTER → AVIONICS → FUEL PUMP → MIXTURE RICH → START ENGINE. Then NAV + BEACON before taxi; STROBE/LANDING as required.',
+'TAXI: R readback • B brake OFF • W power • A/D steering • NAV + BEACON ON • use J/L to set 090° • keep ≤20 KT • stop HOLD SHORT.',
 'LINE-UP: R Tower clearance • B brake OFF • taxi onto Runway 09 • align 090 • stop • B brake ON.',
-'TAKE-OFF: R clearance • B brake OFF • W ≥70% • centreline • ↑ at 55–65 KT • 7–12° pitch • G after positive rate.',
+'TAKE-OFF: R clearance • B brake OFF • NAV + BEACON + STROBE ON • W ≥70% • centreline • ↑ at 55–65 KT • G after positive rate.',
 'CLIMB: R clearance • set 090° with J/L • 85–100 KT • 8–12° pitch • compensate for wind drift • trim with T/Y • gear UP • level 3,000 FT.',
 'CRUISE: R Center • set 090° with J/L • 3,000 FT • 80–110 KT • near-zero VS • use T/Y trim to hold pitch.',
-'APPROACH: R Approach • descend • 65–90 KT • gear DOWN • F to configure flaps • correct for wind • stable final.',
+'APPROACH: R Approach • NAV + BEACON + LANDING LIGHT ON • descend • 65–90 KT • gear DOWN • F to configure flaps • correct for wind • stable final.',
 'LANDING: R Tower • gear DOWN • FULL FLAPS • centreline • touchdown • reduce power • <55 KT.'
 ];
 document.getElementById('guideText').textContent=s.failure==='ENGINE'?'ENGINE FAILURE: lower nose • maintain control • best glide • choose a landing area • configure for landing.':(s.started?(g[s.phase]||'Flight complete.'):'Complete pre-flight checklist to begin.');
@@ -420,7 +428,11 @@ function hud(){let h=String(Math.round(norm(s.heading))).padStart(3,'0');documen
 s.oilPressure=s.engine?clamp((s.rpm-500)*.042,0,65):0;
 s.oilTemp=s.engine?Math.min(115,75+s.throttle*.18):75;
 document.getElementById('stOilTemp').textContent=Math.round(s.oilTemp)+'°C';
-document.getElementById('stGear').textContent=s.gear?'DOWN':'UP';document.getElementById('stFlaps').textContent=s.flaps===0?'UP':s.flaps===1?'10°':'30°';document.getElementById('stTrim').textContent=(s.trim>=0?'+':'')+Math.round(s.trim)+'%';document.getElementById('stSurface').textContent=s.onGround?'GROUND':'AIRBORNE';document.getElementById('tp').textContent=Math.round(s.throttle)+'%';document.getElementById('lever').style.bottom=(20+s.throttle*.8)+'px';document.getElementById('radioState').textContent=s.radio?'ACK':'STANDBY';
+document.getElementById('stGear').textContent=s.gear?'DOWN':'UP';document.getElementById('stFlaps').textContent=s.flaps===0?'UP':s.flaps===1?'10°':'30°';document.getElementById('stTrim').textContent=(s.trim>=0?'+':'')+Math.round(s.trim)+'%';document.getElementById('stSurface').textContent=s.onGround?'GROUND':'AIRBORNE';
+document.getElementById('navLight').textContent=s.navLights?'ON':'OFF';
+document.getElementById('beaconLight').textContent=s.beacon?'ON':'OFF';
+document.getElementById('strobeLight').textContent=s.strobe?'ON':'OFF';
+document.getElementById('landingLight').textContent=s.landingLight?'ON':'OFF';document.getElementById('tp').textContent=Math.round(s.throttle)+'%';document.getElementById('lever').style.bottom=(20+s.throttle*.8)+'px';document.getElementById('radioState').textContent=s.radio?'ACK':'STANDBY';
 document.getElementById('selHdg').textContent=String(Math.round(s.selectedHeading)).padStart(3,'0')+'°';
 document.getElementById('courseErr').textContent=(Math.abs(diff(s.heading,s.selectedHeading))<1?'0':(diff(s.heading,s.selectedHeading)>0?'+':'')+Math.round(diff(s.heading,s.selectedHeading)))+'°';
 setPhase();updateGuide();updateWeather();document.getElementById('bar').style.width=s.progress+'%';document.querySelectorAll('.switch').forEach(e=>{let k=e.dataset.s,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:false;e.classList.toggle('on',on)});document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}
