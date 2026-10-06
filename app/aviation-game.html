@@ -3,915 +3,114 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Expert Sync Flight Deck — Aviation English Flight Simulator</title>
+<title>Expert Sync — Flight Training Simulator</title>
 <style>
-:root{--cyan:#4dd9ff;--panel:rgba(4,16,27,.88);--line:rgba(100,220,255,.32);--text:#f4fbff;--muted:#9db5c1;--danger:#ff6464;--ok:#4cff9b}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07121b;color:var(--text);font-family:Inter,Arial,sans-serif}
-button{font:inherit}#sim{position:relative;width:100%;height:100%;overflow:hidden;background:#78b6d2}
-#world{position:absolute;inset:0;width:100%;height:100%;display:block}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 35px #0007;backdrop-filter:blur(8px)}
-#topbar{position:absolute;left:14px;right:14px;top:12px;height:58px;display:flex;align-items:center;gap:16px;z-index:20}
-#brand{padding:9px 14px;min-width:235px}.brand1{font-weight:800;letter-spacing:1.8px;color:var(--cyan)}.brand2{font-size:10px;color:#b9d6e2;margin-top:3px;letter-spacing:.8px}
-#phases{display:flex;align-items:center;gap:4px;flex:1;justify-content:center}
-.phase{min-width:76px;text-align:center;color:#78909b;font-size:10px}.phase .dot{width:25px;height:25px;border:2px solid #536b77;border-radius:50%;margin:auto auto 3px;display:grid;place-items:center;font-size:10px}.phase.active{color:#fff}.phase.active .dot{border-color:var(--cyan);color:#031824;background:#42cfff}.phase.done .dot{border-color:var(--ok);color:#031824;background:var(--ok)}
-#views{display:flex;gap:5px}.viewBtn{border:1px solid #365563;background:#091a25;color:#b9d2dc;border-radius:8px;padding:8px 10px;font-size:10px}.viewBtn.active{background:#1a8ebc;color:#fff;border-color:#6ee3ff}
-#mission{position:absolute;left:14px;top:82px;width:330px;padding:14px;z-index:20}.eyebrow{font-size:10px;color:var(--cyan);font-weight:800;letter-spacing:1px}.missionTitle{font-size:17px;font-weight:800;margin:5px 0}.missionText{font-size:12px;line-height:1.5;color:#d5e5eb}.bar{height:6px;background:#20333e;border-radius:99px;overflow:hidden;margin-top:11px}.bar i{display:block;height:100%;width:0;background:var(--cyan);transition:width .15s}
-#atc{position:absolute;right:14px;top:82px;width:330px;padding:14px;z-index:20}.atcHead{display:flex;justify-content:space-between;color:var(--cyan);font-size:11px;font-weight:800}.freq{color:#fff}.atcBody{font-size:12px;line-height:1.5;margin-top:7px}.radioHint{font-size:10px;color:#a9c1ca;margin-top:8px}
-#status{position:absolute;right:14px;bottom:16px;width:245px;padding:12px;z-index:20;font-size:11px;line-height:1.65}.statusRow{display:flex;justify-content:space-between;border-bottom:1px solid #29404b;padding:2px 0}.statusRow span{color:#91aab5}.green{color:var(--ok)}.yellow{color:#ffd65a}.red{color:var(--danger)}
-#controls{position:absolute;left:14px;bottom:16px;width:255px;padding:12px;z-index:20;font-size:10px;line-height:1.8}.kbd{display:inline-block;min-width:20px;text-align:center;padding:1px 5px;background:#203640;border:1px solid #48636e;border-radius:4px;color:#fff}
-#score{position:absolute;left:14px;bottom:173px;padding:9px 12px;z-index:20;font-size:11px}.scoreNum{color:var(--cyan);font-size:18px;font-weight:800}
-#instruments{position:absolute;left:50%;bottom:15px;transform:translateX(-50%);width:min(930px,62vw);padding:10px;display:grid;grid-template-columns:repeat(6,1fr);gap:7px;z-index:25}
-.inst{min-height:75px;text-align:center;padding:8px;border:1px solid #294653;border-radius:9px;background:rgba(5,18,27,.82)}.instLabel{font-size:8px;letter-spacing:1.2px;color:#8fdcff}.instVal{font-size:23px;font-weight:800;margin-top:6px}.instUnit{font-size:8px;color:#8da4af}
-#gauges{position:absolute;left:50%;bottom:107px;transform:translateX(-50%);display:flex;gap:9px;z-index:24}.gauge{width:76px;height:76px;border-radius:50%;border:2px solid #657d89;background:radial-gradient(circle,#12242e,#071119);display:grid;place-items:center;text-align:center;box-shadow:0 4px 18px #0006}.gauge b{font-size:17px}.gauge small{font-size:7px;color:#8da8b4;display:block;margin-top:2px}
-#warning{position:absolute;top:29%;left:50%;transform:translateX(-50%);z-index:40;display:none;padding:9px 16px;border:1px solid #ff7777;background:#6d1212dd;border-radius:8px;font-size:12px;font-weight:900;letter-spacing:1px;box-shadow:0 0 22px #ff303055}.show{display:block!important}
-#toast{position:absolute;left:50%;top:16%;transform:translateX(-50%);z-index:35;display:none;padding:9px 14px;background:#061925ee;border:1px solid #3aa8ce;border-radius:8px;font-size:11px;max-width:70%;text-align:center}
-#menu,#complete{position:absolute;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%,#163c52,#02080d 72%)}
-.card{width:570px;max-width:92%;padding:34px;border-radius:18px;text-align:center;background:#061520f5;border:1px solid #3dbbe8;box-shadow:0 25px 100px #0009}.card h1{margin:0;color:#76e0ff;letter-spacing:3px;font-size:34px}.card h2{margin:5px 0 15px;font-size:14px;letter-spacing:4px}.card p{color:#b5cbd5;font-size:13px;line-height:1.6}.features{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:20px 0}.feature{padding:10px;border:1px solid #264653;border-radius:7px;background:#0a202c;font-size:11px}.primary{border:0;border-radius:8px;padding:13px 28px;background:#52d7ff;color:#03202a;font-weight:900;cursor:pointer}.primary:hover{filter:brightness(1.08)}
-#complete{display:none;background:#020a10e8}.result{width:440px}.result h1{font-size:28px}
-#cockpitOverlay{position:absolute;inset:0;pointer-events:none;display:none;z-index:10;background:linear-gradient(#0000 0 65%,#06101899 100%)}#preflight{position:absolute;inset:0;z-index:90;display:none;background:#05090b;color:#dfe8eb;overflow:hidden;font-family:Arial,sans-serif}
-#preflight .preCard{position:absolute;inset:0;background:#10171a;overflow:hidden}
-#preflight .preHead{position:absolute;left:0;right:0;top:0;height:54px;padding:9px 15px;box-sizing:border-box;border-bottom:1px solid #45545a;background:linear-gradient(#252f33,#141c20);z-index:20}
-#preflight .preHead h2{margin:0;font-size:13px;letter-spacing:1.2px;color:#f3f6f7}.preHead p{margin:3px 0;font-size:7px;color:#95a9b0}.preBadge{position:absolute;right:15px;top:12px;border:1px solid #53656c;background:#0b1114;padding:6px 8px;color:#a9bbc0;font-size:6px;letter-spacing:1px}
-#preflight .preBody{position:absolute;inset:54px 0 59px;display:grid;grid-template-columns:225px 1fr;gap:0}
-#preflight .preBody>div:first-child{border-right:2px solid #26373e;background:linear-gradient(90deg,#151f23,#0c1418);padding:8px;box-sizing:border-box}
-#preflight .checklistTitle{padding:7px;border:1px solid #4b5d64;background:#202b30;color:#b9c9ce;font-size:7px;letter-spacing:1px;font-weight:900}
-#preflight .checkGrid{display:grid;grid-template-columns:1fr;gap:5px;margin:6px 0}
-#preflight .check{display:grid;grid-template-columns:53px 1fr;min-height:56px;padding:5px;border:1px solid #3d4e55;background:#111a1e;box-sizing:border-box}
-#preflight .check button{width:53px;height:45px;border:1px solid #697a7f;background:linear-gradient(#4c575b,#1b2327);color:#e5ebed;font-size:8px;font-weight:900;cursor:pointer}
-#preflight .check button.ready{background:linear-gradient(#258363,#123f31);border-color:#61d7ae;color:#fff}
-#preflight .check b{display:block;margin:3px 0 4px 6px;font-size:7px;color:#e6edef;letter-spacing:.4px}.preBody .check small{display:block;margin-left:6px;font-size:6px;color:#82969d;line-height:1.3}
-#preflight .prePanel{margin-top:7px;border:1px solid #405158;background:#0b1317;padding:6px}.panelTitle{font-size:6px;letter-spacing:1px;color:#91a9b1;font-weight:900}
-#preflight .systemStrip{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:5px}.systemChip{padding:5px 2px;border:1px solid #35474e;background:#121b20;text-align:center;font-size:5px;color:#849aa2}.systemChip b{display:block;font-size:7px;margin-top:2px;color:#ff7777}
-#preflight .preBody>div:nth-child(2){position:relative;background:#10171a;overflow:hidden}
-#preflight .windshield{position:absolute;left:4%;right:4%;top:3%;height:37%;border:5px solid #202a2e;border-radius:5px 5px 42% 42%;background:linear-gradient(#4b9bc0 0 67%,#708c62 68% 100%);box-shadow:inset 0 0 50px #0008,0 5px 18px #000;overflow:hidden}
-#preflight .windshield:before{content:"";position:absolute;left:49.7%;top:0;bottom:0;width:5px;background:#202a2e}.windshield:after{content:"";position:absolute;left:0;right:0;top:67%;height:3px;background:#d9e0e0aa}
-#preflight .runwayView{position:absolute;left:37%;right:37%;bottom:0;height:39%;background:#30383a;clip-path:polygon(42% 0,58% 0,100% 100%,0 100%);opacity:.95}
-#preflight .runwayView:after{content:"";position:absolute;left:49%;top:5%;bottom:0;width:3px;background:repeating-linear-gradient(to bottom,#fff 0 15px,transparent 15px 27px)}
-#preflight .dashboard{position:absolute;left:2%;right:2%;bottom:2%;height:57%;background:linear-gradient(#202a2f,#0a1013 18%,#070b0d);border:3px solid #29383e;border-radius:8px 8px 0 0;box-shadow:inset 0 12px 25px #000,0 -8px 20px #0008}
-#preflight .gaugeRow{position:absolute;left:4%;right:4%;top:8%;display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
-#preflight .realGauge{width:min(145px,12vw);height:min(145px,12vw);min-width:82px;min-height:82px;justify-self:center;border-radius:50%;border:3px solid #7a888d;background:radial-gradient(circle,#1b272c 0 56%,#080d10 57% 100%);box-shadow:inset 0 0 0 5px #0b1114,inset 0 0 20px #000,0 4px 10px #000;position:relative;overflow:hidden}
-#preflight .realGauge:before{content:"";position:absolute;inset:12%;border-radius:50%;background:repeating-conic-gradient(from -125deg,#dbe2e4 0deg 1.2deg,transparent 1.2deg 5deg);mask:radial-gradient(circle,transparent 0 68%,#000 69%);-webkit-mask:radial-gradient(circle,transparent 0 68%,#000 69%)}
-#preflight .realGauge .needle{position:absolute;left:50%;top:17%;width:2px;height:34%;background:#edf2f3;transform-origin:50% 100%;transform:rotate(42deg);box-shadow:0 0 3px #000}
-#preflight .realGauge .hub{position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4px;border-radius:50%;background:#d9e1e3;box-shadow:0 1px 3px #000;z-index:3}
-#preflight .realGauge .glabel{position:absolute;left:0;right:0;top:15%;text-align:center;font-size:6px;color:#9fb0b5;letter-spacing:.5px}.realGauge .gvalue{position:absolute;left:0;right:0;bottom:19%;text-align:center;font-size:15px;font-weight:900;color:#f2f5f6}.realGauge .gunit{position:absolute;left:0;right:0;bottom:11%;text-align:center;font-size:5px;color:#94a8ae}
-#preflight .realGauge.att{background:linear-gradient(#397f9e 0 49%,#6c563f 50%);}.realGauge.att:after{content:"";position:absolute;left:16%;right:16%;top:49%;border-top:2px solid #fff}.realGauge.att .airCue{position:absolute;left:25%;right:25%;top:49%;border-top:3px solid #f2cf42;z-index:3}.realGauge.att .airCue:after{content:"";position:absolute;left:50%;top:-9px;width:3px;height:18px;background:#f2cf42}
-#preflight .lowerPanel{position:absolute;left:4%;right:4%;bottom:4%;height:35%;display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:9px}
-#preflight .subPanel{border:1px solid #3d4d53;background:linear-gradient(#121b20,#090e11);padding:7px;box-sizing:border-box;position:relative}.subTitle{font-size:6px;letter-spacing:1px;color:#91a7ae;margin-bottom:8px}
-#preflight .switches{display:flex;justify-content:space-around;align-items:flex-start}.switch{width:20px;height:42px;position:relative}.switch:before{content:"";position:absolute;left:9px;top:0;width:3px;height:31px;background:#3a474c}.switch:after{content:"";position:absolute;left:3px;top:4px;width:15px;height:12px;border-radius:2px;background:#bfc8cb;box-shadow:0 2px 4px #000}.switch small{position:absolute;top:34px;left:-5px;width:30px;text-align:center;font-size:5px;color:#80959d}
-#preflight .throttleQuad{display:flex;justify-content:center;gap:28px;height:75px}.throttleQuad .lever{width:8px;height:62px;background:#27353b;border-radius:5px;position:relative}.throttleQuad .lever i{position:absolute;left:-6px;bottom:8px;width:20px;height:17px;border-radius:3px;background:linear-gradient(#d7dcde,#737d80);box-shadow:0 2px 4px #000}.throttleQuad .lever small{position:absolute;top:65px;left:-10px;width:28px;text-align:center;font-size:5px;color:#84999f}
-#preflight .yokeMini{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);width:125px;height:75px}.yokeMini .wheel{position:absolute;left:14px;top:4px;width:95px;height:45px;border:8px solid #1f282c;border-radius:48% 48% 30% 30%;box-shadow:0 3px 7px #000}.yokeMini .stem{position:absolute;left:58px;top:35px;width:9px;height:40px;background:#65757b;border-radius:4px}.yokeMini .bar{position:absolute;left:29px;top:27px;width:67px;height:5px;background:#2e393e}
-#preflight .preActions{position:absolute;left:0;right:0;bottom:0;height:59px;padding:8px 12px;box-sizing:border-box;border-top:1px solid #46565c;background:linear-gradient(#182328,#0b1114);z-index:30;pointer-events:auto}
-#preflight .preActions .procedure{pointer-events:none}
-#preflight .preActions .secondary{pointer-events:auto}
-#preflight .check button{position:relative;z-index:40;pointer-events:auto;touch-action:manipulation}
-#preflight .check button:active{transform:translateY(1px);filter:brightness(1.2)}
-#preflight .check button.ready{box-shadow:0 0 10px #42d6a044}
-#preflight .procedure{font-size:6px;line-height:1.4;color:#879aa1;max-width:72%}.procedure b{color:#d7e2e5}.secondary{position:absolute;right:12px;top:10px;padding:10px 22px;border:1px solid #66787e;border-radius:3px;background:linear-gradient(#39474b,#172024);color:#dfe7e9;font-size:8px;font-weight:900;cursor:pointer}.secondary:not(:disabled){background:linear-gradient(#318d6d,#154e3c);border-color:#68dcb6;color:#fff}
-@media(max-width:900px){#preflight .preBody{grid-template-columns:190px 1fr}.gaugeRow{gap:5px!important}.realGauge{width:100px!important;height:100px!important}.lowerPanel{gap:4px!important}}
-@media(max-width:650px){#preflight .preBadge{display:none}#preflight .preBody{inset:54px 0 59px;grid-template-columns:1fr;overflow:auto}#preflight .preBody>div:first-child{border-right:0;border-bottom:2px solid #26373e}.preBody>div:nth-child(2){min-height:760px}.preActions{position:fixed}.procedure{display:none}.secondary{left:10px;right:10px;width:auto}}
-#systems{position:absolute;left:50%;top:82px;transform:translateX(-50%);z-index:28;display:none;padding:9px 12px;background:#061925dd;border:1px solid #3a819b;border-radius:10px;font-size:10px;color:#b9d2dc}
-#systems b{margin-left:6px}.sysOn{color:#49d7a1}.sysOff{color:#ff7777}
-#cockpitOverlay:before,#cockpitOverlay:after{content:"";position:absolute;bottom:-8%;width:23%;height:55%;background:#0a1319;border-radius:50% 50% 0 0;opacity:.92}#cockpitOverlay:before{left:-5%}#cockpitOverlay:after{right:-5%}
-@media(max-width:1000px){#phases{display:none}#mission{width:290px}#atc{width:290px}#instruments{width:80vw}.inst{min-height:62px}.instVal{font-size:18px}}
-@media(max-width:700px){#mission,#atc,#controls,#status{display:none}#score{bottom:150px}.viewBtn{display:none}#instruments{width:96vw;grid-template-columns:repeat(3,1fr);bottom:8px}.inst{min-height:55px}.instVal{font-size:16px}#gauges{display:none}}
-
-/* ===== EXPERT SYNC FLIGHT DECK V3 ===== */
-#cockpitDeck{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(1120px,96vw);height:205px;z-index:27;display:none;pointer-events:none}
-body.cockpit #cockpitDeck{display:block}
-.deckFrame{position:absolute;inset:0;background:linear-gradient(#101b22,#050b10);border:2px solid #334d59;border-bottom:0;border-radius:28px 28px 0 0;box-shadow:0 -12px 40px #0008}
-.deckGlare{position:absolute;left:8%;right:8%;top:9px;height:2px;background:#7be5ff66}
-.panelRow{position:absolute;left:50%;top:25px;transform:translateX(-50%);display:flex;gap:9px}
-.roundInst{width:112px;height:112px;border-radius:50%;border:3px solid #718892;background:radial-gradient(circle,#142932 0,#071117 68%);box-shadow:inset 0 0 15px #000,0 4px 15px #0008;position:relative;text-align:center}
-.roundInst .ring{position:absolute;inset:8px;border:1px solid #49636e;border-radius:50%}
-.roundInst .instName{position:absolute;top:16px;left:0;right:0;font-size:8px;letter-spacing:1px;color:#8bdfff}
-.roundInst .instNum{position:absolute;top:43px;left:0;right:0;font-size:21px;font-weight:900}
-.roundInst .instUnit{position:absolute;bottom:19px;left:0;right:0;font-size:7px;color:#8fa5af}
-#attitude .sky{position:absolute;left:12px;right:12px;top:12px;height:48%;background:#397fa4;border-radius:55px 55px 0 0;overflow:hidden}
-#attitude .ground{position:absolute;left:12px;right:12px;bottom:12px;height:40%;background:#66533a;border-radius:0 0 55px 55px}
-#attitude .hline{position:absolute;left:25px;right:25px;top:55px;border-top:2px solid #fff;transform:rotate(0deg)}
-#attitude .aircraftCue{position:absolute;left:31px;right:31px;top:53px;border-top:3px solid #ffd85a}
-#compassNeedle{position:absolute;left:54px;top:28px;width:4px;height:56px;background:#ffdb4a;transform-origin:2px 52px}
-#yoke{position:absolute;left:50%;bottom:5px;transform:translateX(-50%);width:125px;height:62px}
-#yoke .stem{position:absolute;left:58px;top:24px;width:9px;height:38px;background:#687983;border-radius:5px}
-#yoke .wheel{position:absolute;left:13px;top:3px;width:100px;height:46px;border:8px solid #222d33;border-radius:50% 50% 35% 35%;box-shadow:0 2px 8px #000}
-#throttleBox{position:absolute;right:45px;bottom:27px;width:90px;height:125px;border:1px solid #3c5661;border-radius:10px;background:#09141b}
-#throttleBox .rail{position:absolute;left:42px;top:12px;bottom:12px;width:6px;background:#263d47;border-radius:6px}
-#throttleBox .handle{position:absolute;left:33px;bottom:18px;width:24px;height:28px;background:#bdc9ce;border-radius:5px;box-shadow:0 2px 5px #000;transition:bottom .08s}
-#throttleBox label{position:absolute;left:0;right:0;top:3px;text-align:center;font-size:7px;color:#8edfff;letter-spacing:1px}
-#deckBrand{position:absolute;left:35px;bottom:24px;font-size:9px;letter-spacing:1.4px;color:#78929d}
-#navCompass{position:absolute;right:160px;bottom:34px;width:125px;height:125px;border:2px solid #627a84;border-radius:50%;background:#071117;box-shadow:inset 0 0 20px #000}
-#navCompass .tick{position:absolute;left:60px;top:8px;color:#fff;font-size:8px}
-#navCompass .cardinal{position:absolute;font-size:8px;color:#8fdfff;font-weight:800}
-#navCompass .n{top:19px;left:58px}.navCompass .s{bottom:19px;left:58px}.navCompass .e{right:18px;top:57px}.navCompass .w{left:18px;top:57px}
-#navCompass:after{content:"";position:absolute;left:61px;top:25px;width:3px;height:73px;background:#ffdb4a;transform-origin:1.5px 37px;transform:rotate(0deg)}
-#trafficTag{position:absolute;left:50%;top:74px;transform:translateX(-50%);z-index:21;padding:5px 9px;border-radius:6px;background:#071824dd;border:1px solid #3a819b;color:#a9e8ff;font-size:9px;letter-spacing:1px}
-#soundBtn{border:1px solid #365563;background:#091a25;color:#b9d2dc;border-radius:8px;padding:8px 10px;font-size:10px}
-#soundBtn.on{background:#126c83;border-color:#67e0ff;color:#fff}
-@media(max-width:800px){#cockpitDeck{height:150px}.panelRow{gap:4px;top:14px}.roundInst{width:72px;height:72px}.roundInst .ring{inset:5px}.roundInst .instName{top:10px;font-size:6px}.roundInst .instNum{top:28px;font-size:14px}.roundInst .instUnit{bottom:10px;font-size:5px}#navCompass,#throttleBox,#deckBrand{display:none}}
-
-
-/* ===== EXPERT SYNC V4 — HANDS-ON FLIGHT OPERATION ===== */
-#cockpitDeck{pointer-events:auto;cursor:default}
-#cockpitDeck .roundInst{transition:filter .12s,transform .12s}
-#cockpitDeck .roundInst:hover{filter:brightness(1.15)}
-#cockpitDeck .interactiveControl{pointer-events:auto;user-select:none;touch-action:none;cursor:grab}
-#cockpitDeck .interactiveControl:active{cursor:grabbing}
-#yoke{pointer-events:auto;z-index:8}
-#yoke .wheel{transition:transform .08s}
-#throttleBox{pointer-events:auto;z-index:8;cursor:ns-resize}
-#deckBrake{position:absolute;left:170px;bottom:28px;z-index:9;padding:8px 12px;border:1px solid #4a626d;border-radius:7px;background:linear-gradient(#26383f,#10191e);color:#dce9ed;font-size:8px;font-weight:900;letter-spacing:.8px;cursor:pointer;pointer-events:auto}
-#deckBrake.on{background:linear-gradient(#8a3e3e,#41191b);border-color:#ff8585;color:#fff}
-#operationHint{position:absolute;left:50%;top:-42px;transform:translateX(-50%);min-width:360px;padding:8px 12px;text-align:center;background:#061721eF;border:1px solid #3d93b2;border-radius:7px;color:#ccefff;font-size:9px;line-height:1.35;box-shadow:0 5px 20px #0008;pointer-events:none}
-#operationHint b{color:#75ddff}
-#controlReadout{position:absolute;left:14px;bottom:12px;padding:7px 9px;border:1px solid #294653;border-radius:6px;background:#07141bdd;color:#9fb6bf;font-size:8px;z-index:9;pointer-events:none}
-#controlReadout b{color:#fff}
-@media(max-width:900px){#operationHint{min-width:260px;font-size:8px}#deckBrake{left:20px;bottom:20px}}
-
-/* ===== EXPERT SYNC V5 — TAXI / ATC / RUNWAY OPERATIONS ===== */
-#missionChecklist{margin-top:10px;border-top:1px solid #294653;padding-top:8px}
-.missionCheck{font-size:9px;line-height:1.65;color:#8ea7b1}
-.missionCheck span{display:inline-block;width:17px;color:#667f89;font-weight:900}
-.missionCheck.done{color:#72e2b1}.missionCheck.done span{color:#49d7a1}
-#atc{box-shadow:0 12px 35px #0008,0 0 0 1px #3a8fa9}
+:root{--cyan:#4dd9ff;--green:#54e6a6;--amber:#ffd45a;--red:#ff5f65;--bg:#061016;--panel:#0b171d;--line:#2c4854;--text:#eaf5f8;--muted:#8da6af}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#03090d;color:var(--text);font-family:Arial,Helvetica,sans-serif}
+button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100vh;overflow:hidden;background:#7fb9d1}canvas{position:absolute;inset:0;width:100%;height:100%}
+.ui{position:absolute;z-index:10}.panel{background:#07131bdd;border:1px solid #365563;box-shadow:0 8px 30px #0008;border-radius:8px;backdrop-filter:blur(6px)}
+#brand{left:14px;top:12px;padding:10px 14px}.brand{color:var(--cyan);font-weight:900;letter-spacing:1.6px}.sub{font-size:9px;color:#a5bdc6;margin-top:3px;letter-spacing:.7px}
+#mission{left:14px;top:83px;width:315px;padding:13px}.eyebrow{font-size:9px;color:var(--cyan);font-weight:900;letter-spacing:1px}.title{font-size:16px;font-weight:900;margin:5px 0}.copy{font-size:11px;line-height:1.5;color:#d4e3e8}.progress{height:5px;background:#1c3039;border-radius:8px;margin-top:10px;overflow:hidden}.progress i{display:block;height:100%;width:0;background:var(--cyan)}#check{margin-top:9px;font-size:9px;line-height:1.6;color:#829aa3}.done{color:var(--green)!important}
+#atc{right:14px;top:83px;width:320px;padding:13px}.atcHead{display:flex;justify-content:space-between;color:var(--cyan);font-size:10px;font-weight:900}.atcBody{font-size:11px;line-height:1.45;margin-top:7px}.radio{font-size:9px;color:#8da6af;margin-top:7px}
+#phasebar{top:15px;left:50%;transform:translateX(-50%);display:flex;gap:6px}.phase{min-width:65px;text-align:center;color:#6f858e;font-size:8px}.dot{width:24px;height:24px;border:2px solid #465d67;border-radius:50%;display:grid;place-items:center;margin:auto auto 3px}.phase.active{color:#fff}.phase.active .dot{background:var(--cyan);border-color:var(--cyan);color:#00141b}.phase.done .dot{background:var(--green);border-color:var(--green);color:#00140e}
+#views{right:14px;top:13px;display:flex;gap:5px}.view{background:#081923;border:1px solid #365563;border-radius:6px;padding:7px 9px;font-size:9px;cursor:pointer}.view.active{background:#147f9e;border-color:#6de2ff}
+#hud{left:50%;bottom:13px;transform:translateX(-50%);display:grid;grid-template-columns:repeat(6,100px);gap:5px}.read{padding:7px;text-align:center;background:#07151dE8;border:1px solid #294653;border-radius:6px}.read b{display:block;color:var(--cyan);font-size:7px;letter-spacing:.8px}.read strong{font-size:18px}.read small{font-size:7px;color:#849ba4}
+#status{right:14px;bottom:14px;width:215px;padding:10px;font-size:9px;line-height:1.8}.row{display:flex;justify-content:space-between;border-bottom:1px solid #20343d}.green{color:var(--green)}.amber{color:var(--amber)}.red{color:var(--red)}
+#help{left:14px;bottom:14px;width:265px;padding:10px;font-size:9px;line-height:1.7;color:#a4bac2}.key{display:inline-block;border:1px solid #49616c;background:#172a32;border-radius:3px;padding:0 4px;color:#fff}
+#warning{display:none;left:50%;top:27%;transform:translateX(-50%);padding:10px 16px;background:#71151ae8;border:1px solid #ff6a70;border-radius:7px;color:#fff;font-weight:900;letter-spacing:1px;z-index:30}
+#toast{left:50%;top:17%;transform:translateX(-50%);display:none;padding:8px 13px;background:#061923f2;border:1px solid #3f99b5;border-radius:6px;font-size:10px;z-index:30}
+#cockpitLabel{left:50%;bottom:50%;transform:translateX(-50%);padding:5px 9px;font-size:8px;color:#9bdff1;letter-spacing:1px;display:none}
+#preflight{position:absolute;inset:0;z-index:50;display:none;background:#03090dd9;align-items:center;justify-content:center}.card{width:min(850px,94vw);background:#08151cf8;border:1px solid #43bfe8;border-radius:12px;box-shadow:0 25px 100px #000c;padding:22px}.card h1{margin:0;color:var(--cyan);font-size:22px;letter-spacing:2px}.card p{font-size:10px;color:#a8bec7}.pregrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:15px 0}.preitem{display:grid;grid-template-columns:75px 1fr;gap:8px;padding:9px;border:1px solid #2d4651;background:#0b1a22;border-radius:6px}.preitem button{background:#1a272d;border:1px solid #61757d;border-radius:5px;font-weight:900;cursor:pointer}.preitem button.on{background:#176f59;border-color:#5ce1b1}.preitem b{font-size:10px}.preitem small{display:block;color:#7f969f;font-size:8px;margin-top:3px}.prefooter{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #28414c;padding-top:12px}.procedure{font-size:9px;color:#8ea6af}.primary{background:#4edbff;color:#01202b;border:0;border-radius:6px;padding:10px 18px;font-weight:900;cursor:pointer}.primary:disabled{opacity:.35;cursor:not-allowed}
+#cockpit{position:absolute;inset:0;display:none;z-index:5;pointer-events:none}.glass{position:absolute;left:3%;right:3%;top:5%;height:48%;border:7px solid #17262d;border-radius:4px 4px 40% 40%;overflow:hidden;background:linear-gradient(#4e9fc2 0 58%,#6e8e62 59%);box-shadow:inset 0 0 60px #0009}.glass:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:5px;background:#17262d}.glass:after{content:"";position:absolute;left:0;right:0;top:58%;height:3px;background:#eaf3f2aa}.runway{position:absolute;left:43%;right:43%;bottom:0;height:50%;background:#30383a;clip-path:polygon(38% 0,62% 0,100% 100%,0 100%)}.runway:after{content:"";position:absolute;left:49%;top:0;bottom:0;width:3px;background:repeating-linear-gradient(#fff 0 13px,transparent 13px 25px)}
+#panel{position:absolute;left:2%;right:2%;bottom:0;height:48%;background:linear-gradient(#1a262c,#070d10 25%);border:4px solid #263a43;border-radius:15px 15px 0 0;box-shadow:0 -12px 35px #000b;pointer-events:auto}.sixpack{position:absolute;left:3%;right:3%;top:10px;display:grid;grid-template-columns:repeat(6,1fr);gap:10px}.gauge{aspect-ratio:1;border-radius:50%;border:3px solid #71868d;background:#071117;box-shadow:inset 0 0 18px #000,0 3px 9px #000;position:relative;text-align:center;overflow:hidden}.gauge .label{position:absolute;top:17%;left:0;right:0;font-size:7px;color:#8fdcff;letter-spacing:.7px}.gauge .value{position:absolute;top:43%;left:0;right:0;font-size:17px;font-weight:900}.gauge .unit{position:absolute;bottom:14%;left:0;right:0;font-size:6px;color:#8199a2}.gauge .needle{position:absolute;left:50%;bottom:50%;width:2px;height:35%;background:#fff;transform-origin:bottom center;transform:rotate(42deg)}.att{background:linear-gradient(#3b85a6 0 49%,#665039 50%)}.att:after{content:"";position:absolute;left:18%;right:18%;top:50%;border-top:2px solid #ffd34f}.att .value{z-index:2}
+#controlsRow{position:absolute;left:3%;right:3%;bottom:12px;height:37%;display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}.controlBox{border:1px solid #304850;background:#09151b;border-radius:6px;padding:8px;position:relative}.ct{font-size:7px;color:#86a0a9;letter-spacing:1px}.switches{display:flex;justify-content:space-around;margin-top:12px}.switch{width:23px;height:60px;position:relative;cursor:pointer}.switch:before{content:"";position:absolute;left:10px;top:0;width:4px;height:42px;background:#2a3b42}.switch i{position:absolute;left:3px;top:5px;width:18px;height:13px;background:#bfc9cc;border-radius:3px}.switch.on i{top:27px;background:#58d6ad}.switch small{position:absolute;top:47px;width:35px;left:-6px;text-align:center;font-size:6px;color:#81979f}
+#yoke{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:130px;height:80px;cursor:grab}.wheel{position:absolute;left:14px;top:2px;width:102px;height:48px;border:9px solid #202a2f;border-radius:50% 50% 30% 30%;box-shadow:0 4px 8px #000}.stem{position:absolute;left:60px;top:32px;width:9px;height:48px;background:#697980;border-radius:4px}.bar{position:absolute;left:31px;top:27px;width:69px;height:5px;background:#2c373c}
+#throttle{position:absolute;right:8%;top:30px;width:75px;height:135px;border:1px solid #3b535d;border-radius:6px;background:#071219;cursor:ns-resize}.rail{position:absolute;left:34px;top:17px;bottom:17px;width:6px;background:#2b414a}.lever{position:absolute;left:25px;bottom:25px;width:24px;height:25px;background:#c1c9cb;border-radius:4px}.tl{position:absolute;top:6px;left:0;right:0;text-align:center;font-size:7px;color:#86dfff}
+#brake{position:absolute;left:5%;bottom:28px;padding:8px 10px;border:1px solid #50636a;background:#202d31;border-radius:5px;font-size:8px;font-weight:900;cursor:pointer}.brakeOn{background:#6c272b!important;border-color:#ff6b70!important}
+@media(max-width:850px){#mission,#atc,#help,#status{display:none}#phasebar{display:none}#hud{grid-template-columns:repeat(3,90px);bottom:5px}.sixpack{gap:4px}.card{padding:15px}.pregrid{grid-template-columns:1fr}.gauge .value{font-size:12px}.controlBox{padding:4px}}
 </style>
 </head>
 <body>
-<div id="sim">
-<canvas id="world"></canvas>
-
-<div id="topbar">
-  <div id="brand" class="panel"><div class="brand1">✈ EXPERT SYNC — FLIGHT DECK</div><div class="brand2">SINGLE-ENGINE TRAINING • AVIATION ENGLISH SIMULATOR</div></div>
-  <div id="phases"></div>
-  <div id="views">
-    <button class="viewBtn active" data-view="EXTERNAL">EXTERNAL</button>
-    <button class="viewBtn" data-view="COCKPIT">COCKPIT</button>
-    <button class="viewBtn" data-view="TOWER">TOWER</button><button id="soundBtn">🔊 SOUND OFF</button>
-  </div>
+<div id="game">
+<canvas id="scene"></canvas>
+<div id="brand" class="ui panel"><div class="brand">✈ EXPERT SYNC — FLIGHT TRAINING</div><div class="sub">HANDS-ON SINGLE-ENGINE SIMULATOR • N-ES01</div></div>
+<div id="phasebar" class="ui"></div>
+<div id="views" class="ui"><button class="view active" data-v="COCKPIT">COCKPIT</button><button class="view" data-v="EXTERNAL">EXTERNAL</button></div>
+<div id="mission" class="ui panel"><div class="eyebrow">ACTIVE TRAINING</div><div id="mtitle" class="title"></div><div id="mcopy" class="copy"></div><div class="progress"><i id="bar"></i></div><div id="check"></div></div>
+<div id="atc" class="ui panel"><div class="atcHead"><span>ATC • <span id="freq"></span></span><span id="radioState">STANDBY</span></div><div id="atcText" class="atcBody"></div><div class="radio">Press <b>R</b> to transmit/read back.</div></div>
+<div id="warning" class="ui">STALL WARNING — LOWER NOSE / INCREASE AIRSPEED</div><div id="toast" class="ui"></div><div id="cockpitLabel" class="ui panel">PRIMARY FLIGHT DISPLAY • LIVE</div>
+<div id="hud" class="ui">
+<div class="read"><b>AIRSPEED</b><strong id="hspd">0</strong><small>KT</small></div><div class="read"><b>ALTITUDE</b><strong id="halt">0</strong><small>FT</small></div><div class="read"><b>HEADING</b><strong id="hhdg">090</strong><small>°</small></div><div class="read"><b>VERTICAL SPEED</b><strong id="hvs">0</strong><small>FT/MIN</small></div><div class="read"><b>RPM</b><strong id="hrpm">0</strong><small>RPM</small></div><div class="read"><b>FUEL</b><strong id="hfuel">100</strong><small>%</small></div>
 </div>
+<div id="status" class="ui panel"><div class="row"><span>ENGINE</span><b id="stEngine">OFF</b></div><div class="row"><span>OIL PRESSURE</span><b id="stOil">0 PSI</b></div><div class="row"><span>GEAR</span><b id="stGear">DOWN</b></div><div class="row"><span>FLAPS</span><b id="stFlaps">UP</b></div><div class="row"><span>SURFACE</span><b id="stSurface">GROUND</b></div></div>
+<div id="help" class="ui panel"><b>FLY THE AIRCRAFT</b><br><span class="key">W</span>/<span class="key">S</span> throttle &nbsp; <span class="key">↑</span>/<span class="key">↓</span> pitch<br><span class="key">A</span>/<span class="key">D</span> bank/rudder &nbsp; <span class="key">F</span> flaps &nbsp; <span class="key">G</span> gear<br><span class="key">B</span> parking brake &nbsp; <span class="key">R</span> ATC &nbsp; <span class="key">C</span> camera</div>
 
-<div id="mission" class="panel">
-  <div class="eyebrow">ACTIVE FLIGHT MISSION</div>
-  <div class="missionTitle" id="missionTitle">GROUND TAXI</div>
-  <div class="missionText" id="missionText"></div>
-  <div class="bar"><i id="missionBar"></i></div><div id="missionChecklist"></div>
+<div id="cockpit"><div class="glass"><div class="runway"></div></div><div id="panel">
+<div class="sixpack">
+<div class="gauge"><div class="label">AIRSPEED</div><div id="gs" class="value">0</div><div class="unit">KNOTS</div><div class="needle"></div></div>
+<div class="gauge att"><div class="label">ATTITUDE</div><div id="ga" class="value">0°</div><div class="unit">PITCH / BANK</div></div>
+<div class="gauge"><div class="label">ALTIMETER</div><div id="galt" class="value">0</div><div class="unit">FEET</div><div class="needle"></div></div>
+<div class="gauge"><div class="label">TURN / SLIP</div><div id="gt" class="value">—</div><div class="unit">COORDINATION</div></div>
+<div class="gauge"><div class="label">HEADING</div><div id="gh" class="value">090</div><div class="unit">DEGREES</div><div class="needle"></div></div>
+<div class="gauge"><div class="label">VERT. SPEED</div><div id="gv" class="value">0</div><div class="unit">FT / MIN</div></div>
 </div>
+<div id="controlsRow">
+<div class="controlBox"><div class="ct">ELECTRICAL / ENGINE SYSTEMS</div><div class="switches"><div class="switch" data-s="battery"><i></i><small>MASTER</small></div><div class="switch" data-s="avionics"><i></i><small>AVIONICS</small></div><div class="switch" data-s="pump"><i></i><small>FUEL PUMP</small></div><div class="switch" data-s="beacon"><i></i><small>BEACON</small></div></div></div>
+<div class="controlBox"><div class="ct">FLIGHT CONTROLS</div><div id="yoke"><div class="wheel"></div><div class="bar"></div><div class="stem"></div></div><button id="brake">PARKING BRAKE: ON</button></div>
+<div class="controlBox"><div class="ct">POWER / MIXTURE</div><div id="throttle"><div class="tl">THROTTLE <span id="tp">0%</span></div><div class="rail"></div><div id="lever" class="lever"></div></div></div>
+</div></div></div>
 
-<div id="atc" class="panel">
-  <div class="atcHead"><span>🎧 ATC — <span id="freq">GROUND 121.90</span></span><span id="radioState">STANDBY</span></div>
-  <div class="atcBody" id="atcText"></div>
-  <div class="radioHint">Press <b>R</b> to acknowledge / transmit. Read back instructions using aviation English.</div>
+<div id="preflight"><div class="card"><h1>COCKPIT — COLD & DARK</h1><p>Operate the actual cockpit controls in the correct sequence. The aircraft cannot start until the electrical and fuel systems are configured.</p>
+<div class="pregrid">
+<div class="preitem"><button data-pre="battery">OFF</button><div><b>MASTER / BATTERY</b><small>Establish electrical power.</small></div></div>
+<div class="preitem"><button data-pre="avionics">OFF</button><div><b>AVIONICS MASTER</b><small>Power radios and navigation.</small></div></div>
+<div class="preitem"><button data-pre="pump">OFF</button><div><b>ELECTRIC FUEL PUMP</b><small>Prime the fuel system.</small></div></div>
+<div class="preitem"><button data-pre="mixture">LEAN</button><div><b>MIXTURE</b><small>Set RICH / 100% for engine start.</small></div></div>
 </div>
-
-<div id="score" class="panel">FLIGHT SCORE <span class="scoreNum" id="scoreVal">0</span></div>
-
-<div id="controls" class="panel">
-  <b>FLIGHT CONTROLS</b><br>
-  <span class="kbd">W</span> Throttle up &nbsp; <span class="kbd">S</span> Power down / brake<br>
-  <span class="kbd">M</span> Mixture rich &nbsp; <span class="kbd">N</span> Mixture lean<br>
-  <span class="kbd">A</span> Bank/steer left &nbsp; <span class="kbd">D</span> Bank/steer right<br>
-  <span class="kbd">↑</span> Pitch up &nbsp; <span class="kbd">↓</span> Pitch down<br>
-  <span class="kbd">F</span> Flaps &nbsp; <span class="kbd">G</span> Landing gear &nbsp; <span class="kbd">C</span> Camera<br>
-  <span class="kbd">R</span> Radio/ATC &nbsp; <span class="kbd">P</span> Reduce power
-</div>
-
-<div id="status" class="panel">
-  <div class="statusRow"><span>ENGINE</span><b id="engine" class="green">OFF</b></div>
-  <div class="statusRow"><span>GEAR</span><b id="gear">DOWN</b></div>
-  <div class="statusRow"><span>FLAPS</span><b id="flaps">0°</b></div>
-  <div class="statusRow"><span>LIGHTS</span><b class="green">ON</b></div>
-  <div class="statusRow"><span>SURFACE</span><b id="surface">RUNWAY</b></div>
-</div>
-
-<div id="gauges">
-  <div class="gauge"><div><b id="gSpd">0</b><small>KTS</small></div></div>
-  <div class="gauge"><div><b id="gRpm">0</b><small>RPM</small></div></div>
-  <div class="gauge"><div><b id="gAlt">0</b><small>FT</small></div></div>
-</div>
-
-<div id="instruments">
-  <div class="inst"><div class="instLabel">AIRSPEED</div><div class="instVal" id="speed">0</div><div class="instUnit">KNOTS</div></div>
-  <div class="inst"><div class="instLabel">ALTITUDE</div><div class="instVal" id="alt">0</div><div class="instUnit">FEET</div></div>
-  <div class="inst"><div class="instLabel">HEADING</div><div class="instVal" id="hdg">090</div><div class="instUnit">DEGREES</div></div>
-  <div class="inst"><div class="instLabel">VERTICAL SPEED</div><div class="instVal" id="vs">0</div><div class="instUnit">FT/MIN</div></div>
-  <div class="inst"><div class="instLabel">ENGINE RPM</div><div class="instVal" id="rpm">0</div><div class="instUnit">RPM</div></div>
-  <div class="inst"><div class="instLabel">FUEL</div><div class="instVal" id="fuel">100</div><div class="instUnit">%</div></div>
-</div>
-
-<div id="warning">STALL WARNING</div><div id="toast"></div><div id="cockpitOverlay"></div><div id="systems"><span>BAT</span><b id="batState" class="sysOff">OFF</b><span>AVN</span><b id="avnState" class="sysOff">OFF</b><span>PUMP</span><b id="pumpState" class="sysOff">OFF</b><span>MIX</span><b id="mixState">0%</b></div>
-<div id="preflight"><div class="preCard">
-<div class="preHead"><div><h2>EXPERT SYNC • COCKPIT — BEFORE START</h2><p>Cold-and-dark training aircraft • Operate the controls, configure the engine, start it, scan the instruments, then taxi.</p></div><div class="preBadge">CESSNA-CLASS • SINGLE ENGINE • N-ES01</div></div>
-<div class="preBody">
-<div><div class="checklistTitle">ENGINE START CHECKLIST</div><div class="checkGrid">
-<div class="check"><button data-pre="battery">OFF</button><div><b>MASTER / BATTERY</b><small>Electrical power. This energizes the aircraft bus.</small></div></div>
-<div class="check"><button data-pre="avionics">OFF</button><div><b>AVIONICS MASTER</b><small>Radios and navigation equipment.</small></div></div>
-<div class="check"><button data-pre="pump">OFF</button><div><b>ELECTRIC FUEL PUMP</b><small>Prime the fuel system before engine start.</small></div></div>
-<div class="check"><button data-pre="mixture">LEAN</button><div><b>MIXTURE CONTROL</b><small>Set RICH / 100% for the start sequence.</small></div></div></div>
-<div class="prePanel"><div class="panelTitle">ELECTRICAL / FUEL BUS</div><div class="systemStrip">
-<div class="systemChip">MASTER<b id="preBat">OFF</b></div><div class="systemChip">AVIONICS<b id="preAvn">OFF</b></div><div class="systemChip">FUEL PUMP<b id="prePump">OFF</b></div><div class="systemChip">MIXTURE<b id="preMix">LEAN</b></div></div></div></div>
-<div>
-<div class="windshield"><div class="runwayView"></div></div>
-<div class="dashboard">
-<div class="panelTitle" style="position:absolute;left:12px;top:7px">PRIMARY FLIGHT DISPLAY / SIX-PACK</div>
-<div class="gaugeRow">
-<div class="realGauge"><span class="glabel">AIRSPEED</span><span class="needle"></span><span class="hub"></span><span class="gvalue">0</span><span class="gunit">KNOTS</span></div>
-<div class="realGauge att"><span class="glabel">ATTITUDE</span><span class="airCue"></span><span class="gvalue">0°</span><span class="gunit">PITCH / BANK</span></div>
-<div class="realGauge"><span class="glabel">ALTIMETER</span><span class="needle"></span><span class="hub"></span><span class="gvalue">0</span><span class="gunit">FEET</span></div>
-<div class="realGauge"><span class="glabel">TURN COORD.</span><span class="needle"></span><span class="hub"></span><span class="gvalue">—</span><span class="gunit">TURN / SLIP</span></div>
-<div class="realGauge"><span class="glabel">HEADING</span><span class="needle"></span><span class="hub"></span><span class="gvalue">090</span><span class="gunit">DEGREES</span></div>
-<div class="realGauge"><span class="glabel">VERT. SPEED</span><span class="needle"></span><span class="hub"></span><span class="gvalue">0</span><span class="gunit">FT / MIN</span></div>
-</div>
-<div class="lowerPanel">
-<div class="subPanel"><div class="subTitle">ELECTRICAL / LIGHTS</div><div class="switches"><span class="switch"><small>MASTER</small></span><span class="switch"><small>AVIONICS</small></span><span class="switch"><small>PUMP</small></span><span class="switch"><small>BEACON</small></span></div></div>
-<div class="subPanel"><div class="subTitle">ENGINE / FLIGHT CONTROLS</div><div class="throttleQuad"><span class="lever"><i></i><small>THROTTLE</small></span><span class="lever"><i></i><small>MIX</small></span><span class="lever"><i></i><small>PROP</small></span></div><div class="yokeMini"><div class="wheel"></div><div class="bar"></div><div class="stem"></div></div></div>
-<div class="subPanel"><div class="subTitle">ENGINE INDICATION</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:5px"><div class="systemChip">RPM<b style="color:#dce7e9">0</b></div><div class="systemChip">OIL P<b style="color:#dce7e9">0</b></div><div class="systemChip">OIL T<b style="color:#dce7e9">COLD</b></div><div class="systemChip">VOLTS<b style="color:#dce7e9">0</b></div></div></div>
+<div class="prefooter"><div id="premsg" class="procedure">1 MASTER ON → 2 AVIONICS ON → 3 FUEL PUMP ON → 4 MIXTURE RICH → 5 STARTER</div><button id="starter" class="primary" disabled>START ENGINE</button></div>
 </div></div>
-</div></div>
-<div class="preActions"><div class="procedure">START PROCEDURE: <b>1 MASTER ON → 2 AVIONICS ON → 3 FUEL PUMP ON → 4 MIXTURE RICH → 5 STARTER.</b><br><span id="preflightMessage">Click each checklist switch. The starter will tell you exactly what is missing if the sequence is incomplete.</span></div><button id="engineStart" class="secondary">STARTER • OFF</button></div>
-</div></div><div id="trafficTag">TRAFFIC • ES-01 • TRAINING AIRSPACE</div>
-<div id="cockpitDeck">
-  <div class="deckFrame"></div><div class="deckGlare"></div>
-  <div class="panelRow">
-    <div class="roundInst" id="attitude"><div class="sky"></div><div class="ground"></div><div class="hline"></div><div class="aircraftCue"></div><div class="instName">ATTITUDE</div><div class="instUnit">PITCH / BANK</div></div>
-    <div class="roundInst"><div class="ring"></div><div class="instName">AIRSPEED</div><div class="instNum" id="deckSpeed">0</div><div class="instUnit">KNOTS</div></div>
-    <div class="roundInst"><div class="ring"></div><div class="instName">ALTIMETER</div><div class="instNum" id="deckAlt">0</div><div class="instUnit">FEET</div></div>
-    <div class="roundInst"><div class="ring"></div><div class="instName">VERTICAL SPEED</div><div class="instNum" id="deckVs">0</div><div class="instUnit">FT/MIN</div></div>
-    <div class="roundInst"><div class="ring"></div><div class="instName">HEADING</div><div class="instNum" id="deckHeading">090</div><div class="instUnit">DEGREES</div></div>
-    <div class="roundInst"><div class="ring"></div><div class="instName">RPM</div><div class="instNum" id="deckRpm">0</div><div class="instUnit">ENGINE</div></div>
-  </div>
-  <div id="navCompass"><span class="cardinal n">N</span><span class="cardinal s">S</span><span class="cardinal e">E</span><span class="cardinal w">W</span></div>
-  <div id="throttleBox"><label>THROTTLE</label><div class="rail"></div><div class="handle" id="deckThrottle"></div></div>
-  <div id="yoke" class="interactiveControl" title="Drag the yoke: left/right = bank/steering, up/down = pitch"><div class="wheel"></div><div class="stem"></div></div>
-  <button id="deckBrake">PARKING BRAKE: ON</button>
-  <div id="operationHint"><b>YOU ARE NOW THE PILOT</b> — Use the throttle and yoke. Watch airspeed, attitude, heading, altitude and RPM. Keyboard still works: W/S throttle • A/D roll/steer • ↑/↓ pitch • F flaps • G gear • R radio.</div>
-  <div id="controlReadout">YOKE <b id="yokeReadout">CENTER</b> &nbsp; THROTTLE <b id="throttleReadout">0%</b></div>
-  <div id="deckBrand">EXPERT SYNC • TRAINING FLIGHT DECK</div>
 </div>
-
-
-<div id="menu">
-  <div class="card">
-    <h1>EXPERT SYNC</h1><h2>AVIATION FLIGHT DECK</h2>
-    <p>This is a pilot-training simulator, not an arcade flight game. You will enter the cockpit, configure the aircraft, start the engine, taxi, line up, take off, climb, cruise, approach and land while monitoring the instruments and responding to ATC.</p>
-    <div class="features">
-      <div class="feature">🧰 Preflight & engine start</div><div class="feature">🎛️ Cockpit systems & instruments</div>
-      <div class="feature">📡 ATC / Readback Practice</div><div class="feature">🎛️ Real-time Flight Instruments</div>
-      <div class="feature">⚠️ Stall / Overspeed Warnings</div><div class="feature">🛬 Approach & Landing</div>
-    </div>
-    <button class="primary" id="start">START FLIGHT</button>
-  </div>
-</div>
-
-<div id="complete">
-  <div class="card result"><h1>MISSION COMPLETE</h1><p id="resultText"></p><button class="primary" id="continue">CONTINUE FLIGHT</button></div>
-</div>
-</div>
-
 <script>
-(() => {
-const canvas=document.getElementById('world'),ctx=canvas.getContext('2d');
-const $=id=>document.getElementById(id);
-let W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2);
-function resize(){W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
-
+(()=>{const c=document.getElementById('scene'),x=c.getContext('2d');let W=innerWidth,H=innerHeight,D=Math.min(devicePixelRatio||1,2);
+function resize(){W=innerWidth;H=innerHeight;c.width=W*D;c.height=H*D;c.style.width=W+'px';c.style.height=H+'px';x.setTransform(D,0,0,D,0,0)}addEventListener('resize',resize);resize();
 const phases=['Taxi','Line-Up','Take-off','Climb','Cruise','Approach','Landing'];
 const missions=[
- {key:'TAXI',title:'GROUND TAXI • HOLD SHORT',freq:'GROUND 121.90',text:'Read back the taxi clearance, taxi via Alpha at ≤20 kt, follow the yellow centreline, then stop before Runway 09. Do not enter the runway without a runway-entry clearance.',atc:'Ground: Cessna ES-01, taxi to Runway 09 via Alpha. Hold short of Runway 09.',target:100},
- {key:'LINEUP',title:'LINE UP & WAIT',freq:'TOWER 118.10',text:'After the hold-short handoff, contact Tower. Read back the runway and line-up instruction, enter Runway 09 only when authorized, align with the centreline and stop. Line Up and Wait is NOT takeoff clearance.',atc:'Tower: ES-01, Runway 09, line up and wait.',target:100},
- {key:'TAKEOFF',title:'TAKE-OFF CLEARANCE',freq:'TOWER 118.10',text:'From the runway, request/receive takeoff clearance. Do not roll until cleared. Then apply take-off power, maintain runway heading and rotate smoothly near 55 knots.',atc:'Tower: ES-01, Runway 09, cleared for take-off. Wind calm.',target:100},
- {key:'CLIMB',title:'CLIMB',freq:'TOWER 118.10',text:'Climb through 1,500 feet toward 3,000 feet. Maintain heading 090 and a safe airspeed. Retract gear after a positive rate.',atc:'Tower: ES-01, climb 3,000 feet, maintain heading 090.',target:100},
- {key:'CRUISE',title:'CRUISE & NAVIGATION',freq:'CENTER 124.70',text:'Stabilize at 3,000 feet. Maintain heading 090, airspeed 80–110 knots and a near-zero vertical speed.',atc:'Center: ES-01, maintain 3,000 feet and heading 090.',target:100},
- {key:'APPROACH',title:'APPROACH',freq:'APPROACH 119.50',text:'Descend toward the runway. Reduce speed, extend gear and flaps, and establish a stable final approach.',atc:'Approach: ES-01, cleared approach Runway 09. Report established.',target:100},
- {key:'LANDING',title:'LANDING',freq:'TOWER 118.10',text:'Touch down on Runway 09 with gear down, flaps configured, low bank and a controlled descent. Decelerate safely after touchdown.',atc:'Tower: ES-01, cleared to land Runway 09. Wind calm.',target:100}
+['GROUND TAXI • HOLD SHORT','GROUND 121.90','Taxi via Alpha at 20 kt or less. Follow the centreline and stop at the Runway 09 hold-short line.','Ground: Cessna ES-01, taxi to Runway 09 via Alpha. Hold short.'],
+['LINE UP & WAIT','TOWER 118.10','Contact Tower. Enter Runway 09 only after line-up clearance. Align with the centreline and stop.','Tower: ES-01, Runway 09, line up and wait.'],
+['TAKE-OFF','TOWER 118.10','Read back take-off clearance. Apply power, keep the aircraft straight and rotate smoothly near 55 kt.','Tower: ES-01, Runway 09, cleared for take-off.'],
+['CLIMB','TOWER 118.10','Climb toward 3,000 ft. Maintain 090 and a safe airspeed. Retract gear after positive rate.','Tower: ES-01, climb 3,000 feet, maintain 090.'],
+['CRUISE','CENTER 124.70','Stabilize around 3,000 ft, 80–110 kt and near-zero vertical speed.','Center: ES-01, maintain 3,000 feet and heading 090.'],
+['APPROACH','APPROACH 119.50','Descend, slow down, extend gear and flaps, and establish a stable final approach.','Approach: ES-01, cleared approach Runway 09.'],
+['LANDING','TOWER 118.10','Touch down under control, keep the centreline, then decelerate safely.','Tower: ES-01, cleared to land Runway 09.']
 ];
-
-const s={
-phase:0,view:'EXTERNAL',started:false,score:0,progress:0,last:performance.now(),
-x:0,y:0,alt:0,speed:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,
-gear:true,flaps:0,onGround:true,stall:false,brake:false,parkingBrake:true,engine:false,radioAck:false,
-taxiReadback:false,holdShortReached:false,towerContact:false,lineupCleared:false,takeoffCleared:false,
-battery:false,avionics:false,fuelPump:false,mixture:0,starter:false,engineStarted:false,
-starterUntil:0,oilPressure:0,oilTemp:20,volts:0,
-yokeX:0,yokeY:0,yokeActive:false
-};
-const keys={};let toastTimer=0;
-
-function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
-function norm(a){return (a%360+360)%360}
-function diff(a,b){let d=norm(a-b);return d>180?d-360:d}
-function msg(t){$('toast').textContent=t;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2400)}
-function current(){return missions[s.phase]}
-function setupMission(){
- const m=current();
- $('missionTitle').textContent=m.title;
- $('missionText').textContent=m.text;
- $('atcText').textContent='"'+m.atc+'"';
- $('freq').textContent=m.freq;
- s.progress=0;s.radioAck=false;
- if(s.phase===0){s.taxiReadback=false;s.holdShortReached=false;s.towerContact=false;s.lineupCleared=false;s.takeoffCleared=false}
- if(s.phase===1){s.towerContact=false;s.lineupCleared=false}
- if(s.phase===2){s.takeoffCleared=false}
- updatePhases();updateMissionChecklist();
-}
-function updatePhases(){document.getElementById('phases').innerHTML=phases.map((p,i)=>'<div class="phase '+(i<s.phase?'done ':'')+(i===s.phase?'active':'')+'"><div class="dot">'+(i+1)+'</div>'+p+'</div>').join('')}
-function updateMissionChecklist(){
- const box=$('missionChecklist');if(!box)return;
- const items=s.phase===0?[
-  ['READ BACK TAXI',s.taxiReadback],
-  ['TAXI VIA ALPHA ≤20 KT',s.holdShortReached],
-  ['STOP AT HOLD SHORT',s.holdShortReached&&s.speed<3&&s.parkingBrake],
-  ['HOLD SHORT — NO RUNWAY ENTRY',s.holdShortReached&&s.onGround&&s.x<58.5],
-  ['CONTACT / READ BACK TOWER',s.towerContact]
- ]:s.phase===1?[
-  ['TOWER: LINE UP AND WAIT',s.lineupCleared],
-  ['ENTER RUNWAY ONLY AFTER CLEARANCE',s.lineupCleared&&s.x>60],
-  ['RUNWAY HEADING 090',Math.abs(diff(s.heading,90))<4],
-  ['STOP ON CENTRELINE',s.x>64&&s.x<73&&Math.abs(s.y+12.5)<3&&s.speed<3&&s.parkingBrake]
- ]:s.phase===2?[
-  ['TAKEOFF CLEARANCE',s.takeoffCleared],
-  ['TAKE-OFF CONFIGURATION',s.flaps>=1&&s.gear],
-  ['POWER ≥70%',s.throttle>=70],
-  ['ROTATE ≈55 KT',!s.onGround&&s.speed>=55],
-  ['POSITIVE CLIMB',!s.onGround&&s.vs>200]
- ]:[];
- box.innerHTML=items.map(([t,on])=>'<div class="missionCheck '+(on?'done':'')+'"><span>'+ (on?'✓':'○') +'</span>'+t+'</div>').join('');
-}
-function next(){if(s.phase<missions.length-1){s.phase++;s.progress=0;if(s.phase===1){s.x=58;s.y=-12.5;s.speed=0;s.heading=90;s.throttle=0;s.brake=true;s.parkingBrake=true;s.gear=true;s.flaps=1;s.onGround=true;msg('HOLD SHORT — contact Tower, then line up and wait only when instructed.')}
-if(s.phase===2){s.speed=0;s.throttle=0;s.brake=true;s.parkingBrake=true;s.x=58;s.y=-12.5;s.heading=90;s.onGround=true;s.alt=0;s.vs=0;s.gear=true;s.flaps=1;msg('RUNWAY 09 — cleared for takeoff only after the takeoff clearance.')}
-if(s.phase===3){s.brake=false;s.flaps=1}
-if(s.phase===4){s.flaps=0}
-if(s.phase===5){s.flaps=1;s.gear=true}
-if(s.phase===6){s.flaps=2;s.gear=true}
-setupMission();$('complete').style.display='none';msg('New mission: '+current().title)}
-else{location.reload()}}
-function ack(){
- if(s.phase===0){
-  if(!s.taxiReadback){
-   s.taxiReadback=true;s.radioAck=true;
-   msg('TAXI CLEARANCE READ BACK — taxi via Alpha, hold short Runway 09.');
-  }else if(s.holdShortReached && s.speed<3 && s.parkingBrake){
-   s.towerContact=true;s.radioAck=true;
-   $('freq').textContent='TOWER 118.10';
-   $('atcText').textContent='"Ground: ES-01, hold short Runway 09. Contact Tower 118.10."';
-   msg('HOLD SHORT CONFIRMED — contact Tower on 118.10.');
-  }else msg('Do not transmit yet. Stop at the Runway 09 hold-short line first.');
- }else if(s.phase===1){
-  if(!s.towerContact){s.towerContact=true;s.radioAck=true;msg('TOWER CONTACT — read back: Runway 09, line up and wait.');}
-  else if(s.holdShortReached){s.lineupCleared=true;s.radioAck=true;msg('LINE UP AND WAIT — enter Runway 09, align, stop. NOT cleared for takeoff.');}
- }else if(s.phase===2){
-  s.takeoffCleared=true;s.radioAck=true;msg('TAKEOFF CLEARANCE — Runway 09 cleared for take-off.'); 
- }else{
-  s.radioAck=true;msg('TRANSMISSION ACKNOWLEDGED — practice the ATC readback aloud.');
- }
- $('radioState').textContent=s.radioAck?'ACK':'STANDBY';updateMissionChecklist();
-}
-function start(){s.started=true;$('menu').style.display='none';$('preflight').style.display='flex';s.last=performance.now();msg('Cockpit entered. Complete the preflight procedure.')}
-function preflightReady(){
-  return s.battery&&s.avionics&&s.fuelPump&&s.mixture>=95;
-}
-function preflightMissing(){
-  const missing=[];
-  if(!s.battery)missing.push('MASTER / BATTERY');
-  if(!s.avionics)missing.push('AVIONICS MASTER');
-  if(!s.fuelPump)missing.push('FUEL PUMP');
-  if(s.mixture<95)missing.push('MIXTURE RICH');
-  return missing;
-}
-function updateSystems(){
-  $('batState').textContent=s.battery?'ON':'OFF';$('batState').className=s.battery?'sysOn':'sysOff';
-  $('avnState').textContent=s.avionics?'ON':'OFF';$('avnState').className=s.avionics?'sysOn':'sysOff';
-  $('pumpState').textContent=s.fuelPump?'ON':'OFF';$('pumpState').className=s.fuelPump?'sysOn':'sysOff';
-  $('mixState').textContent=Math.round(s.mixture)+'%';
-  document.querySelectorAll('[data-pre]').forEach(b=>{
-    const k=b.dataset.pre, on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.fuelPump:s.mixture>=95;
-    b.textContent=on?(k==='mixture'?'RICH':'ON'):(k==='mixture'?'LEAN':'OFF');b.classList.toggle('ready',on);
-  });
-  $('preBat').textContent=s.battery?'ON':'OFF';$('preBat').className=s.battery?'sysOn':'sysOff';
-  $('preAvn').textContent=s.avionics?'ON':'OFF';$('preAvn').className=s.avionics?'sysOn':'sysOff';
-  $('prePump').textContent=s.fuelPump?'ON':'OFF';$('prePump').className=s.fuelPump?'sysOn':'sysOff';
-  $('preMix').textContent=s.mixture>=95?'RICH':'LEAN';$('preMix').className=s.mixture>=95?'sysOn':'sysOff';
-  const ready=preflightReady()&&!s.engineStarted;
-  $('engineStart').disabled=false;
-  $('engineStart').textContent=s.engineStarted?'STARTED • RUNNING':(ready?'STARTER • READY':'STARTER • CHECK');
-  $('engineStart').classList.toggle('ready',ready);
-  const pm=$('preflightMessage');
-  if(pm)pm.textContent=ready?'CHECK COMPLETE — press STARTER to crank the engine.':'Missing: '+preflightMissing().join(' • ');
-}
-function startEngine(){
-  if(s.engineStarted||s.starter)return;
-  if(!preflightReady()){
-    msg('STARTER INHIBITED — '+preflightMissing().join(', ')+' required.');
-    const pm=$('preflightMessage');if(pm)pm.textContent='STARTER INHIBITED — complete: '+preflightMissing().join(' → ');
-    return;
-  }
-  startAudio();
-  s.starter=true;s.engine=false;s.engineStarted=false;s.starterUntil=performance.now()+3200;
-  s.rpm=0;s.throttle=0;s.oilPressure=0;s.oilTemp=20;s.volts=24;
-  s.parkingBrake=true;s.brake=true;
-  $('preflight').style.display='none';$('systems').style.display='block';
-  setView('COCKPIT');setupMission();
-  $('deckBrake').textContent='PARKING BRAKE: ON';$('deckBrake').classList.add('on');
-  msg('STARTER ENGAGED — monitor RPM. When the engine fires, check oil pressure and electrical indications.');
-  s.score+=10;
-}
-$('start').onclick=start;$('continue').onclick=next;$('engineStart').onclick=startEngine;
-addEventListener('keydown',e=>{
-  if(!s.started||$('preflight').style.display==='none')return;
-  if(e.repeat)return;
-  const k=e.key;
-  if(k==='1')togglePreflight('battery');
-  if(k==='2')togglePreflight('avionics');
-  if(k==='3')togglePreflight('pump');
-  if(k==='4')togglePreflight('mixture');
-  if(k==='5')startEngine();
-});
-$('deckBrake').onclick=()=>{
-  if(!s.onGround){msg('Parking brake is a ground control only.');return}
-  s.parkingBrake=!s.parkingBrake;
-  s.brake=s.parkingBrake;
-  $('deckBrake').textContent='PARKING BRAKE: '+(s.parkingBrake?'ON':'OFF');
-  $('deckBrake').classList.toggle('on',s.parkingBrake);
-  msg('Parking brake '+(s.parkingBrake?'SET.':'RELEASED.'));
-};
-const yokeEl=$('yoke'), throttleEl=$('throttleBox');
-function setYokeFromPointer(e){
-  const r=yokeEl.getBoundingClientRect();
-  s.yokeX=clamp((e.clientX-(r.left+r.width/2))/(r.width*.42),-1,1);
-  s.yokeY=clamp((e.clientY-(r.top+r.height/2))/(r.height*.42),-1,1);
-  s.yokeActive=true;
-}
-yokeEl.addEventListener('pointerdown',e=>{yokeEl.setPointerCapture(e.pointerId);setYokeFromPointer(e)});
-yokeEl.addEventListener('pointermove',e=>{if(s.yokeActive)setYokeFromPointer(e)});
-yokeEl.addEventListener('pointerup',()=>{s.yokeActive=false;s.yokeX*=.45;s.yokeY*=.45});
-yokeEl.addEventListener('pointercancel',()=>{s.yokeActive=false});
-function setThrottleFromPointer(e){
-  const r=throttleEl.getBoundingClientRect();
-  const pct=clamp((r.bottom-e.clientY)/r.height*100,0,100);
-  s.throttle=pct;
-}
-throttleEl.addEventListener('pointerdown',e=>{throttleEl.setPointerCapture(e.pointerId);setThrottleFromPointer(e)});
-throttleEl.addEventListener('pointermove',e=>{if(e.buttons)setThrottleFromPointer(e)});
-function togglePreflight(k){
-  if(k==='battery'){
-    s.battery=!s.battery;
-    if(!s.battery){s.avionics=false;s.fuelPump=false;}
-  }
-  if(k==='avionics'){
-    if(!s.battery){msg('STEP 1 REQUIRED — turn MASTER / BATTERY ON first.');return}
-    s.avionics=!s.avionics;
-  }
-  if(k==='pump'){
-    if(!s.battery){msg('STEP 1 REQUIRED — turn MASTER / BATTERY ON first.');return}
-    s.fuelPump=!s.fuelPump;
-  }
-  if(k==='mixture')s.mixture=s.mixture>=95?0:100;
-  updateSystems();
-  if(preflightReady())msg('PREFLIGHT COMPLETE — STARTER is ready.');
-}
-document.querySelectorAll('[data-pre]').forEach(b=>{
-  b.addEventListener('click',e=>{e.preventDefault();togglePreflight(b.dataset.pre)});
-});
-updateSystems();
-document.querySelectorAll('.viewBtn').forEach(b=>b.onclick=()=>setView(b.dataset.view));
-function setView(v){s.view=v;document.querySelectorAll('.viewBtn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));$('cockpitOverlay').style.display=v==='COCKPIT'?'block':'none';document.body.classList.toggle('cockpit',v==='COCKPIT');}
-
-addEventListener('keydown',e=>{let k=e.key.toLowerCase();keys[k]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();if(!s.started||e.repeat)return;
-if(k==='m'){s.mixture=clamp(s.mixture+10,0,100);updateSystems();msg('Mixture '+Math.round(s.mixture)+'%.')}
-if(k==='n'){s.mixture=clamp(s.mixture-10,0,100);updateSystems();msg('Mixture '+Math.round(s.mixture)+'%.')}
-if(k==='f'){s.flaps=s.flaps===0?1:s.flaps===1?2:0;msg('Flaps '+(s.flaps===0?'UP':s.flaps===1?'1 — take-off setting':'FULL — landing setting'))}
-if(k==='g'){if(s.onGround){s.gear=true;msg('Landing gear DOWN on ground.')}else if(s.speed<95){s.gear=!s.gear;msg('Landing gear '+(s.gear?'DOWN':'UP'))}else msg('CAUTION: Reduce airspeed before moving the landing gear.')}
-if(k==='b'&&s.onGround){s.parkingBrake=!s.parkingBrake;s.brake=s.parkingBrake;$('deckBrake').textContent='PARKING BRAKE: '+(s.parkingBrake?'ON':'OFF');$('deckBrake').classList.toggle('on',s.parkingBrake);msg('Parking brake '+(s.parkingBrake?'SET.':'RELEASED.'))}
-if(k==='r')ack();if(k==='c')setView(s.view==='EXTERNAL'?'COCKPIT':'EXTERNAL');if(k==='p'){s.throttle=Math.max(0,s.throttle-25);msg('Power reduced.')}}
-);addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);addEventListener('blur',()=>Object.keys(keys).forEach(k=>keys[k]=false));
-
-function controls(dt){
-if(keys.w)s.throttle+=38*dt;if(keys.s)s.throttle-=55*dt;s.throttle=clamp(s.throttle,0,100);
-if(s.yokeActive){
-  if(s.onGround)s.heading=norm(s.heading+s.yokeX*34*dt);
-  else s.bank+=s.yokeX*42*dt;
-  s.pitch-=s.yokeY*12*dt;
-}
-if(!s.yokeActive){s.yokeX*=Math.pow(.05,dt);s.yokeY*=Math.pow(.05,dt);}
-if(keys.m)s.mixture=clamp(s.mixture+45*dt,0,100);if(keys.n)s.mixture=clamp(s.mixture-45*dt,0,100);
-s.brake=s.onGround&&keys.s;
-if(s.onGround){
-  if(keys.a||keys.arrowleft)s.heading=norm(s.heading-28*dt);
-  if(s.parkingBrake){s.throttle=Math.min(s.throttle,8);s.brake=true}
-  if(keys.d||keys.arrowright)s.heading=norm(s.heading+28*dt);
-  s.bank*=Math.pow(.02,dt);
-}else{
-  if(keys.a||keys.arrowleft)s.bank-=42*dt;
-  if(keys.d||keys.arrowright)s.bank+=42*dt;
-  if(!keys.a&&!keys.d&&!keys.arrowleft&&!keys.arrowright)s.bank*=Math.pow(.10,dt);
-}
-s.bank=clamp(s.bank,-38,38);
-if(keys.arrowup)s.pitch+=11*dt;
-if(keys.arrowdown)s.pitch-=11*dt;
-if(!keys.arrowup&&!keys.arrowdown)s.pitch*=Math.pow(.45,dt);
-s.pitch=clamp(s.pitch,-14,16);
-}
-
-function engine(dt){
-  if(s.starter && performance.now()>=s.starterUntil){
-    s.starter=false;s.engineStarted=true;s.engine=true;s.rpm=850;
-    msg('ENGINE FIRED — starter OFF. Verify oil pressure, RPM and volts.');
-  }
-  const idle=s.engineStarted?720:0, max=2650;
-  const starterTarget=s.starter?Math.min(1100,180+(performance.now()-(s.starterUntil-3200))*.32):0;
-  const target=s.starter?starterTarget:(s.engineStarted?idle+(s.throttle/100)*(max-idle):0);
-  s.rpm+=(target-s.rpm)*Math.min(1,dt*(s.starter?2.2:4.2));
-  s.engine=s.rpm>500;
-  s.oilPressure=s.engine?clamp((s.rpm-500)*.042,0,65):0;
-  s.oilTemp=s.engine?clamp(s.oilTemp+dt*(2+s.rpm/1800),20,95):Math.max(20,s.oilTemp-dt*.15);
-  s.volts=s.battery?(s.engine?28.2:24.3):0;
-const power=clamp((s.rpm-idle)/(max-idle),0,1);
-const flapDrag=s.flaps===2?.050:s.flaps===1?.024:0;
-const gearDrag=!s.onGround&&s.gear?.020:0;
-const aeroDrag=.010+s.speed*.00010+flapDrag+gearDrag;
-if(s.onGround){
-  const accel=power*5.7-aeroDrag*30-(s.brake?7.5:0)-(s.parkingBrake?14:0);
-  const groundLimit=s.phase<2?20:105;
-  s.speed=clamp(s.speed+accel*dt,0,groundLimit);
-}else{
-  const accel=power*3.2-aeroDrag*2.7;
-  s.speed=clamp(s.speed+accel*dt,38,150);
-}
-s.fuel=Math.max(0,s.fuel-(.00018+s.throttle*.000018+s.rpm*.000000035)*dt*60);
-}
-
-function flight(dt){
-const rad=Math.PI/180;
-if(s.onGround){
-  s.alt=0;s.vs=0;s.stall=false;
-  const groundScale=.00265;
-  s.x+=Math.sin(s.heading*rad)*s.speed*groundScale*dt;
-  s.y-=Math.cos(s.heading*rad)*s.speed*groundScale*dt;
-  // Take-off roll: realistic rotation threshold and positive pitch.
-  if(s.phase===2 && s.takeoffCleared && s.speed>=55 && s.throttle>=72 && s.pitch>=4 && Math.abs(diff(s.heading,90))<10){
-    s.onGround=false;s.alt=12;s.vs=620;s.gear=true;
-    msg('ROTATE — positive rate. Maintain runway heading 090.');
-    s.score+=30;
-  }
-}else{
-  const stallSpeed=48+s.flaps*5;
-  const aoaLift=clamp((s.pitch+2)/14,0,1.35);
-  const speedLift=clamp((s.speed-stallSpeed)/48,0,1.45);
-  const bankLoad=1/Math.max(.72,Math.cos(s.bank*rad));
-  let targetVS=(aoaLift*speedLift*980)/bankLoad;
-  targetVS+=(s.throttle-52)*2.8;
-  if(s.speed<stallSpeed || (s.pitch>12&&s.speed<70)){s.stall=true;targetVS-=900}else s.stall=false;
-  s.vs+=(targetVS-s.vs)*Math.min(1,dt*1.8);
-  s.vs=clamp(s.vs,-2400,2600);
-  s.alt=Math.max(0,s.alt+s.vs*dt/60);
-  s.heading=norm(s.heading+(s.speed/105)*Math.sin(s.bank*rad)*31*dt);
-  const airScale=.00155;
-  s.x+=Math.sin(s.heading*rad)*s.speed*airScale*dt;
-  s.y-=Math.cos(s.heading*rad)*s.speed*airScale*dt;
-  if(s.alt<14 && s.vs<-180){
-    if(s.speed<88&&s.gear&&s.flaps>=1&&Math.abs(s.bank)<10){
-      s.onGround=true;s.alt=0;s.vs=0;s.pitch=0;s.bank=0;
-      msg('TOUCHDOWN — hold the centreline and reduce power.');
-    }else{
-      s.alt=22;s.vs=120;s.score=Math.max(0,s.score-8);
-      msg('UNSTABLE APPROACH — correct speed, configuration and descent.');
-    }
-  }
-}
-}
-
-function evaluate(dt){
-let g=0,m=current();
-if(s.phase===0){
- const atHold=s.onGround&&s.x>=58&&s.y<-10&&Math.abs(diff(s.heading,90))<6&&s.speed<4;
- if(atHold&&!s.holdShortReached){s.holdShortReached=true;msg('HOLD SHORT LINE — stop, set parking brake, then contact Tower.');}
- if(s.taxiReadback&&s.holdShortReached&&s.speed<3&&s.parkingBrake&&s.x<60)g=22*dt;
- if(s.holdShortReached&&s.x>60){s.score=Math.max(0,s.score-2);msg('RUNWAY INCURSION RISK — hold short until cleared.')}
-}
-if(s.phase===1){
- if(s.lineupCleared&&s.onGround&&Math.abs(diff(s.heading,90))<4&&s.x>64&&s.x<73&&Math.abs(s.y+12.5)<3&&s.speed<3&&s.parkingBrake)g=25*dt;
- if(s.onGround&&s.x>60&&!s.lineupCleared){s.score=Math.max(0,s.score-3);msg('RUNWAY INCURSION RISK — do not enter Runway 09 before LINE UP AND WAIT.');}
-}
-if(s.phase===2){
- if(s.takeoffCleared&&!s.onGround && s.alt>80 && s.throttle>70 && s.speed>55 && Math.abs(diff(s.heading,90))<10)g=24*dt;
-}
-if(s.phase===3){
- if(!s.onGround&&s.alt>1200&&s.alt<3400&&s.speed>70&&s.speed<125&&Math.abs(diff(s.heading,90))<10&&!s.gear)g=14*dt;
-}
-if(s.phase===4){if(!s.onGround&&Math.abs(s.alt-3000)<350&&s.speed>78&&s.speed<115&&Math.abs(diff(s.heading,90))<8&&Math.abs(s.vs)<300)g=14*dt}
-if(s.phase===5){if(!s.onGround&&s.alt<1800&&s.speed>55&&s.speed<95&&s.gear&&s.flaps>=1&&Math.abs(diff(s.heading,90))<12&&Math.abs(s.vs)<750)g=16*dt}
-if(s.phase===6){if(s.onGround&&s.speed<55&&s.gear&&s.flaps===2)g=25*dt}
-if(g){s.progress=clamp(s.progress+g,0,100);s.score+=g*.7}else s.score=Math.max(0,s.score-.01*dt);
-if(s.speed>140)msg('OVERSPEED — reduce power and recover to a safe airspeed.');
-if(s.stall&&s.alt>40)msg('STALL WARNING — lower the nose and increase airspeed.');
-if(s.progress>=100&&$('complete').style.display!=='flex'){$('complete').style.display='flex';$('resultText').textContent=m.title+' completed. Operational score: '+Math.round(s.score)+'.';}
-}
-
-function hud(){
-const h=String(Math.round(norm(s.heading))).padStart(3,'0');
-$('speed').textContent=Math.round(s.speed);$('alt').textContent=Math.round(s.alt);$('hdg').textContent=h;$('vs').textContent=Math.round(s.vs);$('rpm').textContent=Math.round(s.rpm);$('fuel').textContent=Math.round(s.fuel);
-$('gSpd').textContent=Math.round(s.speed);$('gRpm').textContent=Math.round(s.rpm);$('gAlt').textContent=Math.round(s.alt);$('scoreVal').textContent=Math.round(s.score);$('missionBar').style.width=s.progress+'%';
-$('engine').textContent=s.rpm>450?'RUNNING':'OFF';$('engine').className=s.rpm>450?'green':'red';$('gear').textContent=s.gear?'DOWN':'UP';$('flaps').textContent=s.flaps===0?'0°':s.flaps===1?'10°':'30°';$('surface').textContent=s.onGround?'RUNWAY / TAXIWAY':'AIRBORNE';
-$('warning').classList.toggle('show',s.stall);$('radioState').textContent=s.radioAck?'ACK':'STANDBY';updateMissionChecklist();
-if($('deckHeading'))$('deckHeading').textContent=String(Math.round(norm(s.heading))).padStart(3,'0');
-if($('deckSpeed'))$('deckSpeed').textContent=Math.round(s.speed);
-if($('deckAlt'))$('deckAlt').textContent=Math.round(s.alt);
-if($('deckVs'))$('deckVs').textContent=Math.round(s.vs);
-if($('deckRpm'))$('deckRpm').textContent=Math.round(s.rpm);
-if($('throttleReadout'))$('throttleReadout').textContent=Math.round(s.throttle)+'%';
-if($('deckThrottle')){
-  $('deckThrottle').style.bottom=(18+s.throttle*.78)+'px';
-}
-if($('attitude')){
-  const a=$('attitude');
-  a.style.transform='rotate('+clamp(s.bank,-35,35)+'deg)';
-  const sky=a.querySelector('.sky'),ground=a.querySelector('.ground');
-  if(sky)sky.style.transform='translateY('+(s.pitch*2)+'px)';
-  if(ground)ground.style.transform='translateY('+(-s.pitch*2)+'px)';
-}
-if($('preflight') && $('preflight').style.display!=='none'){
-  const vals=document.querySelectorAll('#preflight .realGauge .gvalue');
-  if(vals.length>=6){vals[0].textContent=Math.round(s.speed);vals[1].textContent=Math.round(s.pitch)+'°';vals[2].textContent=Math.round(s.alt);vals[4].textContent=String(Math.round(norm(s.heading))).padStart(3,'0');vals[5].textContent=Math.round(s.vs);}
-}
-if($('yokeReadout'))$('yokeReadout').textContent=(Math.abs(s.yokeX)<.08&&Math.abs(s.yokeY)<.08)?'CENTER':('X '+Math.round(s.yokeX*100)+' / Y '+Math.round(s.yokeY*100));
-if($('deckBrake'))$('deckBrake').classList.toggle('on',s.parkingBrake);
-}
-
-function world(){
-ctx.clearRect(0,0,W,H);
-if(s.view==='COCKPIT'){drawCockpit();return}
-drawExternal();
-}
-function drawSky(){let g=ctx.createLinearGradient(0,0,0,H*.62);g.addColorStop(0,'#48a7d7');g.addColorStop(.72,'#a9dfef');g.addColorStop(1,'#7da76e');ctx.fillStyle=g;ctx.fillRect(0,0,W,H*.64)}
-function drawCloud(x,y,sc){ctx.fillStyle='rgba(255,255,255,.78)';ctx.beginPath();ctx.ellipse(x,y,55*sc,18*sc,0,0,Math.PI*2);ctx.ellipse(x-25*sc,y-10*sc,25*sc,22*sc,0,0,Math.PI*2);ctx.ellipse(x+25*sc,y-8*sc,30*sc,25*sc,0,0,Math.PI*2);ctx.fill()}
-function drawGroundChase(){
-  // Low-altitude chase camera: a runway/taxiway perspective modeled after a real
-  // training-aircraft external view. The aircraft remains large in the foreground.
-  drawSky();
-  const horizon=H*.46;
-  const groundTop=horizon+H*.045;
-  const vanX=W*.50;
-  // layered terrain
-  const mountain=(base,amp,phase,alpha)=>{
-    ctx.save();ctx.globalAlpha=alpha;ctx.fillStyle='#526b68';ctx.beginPath();ctx.moveTo(0,base);
-    for(let x=0;x<=W;x+=36)ctx.lineTo(x,base-amp-Math.sin(x*.008+phase)*amp*.42-Math.sin(x*.019+phase)*amp*.18);
-    ctx.lineTo(W,base);ctx.closePath();ctx.fill();ctx.restore();
-  };
-  mountain(horizon+24,55,.5,.55);mountain(horizon+38,38,1.7,.72);
-  ctx.fillStyle='#4b7045';ctx.fillRect(0,groundTop,W,H-groundTop);
-  for(let i=0;i<16;i++){ctx.fillStyle=i%2?'#507748':'#567d4f';ctx.fillRect(i*W/16,groundTop,W/16+1,H-groundTop)}
-  // Airport buildings/control tower in the distance.
-  ctx.fillStyle='#b9c4c6';ctx.fillRect(W*.055,groundTop-42,W*.16,42);
-  ctx.fillStyle='#687a7f';ctx.fillRect(W*.055,groundTop-55,W*.16,13);
-  ctx.fillStyle='#e6f4f5';ctx.font='bold 10px Arial';ctx.fillText('EXPERT SYNC AIRPORT',W*.065,groundTop-24);
-  ctx.fillStyle='#7b8b90';ctx.fillRect(W*.245,groundTop-112,20,112);
-  ctx.fillStyle='#2e4148';ctx.fillRect(W*.235,groundTop-124,40,15);
-  ctx.fillStyle='#8ed2e6';ctx.fillRect(W*.241,groundTop-121,28,8);
-  // Main runway, in true perspective.
-  const runwayTop=groundTop+H*.018, runwayBottom=H*1.05;
-  ctx.fillStyle='#262d30';ctx.beginPath();
-  ctx.moveTo(vanX-W*.085,runwayTop);ctx.lineTo(vanX+W*.085,runwayTop);
-  ctx.lineTo(vanX+W*.43,runwayBottom);ctx.lineTo(vanX-W*.43,runwayBottom);ctx.closePath();ctx.fill();
-  ctx.strokeStyle='#e0c64b';ctx.lineWidth=3;ctx.stroke();
-  // runway centreline
-  ctx.strokeStyle='#f4f5f5';ctx.lineWidth=4;ctx.setLineDash([30,25]);
-  ctx.beginPath();ctx.moveTo(vanX,runwayTop);ctx.lineTo(vanX,runwayBottom);ctx.stroke();ctx.setLineDash([]);
-  // threshold bars and runway number
-  ctx.fillStyle='#fff';
-  const ty=runwayTop+H*.045;
-  for(let i=-2;i<=2;i++)ctx.fillRect(vanX+i*22,ty,13,5);
-  ctx.font='900 34px Arial';ctx.fillText('09',vanX+W*.08,ty+18);
-  // runway edge lights
-  for(let i=0;i<22;i++){
-    const t=i/21,y=runwayTop+t*(runwayBottom-runwayTop);
-    const half=W*.085+t*W*.345;
-    ctx.fillStyle=i%3?'#b9dcff':'#fff';ctx.shadowColor='#b9dcff';ctx.shadowBlur=7;
-    ctx.fillRect(vanX-half,y,4,4);ctx.fillRect(vanX+half,y,4,4);ctx.shadowBlur=0;
-  }
-  // Active taxiway, slightly offset left like a training-airport scene.
-  const tx=W*.19;
-  // Realistic airfield cues: hold-short marking and windsock.
-  ctx.strokeStyle='#f4f4f4';ctx.lineWidth=3;ctx.setLineDash([]);
-  const holdY=groundTop+H*.24;
-  ctx.beginPath();
-  ctx.moveTo(tx-W*.07,holdY);ctx.lineTo(tx+W*.07,holdY);
-  ctx.moveTo(tx-W*.07,holdY+10);ctx.lineTo(tx+W*.07,holdY+10);
-  ctx.stroke();
-  ctx.fillStyle='#f1d23e';ctx.font='700 11px Arial';ctx.fillText('HOLD SHORT',tx-W*.055,holdY-7);
-  ctx.strokeStyle='#77868a';ctx.lineWidth=3;ctx.beginPath();
-  ctx.moveTo(W*.285,groundTop+10);ctx.lineTo(W*.285,groundTop-45);ctx.stroke();
-  ctx.fillStyle='#e8edf0';ctx.beginPath();ctx.moveTo(W*.285,groundTop-45);ctx.lineTo(W*.34,groundTop-38);ctx.lineTo(W*.285,groundTop-30);ctx.closePath();ctx.fill();
-  ctx.fillStyle='#ef5a5a';ctx.beginPath();ctx.moveTo(W*.305,groundTop-42);ctx.lineTo(W*.34,groundTop-38);ctx.lineTo(W*.305,groundTop-34);ctx.closePath();ctx.fill();
-  ctx.fillStyle='#303739';ctx.beginPath();
-  ctx.moveTo(tx-18,groundTop);ctx.lineTo(tx+18,groundTop);
-  ctx.lineTo(tx+W*.08,H);ctx.lineTo(tx-W*.08,H);ctx.closePath();ctx.fill();
-  ctx.strokeStyle='#e4ca3f';ctx.lineWidth=3;ctx.setLineDash([20,17]);
-  ctx.beginPath();ctx.moveTo(tx,groundTop);ctx.lineTo(tx,H);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle='#f1d23e';ctx.fillRect(W*.055,groundTop+H*.10,44,23);
-  ctx.fillStyle='#071015';ctx.font='bold 14px Arial';ctx.fillText('A →',W*.064,groundTop+H*.116);
-  // Aircraft is deliberately large and low in frame, matching a chase-camera composition.
-  let planeX=W*.50, planeY=H*.72, planeScale=1.62;
-  if(s.phase===0){
-    // Taxi aircraft follows the physical taxiway coordinates.
-    planeX=tx+s.x*5.2;
-    planeY=H*.73+s.y*5.2;
-    planeScale=1.34;
-  }else if(s.phase===2 && s.onGround){
-    // Take-off roll: travel toward the runway threshold/horizon and
-    // shrink slightly with distance for a stronger perspective cue.
-    const roll=clamp((s.x-58)*150,0,H*.30);
-    planeX=W*.50;
-    planeY=H*.75-roll;
-    planeScale=1.62-clamp(roll/H*.0018,0,.42);
-  }
-  ctx.save();
-  ctx.translate(planeX,planeY);
-  ctx.translate(0,Math.sin(performance.now()/170)*Math.min(2.2,s.speed*.015));
-  drawPlane(0,0,planeScale,s.heading,s.bank,s.pitch);
-  ctx.restore();
-  // Ground-speed cue.
-  ctx.fillStyle='#071720d9';ctx.fillRect(W*.39,H*.84,W*.22,32);
-  ctx.fillStyle='#b9edff';ctx.font='800 11px Arial';ctx.textAlign='center';
-  const stateLabel=s.onGround?(s.phase===0?'TAXI':s.phase===1?'LINE-UP':'TAKE-OFF ROLL'):'AIRBORNE';
-  ctx.fillText(stateLabel+'  •  '+Math.round(s.speed)+' KT  •  HDG '+String(Math.round(norm(s.heading))).padStart(3,'0'),W*.50,H*.862);
-  ctx.textAlign='left';
-}
-function drawExternal(){
-  // High-detail external chase scene: airport, runway, terrain, atmospheric perspective.
-  if(s.onGround){drawGroundChase();return}
-  drawSky();
-  // Dynamic chase-camera: the airport/terrain moves beneath the aircraft while airborne.
-  const camX=s.onGround?0:clamp(-s.x*2.8,-W*.38,W*.38);
-  const camY=s.onGround?0:clamp(s.alt*.018,-H*.14,H*.14);
-  ctx.save();
-  ctx.translate(camX,camY);
-  const horizon=H*.53;
-  const groundTop=horizon+H*.055;
-  // atmospheric mountain layers
-  const mountain=(base,amp,phase,alpha)=>{
-    ctx.save();ctx.globalAlpha=alpha;ctx.fillStyle='#4c6570';ctx.beginPath();ctx.moveTo(0,base);
-    for(let x=0;x<=W;x+=42)ctx.lineTo(x,base-amp-Math.sin(x*.008+phase)*amp*.45-Math.sin(x*.021+phase)*amp*.22);
-    ctx.lineTo(W,base);ctx.closePath();ctx.fill();ctx.restore();
-  };
-  mountain(horizon+18,42,.4,.42);mountain(horizon+28,32,1.8,.56);
-  // airport grass
-  ctx.fillStyle='#486f42';ctx.fillRect(0,groundTop,W,H-groundTop);
-  for(let i=0;i<18;i++){ctx.fillStyle=i%2?'#4d7447':'#52794c';ctx.fillRect(i*W/18,groundTop,W/18+1,H-groundTop)}
-  // terminal + hangars
-  const base=groundTop+H*.045;
-  ctx.fillStyle='#c8d1d3';ctx.fillRect(W*.035,base-54,W*.20,54);
-  ctx.fillStyle='#8d9da2';ctx.fillRect(W*.035,base-70,W*.20,16);
-  ctx.fillStyle='#33454c';ctx.fillRect(W*.06,base-98,W*.055,28);
-  ctx.fillStyle='#6f858d';ctx.fillRect(W*.052,base-104,W*.07,10);
-  ctx.fillStyle='#e8f5f7';ctx.font='bold 10px Arial';ctx.fillText('EXPERT SYNC AIRPORT',W*.05,base-76);
-  for(let i=0;i<8;i++){ctx.fillStyle='#83c7dc';ctx.fillRect(W*(.045+i*.022),base-42,14,16)}
-  // control tower
-  ctx.fillStyle='#7e8f95';ctx.fillRect(W*.225,base-125,18,125);
-  ctx.fillStyle='#2d414a';ctx.fillRect(W*.214,base-138,40,18);
-  ctx.fillStyle='#94d8ec';ctx.fillRect(W*.219,base-135,30,10);
-  ctx.fillStyle='#b9c5c8';ctx.fillRect(W*.232,base-150,5,12);
-  // runway perspective
-  const vanY=groundTop+H*.11, bottomY=H*.91, cx=W*.60;
-  ctx.fillStyle='#20272b';ctx.beginPath();ctx.moveTo(W*.31,vanY);ctx.lineTo(W*.91,vanY);ctx.lineTo(W*.99,bottomY);ctx.lineTo(W*.23,bottomY);ctx.closePath();ctx.fill();
-  ctx.strokeStyle='#d6bd42';ctx.lineWidth=3;ctx.stroke();
-  // centerline and threshold markings
-  ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.setLineDash([30,26]);ctx.beginPath();ctx.moveTo(cx,vanY);ctx.lineTo(cx,bottomY);ctx.stroke();ctx.setLineDash([]);
-  const ty=vanY+H*.055;
-  ctx.fillStyle='#fff';
-  for(let i=-2;i<=2;i++){ctx.fillRect(cx+i*28,ty,12,4)}
-  ctx.font='900 38px Arial';ctx.fillText('09',cx+W*.105,ty+18);
-  // runway edge lights
-  for(let i=0;i<25;i++){
-    const t=i/24,y=vanY+t*(bottomY-vanY),half=(W*.30)+t*(W*.09);
-    ctx.fillStyle=i%3?'#b7d8ff':'#fff';
-    ctx.shadowColor='#bde8ff';ctx.shadowBlur=6;
-    ctx.fillRect(cx-half,y,4,4);ctx.fillRect(cx+half,y,4,4);ctx.shadowBlur=0;
-  }
-  // parallel taxiway and yellow centreline
-  ctx.fillStyle='#30383b';ctx.beginPath();ctx.moveTo(W*.055,groundTop);ctx.lineTo(W*.18,groundTop);ctx.lineTo(W*.18,H);ctx.lineTo(W*.055,H);ctx.closePath();ctx.fill();
-  ctx.strokeStyle='#e3c73e';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(W*.117,groundTop);ctx.lineTo(W*.117,H);ctx.stroke();
-  ctx.setLineDash([20,18]);ctx.strokeStyle='#f4d951';ctx.beginPath();ctx.moveTo(W*.117,groundTop);ctx.lineTo(W*.117,H);ctx.stroke();ctx.setLineDash([]);
-  // taxiway sign
-  ctx.fillStyle='#f1d13d';ctx.fillRect(W*.035,groundTop+H*.13,45,24);ctx.fillStyle='#071015';ctx.font='bold 15px Arial';ctx.fillText('A →',W*.043,groundTop+H*.147);
-  // runway lights/approach lights
-  ctx.fillStyle='#fff';for(let i=0;i<12;i++){const x=cx+(i-6)*12,y=vanY-7-i*2;ctx.fillRect(x,y,3,3)}
-  // traffic
-  drawTraffic(performance.now()/1000);
-  if(s.onGround){
-    const ax=W*.117+s.x*5.2, ay=H*.78-s.y*5.2;
-    drawPlane(ax,ay,1.08,s.heading,s.bank,s.pitch);
-  }else{
-    // Keep the aircraft stable in frame while the world scrolls around it.
-    ctx.restore();
-    const cx2=W*.50,cy=H*.45;
-    // subtle camera parallax from bank/pitch
-    ctx.save();ctx.translate(-s.bank*1.7,s.pitch*1.8);
-    drawPlane(cx2,cy,1.16,s.heading,s.bank,s.pitch);
-    ctx.restore();
-    ctx.fillStyle='#061823d9';ctx.fillRect(W*.38,H*.67,W*.24,31);
-    ctx.fillStyle='#a9ebff';ctx.font='800 11px Arial';ctx.textAlign='center';
-    ctx.fillText('AIRBORNE  •  '+Math.round(s.alt)+' FT  •  '+Math.round(s.speed)+' KT',W*.50,H*.691);ctx.textAlign='left';
-  }
-  if(s.onGround) ctx.restore();
-  drawAirportDetails();
-}
-function drawPlane(x,y,sc,heading,bank,pitch){
-  ctx.save();ctx.translate(x,y);
-  const r=(heading-90)*Math.PI/180;ctx.rotate(r);
-  ctx.scale(sc,sc*(1+pitch*.008));
-  ctx.transform(1,0,Math.sin(bank*Math.PI/180)*.12,1,0,0);
-  ctx.shadowColor='#000b';ctx.shadowBlur=16;ctx.shadowOffsetY=10;
-  // Dynamic attitude lighting makes the aircraft read as a solid 3-D object.
-  const metal=ctx.createLinearGradient(-75,-55,75,55);
-  metal.addColorStop(0,'#8e9da2');metal.addColorStop(.18,'#f7fbfc');metal.addColorStop(.48,'#ffffff');metal.addColorStop(.78,'#c8d4d8');metal.addColorStop(1,'#75878d');
-  // fuselage
-  ctx.fillStyle=metal;ctx.beginPath();ctx.ellipse(0,0,14,52,0,0,Math.PI*2);ctx.fill();
-  // blue lower fuselage stripe
-  ctx.fillStyle='#4f8eaf';ctx.beginPath();ctx.ellipse(1,5,14,28,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#edf4f6';ctx.beginPath();ctx.ellipse(0,0,11,48,0,0,Math.PI*2);ctx.fill();
-  // wings
-  ctx.fillStyle='#dce7ea';ctx.beginPath();ctx.moveTo(-84,-4);ctx.lineTo(-8,-18);ctx.lineTo(18,-8);ctx.lineTo(10,8);ctx.lineTo(-8,15);ctx.closePath();ctx.fill();
-  ctx.fillStyle='#cbd9de';ctx.beginPath();ctx.moveTo(8,-5);ctx.lineTo(84,-4);ctx.lineTo(9,15);ctx.closePath();ctx.fill();
-  // wing struts
-  ctx.strokeStyle='#81969d';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-12,4);ctx.lineTo(-58,-2);ctx.moveTo(12,4);ctx.lineTo(58,0);ctx.stroke();
-  // tail
-  ctx.fillStyle='#d1dde1';ctx.beginPath();ctx.moveTo(-40,30);ctx.lineTo(32,26);ctx.lineTo(37,39);ctx.lineTo(-18,43);ctx.closePath();ctx.fill();
-  ctx.fillStyle='#f2f6f7';ctx.beginPath();ctx.moveTo(-5,-39);ctx.lineTo(1,-63);ctx.lineTo(9,-42);ctx.closePath();ctx.fill();
-  // cockpit windows
-  ctx.fillStyle='#17465a';ctx.beginPath();ctx.ellipse(6,-20,10,15,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#78c9df';ctx.beginPath();ctx.ellipse(8,-22,6,8,0,0,Math.PI*2);ctx.fill();
-  // Landing gear and wheel assemblies.
-  if(s.gear){
-    ctx.strokeStyle='#52656c';ctx.lineWidth=3;
-    ctx.beginPath();ctx.moveTo(-8,17);ctx.lineTo(-13,33);ctx.moveTo(8,17);ctx.lineTo(13,33);ctx.stroke();
-    ctx.fillStyle='#171d20';ctx.beginPath();ctx.arc(-13,35,5,0,Math.PI*2);ctx.arc(13,35,5,0,Math.PI*2);ctx.fill();
-  }
-  // Landing/taxi lights.
-  ctx.fillStyle='#fff9c4';ctx.shadowColor='#fff9c4';ctx.shadowBlur=12;
-  ctx.beginPath();ctx.arc(-46,-5,2.5,0,Math.PI*2);ctx.arc(46,-5,2.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-  // Propeller
-  if(s.engine){
-    ctx.strokeStyle='#dbe9ee66';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-57,19,0,Math.PI*2);ctx.stroke();
-    ctx.strokeStyle='#fff8';ctx.beginPath();ctx.moveTo(-18,-57);ctx.lineTo(18,-57);ctx.stroke();
-  }
-  // nav lights
-  ctx.fillStyle='#ff334d';ctx.shadowColor='#ff334d';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(-69,-2,3.5,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#45ff9d';ctx.shadowColor='#45ff9d';ctx.beginPath();ctx.arc(69,-2,3.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-  ctx.restore();
-}
-
-
-function drawCockpit(){
-drawSky();ctx.fillStyle='#4d6b49';ctx.fillRect(0,H*.62,W,H*.38);
-ctx.save();ctx.translate(W/2,H*.56);ctx.rotate(-s.bank*.004);ctx.scale(1+Math.abs(s.pitch)*.012,1+Math.abs(s.pitch)*.012);
-ctx.fillStyle='#2d3235';ctx.fillRect(-W*.17,-H*.25,W*.34,H*.55);ctx.strokeStyle='#d8c14d';ctx.lineWidth=3;ctx.strokeRect(-W*.17,-H*.25,W*.34,H*.55);
-ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.setLineDash([20,25]);ctx.beginPath();ctx.moveTo(0,-H*.25);ctx.lineTo(0,H*.3);ctx.stroke();ctx.setLineDash([]);ctx.restore();
-ctx.fillStyle='#09131a';ctx.fillRect(0,H*.76,W,H*.24);
-ctx.fillStyle='#111e25';ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(0,H*.82);ctx.quadraticCurveTo(W*.15,H*.72,W*.32,H*.82);ctx.lineTo(W*.68,H*.82);ctx.quadraticCurveTo(W*.85,H*.72,W,H*.82);ctx.lineTo(W,H);ctx.fill();
-ctx.strokeStyle='#405863';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(W*.32,H);ctx.lineTo(W*.38,H*.79);ctx.moveTo(W*.68,H);ctx.lineTo(W*.62,H*.79);ctx.stroke();
-}
-
-
-/* ===== V3 ENVIRONMENT, COCKPIT & AUDIO ===== */
-const traffic=[
- {x:.72,y:.24,phase:0.0,speed:0.42,scale:.72},
- {x:.55,y:.31,phase:2.1,speed:.28,scale:.52},
- {x:.84,y:.42,phase:4.4,speed:.34,scale:.62}
-];
-let audioCtx=null,engineOsc=null,engineGain=null,soundOn=false;
-function startAudio(){
- try{
-  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-  if(audioCtx.state==='suspended')audioCtx.resume();
-  if(!engineOsc){
-   engineOsc=audioCtx.createOscillator();engineGain=audioCtx.createGain();
-   engineOsc.type='sawtooth';engineOsc.frequency.value=70;engineGain.gain.value=.0001;
-   engineOsc.connect(engineGain).connect(audioCtx.destination);engineOsc.start();
-  }
-  soundOn=true;$('soundBtn').textContent='🔊 SOUND ON';$('soundBtn').classList.add('on');
- }catch(e){}
-}
-function stopAudio(){soundOn=false;$('soundBtn').textContent='🔇 SOUND OFF';$('soundBtn').classList.remove('on')}
-$('soundBtn').onclick=()=>soundOn?stopAudio():startAudio();
-function audioTick(){
- if(!soundOn||!engineOsc||!engineGain)return;
- const rpm=Math.max(0,s.rpm);
- engineOsc.frequency.setTargetAtTime(55+rpm*.035,audioCtx.currentTime,.04);
- engineGain.gain.setTargetAtTime(.012+Math.min(.035,rpm/2650*.028),audioCtx.currentTime,.08);
-}
-function frame(now){
- const dt=Math.min(.05,Math.max(.001,(now-(s.last||now))/1000));
- s.last=now;
- if(s.started){
-  controls(dt);
-  engine(dt);
-  flight(dt);
-  evaluate(dt);
-  hud();
-  audioTick();
- }
- world();
- requestAnimationFrame(frame);
-}
-requestAnimationFrame(frame);
+const s={phase:0,view:'COCKPIT',started:false,score:0,progress:0,speed:0,alt:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,gear:true,flaps:0,onGround:true,parkingBrake:true,brake:true,stall:false,battery:false,avionics:false,pump:false,mixture:0,starter:false,engine:false,engineStarted:false,starterAt:0,yx:0,yy:0,yoke:false,radio:false,xp:0,yp:0,last:performance.now()};
+const keys={};let toastT=0;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),norm=a=>(a%360+360)%360,diff=(a,b)=>{let q=norm(a-b);return q>180?q-360:q};
+function toast(t){let e=document.getElementById('toast');e.textContent=t;e.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>e.style.display='none',2300)}
+function setPhase(){document.getElementById('phasebar').innerHTML=phases.map((p,i)=>'<div class="phase '+(i<s.phase?'done ':'')+(i===s.phase?'active':'')+'"><div class="dot">'+(i+1)+'</div>'+p+'</div>').join('');let m=missions[s.phase];document.getElementById('mtitle').textContent=m[0];document.getElementById('mcopy').textContent=m[2];document.getElementById('freq').textContent=m[1];document.getElementById('atcText').textContent='"'+m[3]+'"';document.getElementById('bar').style.width=s.progress+'%';check()}
+function check(){let a=[];if(s.phase===0)a=[['READ BACK TAXI',s.radio],['TAXI VIA ALPHA ≤20 KT',s.xp>52],['STOP AT HOLD SHORT',s.xp>52&&s.speed<3&&s.parkingBrake],['NO RUNWAY ENTRY',s.xp<58],['CONTACT TOWER',s.phase===0&&s.radio&&s.xp>52]];if(s.phase===1)a=[['LINE-UP CLEARANCE',s.radio],['RUNWAY HEADING 090',Math.abs(diff(s.heading,90))<4],['STOP ON CENTRELINE',s.xp>64&&s.xp<73&&Math.abs(s.yp+12)<3&&s.speed<3&&s.parkingBrake]];if(s.phase===2)a=[['TAKE-OFF CLEARANCE',s.radio],['POWER ≥70%',s.throttle>=70],['ROTATE ≥55 KT',!s.onGround&&s.speed>=55],['POSITIVE CLIMB',!s.onGround&&s.vs>200]];document.getElementById('check').innerHTML=a.map(q=>'<div class="'+(q[1]?'done':'')+'">'+(q[1]?'✓':'○')+' '+q[0]+'</div>').join('')}
+function ready(){return s.battery&&s.avionics&&s.pump&&s.mixture>=95}
+function updatePre(){document.querySelectorAll('[data-pre]').forEach(b=>{let k=b.dataset.pre,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:s.mixture>=95;b.textContent=on?(k==='mixture'?'RICH':'ON'):(k==='mixture'?'LEAN':'OFF');b.classList.toggle('on',on)});document.getElementById('starter').disabled=!ready()||s.engineStarted;document.getElementById('premsg').textContent=ready()?'CHECK COMPLETE — press START ENGINE.':'Complete the checklist in order: MASTER → AVIONICS → PUMP → MIXTURE RICH.'}
+function start(){s.started=true;document.getElementById('preflight').style.display='flex';updatePre();toast('You are in the cockpit. Complete the engine-start checklist.')}
+function startEngine(){if(!ready()){toast('STARTER INHIBITED — complete the checklist first.');return}s.starter=true;s.starterAt=performance.now();document.getElementById('preflight').style.display='none';toast('STARTER ENGAGED — monitor RPM and oil pressure.')}
+function next(){if(s.phase>=6)return;s.phase++;s.progress=0;s.radio=false;if(s.phase===1){s.xp=58;s.yp=-12.5;s.speed=0;s.heading=90;s.parkingBrake=true;s.brake=true;s.flaps=1}if(s.phase===2){s.xp=58;s.yp=-12.5;s.speed=0;s.heading=90;s.parkingBrake=true;s.brake=true;s.flaps=1}if(s.phase===3){s.parkingBrake=false;s.brake=false;s.flaps=1}if(s.phase===4)s.flaps=0;if(s.phase===5){s.flaps=1;s.gear=true}if(s.phase===6){s.flaps=2;s.gear=true}setPhase();toast('New training stage: '+missions[s.phase][0])}
+function transmit(){s.radio=true;document.getElementById('radioState').textContent='ACK';toast(s.phase===0?'Taxi clearance read back.':s.phase===1?'Line-up instruction read back.':s.phase===2?'Take-off clearance read back.':'ATC transmission acknowledged.')}
+document.getElementById('starter').onclick=startEngine;document.getElementById('starter').ondblclick=startEngine;
+document.querySelectorAll('[data-pre]').forEach(b=>b.onclick=()=>{let k=b.dataset.pre;if(k==='battery'){s.battery=!s.battery;if(!s.battery){s.avionics=false;s.pump=false}}if(k==='avionics'){if(!s.battery)return toast('MASTER first.');s.avionics=!s.avionics}if(k==='pump'){if(!s.battery)return toast('MASTER first.');s.pump=!s.pump}if(k==='mixture')s.mixture=s.mixture>=95?0:100;updatePre()});
+document.getElementById('brake').onclick=()=>{if(!s.onGround)return;s.parkingBrake=!s.parkingBrake;s.brake=s.parkingBrake;document.getElementById('brake').textContent='PARKING BRAKE: '+(s.parkingBrake?'ON':'OFF');document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)};
+document.querySelectorAll('.view').forEach(b=>b.onclick=()=>setView(b.dataset.v));function setView(v){s.view=v;document.querySelectorAll('.view').forEach(q=>q.classList.toggle('active',q.dataset.v===v));document.getElementById('cockpit').style.display=v==='COCKPIT'?'block':'none';document.getElementById('cockpitLabel').style.display=v==='COCKPIT'?'block':'none'}
+document.getElementById('yoke').addEventListener('pointerdown',e=>{s.yoke=true;document.getElementById('yoke').setPointerCapture(e.pointerId);moveY(e)});document.getElementById('yoke').addEventListener('pointermove',e=>{if(s.yoke)moveY(e)});document.getElementById('yoke').addEventListener('pointerup',()=>{s.yoke=false;s.yx*=.35;s.yy*=.35});function moveY(e){let r=document.getElementById('yoke').getBoundingClientRect();s.yx=clamp((e.clientX-r.left-r.width/2)/(r.width*.42),-1,1);s.yy=clamp((e.clientY-r.top-r.height/2)/(r.height*.42),-1,1)}
+document.getElementById('throttle').onpointerdown=e=>{document.getElementById('throttle').setPointerCapture(e.pointerId);moveT(e)};document.getElementById('throttle').onpointermove=e=>{if(e.buttons)moveT(e)};function moveT(e){let r=document.getElementById('throttle').getBoundingClientRect();s.throttle=clamp((r.bottom-e.clientY)/r.height*100,0,100)}
+addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault();if(!s.started&&!e.repeat&&e.key==='Enter')start();if(!s.started)return;if(!e.repeat){let k=e.key.toLowerCase();if(k==='r')transmit();if(k==='b'){s.parkingBrake=!s.parkingBrake;s.brake=s.parkingBrake;document.getElementById('brake').textContent='PARKING BRAKE: '+(s.parkingBrake?'ON':'OFF');document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}if(k==='f'){s.flaps=s.flaps===0?1:s.flaps===1?2:0;toast('Flaps '+(s.flaps===0?'UP':s.flaps===1?'TAKE-OFF':'FULL DOWN'))}if(k==='g'){if(!s.onGround&&s.speed<100)s.gear=!s.gear;else if(s.onGround)s.gear=true;else toast('Reduce airspeed before gear operation.')}if(k==='c')setView(s.view==='COCKPIT'?'EXTERNAL':'COCKPIT')}});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+function controls(dt){if(keys.w)s.throttle+=38*dt;if(keys.s)s.throttle-=55*dt;s.throttle=clamp(s.throttle,0,100);if(keys.m)s.mixture=clamp(s.mixture+45*dt,0,100);if(keys.n)s.mixture=clamp(s.mixture-45*dt,0,100);if(s.yoke){if(s.onGround)s.heading=norm(s.heading+s.yx*34*dt);else s.bank+=s.yx*42*dt;s.pitch-=s.yy*12*dt}else{s.yx*=Math.pow(.04,dt);s.yy*=Math.pow(.04,dt)}if(s.onGround){if(keys.a||keys.arrowleft)s.heading=norm(s.heading-28*dt);if(keys.d||keys.arrowright)s.heading=norm(s.heading+28*dt);s.brake=s.parkingBrake||keys.s}else{if(keys.a||keys.arrowleft)s.bank-=42*dt;if(keys.d||keys.arrowright)s.bank+=42*dt;s.bank*=Math.pow(.12,dt)}if(keys.arrowup)s.pitch+=11*dt;if(keys.arrowdown)s.pitch-=11*dt;if(!keys.arrowup&&!keys.arrowdown&&!s.yoke)s.pitch*=Math.pow(.45,dt);s.bank=clamp(s.bank,-38,38);s.pitch=clamp(s.pitch,-14,16)}
+function engine(dt){if(s.starter&&performance.now()-s.starterAt>2800){s.starter=false;s.engineStarted=true;s.engine=true;s.rpm=850;toast('ENGINE FIRED — oil pressure should rise now.')}let idle=s.engineStarted?720:0,max=2650,target=s.starter?900:(s.engineStarted?idle+s.throttle/100*(max-idle):0);s.rpm+=(target-s.rpm)*Math.min(1,dt*(s.starter?2:4));s.engine=s.rpm>500;let power=clamp((s.rpm-idle)/(max-idle),0,1);let drag=.010+s.speed*.00010+(s.flaps===1?.024:s.flaps===2?.05:0)+(!s.onGround&&s.gear?.02:0);if(s.onGround){let a=power*5.7-drag*30-(s.brake?7.5:0)-(s.parkingBrake?14:0);s.speed=clamp(s.speed+a*dt,0,110)}else{s.speed=clamp(s.speed+(power*3.2-drag*2.7)*dt,38,150)}s.fuel=Math.max(0,s.fuel-(.00018+s.throttle*.000018+s.rpm*.000000035)*dt*60)}
+function flight(dt){let r=Math.PI/180;if(s.onGround){s.alt=0;s.vs=0;s.stall=false;s.xp+=Math.sin(s.heading*r)*s.speed*.00265*dt;s.yp-=Math.cos(s.heading*r)*s.speed*.00265*dt;if(s.phase===2&&s.radio&&s.speed>=55&&s.throttle>=70&&s.pitch>=4&&Math.abs(diff(s.heading,90))<10){s.onGround=false;s.alt=12;s.vs=620;toast('ROTATE — positive rate. Maintain runway heading 090.');s.score+=30}}else{let stallSpd=48+s.flaps*5,liftA=clamp((s.pitch+2)/14,0,1.35),liftS=clamp((s.speed-stallSpd)/48,0,1.45),load=1/Math.max(.72,Math.cos(s.bank*r));let tvs=(liftA*liftS*980)/load+(s.throttle-52)*2.8;s.stall=s.speed<stallSpd||(s.pitch>12&&s.speed<70);if(s.stall)tvs-=900;s.vs+=(tvs-s.vs)*Math.min(1,dt*1.8);s.vs=clamp(s.vs,-2400,2600);s.alt=Math.max(0,s.alt+s.vs*dt/60);s.heading=norm(s.heading+(s.speed/105)*Math.sin(s.bank*r)*31*dt);s.xp+=Math.sin(s.heading*r)*s.speed*.00155*dt;s.yp-=Math.cos(s.heading*r)*s.speed*.00155*dt;if(s.alt<14&&s.vs<-180){if(s.speed<88&&s.gear&&s.flaps>=1&&Math.abs(s.bank)<10){s.onGround=true;s.alt=0;s.vs=0;s.pitch=0;s.bank=0;toast('TOUCHDOWN — hold centreline and reduce power.')}else{s.alt=22;s.vs=120;s.score=Math.max(0,s.score-8);toast('UNSTABLE APPROACH — correct speed, configuration and descent.')}}}}
+function evaluate(dt){let g=0;if(s.phase===0&&s.radio&&s.xp>52&&s.xp<60&&s.speed<3&&s.parkingBrake)g=25*dt;if(s.phase===1&&s.radio&&s.xp>64&&s.xp<73&&Math.abs(diff(s.heading,90))<4&&Math.abs(s.yp+12.5)<3&&s.speed<3&&s.parkingBrake)g=28*dt;if(s.phase===2&&s.radio&&!s.onGround&&s.alt>80&&s.speed>55&&s.throttle>70&&Math.abs(diff(s.heading,90))<10)g=24*dt;if(s.phase===3&&!s.onGround&&s.alt>1200&&s.alt<3400&&s.speed>70&&s.speed<125&&!s.gear)g=15*dt;if(s.phase===4&&!s.onGround&&Math.abs(s.alt-3000)<350&&s.speed>78&&s.speed<115&&Math.abs(s.vs)<300&&Math.abs(diff(s.heading,90))<8)g=15*dt;if(s.phase===5&&!s.onGround&&s.alt<1800&&s.speed>55&&s.speed<95&&s.gear&&s.flaps>=1&&Math.abs(s.vs)<750)g=16*dt;if(s.phase===6&&s.onGround&&s.speed<55&&s.flaps===2&&s.gear)g=28*dt;if(g){s.progress=clamp(s.progress+g,0,100);s.score+=g*.7}else s.score=Math.max(0,s.score-.006*dt);if(s.progress>=100&&s.phase<6){next()}if(s.stall&&s.alt>40)document.getElementById('warning').style.display='block';else document.getElementById('warning').style.display='none'}
+function hud(){let h=String(Math.round(norm(s.heading))).padStart(3,'0');document.getElementById('hspd').textContent=Math.round(s.speed);document.getElementById('halt').textContent=Math.round(s.alt);document.getElementById('hhdg').textContent=h;document.getElementById('hvs').textContent=Math.round(s.vs);document.getElementById('hrpm').textContent=Math.round(s.rpm);document.getElementById('hfuel').textContent=Math.round(s.fuel);document.getElementById('gs').textContent=Math.round(s.speed);document.getElementById('ga').textContent=Math.round(s.pitch)+'°';document.getElementById('galt').textContent=Math.round(s.alt);document.getElementById('gh').textContent=h;document.getElementById('gv').textContent=Math.round(s.vs);document.getElementById('stEngine').textContent=s.engine?'RUNNING':'OFF';document.getElementById('stEngine').className=s.engine?'green':'red';document.getElementById('stOil').textContent=Math.round(s.engine?clamp((s.rpm-500)*.042,0,65):0)+' PSI';document.getElementById('stGear').textContent=s.gear?'DOWN':'UP';document.getElementById('stFlaps').textContent=s.flaps===0?'UP':s.flaps===1?'10°':'30°';document.getElementById('stSurface').textContent=s.onGround?'GROUND':'AIRBORNE';document.getElementById('tp').textContent=Math.round(s.throttle)+'%';document.getElementById('lever').style.bottom=(20+s.throttle*.8)+'px';document.getElementById('radioState').textContent=s.radio?'ACK':'STANDBY';setPhase();document.getElementById('bar').style.width=s.progress+'%';document.querySelectorAll('.switch').forEach(e=>{let k=e.dataset.s,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:false;e.classList.toggle('on',on)});document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}
+function draw(){x.clearRect(0,0,W,H);let sky=x.createLinearGradient(0,0,0,H*.62);sky.addColorStop(0,'#49a7d5');sky.addColorStop(.7,'#a6dce8');sky.addColorStop(1,'#7da66f');x.fillStyle=sky;x.fillRect(0,0,W,H*.64);let horizon=H*.48;x.fillStyle='#526e6b';x.beginPath();x.moveTo(0,horizon+25);for(let i=0;i<=W;i+=35)x.lineTo(i,horizon+5-Math.sin(i*.008)*32-Math.sin(i*.018)*15);x.lineTo(W,horizon+25);x.fill();x.fillStyle='#4d7448';x.fillRect(0,horizon+25,W,H);for(let i=0;i<18;i++){x.fillStyle=i%2?'#52794d':'#4a7046';x.fillRect(i*W/18,horizon+25,W/18+1,H)}let cx=W*.58,top=horizon+H*.10,bottom=H*1.05;x.fillStyle='#252c2f';x.beginPath();x.moveTo(cx-W*.20,top);x.lineTo(cx+W*.20,top);x.lineTo(cx+W*.48,bottom);x.lineTo(cx-W*.48,bottom);x.closePath();x.fill();x.strokeStyle='#d8bf45';x.lineWidth=3;x.stroke();x.strokeStyle='#fff';x.lineWidth=4;x.setLineDash([28,24]);x.beginPath();x.moveTo(cx,top);x.lineTo(cx,bottom);x.stroke();x.setLineDash([]);x.fillStyle='#fff';x.font='900 35px Arial';x.fillText('09',cx+W*.08,top+H*.06);for(let i=0;i<22;i++){let t=i/21,y=top+t*(bottom-top),half=W*.20+t*W*.28;x.fillStyle=i%3?'#bfe0ff':'#fff';x.fillRect(cx-half,y,4,4);x.fillRect(cx+half,y,4,4)}x.fillStyle='#c4cfd1';x.fillRect(W*.05,horizon-15,W*.18,40);x.fillStyle='#718187';x.fillRect(W*.235,horizon-105,18,105);x.fillStyle='#2e4148';x.fillRect(W*.224,horizon-118,40,15);x.fillStyle='#f2f7f8';x.font='bold 10px Arial';x.fillText('EXPERT SYNC AIRPORT',W*.06,horizon+10);x.fillStyle='#30393c';x.beginPath();x.moveTo(W*.10,horizon+25);x.lineTo(W*.16,horizon+25);x.lineTo(W*.20,H);x.lineTo(W*.06,H);x.closePath();x.fill();x.strokeStyle='#e4ca3e';x.setLineDash([18,16]);x.beginPath();x.moveTo(W*.13,horizon+25);x.lineTo(W*.13,H);x.stroke();x.setLineDash([]);if(s.view==='EXTERNAL'){let px=W*.5,py=H*.72;drawPlane(px,py,1.5,s.heading,s.bank)}}
+function drawPlane(px,py,sc,hdg,bank){x.save();x.translate(px,py);x.rotate((hdg-90)*Math.PI/180);x.scale(sc,sc);x.transform(1,0,Math.sin(bank*Math.PI/180)*.12,1,0,0);x.shadowColor='#000b';x.shadowBlur=15;x.shadowOffsetY=8;let g=x.createLinearGradient(-60,-40,60,40);g.addColorStop(0,'#8b9ba0');g.addColorStop(.25,'#f8fbfc');g.addColorStop(.55,'#fff');g.addColorStop(1,'#7a8c92');x.fillStyle=g;x.beginPath();x.ellipse(0,0,14,52,0,0,Math.PI*2);x.fill();x.fillStyle='#dce6e9';x.beginPath();x.moveTo(-84,-5);x.lineTo(-8,-18);x.lineTo(18,-8);x.lineTo(10,9);x.lineTo(-8,15);x.closePath();x.fill();x.beginPath();x.moveTo(8,-5);x.lineTo(84,-5);x.lineTo(9,15);x.closePath();x.fill();x.fillStyle='#17485c';x.beginPath();x.ellipse(5,-20,10,15,0,0,Math.PI*2);x.fill();if(s.gear){x.strokeStyle='#596a70';x.lineWidth=3;x.beginPath();x.moveTo(-8,17);x.lineTo(-13,33);x.moveTo(8,17);x.lineTo(13,33);x.stroke();x.fillStyle='#171d20';x.beginPath();x.arc(-13,35,5,0,7);x.arc(13,35,5,0,7);x.fill()}if(s.engine){x.strokeStyle='#fff8';x.lineWidth=2;x.beginPath();x.arc(0,-57,19,0,7);x.moveTo(-18,-57);x.lineTo(18,-57);x.stroke()}x.fillStyle='#ff3048';x.beginPath();x.arc(-70,0,3.5,0,7);x.fill();x.fillStyle='#42ff9a';x.beginPath();x.arc(70,0,3.5,0,7);x.fill();x.restore()}
+function tick(t){let dt=Math.min(.05,Math.max(.001,(t-s.last)/1000));s.last=t;if(s.started){controls(dt);engine(dt);flight(dt);evaluate(dt);hud()}draw();requestAnimationFrame(tick)}
+document.getElementById('game').addEventListener('click',()=>{if(!s.started)start()},{once:true});setPhase();setView('COCKPIT');requestAnimationFrame(tick);
 })();
 </script>
 </body>
