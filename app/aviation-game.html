@@ -60,7 +60,12 @@ button{font:inherit}#sim{position:relative;width:100%;height:100%;overflow:hidde
 #preflight .switches{display:flex;justify-content:space-around;align-items:flex-start}.switch{width:20px;height:42px;position:relative}.switch:before{content:"";position:absolute;left:9px;top:0;width:3px;height:31px;background:#3a474c}.switch:after{content:"";position:absolute;left:3px;top:4px;width:15px;height:12px;border-radius:2px;background:#bfc8cb;box-shadow:0 2px 4px #000}.switch small{position:absolute;top:34px;left:-5px;width:30px;text-align:center;font-size:5px;color:#80959d}
 #preflight .throttleQuad{display:flex;justify-content:center;gap:28px;height:75px}.throttleQuad .lever{width:8px;height:62px;background:#27353b;border-radius:5px;position:relative}.throttleQuad .lever i{position:absolute;left:-6px;bottom:8px;width:20px;height:17px;border-radius:3px;background:linear-gradient(#d7dcde,#737d80);box-shadow:0 2px 4px #000}.throttleQuad .lever small{position:absolute;top:65px;left:-10px;width:28px;text-align:center;font-size:5px;color:#84999f}
 #preflight .yokeMini{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);width:125px;height:75px}.yokeMini .wheel{position:absolute;left:14px;top:4px;width:95px;height:45px;border:8px solid #1f282c;border-radius:48% 48% 30% 30%;box-shadow:0 3px 7px #000}.yokeMini .stem{position:absolute;left:58px;top:35px;width:9px;height:40px;background:#65757b;border-radius:4px}.yokeMini .bar{position:absolute;left:29px;top:27px;width:67px;height:5px;background:#2e393e}
-#preflight .preActions{position:absolute;left:0;right:0;bottom:0;height:59px;padding:8px 12px;box-sizing:border-box;border-top:1px solid #46565c;background:linear-gradient(#182328,#0b1114);z-index:30}
+#preflight .preActions{position:absolute;left:0;right:0;bottom:0;height:59px;padding:8px 12px;box-sizing:border-box;border-top:1px solid #46565c;background:linear-gradient(#182328,#0b1114);z-index:30;pointer-events:auto}
+#preflight .preActions .procedure{pointer-events:none}
+#preflight .preActions .secondary{pointer-events:auto}
+#preflight .check button{position:relative;z-index:40;pointer-events:auto;touch-action:manipulation}
+#preflight .check button:active{transform:translateY(1px);filter:brightness(1.2)}
+#preflight .check button.ready{box-shadow:0 0 10px #42d6a044}
 #preflight .procedure{font-size:6px;line-height:1.4;color:#879aa1;max-width:72%}.procedure b{color:#d7e2e5}.secondary{position:absolute;right:12px;top:10px;padding:10px 22px;border:1px solid #66787e;border-radius:3px;background:linear-gradient(#39474b,#172024);color:#dfe7e9;font-size:8px;font-weight:900;cursor:pointer}.secondary:not(:disabled){background:linear-gradient(#318d6d,#154e3c);border-color:#68dcb6;color:#fff}
 @media(max-width:900px){#preflight .preBody{grid-template-columns:190px 1fr}.gaugeRow{gap:5px!important}.realGauge{width:100px!important;height:100px!important}.lowerPanel{gap:4px!important}}
 @media(max-width:650px){#preflight .preBadge{display:none}#preflight .preBody{inset:54px 0 59px;grid-template-columns:1fr;overflow:auto}#preflight .preBody>div:first-child{border-right:0;border-bottom:2px solid #26373e}.preBody>div:nth-child(2){min-height:760px}.preActions{position:fixed}.procedure{display:none}.secondary{left:10px;right:10px;width:auto}}
@@ -221,7 +226,7 @@ body.cockpit #cockpitDeck{display:block}
 <div class="subPanel"><div class="subTitle">ENGINE INDICATION</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:5px"><div class="systemChip">RPM<b style="color:#dce7e9">0</b></div><div class="systemChip">OIL P<b style="color:#dce7e9">0</b></div><div class="systemChip">OIL T<b style="color:#dce7e9">COLD</b></div><div class="systemChip">VOLTS<b style="color:#dce7e9">0</b></div></div></div>
 </div></div>
 </div></div>
-<div class="preActions"><div class="procedure">START PROCEDURE: <b>MASTER ON → AVIONICS ON → FUEL PUMP ON → MIXTURE RICH → STARTER.</b><br>After start, verify RPM, oil pressure and electrical indications before releasing the brakes.</div><button id="engineStart" class="secondary" disabled>STARTER • OFF</button></div>
+<div class="preActions"><div class="procedure">START PROCEDURE: <b>1 MASTER ON → 2 AVIONICS ON → 3 FUEL PUMP ON → 4 MIXTURE RICH → 5 STARTER.</b><br><span id="preflightMessage">Click each checklist switch. The starter will tell you exactly what is missing if the sequence is incomplete.</span></div><button id="engineStart" class="secondary">STARTER • OFF</button></div>
 </div></div><div id="trafficTag">TRAFFIC • ES-01 • TRAINING AIRSPACE</div>
 <div id="cockpitDeck">
   <div class="deckFrame"></div><div class="deckGlare"></div>
@@ -360,6 +365,17 @@ function ack(){
  $('radioState').textContent=s.radioAck?'ACK':'STANDBY';updateMissionChecklist();
 }
 function start(){s.started=true;$('menu').style.display='none';$('preflight').style.display='flex';s.last=performance.now();msg('Cockpit entered. Complete the preflight procedure.')}
+function preflightReady(){
+  return s.battery&&s.avionics&&s.fuelPump&&s.mixture>=95;
+}
+function preflightMissing(){
+  const missing=[];
+  if(!s.battery)missing.push('MASTER / BATTERY');
+  if(!s.avionics)missing.push('AVIONICS MASTER');
+  if(!s.fuelPump)missing.push('FUEL PUMP');
+  if(s.mixture<95)missing.push('MIXTURE RICH');
+  return missing;
+}
 function updateSystems(){
   $('batState').textContent=s.battery?'ON':'OFF';$('batState').className=s.battery?'sysOn':'sysOff';
   $('avnState').textContent=s.avionics?'ON':'OFF';$('avnState').className=s.avionics?'sysOn':'sysOff';
@@ -373,10 +389,20 @@ function updateSystems(){
   $('preAvn').textContent=s.avionics?'ON':'OFF';$('preAvn').className=s.avionics?'sysOn':'sysOff';
   $('prePump').textContent=s.fuelPump?'ON':'OFF';$('prePump').className=s.fuelPump?'sysOn':'sysOff';
   $('preMix').textContent=s.mixture>=95?'RICH':'LEAN';$('preMix').className=s.mixture>=95?'sysOn':'sysOff';
-  $('engineStart').disabled=!(s.battery&&s.avionics&&s.fuelPump&&s.mixture>=95)||s.engineStarted;
+  const ready=preflightReady()&&!s.engineStarted;
+  $('engineStart').disabled=false;
+  $('engineStart').textContent=s.engineStarted?'STARTED • RUNNING':(ready?'STARTER • READY':'STARTER • CHECK');
+  $('engineStart').classList.toggle('ready',ready);
+  const pm=$('preflightMessage');
+  if(pm)pm.textContent=ready?'CHECK COMPLETE — press STARTER to crank the engine.':'Missing: '+preflightMissing().join(' • ');
 }
 function startEngine(){
-  if($('engineStart').disabled)return;
+  if(s.engineStarted||s.starter)return;
+  if(!preflightReady()){
+    msg('STARTER INHIBITED — '+preflightMissing().join(', ')+' required.');
+    const pm=$('preflightMessage');if(pm)pm.textContent='STARTER INHIBITED — complete: '+preflightMissing().join(' → ');
+    return;
+  }
   startAudio();
   s.starter=true;s.engine=false;s.engineStarted=false;s.starterUntil=performance.now()+3200;
   s.rpm=0;s.throttle=0;s.oilPressure=0;s.oilTemp=20;s.volts=24;
@@ -388,6 +414,16 @@ function startEngine(){
   s.score+=10;
 }
 $('start').onclick=start;$('continue').onclick=next;$('engineStart').onclick=startEngine;
+addEventListener('keydown',e=>{
+  if(!s.started||$('preflight').style.display==='none')return;
+  if(e.repeat)return;
+  const k=e.key;
+  if(k==='1')togglePreflight('battery');
+  if(k==='2')togglePreflight('avionics');
+  if(k==='3')togglePreflight('pump');
+  if(k==='4')togglePreflight('mixture');
+  if(k==='5')startEngine();
+});
 $('deckBrake').onclick=()=>{
   if(!s.onGround){msg('Parking brake is a ground control only.');return}
   s.parkingBrake=!s.parkingBrake;
@@ -414,14 +450,26 @@ function setThrottleFromPointer(e){
 }
 throttleEl.addEventListener('pointerdown',e=>{throttleEl.setPointerCapture(e.pointerId);setThrottleFromPointer(e)});
 throttleEl.addEventListener('pointermove',e=>{if(e.buttons)setThrottleFromPointer(e)});
-document.querySelectorAll('[data-pre]').forEach(b=>b.addEventListener('click',()=>{
-  const k=b.dataset.pre;
-  if(k==='battery')s.battery=!s.battery;
-  if(k==='avionics'){if(!s.battery){msg('Battery must be ON first.');return}s.avionics=!s.avionics}
-  if(k==='pump'){if(!s.battery){msg('Battery must be ON first.');return}s.fuelPump=!s.fuelPump}
+function togglePreflight(k){
+  if(k==='battery'){
+    s.battery=!s.battery;
+    if(!s.battery){s.avionics=false;s.fuelPump=false;}
+  }
+  if(k==='avionics'){
+    if(!s.battery){msg('STEP 1 REQUIRED — turn MASTER / BATTERY ON first.');return}
+    s.avionics=!s.avionics;
+  }
+  if(k==='pump'){
+    if(!s.battery){msg('STEP 1 REQUIRED — turn MASTER / BATTERY ON first.');return}
+    s.fuelPump=!s.fuelPump;
+  }
   if(k==='mixture')s.mixture=s.mixture>=95?0:100;
   updateSystems();
-}));
+  if(preflightReady())msg('PREFLIGHT COMPLETE — STARTER is ready.');
+}
+document.querySelectorAll('[data-pre]').forEach(b=>{
+  b.addEventListener('click',e=>{e.preventDefault();togglePreflight(b.dataset.pre)});
+});
 updateSystems();
 document.querySelectorAll('.viewBtn').forEach(b=>b.onclick=()=>setView(b.dataset.view));
 function setView(v){s.view=v;document.querySelectorAll('.viewBtn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));$('cockpitOverlay').style.display=v==='COCKPIT'?'block':'none';document.body.classList.toggle('cockpit',v==='COCKPIT');}
