@@ -68,6 +68,10 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #navPanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
 .navRow{display:flex;justify-content:space-between;margin-top:5px;font-size:9px;color:#9bb5be}
 .navRow strong{color:#fff}.navHint{margin-top:6px;font-size:8px;color:#6f8e99}
+#scenarioPanel{left:14px;bottom:52px;padding:9px 11px;width:220px;z-index:30}
+#scenarioPanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
+#scenarioSelect{width:100%;margin:6px 0;background:#07161d;color:#fff;border:1px solid #3c6978;padding:5px;font-size:9px}
+#loadScenario{background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer;width:100%}
 #weather{right:14px;bottom:52px;padding:9px 11px;max-width:245px;z-index:30}
 #weatherText{margin:4px 0 7px;font-size:9px;color:#c6d7dc}
 #weatherBtn,#audioBtn{background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer}
@@ -82,6 +86,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="views" class="ui"><button class="view active" data-v="COCKPIT">COCKPIT</button><button class="view" data-v="EXTERNAL">EXTERNAL</button></div>
 <div id="testbar" class="ui panel"><button id="pauseBtn">PAUSE</button><button id="restartBtn">RESTART</button><span id="testState">TRAINING LIVE</span></div>
 <div id="controlGuide" class="ui panel"><b>CONTROL GUIDE</b><div id="guideText">Complete pre-flight checklist to begin.</div></div>
+<div id="scenarioPanel" class="ui panel"><b>TRAINING SCENARIO</b><select id="scenarioSelect"><option value="standard">01 • Standard Flight</option><option value="crosswind">02 • Crosswind Operations</option><option value="busy">03 • Busy Traffic</option><option value="engine">04 • Engine Failure Drill</option></select><button id="loadScenario">LOAD SCENARIO</button></div>
 <div id="weather" class="ui panel"><b>WEATHER / CONDITIONS</b><div id="weatherText">WIND 120° / 8 KT • VIS 10 KM • TEMP 24°C</div><button id="weatherBtn">CHANGE CONDITIONS</button><button id="audioBtn">AUDIO ON</button></div>
 <div id="checklistPanel" class="ui panel"><b>COCKPIT CHECKLIST</b><div id="checklistTitle">PRE-FLIGHT</div><div id="checklistItems"></div></div>
 <div id="mission" class="ui panel"><div class="eyebrow">ACTIVE TRAINING</div><div id="mtitle" class="title"></div><div id="mcopy" class="copy"></div><div class="progress"><i id="bar"></i></div><div id="check"></div></div>
@@ -327,6 +332,16 @@ if(!audioCtx)return;
 if(audioCtx.state==='running'){audioCtx.suspend();document.getElementById('audioBtn').textContent='AUDIO OFF';}
 else{audioCtx.resume();document.getElementById('audioBtn').textContent='AUDIO ON';}
 };
+document.getElementById('loadScenario').onclick=()=>{
+const v=document.getElementById('scenarioSelect').value;
+s.scenario=v;s.failure=null;s.lastFailureLogged=false;
+if(v==='standard'){s.windDir=120;s.windKt=8;s.visibility=10;s.temperature=24;s.traffic[0].alt=3100;s.traffic[1].alt=2850;s.traffic[2].alt=3300;}
+if(v==='crosswind'){s.windDir=270;s.windKt=18;s.visibility=8;s.temperature=30;}
+if(v==='busy'){s.windDir=120;s.windKt=8;s.visibility=10;s.temperature=24;s.traffic[0].alt=3020;s.traffic[1].alt=3050;s.traffic[2].alt=2980;}
+if(v==='engine'){s.windDir=90;s.windKt=5;s.visibility=12;s.temperature=20;s.failure=null;}
+updateWeather();toast('SCENARIO LOADED — '+document.getElementById('scenarioSelect').selectedOptions[0].text);
+logEvent('SCENARIO: '+document.getElementById('scenarioSelect').selectedOptions[0].text,'PHASE');
+};
 document.getElementById('weatherBtn').onclick=()=>{
 const presets=[
 [120,8,10,24,'LIGHT CROSSWIND'],
@@ -361,7 +376,8 @@ function flight(dt){let r=Math.PI/180;
 const wx=Math.sin(s.windDir*r)*s.windKt;
 const wy=Math.cos(s.windDir*r)*s.windKt;
 if(s.onGround){
-s.alt=0;s.vs=0;s.stall=false;if(s.phase===0&&s.speed>0.5&&!s.parkingBrake)s.taxiDistance+=s.speed*0.5144*dt;s.xp+=Math.sin(s.heading*r)*s.speed*.00265*dt;s.yp-=Math.cos(s.heading*r)*s.speed*.00265*dt;if(s.phase===2&&s.radio&&!s.parkingBrake&&s.speed>=55&&s.speed<=90&&s.throttle>=70&&s.pitch>=7&&s.pitch<=14&&Math.abs(diff(s.heading,90))<8){s.onGround=false;s.alt=12;s.vs=620;toast('ROTATE — positive rate. Maintain runway heading 090.');s.score+=30}}else{let stallSpd=48+s.flaps*5,liftA=clamp((s.pitch+2)/14,0,1.35),liftS=clamp((s.speed-stallSpd)/48,0,1.45),load=1/Math.max(.72,Math.cos(s.bank*r));let tvs=(liftA*liftS*980)/load+(s.throttle-52)*3.6+(s.trim/100)*85;s.stall=s.speed<stallSpd||(s.pitch>12&&s.speed<70);if(s.stall)tvs-=900;s.vs+=(tvs-s.vs)*Math.min(1,dt*1.8);s.vs=clamp(s.vs,-2400,2600);s.alt=Math.max(0,s.alt+s.vs*dt/60);s.heading=norm(s.heading+(s.speed/105)*Math.sin(s.bank*r)*31*dt);
+s.alt=0;s.vs=0;s.stall=false;if(s.phase===0&&s.speed>0.5&&!s.parkingBrake)s.taxiDistance+=s.speed*0.5144*dt;s.xp+=Math.sin(s.heading*r)*s.speed*.00265*dt;s.yp-=Math.cos(s.heading*r)*s.speed*.00265*dt;if(s.scenario==='engine'&&s.phase>=2&&!s.onGround&&!s.failure){s.failure='ENGINE';s.throttle=0;toast('SCENARIO — ENGINE FAILURE. MAINTAIN CONTROL AND PLAN A LANDING.');}
+if(s.phase===2&&s.radio&&!s.parkingBrake&&s.speed>=55&&s.speed<=90&&s.throttle>=70&&s.pitch>=7&&s.pitch<=14&&Math.abs(diff(s.heading,90))<8){s.onGround=false;s.alt=12;s.vs=620;toast('ROTATE — positive rate. Maintain runway heading 090.');s.score+=30}}else{let stallSpd=48+s.flaps*5,liftA=clamp((s.pitch+2)/14,0,1.35),liftS=clamp((s.speed-stallSpd)/48,0,1.45),load=1/Math.max(.72,Math.cos(s.bank*r));let tvs=(liftA*liftS*980)/load+(s.throttle-52)*3.6+(s.trim/100)*85;s.stall=s.speed<stallSpd||(s.pitch>12&&s.speed<70);if(s.stall)tvs-=900;s.vs+=(tvs-s.vs)*Math.min(1,dt*1.8);s.vs=clamp(s.vs,-2400,2600);s.alt=Math.max(0,s.alt+s.vs*dt/60);s.heading=norm(s.heading+(s.speed/105)*Math.sin(s.bank*r)*31*dt);
 const trackX=Math.sin(s.heading*r)*s.speed+wx;
 const trackY=Math.cos(s.heading*r)*s.speed+wy;
 s.xp+=trackX*.00155*dt;
@@ -434,13 +450,13 @@ logEvent('FLIGHT ASSESSMENT COMPLETE','SUCCESS');
 e.innerHTML='<div style="color:#54e6a6;font-size:11px;font-weight:900;letter-spacing:2px">FLIGHT ASSESSMENT COMPLETE</div>'+
 '<div style="font-size:26px;font-weight:900;margin:8px 0">EXPERT SYNC — FLIGHT 01</div>'+
 '<div style="color:#9bb5be;font-size:12px">Taxi → Line-Up → Take-off → Climb → Cruise → Approach → Landing</div>'+
-'<div style="margin:16px 0 8px;font-size:28px;font-weight:900">'+score+' <span style="font-size:12px;color:#9bb5be">POINTS</span></div>'+
+'<div style="margin:16px 0 8px;font-size:28px;font-weight:900">SCENARIO: '+s.scenario.toUpperCase()+'</div><div style="font-size:28px;font-weight:900">'+score+' <span style="font-size:12px;color:#9bb5be">POINTS</span></div>'+
 '<div style="font-size:14px;color:#54e6a6;font-weight:900;letter-spacing:1px">'+grade+'</div>'+
 '<div style="margin:14px 0;color:#9bb5be;font-size:11px;line-height:1.7">ATC discipline • aircraft control • configuration • speed/altitude management • runway handling</div>'+
 '<button id="copyDebrief" class="atcBtn" style="width:100%;margin-bottom:6px">COPY FLIGHT DEBRIEF</button><button id="replay" class="atcBtn" style="width:100%">RESTART TRAINING</button>';
 document.getElementById('game').appendChild(e);
 document.getElementById('copyDebrief').onclick=async()=>{
-const report='EXPERT SYNC FLIGHT 01 DEBRIEF\nScore: '+score+'\nGrade: '+grade+'\n'+s.events.slice().reverse().map(e=>e.t+' '+e.msg).join('\n');
+const report='EXPERT SYNC FLIGHT 01 DEBRIEF\nScenario: '+s.scenario+'\nScore: '+score+'\nGrade: '+grade+'\n'+s.events.slice().reverse().map(e=>e.t+' '+e.msg).join('\n');
 try{await navigator.clipboard.writeText(report);toast('FLIGHT DEBRIEF COPIED.')}catch(e){toast('Copy unavailable — review the event log.')}
 };
 document.getElementById('replay').onclick=()=>location.reload();
@@ -476,7 +492,7 @@ const g=[
 'APPROACH: R Approach • scan traffic • arm ILS guidance • NAV + BEACON + LANDING LIGHT ON • follow LOC/GS • 65–90 KT • gear DOWN • F to configure flaps • correct for wind • stable final.',
 'LANDING: R Tower • gear DOWN • FULL FLAPS • centreline • touchdown • reduce power • <55 KT.'
 ];
-document.getElementById('guideText').textContent=s.failure==='ENGINE'?'ENGINE FAILURE: lower nose • maintain control • best glide • choose a landing area • configure for landing.':(s.started?(g[s.phase]||'Flight complete.'):'Complete pre-flight checklist to begin.');
+document.getElementById('guideText').textContent=s.scenario==='engine'&&s.failure==='ENGINE'?'ENGINE FAILURE: lower nose • maintain control • best glide • choose a landing area • configure for landing.':(s.started?(g[s.phase]||'Flight complete.'):'Complete pre-flight checklist to begin.');
 }
 function logEvent(msg,type='INFO'){
 const now=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
