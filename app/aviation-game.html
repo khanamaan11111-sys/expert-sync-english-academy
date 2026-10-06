@@ -48,6 +48,10 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #failureBtn{background:#0a202a;border:1px solid #8b5555;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer}
 #controlGuide b{font-size:9px;letter-spacing:1px;color:#54e6a6}
 #guideText{margin-top:4px;font-size:9px;line-height:1.5;color:#c6d7dc}
+#fdrPanel{right:14px;top:860px;padding:8px 9px;width:300px;z-index:24}
+#fdrPanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
+#fdrStatus,#fdrMetrics{font-size:8px;color:#9bb5be;margin-top:5px}
+#exportFDR{margin-top:6px;background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer;width:100%}
 #eventPanel{right:14px;top:700px;padding:8px 9px;width:300px;z-index:24}
 #eventPanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
 #eventLog{font-size:8px;color:#9bb5be;margin-top:5px;line-height:1.45;max-height:92px;overflow:auto}
@@ -92,6 +96,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="mission" class="ui panel"><div class="eyebrow">ACTIVE TRAINING</div><div id="mtitle" class="title"></div><div id="mcopy" class="copy"></div><div class="progress"><i id="bar"></i></div><div id="check"></div></div>
 <div id="atc" class="ui panel"><div class="atcHead"><span>ATC • <span id="freq"></span></span><span id="radioState">STANDBY</span></div><div id="atcText" class="atcBody"></div><div class="radio">Press <b>R</b> to transmit/read back.</div><button id="atcBtn" class="atcBtn">TRANSMIT / READ BACK</button></div>
 <div id="warning" class="ui">STALL WARNING — LOWER NOSE / INCREASE AIRSPEED</div><div id="stageHint" class="ui panel" style="left:50%;top:64%;transform:translateX(-50%);padding:7px 12px;font-size:9px;color:#bfefff;display:none;z-index:20"></div><div id="nextAction" class="ui panel" style="left:50%;top:70%;transform:translateX(-50%);padding:6px 10px;font-size:8px;color:#54e6a6;display:none;z-index:20"></div><div id="toast" class="ui"></div><div id="cockpitLabel" class="ui panel">PRIMARY FLIGHT DISPLAY • LIVE</div>
+<div id="fdrPanel" class="ui panel"><b>FLIGHT DATA RECORDER</b><div id="fdrStatus">RECORDING READY</div><div id="fdrMetrics">ALT 0 FT • IAS 0 KT • HDG 000° • VS 0 FPM</div><button id="exportFDR">COPY FLIGHT DATA</button></div>
 <div id="eventPanel" class="ui panel"><b>INSTRUCTOR EVENT LOG</b><div id="eventLog">No events yet.</div></div>
 <div id="trafficPanel" class="ui panel"><b>TRAFFIC / SITUATIONAL AWARENESS</b><div id="trafficText">NO CONFLICTS</div><div id="trafficList"></div></div>
 <div id="approachPanel" class="ui panel"><b>ILS-STYLE APPROACH</b><div class="ils"><div class="ilsBox"><span>LOC</span><strong id="locDev">0.0</strong><small>DOTS</small></div><div class="ilsBox"><span>GS</span><strong id="gsDev">0.0</strong><small>DOTS</small></div></div><div id="ilsStatus">RUNWAY 09 • ILS ARMED</div></div>
@@ -145,7 +150,7 @@ const missions=[
 ['AFTER LANDING • PARK & SHUTDOWN','GROUND 121.90','After touchdown, keep the centreline, slow to taxi speed, exit the runway, set parking brake, reduce power to idle, and shut down the engine.','Ground: ES-01, taxi to parking via Alpha.']
 ];
 const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,trim:0,selectedHeading:90,ilsArmed:false,failure:null,
-events:[],lastLoggedPhase:-1,
+events:[],lastLoggedPhase:-1,fdr:[],lastFdr:0,
 traffic:[
 {id:'ES-T01',x:18,y:14,alt:3100,hdg:270,speed:95},
 {id:'ES-T02',x:58,y:-8,alt:2850,hdg:90,speed:85},
@@ -332,6 +337,10 @@ if(!audioCtx)return;
 if(audioCtx.state==='running'){audioCtx.suspend();document.getElementById('audioBtn').textContent='AUDIO OFF';}
 else{audioCtx.resume();document.getElementById('audioBtn').textContent='AUDIO ON';}
 };
+document.getElementById('exportFDR').onclick=async()=>{
+const report='EXPERT SYNC FLIGHT DATA RECORDER\nScenario: '+s.scenario+'\nSamples: '+s.fdr.length+'\n'+s.fdr.map(d=>[d.t,d.phase,d.alt,d.ias,d.hdg,d.vs,d.pitch,d.throttle,d.gear?'GEAR UP':'GEAR DOWN',d.flaps].join(',')).join('\n');
+try{await navigator.clipboard.writeText(report);toast('FLIGHT DATA COPIED.')}catch(e){toast('Copy unavailable — FDR remains visible in this session.')}
+};
 document.getElementById('loadScenario').onclick=()=>{
 const v=document.getElementById('scenarioSelect').value;
 s.scenario=v;s.failure=null;s.lastFailureLogged=false;
@@ -456,7 +465,7 @@ e.innerHTML='<div style="color:#54e6a6;font-size:11px;font-weight:900;letter-spa
 '<button id="copyDebrief" class="atcBtn" style="width:100%;margin-bottom:6px">COPY FLIGHT DEBRIEF</button><button id="replay" class="atcBtn" style="width:100%">RESTART TRAINING</button>';
 document.getElementById('game').appendChild(e);
 document.getElementById('copyDebrief').onclick=async()=>{
-const report='EXPERT SYNC FLIGHT 01 DEBRIEF\nScenario: '+s.scenario+'\nScore: '+score+'\nGrade: '+grade+'\n'+s.events.slice().reverse().map(e=>e.t+' '+e.msg).join('\n');
+const report='EXPERT SYNC FLIGHT 01 DEBRIEF\nScenario: '+s.scenario+'\nFDR samples: '+s.fdr.length+'\nScore: '+score+'\nGrade: '+grade+'\n'+s.events.slice().reverse().map(e=>e.t+' '+e.msg).join('\n');
 try{await navigator.clipboard.writeText(report);toast('FLIGHT DEBRIEF COPIED.')}catch(e){toast('Copy unavailable — review the event log.')}
 };
 document.getElementById('replay').onclick=()=>location.reload();
@@ -493,6 +502,18 @@ const g=[
 'LANDING: R Tower • gear DOWN • FULL FLAPS • centreline • touchdown • reduce power • <55 KT.'
 ];
 document.getElementById('guideText').textContent=s.scenario==='engine'&&s.failure==='ENGINE'?'ENGINE FAILURE: lower nose • maintain control • best glide • choose a landing area • configure for landing.':(s.started?(g[s.phase]||'Flight complete.'):'Complete pre-flight checklist to begin.');
+}
+function recordFDR(t){
+s.fdr.push({t:Math.round(t),phase:s.phase,alt:Math.round(s.alt),ias:Math.round(s.speed),hdg:Math.round(s.heading),vs:Math.round(s.vs),pitch:+s.pitch.toFixed(1),throttle:Math.round(s.throttle),gear:s.gear,flaps:s.flaps});
+if(s.fdr.length>2400)s.fdr.shift();
+}
+function updateFDR(t){
+if(!s.started)return;
+if(t-s.lastFdr>500){recordFDR(t);s.lastFdr=t;}
+const m=document.getElementById('fdrMetrics');
+if(m)m.textContent='ALT '+Math.round(s.alt)+' FT • IAS '+Math.round(s.speed)+' KT • HDG '+String(Math.round(s.heading)).padStart(3,'0')+'° • VS '+Math.round(s.vs)+' FPM';
+const st=document.getElementById('fdrStatus');
+if(st)st.textContent=s.paused?'PAUSED':'RECORDING • '+s.fdr.length+' SAMPLES';
 }
 function logEvent(msg,type='INFO'){
 const now=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -573,7 +594,7 @@ x.fillStyle='#54e6a6';x.font='900 13px Arial';x.fillText('RUNWAY 09 • LINE UP'
 }
 if(s.phase===0){x.strokeStyle='#fff';x.lineWidth=5;x.setLineDash([18,10]);x.beginPath();x.moveTo(cx-W*.13,top+H*.105);x.lineTo(cx+W*.13,top+H*.105);x.stroke();x.setLineDash([]);x.fillStyle='#ffd84a';x.font='700 14px Arial';x.fillText('HOLD SHORT',cx-W*.045,top+H*.145)}else if(s.phase===1){x.strokeStyle='#54e6a6';x.lineWidth=4;x.setLineDash([14,12]);x.beginPath();x.moveTo(cx-W*.08,top+H*.15);x.lineTo(cx+W*.08,top+H*.15);x.stroke();x.setLineDash([]);x.fillStyle='#54e6a6';x.font='700 14px Arial';x.fillText('LINE UP • RUNWAY 09',cx-W*.055,top+H*.185)}for(let i=0;i<22;i++){let t=i/21,y=top+t*(bottom-top),half=W*.20+t*W*.28;x.fillStyle=i%3?'#bfe0ff':'#fff';x.fillRect(cx-half,y,4,4);x.fillRect(cx+half,y,4,4)}x.fillStyle='#c4cfd1';x.fillRect(W*.05,horizon-15,W*.18,40);x.fillStyle='#718187';x.fillRect(W*.235,horizon-105,18,105);x.fillStyle='#2e4148';x.fillRect(W*.224,horizon-118,40,15);x.fillStyle='#f2f7f8';x.font='bold 10px Arial';x.fillText('EXPERT SYNC AIRPORT',W*.06,horizon+10);x.fillStyle='#30393c';x.beginPath();x.moveTo(W*.10,horizon+25);x.lineTo(W*.16,horizon+25);x.lineTo(W*.20,H);x.lineTo(W*.06,H);x.closePath();x.fill();x.strokeStyle='#e4ca3e';x.setLineDash([18,16]);x.beginPath();x.moveTo(W*.13,horizon+25);x.lineTo(W*.13,H);x.stroke();x.setLineDash([]);if(s.view==='EXTERNAL'){let px=W*.5,py=clamp(H*.72-s.alt*.00006*H,H*.24,H*.78);drawPlane(px,py,1.5,s.heading,s.bank)}}
 function drawPlane(px,py,sc,hdg,bank){x.save();x.translate(px,py);x.rotate((hdg-90)*Math.PI/180);x.scale(sc,sc);x.transform(1,0,Math.sin(bank*Math.PI/180)*.12,1,0,0);x.shadowColor='#000b';x.shadowBlur=15;x.shadowOffsetY=8;let g=x.createLinearGradient(-60,-40,60,40);g.addColorStop(0,'#8b9ba0');g.addColorStop(.25,'#f8fbfc');g.addColorStop(.55,'#fff');g.addColorStop(1,'#7a8c92');x.fillStyle=g;x.beginPath();x.ellipse(0,0,14,52,0,0,Math.PI*2);x.fill();x.fillStyle='#dce6e9';x.beginPath();x.moveTo(-84,-5);x.lineTo(-8,-18);x.lineTo(18,-8);x.lineTo(10,9);x.lineTo(-8,15);x.closePath();x.fill();x.beginPath();x.moveTo(8,-5);x.lineTo(84,-5);x.lineTo(9,15);x.closePath();x.fill();x.fillStyle='#17485c';x.beginPath();x.ellipse(5,-20,10,15,0,0,Math.PI*2);x.fill();if(s.gear){x.strokeStyle='#596a70';x.lineWidth=3;x.beginPath();x.moveTo(-8,17);x.lineTo(-13,33);x.moveTo(8,17);x.lineTo(13,33);x.stroke();x.fillStyle='#171d20';x.beginPath();x.arc(-13,35,5,0,7);x.arc(13,35,5,0,7);x.fill()}if(s.engine){x.strokeStyle='#fff8';x.lineWidth=2;x.beginPath();x.arc(0,-57,19,0,7);x.moveTo(-18,-57);x.lineTo(18,-57);x.stroke()}x.fillStyle='#ff3048';x.beginPath();x.arc(-70,0,3.5,0,7);x.fill();x.fillStyle='#42ff9a';x.beginPath();x.arc(70,0,3.5,0,7);x.fill();x.restore()}
-function tick(t){let dt=Math.min(.05,Math.max(.001,(t-s.last)/1000));s.last=t;if(s.started&&!s.paused){controls(dt);engine(dt);flight(dt);evaluate(dt);hud();updateAudio()}draw();requestAnimationFrame(tick)}
+function tick(t){let dt=Math.min(.05,Math.max(.001,(t-s.last)/1000));s.last=t;if(s.started&&!s.paused){controls(dt);engine(dt);flight(dt);evaluate(dt);hud();updateAudio();updateFDR(t)}draw();requestAnimationFrame(tick)}
 document.getElementById('game').addEventListener('click',()=>{initAudio();if(!s.started)start()},{once:true});setPhase();setView('COCKPIT');requestAnimationFrame(tick);
 })();
 </script>
