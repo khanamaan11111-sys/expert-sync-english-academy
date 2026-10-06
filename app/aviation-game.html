@@ -48,6 +48,10 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #failureBtn{background:#0a202a;border:1px solid #8b5555;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer}
 #controlGuide b{font-size:9px;letter-spacing:1px;color:#54e6a6}
 #guideText{margin-top:4px;font-size:9px;line-height:1.5;color:#c6d7dc}
+#trafficPanel{left:14px;top:600px;padding:8px 9px;width:220px;z-index:24}
+#trafficPanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
+#trafficText{font-size:9px;color:#54e6a6;margin-top:5px}
+#trafficList{font-size:8px;color:#9bb5be;margin-top:4px;line-height:1.5}
 #approachPanel{right:14px;top:540px;padding:8px 9px;width:220px;z-index:24}
 #approachPanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
 .ils{display:flex;gap:8px;margin-top:6px}.ilsBox{flex:1;text-align:center;border:1px solid #294a55;padding:5px 2px}
@@ -80,6 +84,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="mission" class="ui panel"><div class="eyebrow">ACTIVE TRAINING</div><div id="mtitle" class="title"></div><div id="mcopy" class="copy"></div><div class="progress"><i id="bar"></i></div><div id="check"></div></div>
 <div id="atc" class="ui panel"><div class="atcHead"><span>ATC • <span id="freq"></span></span><span id="radioState">STANDBY</span></div><div id="atcText" class="atcBody"></div><div class="radio">Press <b>R</b> to transmit/read back.</div><button id="atcBtn" class="atcBtn">TRANSMIT / READ BACK</button></div>
 <div id="warning" class="ui">STALL WARNING — LOWER NOSE / INCREASE AIRSPEED</div><div id="stageHint" class="ui panel" style="left:50%;top:64%;transform:translateX(-50%);padding:7px 12px;font-size:9px;color:#bfefff;display:none;z-index:20"></div><div id="nextAction" class="ui panel" style="left:50%;top:70%;transform:translateX(-50%);padding:6px 10px;font-size:8px;color:#54e6a6;display:none;z-index:20"></div><div id="toast" class="ui"></div><div id="cockpitLabel" class="ui panel">PRIMARY FLIGHT DISPLAY • LIVE</div>
+<div id="trafficPanel" class="ui panel"><b>TRAFFIC / SITUATIONAL AWARENESS</b><div id="trafficText">NO CONFLICTS</div><div id="trafficList"></div></div>
 <div id="approachPanel" class="ui panel"><b>ILS-STYLE APPROACH</b><div class="ils"><div class="ilsBox"><span>LOC</span><strong id="locDev">0.0</strong><small>DOTS</small></div><div class="ilsBox"><span>GS</span><strong id="gsDev">0.0</strong><small>DOTS</small></div></div><div id="ilsStatus">RUNWAY 09 • ILS ARMED</div></div>
 <div id="mapPanel" class="ui panel"><b>MINI MOVING MAP</b><canvas id="mapCanvas" width="220" height="145"></canvas><div id="mapInfo">RWY 09 • ROUTE ALPHA</div></div>
 <div id="navPanel" class="ui panel"><b>NAVIGATION / HEADING</b><div class="navRow"><span>SELECTED HDG</span><strong id="selHdg">090°</strong></div><div class="navRow"><span>COURSE ERROR</span><strong id="courseErr">0°</strong></div><div class="navHint">J/L = heading bug −/+ 5°</div></div>
@@ -130,7 +135,12 @@ const missions=[
 ['LANDING','TOWER 118.10','Read back landing clearance. Maintain centreline, land with gear DOWN and FULL FLAPS, then reduce power and decelerate below 55 kt.','Tower: ES-01, cleared to land Runway 09.'],
 ['AFTER LANDING • PARK & SHUTDOWN','GROUND 121.90','After touchdown, keep the centreline, slow to taxi speed, exit the runway, set parking brake, reduce power to idle, and shut down the engine.','Ground: ES-01, taxi to parking via Alpha.']
 ];
-const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,trim:0,selectedHeading:90,ilsArmed:false,failure:null,oilTemp:75,oilPressure:0,navLights:false,beacon:false,strobe:false,landingLight:false,taxiDistance:0,speed:0,alt:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,gear:true,flaps:0,onGround:true,parkingBrake:true,brake:true,stall:false,battery:false,avionics:false,pump:false,mixture:0,starter:false,engine:false,engineStarted:false,starterAt:0,yx:0,yy:0,yoke:false,radio:false,xp:0,yp:0,last:performance.now()};
+const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,trim:0,selectedHeading:90,ilsArmed:false,failure:null,
+traffic:[
+{id:'ES-T01',x:18,y:14,alt:3100,hdg:270,speed:95},
+{id:'ES-T02',x:58,y:-8,alt:2850,hdg:90,speed:85},
+{id:'ES-T03',x:86,y:24,alt:3300,hdg:180,speed:100}
+],oilTemp:75,oilPressure:0,navLights:false,beacon:false,strobe:false,landingLight:false,taxiDistance:0,speed:0,alt:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,gear:true,flaps:0,onGround:true,parkingBrake:true,brake:true,stall:false,battery:false,avionics:false,pump:false,mixture:0,starter:false,engine:false,engineStarted:false,starterAt:0,yx:0,yy:0,yoke:false,radio:false,xp:0,yp:0,last:performance.now()};
 const keys={};let toastT=0;
 let audioCtx=null,engineOsc=null,engineGain=null,warningOsc=null,warningGain=null;
 function initAudio(){
@@ -432,8 +442,8 @@ const checklists=[
 {title:'LINE-UP',items:[['TOWER CLEARANCE',()=>s.radio],['RUNWAY 09',()=>s.xp>64],['HEADING 090',()=>Math.abs(diff(s.heading,90))<5],['CENTRELINE',()=>Math.abs(s.yp+12.5)<4],['BRAKE SET',()=>s.speed<3&&s.parkingBrake]]},
 {title:'TAKE-OFF',items:[['TAKE-OFF CLEARANCE',()=>s.radio],['NAV / BEACON / STROBE',()=>s.navLights&&s.beacon&&s.strobe],['≥70% POWER',()=>s.throttle>=70],['ROTATE',()=>!s.onGround],['POSITIVE CLIMB',()=>s.vs>200]]},
 {title:'CLIMB',items:[['CLIMB CLEARANCE',()=>s.radio],['GEAR UP',()=>!s.gear],['090°',()=>Math.abs(diff(s.heading,90))<6],['85–100 KT',()=>s.speed>=85&&s.speed<=105],['3,000 FT',()=>s.alt>=2650&&s.alt<=3350]]},
-{title:'CRUISE',items:[['CENTER READBACK',()=>s.radio],['3,000 FT',()=>s.alt>=2700&&s.alt<=3300],['80–110 KT',()=>s.speed>=80&&s.speed<=110],['090°',()=>Math.abs(diff(s.heading,90))<6],['LEVEL',()=>Math.abs(s.vs)<250]]},
-{title:'APPROACH',items:[['APPROACH READBACK',()=>s.radio],['DESCENDING',()=>s.vs<-100],['65–90 KT',()=>s.speed>=65&&s.speed<=95],['GEAR DOWN',()=>s.gear],['FLAPS CONFIGURED',()=>s.flaps>=1]]},
+{title:'CRUISE',items:[['CENTER READBACK',()=>s.radio],['TRAFFIC SCAN',()=>true],['3,000 FT',()=>s.alt>=2700&&s.alt<=3300],['80–110 KT',()=>s.speed>=80&&s.speed<=110],['090°',()=>Math.abs(diff(s.heading,90))<6],['LEVEL',()=>Math.abs(s.vs)<250]]},
+{title:'APPROACH',items:[['APPROACH READBACK',()=>s.radio],['TRAFFIC SCAN',()=>true],['DESCENDING',()=>s.vs<-100],['65–90 KT',()=>s.speed>=65&&s.speed<=95],['GEAR DOWN',()=>s.gear],['FLAPS CONFIGURED',()=>s.flaps>=1]]},
 {title:'LANDING',items:[['LANDING CLEARANCE',()=>s.radio],['GEAR DOWN',()=>s.gear],['FULL FLAPS',()=>s.flaps===2],['CENTRELINE',()=>Math.abs(s.bank)<10],['TOUCHDOWN',()=>s.onGround]]},
 {title:'AFTER LANDING',items:[['GROUND READBACK',()=>s.radio],['≤20 KT',()=>s.speed<=20],['PARKING BRAKE',()=>s.parkingBrake],['THROTTLE IDLE',()=>s.throttle<=5],['ENGINE OFF',()=>!s.engine]]}
 ];
@@ -452,11 +462,30 @@ const g=[
 'LINE-UP: R Tower clearance • B brake OFF • taxi onto Runway 09 • align 090 • stop • B brake ON.',
 'TAKE-OFF: R clearance • B brake OFF • NAV + BEACON + STROBE ON • W ≥70% • centreline • ↑ at 55–65 KT • G after positive rate.',
 'CLIMB: R clearance • set 090° with J/L • 85–100 KT • 8–12° pitch • compensate for wind drift • trim with T/Y • gear UP • level 3,000 FT.',
-'CRUISE: R Center • set 090° with J/L • 3,000 FT • 80–110 KT • follow the route on the moving map • use T/Y trim to hold pitch.',
-'APPROACH: R Approach • arm ILS guidance • NAV + BEACON + LANDING LIGHT ON • follow LOC/GS • 65–90 KT • gear DOWN • F to configure flaps • correct for wind • stable final.',
+'CRUISE: R Center • set 090° with J/L • 3,000 FT • 80–110 KT • scan the traffic panel • follow the moving map • use T/Y trim to hold pitch.',
+'APPROACH: R Approach • scan traffic • arm ILS guidance • NAV + BEACON + LANDING LIGHT ON • follow LOC/GS • 65–90 KT • gear DOWN • F to configure flaps • correct for wind • stable final.',
 'LANDING: R Tower • gear DOWN • FULL FLAPS • centreline • touchdown • reduce power • <55 KT.'
 ];
 document.getElementById('guideText').textContent=s.failure==='ENGINE'?'ENGINE FAILURE: lower nose • maintain control • best glide • choose a landing area • configure for landing.':(s.started?(g[s.phase]||'Flight complete.'):'Complete pre-flight checklist to begin.');
+}
+function updateTraffic(dt){
+for(const t of s.traffic){
+const rr=Math.PI/180;
+t.x+=Math.sin(t.hdg*rr)*t.speed*.00155*dt;
+t.y-=Math.cos(t.hdg*rr)*t.speed*.00155*dt;
+if(t.x>120)t.x=-10;if(t.x<-20)t.x=110;if(t.y>70)t.y=-50;if(t.y<-60)t.y=60;
+}
+let nearest=999,nearId='',nearAlt=0;
+for(const t of s.traffic){
+const d=Math.hypot(t.x-s.xp,t.y-s.yp),ad=Math.abs(t.alt-s.alt);
+if(d<nearest){nearest=d;nearId=t.id;nearAlt=ad;}
+}
+const conflict=nearest<14&&nearAlt<700;
+const caution=nearest<25&&nearAlt<1200;
+document.getElementById('trafficText').textContent=conflict?'⚠ TRAFFIC — IMMEDIATE SEPARATION ALERT':caution?'TRAFFIC — INCREASE AWARENESS':'NO CONFLICTS';
+document.getElementById('trafficText').style.color=conflict?'#ff6b6b':caution?'#f4d35e':'#54e6a6';
+document.getElementById('trafficList').textContent=s.traffic.map(t=>t.id+' • '+Math.round(Math.hypot(t.x-s.xp,t.y-s.yp))+' nm-ish • ΔALT '+Math.round(t.alt-s.alt)+' ft').join('  |  ');
+if(conflict)toast('TRAFFIC ALERT — maintain aircraft control and increase separation from '+nearId+'.');
 }
 function updateILS(){
 const active=s.phase===5||s.phase===6;
@@ -495,7 +524,7 @@ document.getElementById('strobeLight').textContent=s.strobe?'ON':'OFF';
 document.getElementById('landingLight').textContent=s.landingLight?'ON':'OFF';document.getElementById('tp').textContent=Math.round(s.throttle)+'%';document.getElementById('lever').style.bottom=(20+s.throttle*.8)+'px';document.getElementById('radioState').textContent=s.radio?'ACK':'STANDBY';
 document.getElementById('selHdg').textContent=String(Math.round(s.selectedHeading)).padStart(3,'0')+'°';
 document.getElementById('courseErr').textContent=(Math.abs(diff(s.heading,s.selectedHeading))<1?'0':(diff(s.heading,s.selectedHeading)>0?'+':'')+Math.round(diff(s.heading,s.selectedHeading)))+'°';
-setPhase();updateGuide();updateWeather();updateChecklist();updateILS();drawMap();document.getElementById('bar').style.width=s.progress+'%';document.querySelectorAll('.switch').forEach(e=>{let k=e.dataset.s,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:false;e.classList.toggle('on',on)});document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}
+setPhase();updateGuide();updateWeather();updateChecklist();updateTraffic(dt);updateILS();drawMap();document.getElementById('bar').style.width=s.progress+'%';document.querySelectorAll('.switch').forEach(e=>{let k=e.dataset.s,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:false;e.classList.toggle('on',on)});document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}
 function draw(){x.clearRect(0,0,W,H);let sky=x.createLinearGradient(0,0,0,H*.62);sky.addColorStop(0,'#49a7d5');sky.addColorStop(.7,'#a6dce8');sky.addColorStop(1,'#7da66f');x.fillStyle=sky;x.fillRect(0,0,W,H*.64);let horizon=H*.48 - s.pitch*H*.018;x.save();x.translate(W*.5,horizon);x.rotate(s.bank*Math.PI/180);x.translate(-W*.5,-horizon);x.fillStyle='#526e6b';x.beginPath();x.moveTo(0,horizon+25);for(let i=0;i<=W;i+=35)x.lineTo(i,horizon+5-Math.sin(i*.008)*32-Math.sin(i*.018)*15);x.lineTo(W,horizon+25);x.fill();x.fillStyle='#4d7448';x.fillRect(-W,horizon+25,W*3,H);x.restore();for(let i=0;i<18;i++){x.fillStyle=i%2?'#52794d':'#4a7046';x.fillRect(i*W/18,horizon+25,W/18+1,H)}let cx=W*.58,top=horizon+H*.10,bottom=H*1.05;x.fillStyle='#252c2f';x.beginPath();x.moveTo(cx-W*.20,top);x.lineTo(cx+W*.20,top);x.lineTo(cx+W*.48,bottom);x.lineTo(cx-W*.48,bottom);x.closePath();x.fill();x.strokeStyle='#d8bf45';x.lineWidth=3;x.stroke();x.strokeStyle='#fff';x.lineWidth=4;x.setLineDash([28,24]);x.beginPath();x.moveTo(cx,top);x.lineTo(cx,bottom);x.stroke();x.setLineDash([]);x.fillStyle='#fff';x.font='900 35px Arial';x.fillText('09',cx+W*.08,top+H*.06);if(s.phase===1&&s.xp>64){
 x.strokeStyle='#54e6a6';x.lineWidth=5;x.setLineDash([18,12]);x.beginPath();x.moveTo(cx-W*.12,top+H*.105);x.lineTo(cx+W*.12,top+H*.105);x.stroke();x.setLineDash([]);
 x.fillStyle='#54e6a6';x.font='900 12px Arial';x.fillText('RUNWAY 09 • LINE UP',cx-W*.055,top+H*.14);
