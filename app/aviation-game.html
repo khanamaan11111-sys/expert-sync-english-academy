@@ -10,6 +10,10 @@
 button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100vh;overflow:hidden;background:#7fb9d1}canvas{position:absolute;inset:0;width:100%;height:100%}
 .ui{position:absolute;z-index:10}.panel{background:#07131bdd;border:1px solid #365563;box-shadow:0 8px 30px #0008;border-radius:8px;backdrop-filter:blur(6px)}
 #brand{left:14px;top:12px;padding:10px 14px}.brand{color:var(--cyan);font-weight:900;letter-spacing:1.6px}.sub{font-size:9px;color:#a5bdc6;margin-top:3px;letter-spacing:.7px}
+#checklistPanel{left:14px;top:430px;padding:9px 11px;min-width:205px;max-width:245px;z-index:24}
+#checklistPanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
+#checklistTitle{font-size:8px;color:#9bb5be;margin:5px 0}
+.clItem{font-size:8px;line-height:1.55;color:#9bb5be}.clItem.done{color:#54e6a6}
 #mission{left:14px;top:83px;width:315px;padding:13px}.eyebrow{font-size:9px;color:var(--cyan);font-weight:900;letter-spacing:1px}.title{font-size:16px;font-weight:900;margin:5px 0}.copy{font-size:11px;line-height:1.5;color:#d4e3e8}.progress{height:5px;background:#1c3039;border-radius:8px;margin-top:10px;overflow:hidden}.progress i{display:block;height:100%;width:0;background:var(--cyan)}#check{margin-top:9px;font-size:9px;line-height:1.6;color:#829aa3}.done{color:var(--green)!important}
 #atc{right:14px;top:83px;width:320px;padding:13px}.atcBtn{margin-top:8px;width:100%;background:#123746;border:1px solid #3f99b5;border-radius:5px;padding:7px;font-size:9px;font-weight:900;cursor:pointer}.atcBtn:hover{background:#185066}.atcHead{display:flex;justify-content:space-between;color:var(--cyan);font-size:10px;font-weight:900}.atcBody{font-size:11px;line-height:1.45;margin-top:7px}.radio{font-size:9px;color:#8da6af;margin-top:7px}
 #phasebar{top:15px;left:50%;transform:translateX(-50%);display:flex;gap:6px}.phase{min-width:65px;text-align:center;color:#6f858e;font-size:8px}.dot{width:24px;height:24px;border:2px solid #465d67;border-radius:50%;display:grid;place-items:center;margin:auto auto 3px}.phase.active{color:#fff}.phase.active .dot{background:var(--cyan);border-color:var(--cyan);color:#00141b}.phase.done .dot{background:var(--green);border-color:var(--green);color:#00140e}
@@ -63,6 +67,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="testbar" class="ui panel"><button id="pauseBtn">PAUSE</button><button id="restartBtn">RESTART</button><span id="testState">TRAINING LIVE</span></div>
 <div id="controlGuide" class="ui panel"><b>CONTROL GUIDE</b><div id="guideText">Complete pre-flight checklist to begin.</div></div>
 <div id="weather" class="ui panel"><b>WEATHER / CONDITIONS</b><div id="weatherText">WIND 120° / 8 KT • VIS 10 KM • TEMP 24°C</div><button id="weatherBtn">CHANGE CONDITIONS</button><button id="audioBtn">AUDIO ON</button></div>
+<div id="checklistPanel" class="ui panel"><b>COCKPIT CHECKLIST</b><div id="checklistTitle">PRE-FLIGHT</div><div id="checklistItems"></div></div>
 <div id="mission" class="ui panel"><div class="eyebrow">ACTIVE TRAINING</div><div id="mtitle" class="title"></div><div id="mcopy" class="copy"></div><div class="progress"><i id="bar"></i></div><div id="check"></div></div>
 <div id="atc" class="ui panel"><div class="atcHead"><span>ATC • <span id="freq"></span></span><span id="radioState">STANDBY</span></div><div id="atcText" class="atcBody"></div><div class="radio">Press <b>R</b> to transmit/read back.</div><button id="atcBtn" class="atcBtn">TRANSMIT / READ BACK</button></div>
 <div id="warning" class="ui">STALL WARNING — LOWER NOSE / INCREASE AIRSPEED</div><div id="stageHint" class="ui panel" style="left:50%;top:64%;transform:translateX(-50%);padding:7px 12px;font-size:9px;color:#bfefff;display:none;z-index:20"></div><div id="nextAction" class="ui panel" style="left:50%;top:70%;transform:translateX(-50%);padding:6px 10px;font-size:8px;color:#54e6a6;display:none;z-index:20"></div><div id="toast" class="ui"></div><div id="cockpitLabel" class="ui panel">PRIMARY FLIGHT DISPLAY • LIVE</div>
@@ -408,6 +413,22 @@ document.getElementById('game').appendChild(e);
 document.getElementById('replay').onclick=()=>location.reload();
 toast('FLIGHT ASSESSMENT COMPLETE — training record ready.');
 }
+const checklists=[
+{title:'PRE-FLIGHT',items:[['MASTER / BATTERY',()=>s.battery],['AVIONICS MASTER',()=>s.avionics],['FUEL PUMP',()=>s.pump],['MIXTURE RICH',()=>s.mixture>=95],['ENGINE RUNNING',()=>s.engine]]},
+{title:'TAXI',items:[['ATC READBACK',()=>s.radio],['NAV + BEACON',()=>s.navLights&&s.beacon],['BRAKE RELEASE',()=>!s.parkingBrake],['≤20 KT',()=>s.speed<=20],['HOLD SHORT',()=>s.speed<3&&s.parkingBrake]]},
+{title:'LINE-UP',items:[['TOWER CLEARANCE',()=>s.radio],['RUNWAY 09',()=>s.xp>64],['HEADING 090',()=>Math.abs(diff(s.heading,90))<5],['CENTRELINE',()=>Math.abs(s.yp+12.5)<4],['BRAKE SET',()=>s.speed<3&&s.parkingBrake]]},
+{title:'TAKE-OFF',items:[['TAKE-OFF CLEARANCE',()=>s.radio],['NAV / BEACON / STROBE',()=>s.navLights&&s.beacon&&s.strobe],['≥70% POWER',()=>s.throttle>=70],['ROTATE',()=>!s.onGround],['POSITIVE CLIMB',()=>s.vs>200]]},
+{title:'CLIMB',items:[['CLIMB CLEARANCE',()=>s.radio],['GEAR UP',()=>!s.gear],['090°',()=>Math.abs(diff(s.heading,90))<6],['85–100 KT',()=>s.speed>=85&&s.speed<=105],['3,000 FT',()=>s.alt>=2650&&s.alt<=3350]]},
+{title:'CRUISE',items:[['CENTER READBACK',()=>s.radio],['3,000 FT',()=>s.alt>=2700&&s.alt<=3300],['80–110 KT',()=>s.speed>=80&&s.speed<=110],['090°',()=>Math.abs(diff(s.heading,90))<6],['LEVEL',()=>Math.abs(s.vs)<250]]},
+{title:'APPROACH',items:[['APPROACH READBACK',()=>s.radio],['DESCENDING',()=>s.vs<-100],['65–90 KT',()=>s.speed>=65&&s.speed<=95],['GEAR DOWN',()=>s.gear],['FLAPS CONFIGURED',()=>s.flaps>=1]]},
+{title:'LANDING',items:[['LANDING CLEARANCE',()=>s.radio],['GEAR DOWN',()=>s.gear],['FULL FLAPS',()=>s.flaps===2],['CENTRELINE',()=>Math.abs(s.bank)<10],['TOUCHDOWN',()=>s.onGround]]},
+{title:'AFTER LANDING',items:[['GROUND READBACK',()=>s.radio],['≤20 KT',()=>s.speed<=20],['PARKING BRAKE',()=>s.parkingBrake],['THROTTLE IDLE',()=>s.throttle<=5],['ENGINE OFF',()=>!s.engine]]}
+];
+function updateChecklist(){
+const cl=checklists[Math.min(s.phase,checklists.length-1)];
+document.getElementById('checklistTitle').textContent=cl.title;
+document.getElementById('checklistItems').innerHTML=cl.items.map(it=>{let ok=false;try{ok=!!it[1]()}catch(e){}return '<div class="clItem '+(ok?'done':'')+'">'+(ok?'✓':'○')+' '+it[0]+'</div>'}).join('');
+}
 function updateWeather(){
 document.getElementById('weatherText').textContent='WIND '+String(Math.round(norm(s.windDir))).padStart(3,'0')+'° / '+Math.round(s.windKt)+' KT • VIS '+s.visibility+' KM • TEMP '+s.temperature+'°C';
 }
@@ -435,7 +456,7 @@ document.getElementById('strobeLight').textContent=s.strobe?'ON':'OFF';
 document.getElementById('landingLight').textContent=s.landingLight?'ON':'OFF';document.getElementById('tp').textContent=Math.round(s.throttle)+'%';document.getElementById('lever').style.bottom=(20+s.throttle*.8)+'px';document.getElementById('radioState').textContent=s.radio?'ACK':'STANDBY';
 document.getElementById('selHdg').textContent=String(Math.round(s.selectedHeading)).padStart(3,'0')+'°';
 document.getElementById('courseErr').textContent=(Math.abs(diff(s.heading,s.selectedHeading))<1?'0':(diff(s.heading,s.selectedHeading)>0?'+':'')+Math.round(diff(s.heading,s.selectedHeading)))+'°';
-setPhase();updateGuide();updateWeather();document.getElementById('bar').style.width=s.progress+'%';document.querySelectorAll('.switch').forEach(e=>{let k=e.dataset.s,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:false;e.classList.toggle('on',on)});document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}
+setPhase();updateGuide();updateWeather();updateChecklist();document.getElementById('bar').style.width=s.progress+'%';document.querySelectorAll('.switch').forEach(e=>{let k=e.dataset.s,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:false;e.classList.toggle('on',on)});document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}
 function draw(){x.clearRect(0,0,W,H);let sky=x.createLinearGradient(0,0,0,H*.62);sky.addColorStop(0,'#49a7d5');sky.addColorStop(.7,'#a6dce8');sky.addColorStop(1,'#7da66f');x.fillStyle=sky;x.fillRect(0,0,W,H*.64);let horizon=H*.48 - s.pitch*H*.018;x.save();x.translate(W*.5,horizon);x.rotate(s.bank*Math.PI/180);x.translate(-W*.5,-horizon);x.fillStyle='#526e6b';x.beginPath();x.moveTo(0,horizon+25);for(let i=0;i<=W;i+=35)x.lineTo(i,horizon+5-Math.sin(i*.008)*32-Math.sin(i*.018)*15);x.lineTo(W,horizon+25);x.fill();x.fillStyle='#4d7448';x.fillRect(-W,horizon+25,W*3,H);x.restore();for(let i=0;i<18;i++){x.fillStyle=i%2?'#52794d':'#4a7046';x.fillRect(i*W/18,horizon+25,W/18+1,H)}let cx=W*.58,top=horizon+H*.10,bottom=H*1.05;x.fillStyle='#252c2f';x.beginPath();x.moveTo(cx-W*.20,top);x.lineTo(cx+W*.20,top);x.lineTo(cx+W*.48,bottom);x.lineTo(cx-W*.48,bottom);x.closePath();x.fill();x.strokeStyle='#d8bf45';x.lineWidth=3;x.stroke();x.strokeStyle='#fff';x.lineWidth=4;x.setLineDash([28,24]);x.beginPath();x.moveTo(cx,top);x.lineTo(cx,bottom);x.stroke();x.setLineDash([]);x.fillStyle='#fff';x.font='900 35px Arial';x.fillText('09',cx+W*.08,top+H*.06);if(s.phase===1&&s.xp>64){
 x.strokeStyle='#54e6a6';x.lineWidth=5;x.setLineDash([18,12]);x.beginPath();x.moveTo(cx-W*.12,top+H*.105);x.lineTo(cx+W*.12,top+H*.105);x.stroke();x.setLineDash([]);
 x.fillStyle='#54e6a6';x.font='900 12px Arial';x.fillText('RUNWAY 09 • LINE UP',cx-W*.055,top+H*.14);
