@@ -149,7 +149,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="warning" class="ui">STALL WARNING — LOWER NOSE / INCREASE AIRSPEED</div><div id="stageHint" class="ui panel" style="left:50%;top:64%;transform:translateX(-50%);padding:7px 12px;font-size:9px;color:#bfefff;display:none;z-index:20"></div><div id="nextAction" class="ui panel" style="left:50%;top:70%;transform:translateX(-50%);padding:6px 10px;font-size:8px;color:#54e6a6;display:none;z-index:20"></div><div id="toast" class="ui"></div><div id="cockpitLabel" class="ui panel">PRIMARY FLIGHT DISPLAY • LIVE</div>
 <div id="replayPanel" class="ui panel"><b>FLIGHT REPLAY</b><div id="replayReadout">No recorded flight yet.</div><input id="replaySlider" type="range" min="0" max="0" value="0"><button id="replayBtn">PLAY REPLAY</button></div>
 <div id="fdrPanel" class="ui panel"><b>FLIGHT DATA RECORDER</b><div id="fdrStatus">RECORDING READY</div><div id="fdrMetrics">ALT 0 FT • IAS 0 KT • HDG 000° • VS 0 FPM</div><button id="exportFDR">COPY FLIGHT DATA</button></div>
-<div id="eventPanel" class="ui panel"><b>INSTRUCTOR EVENT LOG</b><div id="eventLog">No events yet.</div></div>
+<div id="eventPanel" class="ui panel"><b>INSTRUCTOR EVENT LOG</b><div id="instructorScore" style="color:#54e6a6;font-size:14px;font-weight:900;margin-top:4px">100%</div><div id="eventLog">No events yet.</div></div>
 <div id="trafficPanel" class="ui panel"><b>TRAFFIC / SITUATIONAL AWARENESS</b><div id="trafficText">NO CONFLICTS</div><div id="trafficList"></div></div>
 <div id="approachPanel" class="ui panel"><b>ILS-STYLE APPROACH</b><div class="ils"><div class="ilsBox"><span>LOC</span><strong id="locDev">0.0</strong><small>DOTS</small></div><div class="ilsBox"><span>GS</span><strong id="gsDev">0.0</strong><small>DOTS</small></div></div><div id="ilsStatus">RUNWAY 09 • ILS ARMED</div></div>
 <div id="mapPanel" class="ui panel"><b>MINI MOVING MAP</b><canvas id="mapCanvas" width="220" height="145"></canvas><div id="mapInfo">RWY 09 • ROUTE ALPHA</div></div>
@@ -204,6 +204,7 @@ const missions=[
 ];
 const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,trim:0,selectedHeading:90,ilsArmed:false,failure:null,
 events:[],lastLoggedPhase:-1,fdr:[],lastFdr:0,replayIndex:0,replayPlaying:false,
+instructor:{handling:100,procedures:100,atc:100,configuration:100,stability:100,safety:100},lastInstructor:{},assessmentStarted:false,
 traffic:[
 {id:'ES-T01',x:18,y:14,alt:3100,hdg:270,speed:95},
 {id:'ES-T02',x:58,y:-8,alt:2850,hdg:90,speed:85},
@@ -706,6 +707,7 @@ if(s.onGround){
 }
 function evaluate(dt){
 let g=0;
+instructorMonitor(dt);
 const sys=document.getElementById('sysMsg');
 if(s.fuel<25&&s.fuel>10)sys.textContent='LOW FUEL — plan for landing / monitor fuel.';
 else if(s.fuel<=10)sys.textContent='FUEL CRITICAL — LAND AS SOON AS PRACTICAL.';
@@ -765,7 +767,8 @@ if(s.stall&&s.alt>40)document.getElementById('warning').style.display='block';el
 function finishMission(){
 if(document.getElementById('complete'))return;
 const score=Math.round(s.score);
-const grade=score>=850?'EXCELLENT':score>=650?'GOOD':'NEEDS PRACTICE';
+const A=assessmentSummary();
+const grade=A.overall>=90?'EXCELLENT':A.overall>=75?'GOOD':A.overall>=60?'SATISFACTORY':'NEEDS PRACTICE';
 const e=document.createElement('div');e.id='complete';e.className='ui panel';
 e.style='left:50%;top:50%;transform:translate(-50%,-50%);z-index:50;padding:24px 30px;text-align:center;min-width:360px;max-width:90vw';
 logEvent('FLIGHT ASSESSMENT COMPLETE','SUCCESS');
@@ -842,6 +845,65 @@ s.events.unshift({t:now,msg,type});
 if(s.events.length>18)s.events.pop();
 const el=document.getElementById('eventLog');
 if(el)el.innerHTML=s.events.map(e=>'<div><b>'+e.t+'</b> '+e.msg+'</div>').join('');
+}
+function instructorMonitor(dt){
+if(!s.started||s.paused)return;
+const I=s.instructor;
+const now=performance.now();
+const warn=(key,msg,penalty=1,type='WARNING')=>{
+  const last=s.lastInstructor[key]||0;
+  if(now-last<4500)return;
+  s.lastInstructor[key]=now;
+  I.stability=Math.max(0,I.stability-penalty);
+  I.handling=Math.max(0,I.handling-penalty*.55);
+  logEvent(msg,type);
+};
+const hErr=Math.abs(diff(s.heading,90));
+const bank=Math.abs(s.bank);
+const pitch=Math.abs(s.pitch);
+if(s.phase>=2&&s.phase<=4&&!s.onGround){
+  if(hErr>10)warn('heading','HEADING DEVIATION — '+Math.round(hErr)+'° from assigned track.',2);
+  if(bank>25)warn('bank','EXCESSIVE BANK — '+Math.round(bank)+'°.',2);
+  if(s.speed<65)warn('slow','LOW AIRSPEED — monitor energy state.',2);
+  if(s.speed>125)warn('fast','OVERSPEED — reduce energy promptly.',2);
+  if(s.phase===3&&(s.alt>300&&s.alt<2900)&&(s.vs<150||s.vs>1400))warn('climbvs','UNSTABLE CLIMB RATE — target a controlled positive climb.',1.5);
+}
+if(s.phase===0){
+  if(s.speed>20.5)warn('taxispeed','TAXI SPEED EXCEEDED — maximum 20 kt.',2,'WARNING');
+  if(s.speed>3&&hErr>35)warn('taxiheading','TAXI CENTRELINE DEVIATION — correct toward 090.',1.5);
+}
+if(s.phase===1&&s.xp>64&&s.speed>3&&!s.radio) {
+  I.atc=Math.max(0,I.atc-2); I.safety=Math.max(0,I.safety-2);
+  warn('runwayentry','RUNWAY ENTRY WITHOUT LINE-UP CLEARANCE — stop and obtain ATC clearance.',3,'CRITICAL');
+}
+if((s.phase===2||s.phase===3)&&!s.onGround&&s.speed>75&&s.gear){
+  I.configuration=Math.max(0,I.configuration-2);
+  warn('gearup','GEAR STILL DOWN AFTER TAKE-OFF — retract after positive climb.',2);
+}
+if((s.phase===5||s.phase===6)&&!s.onGround){
+  if(s.speed>100)warn('approachspeed','APPROACH SPEED HIGH — stabilize before continuing.',2);
+  if(s.gear===false)warn('gearlanding','LANDING CONFIGURATION — gear must be DOWN.',3);
+  if(s.flaps<1)warn('flapslanding','LANDING CONFIGURATION — extend appropriate flaps.',2);
+  if(Math.abs(s.vs)>1000)warn('descent','UNSTABLE DESCENT RATE — correct vertical speed.',2);
+  if(hErr>12)warn('finalheading','FINAL APPROACH HEADING UNSTABLE — align with runway.',2);
+}
+if(s.phase===6&&s.onGround){
+  if(s.flaps<2)warn('landingflaps','TOUCHDOWN CONFIGURATION — full landing flaps expected.',2);
+  if(!s.gear)warn('landinggear','GEAR NOT DOWN AT LANDING — unsafe configuration.',5,'CRITICAL');
+  if(s.speed>65)warn('landingfast','FAST LANDING — decelerate after touchdown.',2);
+}
+if(s.failure==='ENGINE'){
+  I.safety=Math.max(0,I.safety-.03);
+}
+const mean=(I.handling+I.procedures+I.atc+I.configuration+I.stability+I.safety)/6;
+s.instructorScore=Math.round(mean);
+const el=document.getElementById('instructorScore');
+if(el)el.textContent=s.instructorScore+'%';
+}
+function assessmentSummary(){
+const I=s.instructor;
+const overall=Math.round((I.handling+I.procedures+I.atc+I.configuration+I.stability+I.safety)/6);
+return {overall,handling:Math.round(I.handling),procedures:Math.round(I.procedures),atc:Math.round(I.atc),configuration:Math.round(I.configuration),stability:Math.round(I.stability),safety:Math.round(I.safety)};
 }
 function updateEventLog(){
 if(s.lastLoggedPhase!==s.phase){
