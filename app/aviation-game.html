@@ -85,15 +85,30 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #weatherText{margin:4px 0 7px;font-size:9px;color:#c6d7dc}
 #weatherBtn,#audioBtn{background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer}
 #audioBtn{margin-left:5px}
+
+/* CONTROL FIX v2 — explicit startup, clickable cockpit controls, keyboard feedback */
+#testbar{flex-wrap:wrap}
+#startBtn{background:#176f59!important;border-color:#54e6a6!important}
+#inputStatus{font-size:8px;color:#9bb5be;padding:0 5px;min-width:130px}
+#cockpit{z-index:6}
+#cockpit .switch,#cockpit #yoke,#cockpit #throttle,#cockpit #brake,#cockpit button{pointer-events:auto}
+.cockpitBtn{margin:8px 3px 0;background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:6px 8px;font-size:8px;font-weight:900;cursor:pointer}
+.cockpitBtn:hover{background:#123744}
+.cockpitBtn.on{background:#176f59;border-color:#54e6a6}
+#mixtureBtn{min-width:110px}
+#startCockpitBtn{width:100%;margin-top:7px;background:#176f59;border-color:#54e6a6}
+#aircraftLabel{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);z-index:4;padding:9px 14px;border:1px solid #54e6a6;border-radius:8px;background:#07131ddd;box-shadow:0 8px 30px #0008;color:#54e6a6;font-size:11px;font-weight:900;letter-spacing:1px;display:none}
+#keyFeedback{position:absolute;left:50%;top:83%;transform:translateX(-50%);z-index:31;padding:7px 12px;border:1px solid #3f99b5;border-radius:6px;background:#061923f2;color:#bfefff;font-size:9px;display:none}
+
 </style>
 </head>
 <body>
 <div id="game">
-<canvas id="scene"></canvas>
+<canvas id="scene"></canvas><div id="aircraftLabel">AIRCRAFT ES-01 • EXTERNAL VIEW</div><div id="keyFeedback"></div>
 <div id="brand" class="ui panel"><div class="brand">✈ EXPERT SYNC — FLIGHT TRAINING</div><div class="sub">HANDS-ON SINGLE-ENGINE SIMULATOR • N-ES01</div></div>
 <div id="phasebar" class="ui"></div>
 <div id="views" class="ui"><button class="view active" data-v="COCKPIT">COCKPIT</button><button class="view" data-v="EXTERNAL">EXTERNAL</button></div>
-<div id="testbar" class="ui panel"><button id="pauseBtn">PAUSE</button><button id="restartBtn">RESTART</button><span id="testState">TRAINING LIVE</span></div>
+<div id="testbar" class="ui panel"><button id="startBtn">START TRAINING</button><button id="pauseBtn">PAUSE</button><button id="restartBtn">RESTART</button><span id="testState">READY</span><span id="inputStatus">Click START TRAINING</span></div>
 <div id="controlGuide" class="ui panel"><b>CONTROL GUIDE</b><div id="guideText">Complete pre-flight checklist to begin.</div></div>
 <div id="scenarioPanel" class="ui panel"><b>TRAINING SCENARIO</b><select id="scenarioSelect"><option value="standard">01 • Standard Flight</option><option value="crosswind">02 • Crosswind Operations</option><option value="busy">03 • Busy Traffic</option><option value="engine">04 • Engine Failure Drill</option></select><button id="loadScenario">LOAD SCENARIO</button></div>
 <div id="weather" class="ui panel"><b>WEATHER / CONDITIONS</b><div id="weatherText">WIND 120° / 8 KT • VIS 10 KM • TEMP 24°C</div><button id="weatherBtn">CHANGE CONDITIONS</button><button id="audioBtn">AUDIO ON</button></div>
@@ -112,7 +127,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div class="read"><b>AIRSPEED</b><strong id="hspd">0</strong><small>KT</small></div><div class="read"><b>ALTITUDE</b><strong id="halt">0</strong><small>FT</small></div><div class="read"><b>HEADING</b><strong id="hhdg">090</strong><small>°</small></div><div class="read"><b>VERTICAL SPEED</b><strong id="hvs">0</strong><small>FT/MIN</small></div><div class="read"><b>RPM</b><strong id="hrpm">0</strong><small>RPM</small></div><div class="read"><b>FUEL</b><strong id="hfuel">100</strong><small>%</small></div>
 </div>
 <div id="abnormal" class="ui panel"><b>ABNORMAL / SYSTEMS</b><div id="sysMsg">SYSTEMS NORMAL</div><button id="failureBtn">RUN FAILURE DRILL</button></div>
-<div id="lightsPanel" class="ui panel"><b>LIGHTING</b><div class="lightRow"><span>1 NAV</span><b id="navLight">OFF</b></div><div class="lightRow"><span>2 BEACON</span><b id="beaconLight">OFF</b></div><div class="lightRow"><span>3 STROBE</span><b id="strobeLight">OFF</b></div><div class="lightRow"><span>4 LANDING</span><b id="landingLight">OFF</b></div></div>
+<div id="lightsPanel" class="ui panel" style="cursor:pointer"><b>LIGHTING</b><div class="lightRow"><span>1 NAV</span><b id="navLight">OFF</b></div><div class="lightRow"><span>2 BEACON</span><b id="beaconLight">OFF</b></div><div class="lightRow"><span>3 STROBE</span><b id="strobeLight">OFF</b></div><div class="lightRow"><span>4 LANDING</span><b id="landingLight">OFF</b></div></div>
 <div id="status" class="ui panel"><div class="row"><span>ENGINE</span><b id="stEngine">OFF</b></div><div class="row"><span>OIL PRESSURE</span><b id="stOil">0 PSI</b></div><div class="row"><span>OIL TEMP</span><b id="stOilTemp">0°C</b></div><div class="row"><span>GEAR</span><b id="stGear">DOWN</b></div><div class="row"><span>FLAPS</span><b id="stFlaps">UP</b></div><div class="row"><span>ELEVATOR TRIM</span><b id="stTrim">0%</b></div><div class="row"><span>SURFACE</span><b id="stSurface">GROUND</b></div></div>
 <div id="help" class="ui panel"><b>FLY THE AIRCRAFT</b><br><span class="key">1–4</span> lights &nbsp; <span class="key">W</span>/<span class="key">S</span> throttle &nbsp; <span class="key">↑</span>/<span class="key">↓</span> pitch<br><span class="key">A</span>/<span class="key">D</span> bank/rudder &nbsp; <span class="key">T</span>/<span class="key">Y</span> trim &nbsp; <span class="key">F</span> flaps &nbsp; <span class="key">G</span> gear<br><span class="key">B</span> parking brake &nbsp; <span class="key">R</span> ATC &nbsp; <span class="key">X</span> shutdown &nbsp; <span class="key">C</span> camera</div>
 
@@ -128,7 +143,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="controlsRow">
 <div class="controlBox"><div class="ct">ELECTRICAL / ENGINE SYSTEMS</div><div class="switches"><div class="switch" data-s="battery"><i></i><small>MASTER</small></div><div class="switch" data-s="avionics"><i></i><small>AVIONICS</small></div><div class="switch" data-s="pump"><i></i><small>FUEL PUMP</small></div><div class="switch" data-s="beacon"><i></i><small>BEACON</small></div></div></div>
 <div class="controlBox"><div class="ct">FLIGHT CONTROLS</div><div id="yoke"><div class="wheel"></div><div class="bar"></div><div class="stem"></div></div><button id="brake">PARKING BRAKE: ON</button></div>
-<div class="controlBox"><div class="ct">POWER / MIXTURE</div><div id="throttle"><div class="tl">THROTTLE <span id="tp">0%</span></div><div class="rail"></div><div id="lever" class="lever"></div></div></div>
+<div class="controlBox"><div class="ct">POWER / MIXTURE</div><div id="throttle"><div class="tl">THROTTLE <span id="tp">0%</span></div><div class="rail"></div><div id="lever" class="lever"></div></div><button id="mixtureBtn" class="cockpitBtn">MIXTURE: LEAN</button><button id="startCockpitBtn" class="cockpitBtn">START ENGINE</button></div>
 </div></div></div>
 
 <div id="preflight"><div class="card"><h1>COCKPIT — COLD & DARK</h1><p>Operate the actual cockpit controls in the correct sequence. The aircraft cannot start until the electrical and fuel systems are configured.</p>
@@ -290,9 +305,43 @@ document.getElementById('check').innerHTML=a.map(q=>'<div class="'+(q[1]?'done':
 if(s.phase===1)document.getElementById('check').innerHTML+='<div style="margin-top:5px;color:#9bb5be">RUNWAY STATE: '+(s.xp>64?'ON RUNWAY':'HOLD SHORT')+' • HDG '+String(Math.round(norm(s.heading))).padStart(3,'0')+' • BRAKE '+(s.parkingBrake?'ON':'OFF')+'</div>';
 }
 function ready(){return s.battery&&s.avionics&&s.pump&&s.mixture>=95}
-function updatePre(){document.querySelectorAll('[data-pre]').forEach(b=>{let k=b.dataset.pre,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:s.mixture>=95;b.textContent=on?(k==='mixture'?'RICH':'ON'):(k==='mixture'?'LEAN':'OFF');b.classList.toggle('on',on)});document.getElementById('starter').disabled=!ready()||s.engineStarted;document.getElementById('premsg').textContent=ready()?'CHECK COMPLETE — press START ENGINE.':'Complete the checklist in order: MASTER → AVIONICS → PUMP → MIXTURE RICH.'}
-function start(){initAudio();s.started=true;document.getElementById('preflight').style.display='flex';updatePre();toast('You are in the cockpit. Complete the engine-start checklist.')}
-function startEngine(){initAudio();if(!ready()){toast('STARTER INHIBITED — complete the checklist first.');return}s.starter=true;s.starterAt=performance.now();document.getElementById('preflight').style.display='none';toast('STARTER ENGAGED — monitor RPM and oil pressure.')}
+function updatePre(){
+document.querySelectorAll('[data-pre]').forEach(b=>{
+let k=b.dataset.pre,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:s.mixture>=95;
+b.textContent=on?(k==='mixture'?'RICH':'ON'):(k==='mixture'?'LEAN':'OFF');
+b.classList.toggle('on',on)
+});
+const readyNow=ready();
+document.getElementById('starter').disabled=!readyNow||s.engineStarted;
+document.getElementById('startCockpitBtn').disabled=!readyNow||s.engineStarted;
+document.getElementById('mixtureBtn').textContent='MIXTURE: '+(s.mixture>=95?'RICH':'LEAN');
+document.getElementById('premsg').textContent=readyNow?'CHECK COMPLETE — press START ENGINE.':'Complete the checklist in order: MASTER → AVIONICS → PUMP → MIXTURE RICH.';
+}
+function start(){
+initAudio();
+if(s.started)return;
+s.started=true;
+s.paused=false;
+document.getElementById('startBtn').textContent='TRAINING ACTIVE';
+document.getElementById('startBtn').disabled=true;
+document.getElementById('testState').textContent='PREFLIGHT';
+document.getElementById('inputStatus').textContent='Click the cockpit switches';
+setView('COCKPIT');
+document.getElementById('preflight').style.display='flex';
+updatePre();
+toast('TRAINING STARTED — complete MASTER → AVIONICS → FUEL PUMP → MIXTURE RICH.');
+}
+function startEngine(){
+initAudio();
+if(!ready()){toast('STARTER INHIBITED — complete MASTER, AVIONICS, FUEL PUMP and MIXTURE RICH first.');return}
+s.starter=true;
+s.starterAt=performance.now();
+document.getElementById('preflight').style.display='none';
+document.getElementById('testState').textContent='ENGINE START';
+document.getElementById('inputStatus').textContent='Starter engaged — wait for RPM';
+setView('COCKPIT');
+toast('STARTER ENGAGED — monitor RPM and oil pressure.');
+}
 function next(){
 if(s.phase>=7)return;
 s.phase++;s.progress=0;s.radio=false;s.taxiDistance=0;
@@ -318,8 +367,64 @@ else if(s.phase===5)toast('APPROACH: approach clearance acknowledged — configu
 else if(s.phase===6)toast('TOWER: landing clearance acknowledged — maintain centreline.');
 else toast('ATC transmission acknowledged.');
 }
-document.getElementById('starter').onclick=startEngine;document.getElementById('starter').ondblclick=startEngine;document.getElementById('atcBtn').onclick=transmit;
-document.querySelectorAll('[data-pre]').forEach(b=>b.onclick=()=>{let k=b.dataset.pre;if(k==='battery'){s.battery=!s.battery;if(!s.battery){s.avionics=false;s.pump=false}}if(k==='avionics'){if(!s.battery)return toast('MASTER first.');s.avionics=!s.avionics}if(k==='pump'){if(!s.battery)return toast('MASTER first.');s.pump=!s.pump}if(k==='mixture')s.mixture=s.mixture>=95?0:100;updatePre()});
+document.getElementById('startBtn').onclick=start;
+document.getElementById('starter').onclick=startEngine;
+document.getElementById('starter').ondblclick=startEngine;
+document.getElementById('startCockpitBtn').onclick=startEngine;
+document.getElementById('atcBtn').onclick=transmit;
+function setInputStatus(msg){
+const e=document.getElementById('inputStatus'),k=document.getElementById('keyFeedback');
+if(e)e.textContent=msg;
+if(k){k.textContent=msg;k.style.display='block';clearTimeout(window.__keyFeedbackT);window.__keyFeedbackT=setTimeout(()=>k.style.display='none',900);}
+}
+function toggleLight(name){
+if(!s.battery){toast('MASTER must be ON before operating lights.');return}
+if(name==='nav')s.navLights=!s.navLights;
+if(name==='beacon')s.beacon=!s.beacon;
+if(name==='strobe')s.strobe=!s.strobe;
+if(name==='landing')s.landingLight=!s.landingLight;
+setInputStatus((name||'light').toUpperCase()+' '+(name==='nav'?s.navLights:name==='beacon'?s.beacon:name==='strobe'?s.strobe:s.landingLight?'ON':'OFF'));
+}
+document.querySelectorAll('[data-pre]').forEach(b=>b.onclick=()=>{
+let k=b.dataset.pre;
+if(k==='battery'){s.battery=!s.battery;if(!s.battery){s.avionics=false;s.pump=false;s.navLights=false;s.beacon=false;s.strobe=false;s.landingLight=false}}
+if(k==='avionics'){if(!s.battery)return toast('MASTER first.');s.avionics=!s.avionics}
+if(k==='pump'){if(!s.battery)return toast('MASTER first.');s.pump=!s.pump}
+if(k==='mixture')s.mixture=s.mixture>=95?0:100;
+updatePre();
+setInputStatus(k.toUpperCase()+' '+(k==='mixture'?(s.mixture>=95?'RICH':'LEAN'):(k==='battery'?s.battery:k==='avionics'?s.avionics:s.pump?'ON':'OFF')));
+});
+document.querySelectorAll('.switch').forEach(sw=>sw.onclick=()=>{
+const k=sw.dataset.s;
+if(k==='battery'){
+s.battery=!s.battery;
+if(!s.battery){s.avionics=false;s.pump=false;s.navLights=false;s.beacon=false;s.strobe=false;s.landingLight=false;}
+}else if(k==='avionics'){
+if(!s.battery)return toast('MASTER first.');
+s.avionics=!s.avionics;
+}else if(k==='pump'){
+if(!s.battery)return toast('MASTER first.');
+s.pump=!s.pump;
+}else if(k==='beacon'){
+if(!s.battery)return toast('MASTER first.');
+s.beacon=!s.beacon;
+}
+updatePre();
+setInputStatus(k.toUpperCase()+' '+(k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:s.beacon?'ON':'OFF'));
+});
+document.getElementById('mixtureBtn').onclick=()=>{
+s.mixture=s.mixture>=95?0:100;
+updatePre();
+setInputStatus('MIXTURE '+(s.mixture>=95?'RICH':'LEAN'));
+};
+document.getElementById('lightsPanel').addEventListener('click',e=>{
+const row=e.target.closest('.lightRow');if(!row)return;
+const text=row.textContent.toLowerCase();
+if(text.includes('nav'))toggleLight('nav');
+else if(text.includes('beacon'))toggleLight('beacon');
+else if(text.includes('strobe'))toggleLight('strobe');
+else if(text.includes('landing'))toggleLight('landing');
+});
 document.getElementById('brake').onclick=()=>{if(!s.onGround)return;s.parkingBrake=!s.parkingBrake;s.brake=s.parkingBrake;document.getElementById('brake').textContent='PARKING BRAKE: '+(s.parkingBrake?'ON':'OFF');document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)};
 document.querySelectorAll('.view').forEach(b=>b.onclick=()=>setView(b.dataset.v));function setView(v){s.view=v;document.querySelectorAll('.view').forEach(q=>q.classList.toggle('active',q.dataset.v===v));document.getElementById('cockpit').style.display=v==='COCKPIT'?'block':'none';document.getElementById('cockpitLabel').style.display=v==='COCKPIT'?'block':'none'}
 document.getElementById('yoke').addEventListener('pointerdown',e=>{s.yoke=true;document.getElementById('yoke').setPointerCapture(e.pointerId);moveY(e)});document.getElementById('yoke').addEventListener('pointermove',e=>{if(s.yoke)moveY(e)});document.getElementById('yoke').addEventListener('pointerup',()=>{s.yoke=false;s.yx*=.35;s.yy*=.35});function moveY(e){let r=document.getElementById('yoke').getBoundingClientRect();s.yx=clamp((e.clientX-r.left-r.width/2)/(r.width*.42),-1,1);s.yy=clamp((e.clientY-r.top-r.height/2)/(r.height*.42),-1,1)}
@@ -332,6 +437,7 @@ document.getElementById('testState').textContent=s.paused?'TRAINING PAUSED':'TRA
 toast(s.paused?'Training paused.':'Training resumed.');
 };
 document.getElementById('restartBtn').onclick=()=>{if(confirm('Restart the complete flight training?'))location.reload()};
+document.getElementById('startBtn').onkeydown=e=>{if(e.key==='Enter'||e.key===' ')e.preventDefault()};
 document.getElementById('failureBtn').onclick=()=>{
 if(!s.started)return toast('Start the training before running a failure drill.');
 if(!s.onGround&&s.phase>=2){s.failure='ENGINE';s.throttle=0;toast('FAILURE DRILL — ENGINE FAILURE. LOWER NOSE, MAINTAIN CONTROL, PLAN A LANDING.');}
@@ -375,7 +481,33 @@ const p=presets[(i+1)%presets.length];
 s.windDir=p[0];s.windKt=p[1];s.visibility=p[2];s.temperature=p[3];
 updateWeather();toast('CONDITIONS: '+p[4]+' — wind '+p[0]+'°/'+p[1]+' kt.');
 };
-addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault();if(!s.started&&!e.repeat&&e.key==='Enter')start();if(!s.started)return;if(!e.repeat){let k=e.key.toLowerCase();if(k==='r')transmit();if(k==='b'){s.parkingBrake=!s.parkingBrake;s.brake=s.parkingBrake;document.getElementById('brake').textContent='PARKING BRAKE: '+(s.parkingBrake?'ON':'OFF');document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}if(k==='f'){s.flaps=s.flaps===0?1:s.flaps===1?2:0;toast('Flaps '+(s.flaps===0?'UP':s.flaps===1?'TAKE-OFF':'FULL DOWN'))}if(k==='t')toast('ELEVATOR TRIM UP '+Math.round(s.trim)+'%');if(k==='y')toast('ELEVATOR TRIM DOWN '+Math.round(s.trim)+'%');if(k==='g'){if(!s.onGround&&s.speed<100)s.gear=!s.gear;else if(s.onGround)s.gear=true;else toast('Reduce airspeed before gear operation.')}if(k==='c')setView(s.view==='COCKPIT'?'EXTERNAL':'COCKPIT')}});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+addEventListener('keydown',e=>{
+const k=e.key.toLowerCase();
+keys[k]=true;
+if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
+if(!s.started&&!e.repeat&&e.key==='Enter'){start();return}
+if(!s.started)return;
+if(!e.repeat){
+if(k==='r'){transmit();setInputStatus('R → ATC READBACK');}
+if(k==='b'){s.parkingBrake=!s.parkingBrake;s.brake=s.parkingBrake;document.getElementById('brake').textContent='PARKING BRAKE: '+(s.parkingBrake?'ON':'OFF');setInputStatus('B → PARKING BRAKE '+(s.parkingBrake?'ON':'OFF'));}
+if(k==='f'){s.flaps=s.flaps===0?1:s.flaps===1?2:0;toast('Flaps '+(s.flaps===0?'UP':s.flaps===1?'TAKE-OFF':'FULL DOWN'));setInputStatus('F → FLAPS '+(s.flaps===0?'UP':s.flaps===1?'TAKE-OFF':'FULL DOWN'));}
+if(k==='t'){s.trim=clamp(s.trim+10,-100,100);setInputStatus('T → TRIM UP '+Math.round(s.trim)+'%');}
+if(k==='y'){s.trim=clamp(s.trim-10,-100,100);setInputStatus('Y → TRIM DOWN '+Math.round(s.trim)+'%');}
+if(k==='g'){if(!s.onGround&&s.speed<100)s.gear=!s.gear;else if(s.onGround)s.gear=true;else toast('Reduce airspeed before gear operation.');setInputStatus('G → GEAR '+(s.gear?'DOWN':'UP'));}
+if(k==='c'){setView(s.view==='COCKPIT'?'EXTERNAL':'COCKPIT');setInputStatus('C → '+s.view);}
+if(k==='j'){s.selectedHeading=norm(s.selectedHeading-5);setInputStatus('J → HEADING BUG '+String(Math.round(s.selectedHeading)).padStart(3,'0')+'°');}
+if(k==='l'){s.selectedHeading=norm(s.selectedHeading+5);setInputStatus('L → HEADING BUG '+String(Math.round(s.selectedHeading)).padStart(3,'0')+'°');}
+if(k==='1'){toggleLight('nav');}
+if(k==='2'){toggleLight('beacon');}
+if(k==='3'){toggleLight('strobe');}
+if(k==='4'){toggleLight('landing');}
+if(k==='x'){
+if(s.phase===7&&s.onGround&&s.parkingBrake&&s.throttle<=5){s.engineStarted=false;s.engine=false;s.rpm=0;setInputStatus('X → ENGINE SHUT DOWN');toast('ENGINE SHUT DOWN — complete the after-landing checklist.');}
+else toast('SHUTDOWN requires AFTER LANDING: on ground, parking brake ON, throttle IDLE.');
+}
+}}
+},true);
+addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false},true);
 function controls(dt){if(keys.w)s.throttle+=38*dt;if(keys.s)s.throttle-=55*dt;s.throttle=clamp(s.throttle,0,100);if(keys.m)s.mixture=clamp(s.mixture+45*dt,0,100);if(keys.n)s.mixture=clamp(s.mixture-45*dt,0,100);if(s.yoke){if(s.onGround)s.heading=norm(s.heading+s.yx*34*dt);else s.bank+=s.yx*42*dt;s.pitch-=s.yy*12*dt}else{s.yx*=Math.pow(.04,dt);s.yy*=Math.pow(.04,dt)}if(s.onGround){
 if(!s.parkingBrake&&s.speed>0.5){
 if(keys.a||keys.arrowleft)s.heading=norm(s.heading-28*dt);
@@ -612,12 +744,23 @@ x.fillStyle='#54e6a6';x.font='900 12px Arial';x.fillText('RUNWAY 09 • LINE UP'
 x.strokeStyle='#54e6a6';x.lineWidth=6;x.setLineDash([22,14]);x.beginPath();x.moveTo(cx-W*.10,top+H*.06);x.lineTo(cx+W*.10,top+H*.06);x.stroke();x.setLineDash([]);
 x.fillStyle='#54e6a6';x.font='900 13px Arial';x.fillText('RUNWAY 09 • LINE UP',cx-W*.055,top+H*.10);
 }
-if(s.phase===0){x.strokeStyle='#fff';x.lineWidth=5;x.setLineDash([18,10]);x.beginPath();x.moveTo(cx-W*.13,top+H*.105);x.lineTo(cx+W*.13,top+H*.105);x.stroke();x.setLineDash([]);x.fillStyle='#ffd84a';x.font='700 14px Arial';x.fillText('HOLD SHORT',cx-W*.045,top+H*.145)}else if(s.phase===1){x.strokeStyle='#54e6a6';x.lineWidth=4;x.setLineDash([14,12]);x.beginPath();x.moveTo(cx-W*.08,top+H*.15);x.lineTo(cx+W*.08,top+H*.15);x.stroke();x.setLineDash([]);x.fillStyle='#54e6a6';x.font='700 14px Arial';x.fillText('LINE UP • RUNWAY 09',cx-W*.055,top+H*.185)}for(let i=0;i<22;i++){let t=i/21,y=top+t*(bottom-top),half=W*.20+t*W*.28;x.fillStyle=i%3?'#bfe0ff':'#fff';x.fillRect(cx-half,y,4,4);x.fillRect(cx+half,y,4,4)}x.fillStyle='#c4cfd1';x.fillRect(W*.05,horizon-15,W*.18,40);x.fillStyle='#718187';x.fillRect(W*.235,horizon-105,18,105);x.fillStyle='#2e4148';x.fillRect(W*.224,horizon-118,40,15);x.fillStyle='#f2f7f8';x.font='bold 10px Arial';x.fillText('EXPERT SYNC AIRPORT',W*.06,horizon+10);x.fillStyle='#30393c';x.beginPath();x.moveTo(W*.10,horizon+25);x.lineTo(W*.16,horizon+25);x.lineTo(W*.20,H);x.lineTo(W*.06,H);x.closePath();x.fill();x.strokeStyle='#e4ca3e';x.setLineDash([18,16]);x.beginPath();x.moveTo(W*.13,horizon+25);x.lineTo(W*.13,H);x.stroke();x.setLineDash([]);if(s.view==='EXTERNAL'){let px=W*.5,py=clamp(H*.72-s.alt*.00006*H,H*.24,H*.78);drawPlane(px,py,1.5,s.heading,s.bank)}}
+if(s.phase===0){x.strokeStyle='#fff';x.lineWidth=5;x.setLineDash([18,10]);x.beginPath();x.moveTo(cx-W*.13,top+H*.105);x.lineTo(cx+W*.13,top+H*.105);x.stroke();x.setLineDash([]);x.fillStyle='#ffd84a';x.font='700 14px Arial';x.fillText('HOLD SHORT',cx-W*.045,top+H*.145)}else if(s.phase===1){x.strokeStyle='#54e6a6';x.lineWidth=4;x.setLineDash([14,12]);x.beginPath();x.moveTo(cx-W*.08,top+H*.15);x.lineTo(cx+W*.08,top+H*.15);x.stroke();x.setLineDash([]);x.fillStyle='#54e6a6';x.font='700 14px Arial';x.fillText('LINE UP • RUNWAY 09',cx-W*.055,top+H*.185)}for(let i=0;i<22;i++){let t=i/21,y=top+t*(bottom-top),half=W*.20+t*W*.28;x.fillStyle=i%3?'#bfe0ff':'#fff';x.fillRect(cx-half,y,4,4);x.fillRect(cx+half,y,4,4)}x.fillStyle='#c4cfd1';x.fillRect(W*.05,horizon-15,W*.18,40);x.fillStyle='#718187';x.fillRect(W*.235,horizon-105,18,105);x.fillStyle='#2e4148';x.fillRect(W*.224,horizon-118,40,15);x.fillStyle='#f2f7f8';x.font='bold 10px Arial';x.fillText('EXPERT SYNC AIRPORT',W*.06,horizon+10);x.fillStyle='#30393c';x.beginPath();x.moveTo(W*.10,horizon+25);x.lineTo(W*.16,horizon+25);x.lineTo(W*.20,H);x.lineTo(W*.06,H);x.closePath();x.fill();x.strokeStyle='#e4ca3e';x.setLineDash([18,16]);x.beginPath();x.moveTo(W*.13,horizon+25);x.lineTo(W*.13,H);x.stroke();x.setLineDash([]);if(s.view==='EXTERNAL'){
+let px=W*.5,py=clamp(H*.72-s.alt*.00006*H,H*.24,H*.78);
+drawPlane(px,py,1.5,s.heading,s.bank);
+const al=document.getElementById('aircraftLabel');if(al)al.style.display='block';
+}else{const al=document.getElementById('aircraftLabel');if(al)al.style.display='none';
+}}
 function drawPlane(px,py,sc,hdg,bank){x.save();x.translate(px,py);x.rotate((hdg-90)*Math.PI/180);x.scale(sc,sc);x.transform(1,0,Math.sin(bank*Math.PI/180)*.12,1,0,0);x.shadowColor='#000b';x.shadowBlur=15;x.shadowOffsetY=8;let g=x.createLinearGradient(-60,-40,60,40);g.addColorStop(0,'#8b9ba0');g.addColorStop(.25,'#f8fbfc');g.addColorStop(.55,'#fff');g.addColorStop(1,'#7a8c92');x.fillStyle=g;x.beginPath();x.ellipse(0,0,14,52,0,0,Math.PI*2);x.fill();x.fillStyle='#dce6e9';x.beginPath();x.moveTo(-84,-5);x.lineTo(-8,-18);x.lineTo(18,-8);x.lineTo(10,9);x.lineTo(-8,15);x.closePath();x.fill();x.beginPath();x.moveTo(8,-5);x.lineTo(84,-5);x.lineTo(9,15);x.closePath();x.fill();x.fillStyle='#17485c';x.beginPath();x.ellipse(5,-20,10,15,0,0,Math.PI*2);x.fill();if(s.gear){x.strokeStyle='#596a70';x.lineWidth=3;x.beginPath();x.moveTo(-8,17);x.lineTo(-13,33);x.moveTo(8,17);x.lineTo(13,33);x.stroke();x.fillStyle='#171d20';x.beginPath();x.arc(-13,35,5,0,7);x.arc(13,35,5,0,7);x.fill()}if(s.engine){x.strokeStyle='#fff8';x.lineWidth=2;x.beginPath();x.arc(0,-57,19,0,7);x.moveTo(-18,-57);x.lineTo(18,-57);x.stroke()}x.fillStyle='#ff3048';x.beginPath();x.arc(-70,0,3.5,0,7);x.fill();x.fillStyle='#42ff9a';x.beginPath();x.arc(70,0,3.5,0,7);x.fill();x.restore()}
 function tick(t){let dt=Math.min(.05,Math.max(.001,(t-s.last)/1000));s.last=t;if(s.started&&!s.paused){controls(dt);engine(dt);flight(dt);evaluate(dt);hud();updateAudio();updateFDR(t)}
 if(s.replayPlaying&&s.fdr.length){s.replayIndex=Math.min(s.replayIndex+1,s.fdr.length-1);if(s.replayIndex>=s.fdr.length-1){s.replayPlaying=false;document.getElementById('replayBtn').textContent='PLAY REPLAY';}updateReplayUI();}
 draw();requestAnimationFrame(tick)}
-document.getElementById('game').addEventListener('click',()=>{initAudio();if(!s.started)start()},{once:true});setPhase();setView('COCKPIT');requestAnimationFrame(tick);
+document.getElementById('game').addEventListener('click',()=>{initAudio()});
+setPhase();
+setView('EXTERNAL');
+document.getElementById('aircraftLabel').style.display='block';
+document.getElementById('testState').textContent='READY';
+document.getElementById('inputStatus').textContent='Click START TRAINING';
+requestAnimationFrame(tick);
 })();
 </script>
 </body>
