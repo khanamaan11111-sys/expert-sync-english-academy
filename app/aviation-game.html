@@ -136,6 +136,17 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
   #startCockpitBtn{font-size:9px}
 }
 
+
+/* STAGE 9 — TRAINING RECORD & SCENARIO PROGRESSION */
+#recordBtn{background:#123746!important;border-color:#3f99b5!important}
+#trainingRecord{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:70;width:min(760px,92vw);max-height:82vh;overflow:auto;padding:20px 22px;background:#06131cf8;border:1px solid #43bfe8;border-radius:10px;box-shadow:0 25px 100px #000d;display:none}
+#trainingRecord h2{margin:0;color:#54e6a6;font-size:18px;letter-spacing:1.5px}
+#recordSub{font-size:9px;color:#8fa8b2;margin-top:5px}
+#recordGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
+.recordCard{border:1px solid #294653;border-radius:7px;padding:10px;background:#091820}
+.recordCard b{font-size:9px;color:#fff;letter-spacing:.7px}.recordCard small{display:block;color:#7f969f;font-size:8px;margin-top:4px}.recordScore{font-size:22px;font-weight:900;color:#54e6a6;margin-top:5px}.recordBadge{display:inline-block;margin-top:5px;padding:3px 6px;border:1px solid #3c6978;border-radius:4px;font-size:7px;color:#9bb5be}
+#recordFooter{display:flex;justify-content:space-between;align-items:center;margin-top:14px;border-top:1px solid #28414c;padding-top:10px}.recordHint{font-size:8px;color:#718a94;line-height:1.5}.recordClose{background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:7px 12px;font-size:9px;font-weight:800;cursor:pointer}
+@media(max-width:650px){#recordGrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -144,10 +155,10 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="brand" class="ui panel"><div class="brand">✈ EXPERT SYNC — FLIGHT TRAINING</div><div class="sub">HANDS-ON SINGLE-ENGINE SIMULATOR • N-ES01</div></div>
 <div id="phasebar" class="ui"></div>
 <div id="views" class="ui"><button class="view active" data-v="COCKPIT">COCKPIT</button><button class="view" data-v="EXTERNAL">EXTERNAL</button></div>
-<div id="testbar" class="ui panel"><button id="startBtn">START TRAINING</button><button id="pauseBtn">PAUSE</button><button id="restartBtn">RESTART</button><span id="testState">READY</span><span id="inputStatus">Click START TRAINING</span></div>
+<div id="testbar" class="ui panel"><button id="startBtn">START TRAINING</button><button id="pauseBtn">PAUSE</button><button id="restartBtn">RESTART</button><button id="recordBtn">TRAINING RECORD</button><span id="testState">READY</span><span id="inputStatus">Click START TRAINING</span></div>
 <div id="controlGuide" class="ui panel"><b>CONTROL GUIDE</b><div id="guideText">Complete pre-flight checklist to begin.</div></div>
 <div id="scenarioPanel" class="ui panel"><b>TRAINING SCENARIO</b><select id="scenarioSelect"><option value="standard">01 • Standard Flight</option><option value="crosswind">02 • Crosswind Operations</option><option value="busy">03 • Busy Traffic</option><option value="engine">04 • Engine Failure Drill</option></select><button id="loadScenario">LOAD SCENARIO</button></div>
-<div id="weather" class="ui panel"><b>WEATHER / CONDITIONS</b><div id="weatherText">WIND 120° / 8 KT • VIS 10 KM • TEMP 24°C</div><button id="weatherBtn">CHANGE CONDITIONS</button><button id="audioBtn">AUDIO ON</button></div>
+<div id="trainingRecord" class="ui panel"><h2>TRAINING RECORD • SCENARIO PROGRESSION</h2><div id="recordSub">Best verified performance is stored locally on this browser. Complete each scenario to build your training record.</div><div id="recordGrid"></div><div id="recordFooter"><div class="recordHint">STANDARD → CROSSWIND → BUSY TRAFFIC → ENGINE FAILURE<br>Use the record to identify the next scenario that needs practice.</div><button id="recordClose" class="recordClose">CLOSE RECORD</button></div></div><div id="weather" class="ui panel"><b>WEATHER / CONDITIONS</b><div id="weatherText">WIND 120° / 8 KT • VIS 10 KM • TEMP 24°C</div><button id="weatherBtn">CHANGE CONDITIONS</button><button id="audioBtn">AUDIO ON</button></div>
 <div id="checklistPanel" class="ui panel"><b>COCKPIT CHECKLIST</b><div id="checklistTitle">PRE-FLIGHT</div><div id="checklistItems"></div></div>
 <div id="mission" class="ui panel"><div class="eyebrow">ACTIVE TRAINING</div><div id="mtitle" class="title"></div><div id="mcopy" class="copy"></div><div class="progress"><i id="bar"></i></div><div id="check"></div></div>
 <div id="atc" class="ui panel"><div class="atcHead"><span>ATC • <span id="freq"></span></span><span id="radioState">STANDBY</span></div><div id="atcText" class="atcBody"></div><div class="radio">Press <b>R</b> to transmit/read back.</div><div id="radioControls" style="display:flex;gap:4px;margin-top:7px"><button class="freqBtn" data-freq="GROUND">GND</button><button class="freqBtn" data-freq="TOWER">TWR</button><button class="freqBtn" data-freq="CENTER">CTR</button><button class="freqBtn" data-freq="APPROACH">APP</button></div><div id="readbackQuality" style="font-size:8px;color:#9bb5be;margin-top:6px">READBACK QUALITY: —</div><button id="atcBtn" class="atcBtn">TRANSMIT / READ BACK</button></div>
@@ -911,6 +922,7 @@ if(document.getElementById('complete'))return;
 const score=Math.round(s.score);
 const A=assessmentSummary();
 const grade=A.overall>=90?'EXCELLENT':A.overall>=75?'GOOD':A.overall>=60?'SATISFACTORY':'NEEDS PRACTICE';
+writeTrainingRecord(score,A.overall,grade);
 const e=document.createElement('div');e.id='complete';e.className='ui panel';
 e.style='left:50%;top:50%;transform:translate(-50%,-50%);z-index:50;padding:24px 30px;text-align:center;min-width:360px;max-width:90vw';
 logEvent('FLIGHT ASSESSMENT COMPLETE','SUCCESS');
@@ -920,9 +932,9 @@ e.innerHTML='<div style="color:#54e6a6;font-size:11px;font-weight:900;letter-spa
 '<div style="margin:16px 0 8px;font-size:28px;font-weight:900">SCENARIO: '+s.scenario.toUpperCase()+'</div><div style="font-size:28px;font-weight:900">'+score+' <span style="font-size:12px;color:#9bb5be">POINTS</span></div>'+
 '<div style="font-size:14px;color:#54e6a6;font-weight:900;letter-spacing:1px">'+grade+'</div>'+
 '<div style="margin:14px 0;color:#9bb5be;font-size:11px;line-height:1.7">ATC discipline • aircraft control • configuration • speed/altitude management • runway handling</div><div style="font-size:9px;color:#6f8e99">Flight data and replay timeline available above.</div>'+
-'<button id="copyDebrief" class="atcBtn" style="width:100%;margin-bottom:6px">COPY FLIGHT DEBRIEF</button><button id="openDebrief" class="atcBtn" style="width:100%;margin-bottom:6px">OPEN POST-FLIGHT DEBRIEF</button><button id="replay" class="atcBtn" style="width:100%">RESTART TRAINING</button>';
+'<button id="copyDebrief" class="atcBtn" style="width:100%;margin-bottom:6px">COPY FLIGHT DEBRIEF</button><button id="openDebrief" class="atcBtn" style="width:100%;margin-bottom:6px">OPEN POST-FLIGHT DEBRIEF</button><button id="openRecordFromComplete" class="atcBtn" style="width:100%;margin-bottom:6px">OPEN TRAINING RECORD</button><button id="replay" class="atcBtn" style="width:100%">RESTART TRAINING</button>';
 document.getElementById('game').appendChild(e);
-document.getElementById('openDebrief').onclick=showDebrief;
+document.getElementById('openDebrief').onclick=showDebrief;document.getElementById('openRecordFromComplete').onclick=showTrainingRecord;
 document.getElementById('copyDebrief').onclick=async()=>{
 const report='EXPERT SYNC FLIGHT 01 DEBRIEF\nScenario: '+s.scenario+'\nFDR samples: '+s.fdr.length+'\nScore: '+score+'\nGrade: '+grade+'\n'+s.events.slice().reverse().map(e=>e.t+' '+e.msg).join('\n');
 try{await navigator.clipboard.writeText(report);toast('FLIGHT DEBRIEF COPIED.')}catch(e){toast('Copy unavailable — review the event log.')}
@@ -1272,6 +1284,40 @@ document.getElementById('testState').textContent='READY';
 document.getElementById('inputStatus').textContent='Click START TRAINING — then use cockpit controls or keys';
 requestAnimationFrame(tick);
 })();
+
+/* STAGE 9 — persistent training record */
+const RECORD_KEY='expert-sync-flight-training-record-v1';
+function readTrainingRecords(){
+  try{return JSON.parse(localStorage.getItem(RECORD_KEY)||'{}')||{}}catch(e){return {}}
+}
+function writeTrainingRecord(score,overall,grade){
+  const records=readTrainingRecords();
+  const key=s.scenario||'standard';
+  const prev=records[key];
+  const entry={score,overall,grade,date:new Date().toISOString(),attempts:(prev?.attempts||0)+1};
+  if(!prev||overall>prev.overall||(overall===prev.overall&&score>prev.score))records[key]=entry;
+  else records[key]={...prev,attempts:entry.attempts};
+  try{localStorage.setItem(RECORD_KEY,JSON.stringify(records))}catch(e){}
+}
+function showTrainingRecord(){
+  const wrap=document.getElementById('trainingRecord');
+  const grid=document.getElementById('recordGrid');
+  if(!wrap||!grid)return;
+  const records=readTrainingRecords();
+  const scenarios=[
+    ['standard','01 • STANDARD FLIGHT'],['crosswind','02 • CROSSWIND OPERATIONS'],
+    ['busy','03 • BUSY TRAFFIC'],['engine','04 • ENGINE FAILURE DRILL']
+  ];
+  grid.innerHTML=scenarios.map(([key,name])=>{
+    const r=records[key];
+    return '<div class="recordCard"><b>'+name+'</b>'+
+      (r?'<div class="recordScore">'+r.overall+'%</div><small>Best assessment • '+r.score+' points</small><span class="recordBadge">ATTEMPTS: '+r.attempts+' • '+r.grade+'</span>':
+      '<div class="recordScore">—</div><small>Not completed yet</small><span class="recordBadge">PRACTICE REQUIRED</span>')+'</div>';
+  }).join('');
+  wrap.style.display='block';
+}
+document.getElementById('recordBtn').onclick=showTrainingRecord;
+document.getElementById('recordClose').onclick=()=>{document.getElementById('trainingRecord').style.display='none'};
 </script>
 </body>
 </html>
