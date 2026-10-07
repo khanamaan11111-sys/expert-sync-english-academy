@@ -45,7 +45,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 .lightRow b{color:#fff}
 #abnormal b{font-size:9px;letter-spacing:1px;color:#54e6a6}
 #sysMsg{font-size:9px;color:#c6d7dc;margin:5px 0}
-#failureBtn{background:#0a202a;border:1px solid #8b5555;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer}
+#stallBtn,#goAroundBtn{background:#0a202a;border:1px solid #8b5555;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer}#emergencyStatus{font-weight:800}#failureBtn{background:#0a202a;border:1px solid #8b5555;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer}
 #controlGuide b{font-size:9px;letter-spacing:1px;color:#54e6a6}
 #guideText{margin-top:4px;font-size:9px;line-height:1.5;color:#c6d7dc}
 #replayPanel{right:14px;top:1010px;padding:8px 9px;width:300px;z-index:24}
@@ -162,7 +162,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="hud" class="ui">
 <div class="read"><b>AIRSPEED</b><strong id="hspd">0</strong><small>KT</small></div><div class="read"><b>ALTITUDE</b><strong id="halt">0</strong><small>FT</small></div><div class="read"><b>HEADING</b><strong id="hhdg">090</strong><small>°</small></div><div class="read"><b>VERTICAL SPEED</b><strong id="hvs">0</strong><small>FT/MIN</small></div><div class="read"><b>RPM</b><strong id="hrpm">0</strong><small>RPM</small></div><div class="read"><b>FUEL</b><strong id="hfuel">100</strong><small>%</small></div>
 </div>
-<div id="abnormal" class="ui panel"><b>ABNORMAL / SYSTEMS</b><div id="sysMsg">SYSTEMS NORMAL</div><button id="failureBtn">RUN FAILURE DRILL</button></div>
+<div id="abnormal" class="ui panel"><b>ABNORMAL / EMERGENCY TRAINING</b><div id="sysMsg">SYSTEMS NORMAL</div><div id="emergencyStatus" style="font-size:8px;color:#f4d35e;margin:4px 0">READY</div><div style="display:flex;gap:4px;flex-wrap:wrap"><button id="failureBtn">ENGINE FAILURE</button><button id="stallBtn">STALL DRILL</button><button id="goAroundBtn">GO-AROUND</button></div></div>
 <div id="lightsPanel" class="ui panel" style="cursor:pointer"><b>LIGHTING</b><div class="lightRow"><span>1 NAV</span><b id="navLight">OFF</b></div><div class="lightRow"><span>2 BEACON</span><b id="beaconLight">OFF</b></div><div class="lightRow"><span>3 STROBE</span><b id="strobeLight">OFF</b></div><div class="lightRow"><span>4 LANDING</span><b id="landingLight">OFF</b></div></div>
 <div id="status" class="ui panel"><div class="row"><span>ENGINE</span><b id="stEngine">OFF</b></div><div class="row"><span>OIL PRESSURE</span><b id="stOil">0 PSI</b></div><div class="row"><span>OIL TEMP</span><b id="stOilTemp">0°C</b></div><div class="row"><span>GEAR</span><b id="stGear">DOWN</b></div><div class="row"><span>FLAPS</span><b id="stFlaps">UP</b></div><div class="row"><span>ELEVATOR TRIM</span><b id="stTrim">0%</b></div><div class="row"><span>SURFACE</span><b id="stSurface">GROUND</b></div></div>
 <div id="help" class="ui panel"><b>FLY THE AIRCRAFT</b><br><span class="key">1–4</span> lights &nbsp; <span class="key">W</span>/<span class="key">S</span> throttle &nbsp; <span class="key">↑</span>/<span class="key">↓</span> pitch<br><span class="key">A</span>/<span class="key">D</span> bank/rudder &nbsp; <span class="key">T</span>/<span class="key">Y</span> trim &nbsp; <span class="key">F</span> flaps &nbsp; <span class="key">G</span> gear<br><span class="key">B</span> parking brake &nbsp; <span class="key">R</span> ATC &nbsp; <span class="key">X</span> shutdown &nbsp; <span class="key">C</span> camera</div>
@@ -207,7 +207,7 @@ const missions=[
 ['LANDING','TOWER 118.10','Read back landing clearance. Maintain centreline, land with gear DOWN and FULL FLAPS, then reduce power and decelerate below 55 kt.','Tower: ES-01, cleared to land Runway 09.'],
 ['AFTER LANDING • PARK & SHUTDOWN','GROUND 121.90','After touchdown, keep the centreline, slow to taxi speed, exit the runway, set parking brake, reduce power to idle, and shut down the engine.','Ground: ES-01, taxi to parking via Alpha.']
 ];
-const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,turbulence:0.10,gust:0,trim:0,selectedHeading:90,selectedAltitude:3000,ilsArmed:false,autopilot:false,apHeading:false,apAltitude:false,failure:null,
+const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,turbulence:0.10,gust:0,trim:0,selectedHeading:90,selectedAltitude:3000,ilsArmed:false,autopilot:false,apHeading:false,apAltitude:false,failure:null,emergencyMode:null,goAround:false,emergencyResolved:false,lastFailureLogged:false,
 events:[],lastLoggedPhase:-1,fdr:[],lastFdr:0,replayIndex:0,replayPlaying:false,
 instructor:{handling:100,procedures:100,atc:100,configuration:100,stability:100,safety:100},lastInstructor:{},assessmentStarted:false,
 traffic:[
@@ -480,8 +480,16 @@ document.getElementById('restartBtn').onclick=()=>{if(confirm('Restart the compl
 document.getElementById('startBtn').onkeydown=e=>{if(e.key==='Enter'||e.key===' ')e.preventDefault()};
 document.getElementById('failureBtn').onclick=()=>{
 if(!s.started)return toast('Start the training before running a failure drill.');
-if(!s.onGround&&s.phase>=2){s.failure='ENGINE';s.throttle=0;toast('FAILURE DRILL — ENGINE FAILURE. LOWER NOSE, MAINTAIN CONTROL, PLAN A LANDING.');}
-else toast('FAILURE DRILL is available after takeoff during an airborne phase.');
+if(!s.onGround&&s.phase>=2){s.failure='ENGINE';s.emergencyMode='ENGINE_FAILURE';s.throttle=0;s.autopilot=false;s.apHeading=false;s.apAltitude=false;toast('ENGINE FAILURE — LOWER NOSE, MAINTAIN GLIDE, IDENTIFY A LANDING AREA.');logEvent('ENGINE FAILURE DRILL INITIATED','CRITICAL');}
+else toast('ENGINE FAILURE DRILL is available after takeoff during an airborne phase.');
+};
+document.getElementById('stallBtn').onclick=()=>{
+if(!s.started||s.onGround)return toast('STALL DRILL is available airborne only.');
+s.emergencyMode='STALL';s.pitch=Math.min(13,s.pitch+5);s.throttle=Math.max(15,s.throttle-30);toast('STALL DRILL — LOWER NOSE, REDUCE ANGLE OF ATTACK, ADD POWER.');logEvent('STALL RECOVERY DRILL INITIATED','CRITICAL');
+};
+document.getElementById('goAroundBtn').onclick=()=>{
+if(!s.started||s.onGround||s.phase<5)return toast('GO-AROUND drill is available during approach.');
+s.goAround=true;s.emergencyMode='GO_AROUND';s.autopilot=false;s.apHeading=false;s.apAltitude=false;toast('GO-AROUND — POWER, POSITIVE PITCH, CLIMB AWAY.');logEvent('GO-AROUND DRILL INITIATED','CRITICAL');
 };
 document.getElementById('audioBtn').onclick=()=>{
 initAudio();
@@ -560,7 +568,7 @@ if(k==='1')toggleLight('nav');
 if(k==='2')toggleLight('beacon');
 if(k==='3')toggleLight('strobe');
 if(k==='4')toggleLight('landing');
-if(k==='x'){
+if(k==='e'){document.getElementById('failureBtn').click();}if(k==='v'){document.getElementById('stallBtn').click();}if(k==='g'&&s.phase>=5&&!s.onGround){document.getElementById('goAroundBtn').click();}if(k==='x'){
 if(s.phase===7&&s.onGround&&s.parkingBrake&&s.throttle<=5){
 s.engineStarted=false;s.engine=false;s.rpm=0;
 setInputStatus('X → ENGINE SHUT DOWN');
@@ -725,7 +733,7 @@ if(s.onGround){
 }
 function evaluate(dt){
 let g=0;
-weatherMonitor(dt);instructorMonitor(dt);
+weatherMonitor(dt);emergencyMonitor(dt);instructorMonitor(dt);
 const sys=document.getElementById('sysMsg');
 if(s.fuel<25&&s.fuel>10)sys.textContent='LOW FUEL — plan for landing / monitor fuel.';
 else if(s.fuel<=10)sys.textContent='FUEL CRITICAL — LAND AS SOON AS PRACTICAL.';
@@ -936,6 +944,18 @@ function weatherMonitor(dt){
 if(!s.started||s.paused||s.onGround)return;
 if(s.turbulence>=.5&&Math.abs(s.bank)>28)logEvent('STRONG TURBULENCE — reduce abrupt control inputs and maintain attitude.','WARNING');
 if(s.visibility<=6&&s.phase>=5&&s.speed>90)logEvent('LOW VISIBILITY — stabilize approach early and rely on instruments.','WARNING');
+}
+function emergencyMonitor(dt){
+if(!s.started||s.paused)return;
+const st=document.getElementById('emergencyStatus');
+if(s.failure==='ENGINE'){
+if(st)st.textContent='ENGINE FAILURE — GLIDE / LAND';
+if(s.throttle>5)s.throttle=0;
+if(s.onGround&&s.speed<5){s.emergencyResolved=true;logEvent('ENGINE FAILURE DRILL — AIRCRAFT SAFELY STOPPED.','INFO');if(st)st.textContent='ENGINE FAILURE DRILL — RESOLVED';}
+}else if(s.goAround){
+if(st)st.textContent='GO-AROUND — POWER / PITCH / POSITIVE CLIMB';
+if(!s.onGround){s.throttle=Math.max(s.throttle,88);s.pitch=clamp(s.pitch,7,10);s.gear=false;if(s.vs>200){s.goAround=false;logEvent('GO-AROUND — POSITIVE CLIMB ESTABLISHED.','INFO');}}
+}else if(s.stall){if(st)st.textContent='STALL WARNING — LOWER NOSE / ADD POWER';}else if(st)st.textContent='READY';
 }
 function instructorMonitor(dt){
 if(!s.started||s.paused)return;
