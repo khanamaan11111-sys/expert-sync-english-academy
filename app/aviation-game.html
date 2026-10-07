@@ -155,6 +155,14 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #scenarioObjectiveText{font-size:8px;color:#9bb5be;line-height:1.45;margin-top:4px}
 #scenarioObjectiveState{font-size:8px;color:#54e6a6;margin-top:6px;font-weight:900}
 @media(max-width:900px){#scenarioObjective{left:14px;bottom:172px;width:220px}}
+
+/* STAGE 11 — QA / SYSTEM VALIDATION */
+#qaBtn{background:#173746!important;border-color:#43bfe8!important}
+#qaPanel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:80;width:min(760px,92vw);max-height:82vh;overflow:auto;padding:18px 20px;background:#06131cf8;border:1px solid #43bfe8;border-radius:10px;box-shadow:0 25px 100px #000d;display:none}
+#qaPanel h2{margin:0;color:#54e6a6;font-size:18px;letter-spacing:1.2px}#qaSummary{margin-top:5px;font-size:9px;color:#9bb5be}
+#qaGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:12px}.qaItem{border:1px solid #294653;border-radius:6px;padding:8px;background:#091820;font-size:8px;color:#c6d7dc}.qaItem strong{float:right}.qaPass{color:#54e6a6}.qaFail{color:#ff8080}.qaWarn{color:#ffd27a}
+#qaActions{display:flex;gap:6px;margin-top:12px}#qaActions button{background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:7px 10px;font-size:8px;font-weight:900;color:#fff;cursor:pointer}
+@media(max-width:700px){#qaGrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -163,8 +171,8 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="brand" class="ui panel"><div class="brand">✈ EXPERT SYNC — FLIGHT TRAINING</div><div class="sub">HANDS-ON SINGLE-ENGINE SIMULATOR • N-ES01</div></div>
 <div id="phasebar" class="ui"></div>
 <div id="views" class="ui"><button class="view active" data-v="COCKPIT">COCKPIT</button><button class="view" data-v="EXTERNAL">EXTERNAL</button></div>
-<div id="testbar" class="ui panel"><button id="startBtn">START TRAINING</button><button id="pauseBtn">PAUSE</button><button id="restartBtn">RESTART</button><button id="recordBtn">TRAINING RECORD</button><span id="testState">READY</span><span id="inputStatus">Click START TRAINING</span></div>
-<div id="controlGuide" class="ui panel"><b>CONTROL GUIDE</b><div id="guideText">Complete pre-flight checklist to begin.</div></div>
+<div id="testbar" class="ui panel"><button id="startBtn">START TRAINING</button><button id="qaBtn">SYSTEM QA</button><button id="pauseBtn">PAUSE</button><button id="restartBtn">RESTART</button><button id="recordBtn">TRAINING RECORD</button><span id="testState">READY</span><span id="inputStatus">Click START TRAINING</span></div>
+<div id="qaPanel"><h2>SYSTEM QA • FLIGHT SIM VALIDATION</h2><div id="qaSummary">Run the validation suite before final user testing.</div><div id="qaGrid"></div><div id="qaActions"><button id="qaRun">RUN FULL QA</button><button id="qaClose">CLOSE</button></div></div><div id="controlGuide" class="ui panel"><b>CONTROL GUIDE</b><div id="guideText">Complete pre-flight checklist to begin.</div></div>
 <div id="scenarioObjective" class="ui panel"><b>SCENARIO OBJECTIVE</b><div id="scenarioObjectiveTitle">STANDARD FLIGHT</div><div id="scenarioObjectiveText">Complete the full profile with disciplined aircraft control and ATC.</div><div id="scenarioObjectiveState">PRIMARY OBJECTIVE ACTIVE</div></div><div id="scenarioPanel" class="ui panel"><b>TRAINING SCENARIO</b><select id="scenarioSelect"><option value="standard">01 • Standard Flight</option><option value="crosswind">02 • Crosswind Operations</option><option value="busy">03 • Busy Traffic</option><option value="engine">04 • Engine Failure Drill</option></select><button id="loadScenario">LOAD SCENARIO</button></div>
 <div id="trainingRecord" class="ui panel"><h2>TRAINING RECORD • SCENARIO PROGRESSION</h2><div id="recordSub">Best verified performance is stored locally on this browser. Complete each scenario to build your training record.</div><div id="recordGrid"></div><div id="recordFooter"><div class="recordHint">STANDARD → CROSSWIND → BUSY TRAFFIC → ENGINE FAILURE<br>Use the record to identify the next scenario that needs practice.</div><button id="recordClose" class="recordClose">CLOSE RECORD</button></div></div><div id="weather" class="ui panel"><b>WEATHER / CONDITIONS</b><div id="weatherText">WIND 120° / 8 KT • VIS 10 KM • TEMP 24°C</div><button id="weatherBtn">CHANGE CONDITIONS</button><button id="audioBtn">AUDIO ON</button></div>
 <div id="checklistPanel" class="ui panel"><b>COCKPIT CHECKLIST</b><div id="checklistTitle">PRE-FLIGHT</div><div id="checklistItems"></div></div>
@@ -1285,6 +1293,38 @@ document.getElementById('scene').addEventListener('click',()=>document.getElemen
 document.getElementById('apBtn').onclick=()=>{if(s.onGround)return toast('AUTOPILOT AVAILABLE AIRBORNE ONLY.');s.autopilot=!s.autopilot;if(s.autopilot){s.apHeading=true;s.selectedAltitude=Math.max(500,Math.round(s.alt/100)*100);toast('AUTOPILOT ON — HDG HOLD ACTIVE.');logEvent('AUTOPILOT ENGAGED — HDG HOLD','INFO')}else{toast('AUTOPILOT OFF — HAND FLYING.');logEvent('AUTOPILOT DISENGAGED','INFO')}};
 document.getElementById('apHdgBtn').onclick=()=>{if(!s.autopilot)return toast('ENGAGE AP FIRST.');s.apHeading=!s.apHeading;toast('HDG MODE '+(s.apHeading?'ON':'OFF'));};
 document.getElementById('apAltBtn').onclick=()=>{if(!s.autopilot)return toast('ENGAGE AP FIRST.');s.apAltitude=!s.apAltitude;if(s.apAltitude)s.selectedAltitude=Math.max(500,Math.round(s.alt/100)*100);toast('ALT HOLD '+(s.apAltitude?'ON':'OFF'));};
+
+/* STAGE 11 — QA suite */
+function runSystemQA(){
+ const tests=[];
+ const has=id=>!!document.getElementById(id);
+ const add=(name,pass,detail='')=>tests.push({name,pass,detail});
+ add('Core canvas present',has('scene'),'scene canvas');
+ add('Start / pause / restart controls',has('startBtn')&&has('pauseBtn')&&has('restartBtn'),'test controls');
+ add('Cockpit controls present',has('yoke')&&has('throttle')&&has('brake'),'primary controls');
+ add('Engine checklist controls',document.querySelectorAll('[data-pre]').length>=4&&has('startCockpitBtn'),'preflight system');
+ add('ATC frequency controls',document.querySelectorAll('.freqBtn').length===4&&has('atcBtn'),'GND/TWR/CTR/APP');
+ add('Navigation + ILS panel',has('approachPanel')&&has('ilsStatus'),'instrument approach');
+ add('Moving-map panel',has('mapCanvas')&&has('mapInfo'),'navigation display');
+ add('Flight data recorder',has('fdrPanel')&&has('exportFDR'),'FDR/export');
+ add('Replay system',has('replayPanel')&&has('replaySlider')&&has('replayBtn'),'replay controls');
+ add('Emergency drills',has('failureBtn')&&has('stallBtn')&&has('goAroundBtn'),'failure/stall/go-around');
+ add('Scenario loader',has('scenarioSelect')&&has('loadScenario'),'4 scenarios');
+ add('Scenario objective engine',typeof scenarioObjectiveData==='function'&&typeof scenarioMonitor==='function','objective/scoring logic');
+ add('Scenario state integrity',typeof s==='object'&&Array.isArray(s.traffic)&&typeof s.phase==='number','runtime state');
+ add('Keyboard handler',typeof keys==='object'&&typeof controls==='function','keyboard/control loop');
+ add('Training phase bounds',s.phase>=0&&s.phase<=7,'phase '+s.phase+'/7');
+ add('Aircraft numeric state',Number.isFinite(s.speed)&&Number.isFinite(s.alt)&&Number.isFinite(s.heading)&&Number.isFinite(s.throttle),'flight model');
+ const fails=tests.filter(x=>!x.pass).length;
+ document.getElementById('qaGrid').innerHTML=tests.map(x=>'<div class="qaItem">'+x.name+' <strong class="'+(x.pass?'qaPass':'qaFail')+'">'+(x.pass?'PASS':'FAIL')+'</strong><div style="margin-top:3px;color:#6f8e99">'+x.detail+'</div></div>').join('');
+ document.getElementById('qaSummary').textContent=(fails?'QA RESULT: '+fails+' CHECK(S) NEED ATTENTION.':'QA RESULT: ALL '+tests.length+' CHECKS PASSED.')+'  Runtime phase: '+s.phase+'.';
+ logEvent('SYSTEM QA — '+(fails?'FAIL / '+fails+' ISSUE(S)':'ALL CHECKS PASSED'),'QA');
+ return !fails;
+}
+document.getElementById('qaBtn').onclick=()=>{document.getElementById('qaPanel').style.display='block';runSystemQA()};
+document.getElementById('qaRun').onclick=runSystemQA;
+document.getElementById('qaClose').onclick=()=>document.getElementById('qaPanel').style.display='none';
+
 setPhase();
 setView('EXTERNAL');
 document.getElementById('aircraftLabel').style.display='block';
