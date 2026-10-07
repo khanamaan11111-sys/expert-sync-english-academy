@@ -158,7 +158,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="trafficPanel" class="ui panel"><b>TRAFFIC / SITUATIONAL AWARENESS</b><div id="trafficText">NO CONFLICTS</div><div id="trafficList"></div></div>
 <div id="approachPanel" class="ui panel"><b>ILS-STYLE APPROACH</b><div class="ils"><div class="ilsBox"><span>LOC</span><strong id="locDev">0.0</strong><small>DOTS</small></div><div class="ilsBox"><span>GS</span><strong id="gsDev">0.0</strong><small>DOTS</small></div></div><div id="ilsStatus">RUNWAY 09 • ILS ARMED</div></div>
 <div id="mapPanel" class="ui panel"><b>MINI MOVING MAP</b><canvas id="mapCanvas" width="220" height="145"></canvas><div id="mapInfo">RWY 09 • ROUTE ALPHA</div></div>
-<div id="navPanel" class="ui panel"><b>NAVIGATION / HEADING</b><div class="navRow"><span>SELECTED HDG</span><strong id="selHdg">090°</strong></div><div class="navRow"><span>COURSE ERROR</span><strong id="courseErr">0°</strong></div><div class="navHint">J/L = heading bug −/+ 5°</div></div>
+<div id="navPanel" class="ui panel"><b>NAVIGATION / HEADING</b><div class="navRow"><span>SELECTED HDG</span><strong id="selHdg">090°</strong></div><div class="navRow"><span>COURSE ERROR</span><strong id="courseErr">0°</strong></div><div style="display:flex;gap:4px;margin-top:7px"><button id="navArmBtn" class="cockpitBtn" style="margin:0;flex:1">ARM ILS</button><button id="navCourseBtn" class="cockpitBtn" style="margin:0;flex:1">COURSE 090</button></div><div class="navHint">J/L = heading bug • N = NAV/ILS</div></div>
 <div id="apPanel" class="ui panel"><b>AUTOPILOT / FLIGHT DIRECTOR</b><div class="navRow"><span>AP MASTER</span><strong id="apState">OFF</strong></div><div class="navRow"><span>HDG MODE</span><strong id="apHdg">OFF</strong></div><div class="navRow"><span>ALT HOLD</span><strong id="apAlt">OFF</strong></div><div class="navRow"><span>ALT BUG</span><strong id="apAltBug">3000 FT</strong></div><div style="display:flex;gap:4px;margin-top:7px"><button id="apBtn" class="cockpitBtn" style="margin:0;flex:1">AP</button><button id="apHdgBtn" class="cockpitBtn" style="margin:0;flex:1">HDG</button><button id="apAltBtn" class="cockpitBtn" style="margin:0;flex:1">ALT</button></div><div class="navHint">P = AP • K = HDG • Z = ALT</div></div>
 <div id="hud" class="ui">
 <div class="read"><b>AIRSPEED</b><strong id="hspd">0</strong><small>KT</small></div><div class="read"><b>ALTITUDE</b><strong id="halt">0</strong><small>FT</small></div><div class="read"><b>HEADING</b><strong id="hhdg">090</strong><small>°</small></div><div class="read"><b>VERTICAL SPEED</b><strong id="hvs">0</strong><small>FT/MIN</small></div><div class="read"><b>RPM</b><strong id="hrpm">0</strong><small>RPM</small></div><div class="read"><b>FUEL</b><strong id="hfuel">100</strong><small>%</small></div>
@@ -208,7 +208,7 @@ const missions=[
 ['LANDING','TOWER 118.10','Read back landing clearance. Maintain centreline, land with gear DOWN and FULL FLAPS, then reduce power and decelerate below 55 kt.','Tower: ES-01, cleared to land Runway 09.'],
 ['AFTER LANDING • PARK & SHUTDOWN','GROUND 121.90','After touchdown, keep the centreline, slow to taxi speed, exit the runway, set parking brake, reduce power to idle, and shut down the engine.','Ground: ES-01, taxi to parking via Alpha.']
 ];
-const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,turbulence:0.10,gust:0,trim:0,selectedHeading:90,selectedAltitude:3000,ilsArmed:false,autopilot:false,apHeading:false,apAltitude:false,failure:null,emergencyMode:null,goAround:false,emergencyResolved:false,lastFailureLogged:false,
+const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,turbulence:0.10,gust:0,trim:0,selectedHeading:90,selectedAltitude:3000,ilsArmed:false,navMode:false,navCourse:90,navX:48,navY:18,dme:0,locError:0,gsError:0,navIntercept:false,autopilot:false,apHeading:false,apAltitude:false,failure:null,emergencyMode:null,goAround:false,emergencyResolved:false,lastFailureLogged:false,
 events:[],lastLoggedPhase:-1,fdr:[],lastFdr:0,replayIndex:0,replayPlaying:false,
 instructor:{handling:100,procedures:100,atc:100,configuration:100,stability:100,safety:100},lastInstructor:{},assessmentStarted:false,
 traffic:[
@@ -250,7 +250,7 @@ const hints=[
 'TAKE-OFF: press R • B brake OFF • W to ≥70% • keep 090 • rotate 55–65 kt with ↑ • climb positive • G gear UP',
 'CLIMB: press R • maintain 090 • 85–100 kt • 8–12° pitch • VS positive • gear UP • level at 3,000 ft',
 'CRUISE: press R • maintain 3,000 ft • 80–110 kt • 090° • VS near 0 • keep stable',
-'APPROACH: press R • descend • 65–90 kt • gear DOWN • F to take-off/full flaps • stable final',
+'APPROACH: press R • N/ARM ILS • intercept LOC • capture GS • descend • 65–90 kt • gear DOWN • F to configure flaps • stable final',
 'LANDING: press R • gear DOWN • full flaps • centreline • touchdown • reduce power • below 55 kt'
 ];
 const nexts=[
@@ -313,8 +313,9 @@ if(s.phase===4)a=[
 ];
 if(s.phase===5)a=[
 ['APPROACH READBACK',s.radio],
-['LOC CENTRED',s.phase!==5||Math.abs(diff(s.heading,90))<8],
-['GLIDESLOPE TREND',s.phase!==5||Math.abs(s.vs)<1000],
+['ILS ARMED / AVAILABLE',s.ilsArmed],
+['LOCALIZER CENTRED',Math.abs(s.locError)<1.0],
+['GLIDESLOPE CAPTURED',Math.abs(s.gsError)<1.0],
 ['NAV + BEACON + LANDING LIGHT',s.navLights&&s.beacon&&s.landingLight],
 ['DESCENDING',s.vs<-100],
 ['APPROACH SPEED 65–90 KT',s.speed>=65&&s.speed<=95],
@@ -445,6 +446,17 @@ document.getElementById('starter').ondblclick=startEngine;
 document.getElementById('startCockpitBtn').onclick=startEngine;
 document.getElementById('atcBtn').onclick=transmit;
 document.querySelectorAll('.freqBtn').forEach(b=>b.onclick=()=>setRadioFrequency(b.dataset.freq));
+document.getElementById('navArmBtn').onclick=()=>{
+if(!s.started||s.phase<5)return toast('ILS is available for the approach phase.');
+s.ilsArmed=!s.ilsArmed;
+toast(s.ilsArmed?'ILS ARMED — intercept localizer, then capture glideslope.':'ILS DISARMED');
+logEvent('ILS '+(s.ilsArmed?'ARMED':'DISARMED'),'INFO');
+};
+document.getElementById('navCourseBtn').onclick=()=>{
+s.navCourse=norm(s.navCourse+5);s.selectedHeading=s.navCourse;
+toast('COURSE SELECTED '+String(Math.round(s.navCourse)).padStart(3,'0')+'°');
+};
+
 setRadioFrequency('GROUND');
 
 function setInputStatus(msg){
@@ -573,7 +585,7 @@ if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDef
 if(!s.started&&!e.repeat&&e.key==='Enter'){start();return;}
 if(!s.started)return;
 if(!e.repeat){
-if(k==='q')setRadioFrequency('GROUND');if(k==='u')setRadioFrequency('TOWER');if(k==='i')setRadioFrequency('CENTER');if(k==='o')setRadioFrequency('APPROACH');if(k==='r'){transmit();setInputStatus('R → ATC READBACK');}
+if(k==='n'){if(s.phase>=5){s.ilsArmed=!s.ilsArmed;toast(s.ilsArmed?'ILS ARMED — intercept localizer and capture glideslope.':'ILS DISARMED');logEvent('ILS '+(s.ilsArmed?'ARMED':'DISARMED'),'INFO');}else toast('ILS is available during approach.');}if(k==='q')setRadioFrequency('GROUND');if(k==='u')setRadioFrequency('TOWER');if(k==='i')setRadioFrequency('CENTER');if(k==='o')setRadioFrequency('APPROACH');if(k==='r'){transmit();setInputStatus('R → ATC READBACK');}
 if(k==='b'){
 s.parkingBrake=!s.parkingBrake;
 s.brake=s.parkingBrake;
@@ -768,7 +780,7 @@ if(s.onGround){
 }
 function evaluate(dt){
 let g=0;
-weatherMonitor(dt);emergencyMonitor(dt);instructorMonitor(dt);
+navigationMonitor(dt);weatherMonitor(dt);emergencyMonitor(dt);instructorMonitor(dt);
 const sys=document.getElementById('sysMsg');
 if(s.fuel<25&&s.fuel>10)sys.textContent='LOW FUEL — plan for landing / monitor fuel.';
 else if(s.fuel<=10)sys.textContent='FUEL CRITICAL — LAND AS SOON AS PRACTICAL.';
@@ -879,6 +891,7 @@ el.innerHTML='<div style="color:#54e6a6;font-size:10px;font-weight:900;letter-sp
 '<div class="debriefMetric"><b>OVERALL</b><strong>'+d.A.overall+'%</strong></div><div class="debriefMetric"><b>HANDLING</b><strong>'+d.A.handling+'%</strong></div><div class="debriefMetric"><b>ATC</b><strong>'+d.A.atc+'%</strong></div><div class="debriefMetric"><b>SAFETY</b><strong>'+d.A.safety+'%</strong></div></div>'+
 '<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:8px">WHAT YOU DID WELL</div><div style="font-size:10px;color:#c6d7dc;margin-top:4px">'+d.strengths.join(' • ')+'</div>'+
 '<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:13px">IMPROVEMENT ITEMS</div>'+issueHtml+
+'<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:13px">NAVIGATION & ILS PERFORMANCE</div><div style="font-size:9px;color:#9bb5be;margin-top:5px">ILS armed: '+(s.ilsArmed?'Yes':'No')+' • DME: '+s.dme.toFixed(1)+' • Final LOC: '+s.locError.toFixed(1)+' dots • Final GS: '+s.gsError.toFixed(1)+' dots</div>'+
 '<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:13px">ATC & RADIO PERFORMANCE</div><div style="font-size:9px;color:#9bb5be;margin-top:5px">Readbacks correct: '+s.atcCorrect+'/'+s.atcAttempts+' • Frequency changes: '+s.frequencyChanges+' • Readback quality: '+Math.round(s.readbackQuality)+'%</div>'+
 '<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:13px">WEATHER & ENVIRONMENT</div><div style="font-size:9px;color:#9bb5be;margin-top:5px">Wind '+Math.round(s.windDir)+'° / '+Math.round(s.windKt)+' kt • Visibility '+s.visibility+' km • Turbulence '+(s.turbulence<.2?'Light':s.turbulence<.5?'Moderate':'Strong')+'</div>'+
 '<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:13px">FLIGHT DATA</div><div style="font-size:9px;color:#9bb5be;margin-top:5px">Samples: '+d.sampleCount+' • Maximum altitude: '+d.maxAlt+' ft • Maximum IAS: '+d.maxIas+' kt</div>'+
@@ -976,6 +989,19 @@ if(s.events.length>18)s.events.pop();
 const el=document.getElementById('eventLog');
 if(el)el.innerHTML=s.events.map(e=>'<div><b>'+e.t+'</b> '+e.msg+'</div>').join('');
 }
+function navigationMonitor(dt){
+if(!s.started||s.paused)return;
+if(s.phase===4&&!s.onGround){
+const err=Math.abs(diff(s.heading,s.navCourse));
+if(err>12){s.navIntercept=false;logEvent('NAVIGATION — intercept course 090 with a controlled heading change.','INFO');}
+if(err<5)s.navIntercept=true;
+}
+if((s.phase===5||s.phase===6)&&!s.onGround){
+if(!s.ilsArmed&&s.alt<2200)logEvent('ILS NOT ARMED — select/arm the approach guidance before final.','WARNING');
+if(s.ilsArmed&&Math.abs(s.locError)>1.5)logEvent('LOCALIZER DEVIATION — correct gently toward centreline.','WARNING');
+if(s.ilsArmed&&Math.abs(s.gsError)>1.5)logEvent('GLIDESLOPE DEVIATION — correct pitch/power smoothly.','WARNING');
+}
+}
 function weatherMonitor(dt){
 if(!s.started||s.paused||s.onGround)return;
 if(s.turbulence>=.5&&Math.abs(s.bank)>28)logEvent('STRONG TURBULENCE — reduce abrupt control inputs and maintain attitude.','WARNING');
@@ -1007,6 +1033,11 @@ const warn=(key,msg,penalty=1,type='WARNING')=>{
 };
 const hErr=Math.abs(diff(s.heading,90));
 if(s.atcAttempts>0&&s.atcCorrect/s.atcAttempts<.7)warn('atcquality','RADIO DISCIPLINE — verify facility/frequency before readback.',1.5);
+if(s.phase===4&&!s.onGround&&Math.abs(diff(s.heading,s.navCourse))>12)warn('navcourse','NAVIGATION ERROR — intercept the assigned course 090.',2);
+if((s.phase===5||s.phase===6)&&s.ilsArmed){
+ if(Math.abs(s.locError)>1.5)warn('loc','LOCALIZER DEVIATION — make small lateral corrections.',2);
+ if(Math.abs(s.gsError)>1.5)warn('gs','GLIDESLOPE DEVIATION — use small pitch/power corrections.',2);
+}
 if(s.turbulence>=.5&&Math.abs(s.bank)>30)warn('turbbank','TURBULENCE + EXCESSIVE BANK — use smooth corrections.',2);
 if(s.turbulence>=.28&&Math.abs(s.pitch)>11)warn('turbpitch','TURBULENCE + HIGH PITCH — stabilize attitude before chasing altitude.',1.5);
 const bank=Math.abs(s.bank);
@@ -1082,14 +1113,21 @@ if(conflict)toast('TRAFFIC ALERT — maintain aircraft control and increase sepa
 }
 function updateILS(){
 const active=s.phase===5||s.phase===6;
-const lateral=diff(s.heading,90);
-const finalOffset=s.yp+12.5;
-const loc=clamp((lateral*.18)+(finalOffset*.12),-2.5,2.5);
-const gs=clamp(((s.alt-((s.xp>65?900:1500)-(s.xp-65)*65))/180),-2.5,2.5);
+const dx=s.xp-s.navX,dy=s.yp-s.navY;
+s.dme=Math.max(0,Math.hypot(dx,dy));
+const bearingToFix=norm(Math.atan2(dx,dy)*180/Math.PI);
+const bearingError=diff(s.navCourse,bearingToFix);
+const crossTrack=(dx*Math.cos(s.navCourse*Math.PI/180)-dy*Math.sin(s.navCourse*Math.PI/180));
+const loc=clamp(crossTrack*.11+bearingError*.045,-2.5,2.5);
+const runwayDistance=Math.max(0,s.xp-65);
+const idealAlt=active?(900+Math.max(0,65-s.xp)*65):1500;
+const gs=clamp((s.alt-idealAlt)/180,-2.5,2.5);
+s.locError=loc;s.gsError=gs;
 document.getElementById('locDev').textContent=loc.toFixed(1);
 document.getElementById('gsDev').textContent=gs.toFixed(1);
-document.getElementById('ilsStatus').textContent=active?'RUNWAY 09 • ILS GUIDANCE ACTIVE':'RUNWAY 09 • ILS STANDBY';
+document.getElementById('ilsStatus').textContent=active?(s.ilsArmed?'RUNWAY 09 • ILS COUPLED / GUIDANCE':'RUNWAY 09 • ILS AVAILABLE — ARM'):'RUNWAY 09 • ILS STANDBY';
 }
+
 function drawMap(){
 const m=document.getElementById('mapCanvas');if(!m)return;
 const q=m.getContext('2d'),w=m.width,h=m.height;
