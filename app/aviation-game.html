@@ -147,6 +147,14 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 .recordCard b{font-size:9px;color:#fff;letter-spacing:.7px}.recordCard small{display:block;color:#7f969f;font-size:8px;margin-top:4px}.recordScore{font-size:22px;font-weight:900;color:#54e6a6;margin-top:5px}.recordBadge{display:inline-block;margin-top:5px;padding:3px 6px;border:1px solid #3c6978;border-radius:4px;font-size:7px;color:#9bb5be}
 #recordFooter{display:flex;justify-content:space-between;align-items:center;margin-top:14px;border-top:1px solid #28414c;padding-top:10px}.recordHint{font-size:8px;color:#718a94;line-height:1.5}.recordClose{background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:7px 12px;font-size:9px;font-weight:800;cursor:pointer}
 @media(max-width:650px){#recordGrid{grid-template-columns:1fr}}
+
+/* STAGE 10 — SCENARIO-SPECIFIC TRAINING OBJECTIVES */
+#scenarioObjective{left:248px;bottom:52px;padding:9px 11px;width:255px;z-index:30}
+#scenarioObjective b{font-size:9px;letter-spacing:1px;color:#54e6a6}
+#scenarioObjectiveTitle{font-size:10px;color:#fff;margin-top:5px;font-weight:900}
+#scenarioObjectiveText{font-size:8px;color:#9bb5be;line-height:1.45;margin-top:4px}
+#scenarioObjectiveState{font-size:8px;color:#54e6a6;margin-top:6px;font-weight:900}
+@media(max-width:900px){#scenarioObjective{left:14px;bottom:172px;width:220px}}
 </style>
 </head>
 <body>
@@ -157,7 +165,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="views" class="ui"><button class="view active" data-v="COCKPIT">COCKPIT</button><button class="view" data-v="EXTERNAL">EXTERNAL</button></div>
 <div id="testbar" class="ui panel"><button id="startBtn">START TRAINING</button><button id="pauseBtn">PAUSE</button><button id="restartBtn">RESTART</button><button id="recordBtn">TRAINING RECORD</button><span id="testState">READY</span><span id="inputStatus">Click START TRAINING</span></div>
 <div id="controlGuide" class="ui panel"><b>CONTROL GUIDE</b><div id="guideText">Complete pre-flight checklist to begin.</div></div>
-<div id="scenarioPanel" class="ui panel"><b>TRAINING SCENARIO</b><select id="scenarioSelect"><option value="standard">01 • Standard Flight</option><option value="crosswind">02 • Crosswind Operations</option><option value="busy">03 • Busy Traffic</option><option value="engine">04 • Engine Failure Drill</option></select><button id="loadScenario">LOAD SCENARIO</button></div>
+<div id="scenarioObjective" class="ui panel"><b>SCENARIO OBJECTIVE</b><div id="scenarioObjectiveTitle">STANDARD FLIGHT</div><div id="scenarioObjectiveText">Complete the full profile with disciplined aircraft control and ATC.</div><div id="scenarioObjectiveState">PRIMARY OBJECTIVE ACTIVE</div></div><div id="scenarioPanel" class="ui panel"><b>TRAINING SCENARIO</b><select id="scenarioSelect"><option value="standard">01 • Standard Flight</option><option value="crosswind">02 • Crosswind Operations</option><option value="busy">03 • Busy Traffic</option><option value="engine">04 • Engine Failure Drill</option></select><button id="loadScenario">LOAD SCENARIO</button></div>
 <div id="trainingRecord" class="ui panel"><h2>TRAINING RECORD • SCENARIO PROGRESSION</h2><div id="recordSub">Best verified performance is stored locally on this browser. Complete each scenario to build your training record.</div><div id="recordGrid"></div><div id="recordFooter"><div class="recordHint">STANDARD → CROSSWIND → BUSY TRAFFIC → ENGINE FAILURE<br>Use the record to identify the next scenario that needs practice.</div><button id="recordClose" class="recordClose">CLOSE RECORD</button></div></div><div id="weather" class="ui panel"><b>WEATHER / CONDITIONS</b><div id="weatherText">WIND 120° / 8 KT • VIS 10 KM • TEMP 24°C</div><button id="weatherBtn">CHANGE CONDITIONS</button><button id="audioBtn">AUDIO ON</button></div>
 <div id="checklistPanel" class="ui panel"><b>COCKPIT CHECKLIST</b><div id="checklistTitle">PRE-FLIGHT</div><div id="checklistItems"></div></div>
 <div id="mission" class="ui panel"><div class="eyebrow">ACTIVE TRAINING</div><div id="mtitle" class="title"></div><div id="mcopy" class="copy"></div><div class="progress"><i id="bar"></i></div><div id="check"></div></div>
@@ -220,7 +228,7 @@ const missions=[
 ['AFTER LANDING • PARK & SHUTDOWN','GROUND 121.90','After touchdown, keep the centreline, slow to taxi speed, exit the runway, set parking brake, reduce power to idle, and shut down the engine.','Ground: ES-01, taxi to parking via Alpha.']
 ];
 const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,turbulence:0.10,gust:0,trim:0,selectedHeading:90,selectedAltitude:3000,ilsArmed:false,navMode:false,navCourse:90,navX:48,navY:18,dme:0,locError:0,gsError:0,navIntercept:false,autopilot:false,apHeading:false,apAltitude:false,failure:null,emergencyMode:null,goAround:false,emergencyResolved:false,lastFailureLogged:false,
-events:[],lastLoggedPhase:-1,fdr:[],lastFdr:0,replayIndex:0,replayPlaying:false,
+events:[],lastLoggedPhase:-1,fdr:[],lastFdr:0,replayIndex:0,replayPlaying:false,scenarioClock:0,scenarioTriggered:false,scenarioViolations:0,scenarioBonus:0,
 instructor:{handling:100,procedures:100,atc:100,configuration:100,stability:100,safety:100},lastInstructor:{},assessmentStarted:false,
 traffic:[
 {id:'ES-T01',x:18,y:14,alt:3100,hdg:270,speed:95},
@@ -567,12 +575,12 @@ document.getElementById('replayBtn').textContent=s.replayPlaying?'STOP REPLAY':'
 };
 document.getElementById('loadScenario').onclick=()=>{
 const v=document.getElementById('scenarioSelect').value;
-s.scenario=v;s.failure=null;s.lastFailureLogged=false;
+s.scenario=v;s.failure=null;s.lastFailureLogged=false;s.scenarioClock=0;s.scenarioTriggered=false;s.scenarioViolations=0;s.scenarioBonus=0;s.lastScenarioTraffic=0;
 if(v==='standard'){s.windDir=120;s.windKt=8;s.visibility=10;s.temperature=24;s.traffic[0].alt=3100;s.traffic[1].alt=2850;s.traffic[2].alt=3300;}
 if(v==='crosswind'){s.windDir=270;s.windKt=18;s.visibility=8;s.temperature=30;}
 if(v==='busy'){s.windDir=120;s.windKt=8;s.visibility=10;s.temperature=24;s.traffic[0].alt=3020;s.traffic[1].alt=3050;s.traffic[2].alt=2980;}
 if(v==='engine'){s.windDir=90;s.windKt=5;s.visibility=12;s.temperature=20;s.failure=null;}
-updateWeather();toast('SCENARIO LOADED — '+document.getElementById('scenarioSelect').selectedOptions[0].text);
+updateWeather();updateScenarioObjective();toast('SCENARIO LOADED — '+document.getElementById('scenarioSelect').selectedOptions[0].text);
 logEvent('SCENARIO: '+document.getElementById('scenarioSelect').selectedOptions[0].text,'PHASE');
 };
 document.getElementById('weatherBtn').onclick=()=>{
@@ -791,7 +799,7 @@ if(s.onGround){
 }
 function evaluate(dt){
 let g=0;
-navigationMonitor(dt);weatherMonitor(dt);emergencyMonitor(dt);instructorMonitor(dt);
+navigationMonitor(dt);weatherMonitor(dt);emergencyMonitor(dt);instructorMonitor(dt);scenarioMonitor(dt);
 const sys=document.getElementById('sysMsg');
 if(s.fuel<25&&s.fuel>10)sys.textContent='LOW FUEL — plan for landing / monitor fuel.';
 else if(s.fuel<=10)sys.textContent='FUEL CRITICAL — LAND AS SOON AS PRACTICAL.';
@@ -1318,6 +1326,55 @@ function showTrainingRecord(){
 }
 document.getElementById('recordBtn').onclick=showTrainingRecord;
 document.getElementById('recordClose').onclick=()=>{document.getElementById('trainingRecord').style.display='none'};
+
+/* STAGE 10 — scenario-specific objectives and scoring */
+function scenarioObjectiveData(){
+const data={
+ standard:{title:'STANDARD FLIGHT',text:'Demonstrate the complete profile: correct ATC, stable speeds/altitudes, configuration and runway discipline.'},
+ crosswind:{title:'CROSSWIND OPERATIONS',text:'Manage the 18 KT crosswind: maintain runway alignment, avoid excessive bank, and land under control.'},
+ busy:{title:'BUSY TRAFFIC',text:'Maintain aircraft control while monitoring traffic. React to proximity alerts without sacrificing flight-path discipline.'},
+ engine:{title:'ENGINE FAILURE DRILL',text:'After takeoff, respond to the simulated engine failure: control speed, choose a landing area, configure and secure the aircraft.'}
+};
+return data[s.scenario||'standard']||data.standard;
+}
+function updateScenarioObjective(){
+const d=scenarioObjectiveData();
+const title=document.getElementById('scenarioObjectiveTitle'),textEl=document.getElementById('scenarioObjectiveText'),state=document.getElementById('scenarioObjectiveState');
+if(!title)return;
+ title.textContent=d.title;textEl.textContent=d.text;
+ let status='PRIMARY OBJECTIVE ACTIVE';
+ if(s.scenario==='engine'&&s.scenarioTriggered&&s.emergencyResolved)status='✓ EMERGENCY OBJECTIVE RESOLVED • +'+s.scenarioBonus+' BONUS';
+ else if(s.scenario==='busy'&&s.scenarioViolations===0&&s.phase>=4)status='✓ TRAFFIC AWARENESS GOOD • +'+s.scenarioBonus+' BONUS';
+ else if(s.scenario==='crosswind'&&s.phase>=6&&s.onGround&&s.speed<55)status='✓ CROSSWIND LANDING CONTROLLED • +'+s.scenarioBonus+' BONUS';
+ else if(s.scenario==='engine'&&s.scenarioTriggered)status='⚠ ENGINE FAILURE ACTIVE • CONTROL / GLIDE / LAND';
+ else if(s.scenario==='crosswind')status='CROSSWIND 18 KT • CONTROL LATERAL DRIFT';
+ else if(s.scenario==='busy')status='TRAFFIC ACTIVE • SCAN / SEPARATE / FLY';
+ state.textContent=status;
+}
+function scenarioMonitor(dt){
+ if(!s.started||s.paused)return;
+ s.scenarioClock+=dt;
+ if(s.scenario==='engine'&&!s.scenarioTriggered&&s.onGround===false&&s.phase>=3&&s.scenarioClock>10){
+   s.scenarioTriggered=true;s.failure='ENGINE';s.throttle=0;s.engineStarted=false;s.engine=false;
+   s.instructor.safety=Math.max(0,s.instructor.safety-2);
+   logEvent('ENGINE FAILURE — SCENARIO EVENT / MAINTAIN BEST GLIDE','CRITICAL');
+   toast('ENGINE FAILURE — LOWER NOSE, MAINTAIN CONTROL, SELECT A LANDING AREA.');
+ }
+ if(s.scenario==='busy'){
+   const trafficText=document.getElementById('trafficText')?.textContent||'';
+   if(trafficText.includes('IMMEDIATE')&&s.scenarioViolations<3){
+     const last=s.lastScenarioTraffic||0,now=performance.now();
+     if(now-last>6000){s.lastScenarioTraffic=now;s.scenarioViolations++;s.instructor.safety=Math.max(0,s.instructor.safety-2);logEvent('BUSY TRAFFIC — separation management required.','WARNING');}
+   }
+ }
+ if(s.scenario==='crosswind'&&s.phase===6&&s.onGround&&s.speed<55&&s.scenarioBonus===0){
+   const hErr=Math.abs(diff(s.heading,90));
+   if(hErr<10&&Math.abs(s.bank)<8){s.scenarioBonus=25;s.score+=25;logEvent('CROSSWIND LANDING CONTROLLED — OBJECTIVE COMPLETE','SUCCESS');}
+ }
+ if(s.scenario==='busy'&&s.phase>=6&&s.scenarioViolations===0&&s.scenarioBonus===0){s.scenarioBonus=25;s.score+=25;logEvent('BUSY TRAFFIC — SEPARATION OBJECTIVE COMPLETE','SUCCESS');}
+ if(s.scenario==='engine'&&s.emergencyResolved&&s.scenarioBonus===0){s.scenarioBonus=30;s.score+=30;logEvent('ENGINE FAILURE DRILL — EMERGENCY OBJECTIVE COMPLETE','SUCCESS');}
+ updateScenarioObjective();
+}
 </script>
 </body>
 </html>
