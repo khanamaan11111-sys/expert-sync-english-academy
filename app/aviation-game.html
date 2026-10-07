@@ -207,7 +207,7 @@ const missions=[
 ['LANDING','TOWER 118.10','Read back landing clearance. Maintain centreline, land with gear DOWN and FULL FLAPS, then reduce power and decelerate below 55 kt.','Tower: ES-01, cleared to land Runway 09.'],
 ['AFTER LANDING • PARK & SHUTDOWN','GROUND 121.90','After touchdown, keep the centreline, slow to taxi speed, exit the runway, set parking brake, reduce power to idle, and shut down the engine.','Ground: ES-01, taxi to parking via Alpha.']
 ];
-const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,trim:0,selectedHeading:90,selectedAltitude:3000,ilsArmed:false,autopilot:false,apHeading:false,apAltitude:false,failure:null,
+const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,turbulence:0.10,gust:0,trim:0,selectedHeading:90,selectedAltitude:3000,ilsArmed:false,autopilot:false,apHeading:false,apAltitude:false,failure:null,
 events:[],lastLoggedPhase:-1,fdr:[],lastFdr:0,replayIndex:0,replayPlaying:false,
 instructor:{handling:100,procedures:100,atc:100,configuration:100,stability:100,safety:100},lastInstructor:{},assessmentStarted:false,
 traffic:[
@@ -511,14 +511,14 @@ logEvent('SCENARIO: '+document.getElementById('scenarioSelect').selectedOptions[
 };
 document.getElementById('weatherBtn').onclick=()=>{
 const presets=[
-[120,8,10,24,'LIGHT CROSSWIND'],
-[180,12,8,28,'MODERATE HEADWIND'],
-[270,18,6,32,'STRONG CROSSWIND'],
-[90,5,12,20,'CALM / GOOD VISIBILITY']
+[120,8,10,24,.12,'LIGHT CROSSWIND'],
+[180,12,8,28,.28,'MODERATE HEADWIND'],
+[270,18,6,32,.52,'STRONG CROSSWIND'],
+[90,5,12,20,.03,'CALM / GOOD VISIBILITY']
 ];
 const i=presets.findIndex(p=>p[0]===s.windDir&&p[1]===s.windKt&&p[2]===s.visibility);
 const p=presets[(i+1)%presets.length];
-s.windDir=p[0];s.windKt=p[1];s.visibility=p[2];s.temperature=p[3];
+s.windDir=p[0];s.windKt=p[1];s.visibility=p[2];s.temperature=p[3];s.turbulence=p[4];
 updateWeather();toast('CONDITIONS: '+p[4]+' — wind '+p[0]+'°/'+p[1]+' kt.');
 };
 addEventListener('keydown',e=>{
@@ -673,6 +673,15 @@ if(s.onGround){
     toast('ROTATE — positive rate. Maintain runway heading 090.');
   }
 }else{
+  // Atmospheric disturbance model: gusts and turbulence perturb pitch, bank and vertical speed.
+  const gustWave=Math.sin(performance.now()/700+s.xp*.07)*s.turbulence;
+  const gustCross=Math.cos(performance.now()/520+s.yp*.05)*s.turbulence;
+  s.gust=gustWave;
+  if(s.turbulence>0){
+    s.pitch+=gustWave*1.8*dt;
+    s.bank+=gustCross*2.4*dt;
+    s.vs+=gustWave*120*dt;
+  }
   const weightFactor=1.0;
   const stallIAS=48+s.flaps*4;
   const speedRatio=clamp(s.speed/stallIAS,0,2.2);
@@ -716,7 +725,7 @@ if(s.onGround){
 }
 function evaluate(dt){
 let g=0;
-instructorMonitor(dt);
+weatherMonitor(dt);instructorMonitor(dt);
 const sys=document.getElementById('sysMsg');
 if(s.fuel<25&&s.fuel>10)sys.textContent='LOW FUEL — plan for landing / monitor fuel.';
 else if(s.fuel<=10)sys.textContent='FUEL CRITICAL — LAND AS SOON AS PRACTICAL.';
@@ -827,6 +836,7 @@ el.innerHTML='<div style="color:#54e6a6;font-size:10px;font-weight:900;letter-sp
 '<div class="debriefMetric"><b>OVERALL</b><strong>'+d.A.overall+'%</strong></div><div class="debriefMetric"><b>HANDLING</b><strong>'+d.A.handling+'%</strong></div><div class="debriefMetric"><b>ATC</b><strong>'+d.A.atc+'%</strong></div><div class="debriefMetric"><b>SAFETY</b><strong>'+d.A.safety+'%</strong></div></div>'+
 '<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:8px">WHAT YOU DID WELL</div><div style="font-size:10px;color:#c6d7dc;margin-top:4px">'+d.strengths.join(' • ')+'</div>'+
 '<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:13px">IMPROVEMENT ITEMS</div>'+issueHtml+
+'<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:13px">WEATHER & ENVIRONMENT</div><div style="font-size:9px;color:#9bb5be;margin-top:5px">Wind '+Math.round(s.windDir)+'° / '+Math.round(s.windKt)+' kt • Visibility '+s.visibility+' km • Turbulence '+(s.turbulence<.2?'Light':s.turbulence<.5?'Moderate':'Strong')+'</div>'+
 '<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:13px">FLIGHT DATA</div><div style="font-size:9px;color:#9bb5be;margin-top:5px">Samples: '+d.sampleCount+' • Maximum altitude: '+d.maxAlt+' ft • Maximum IAS: '+d.maxIas+' kt</div>'+
 '<div style="margin-top:4px">'+timeHtml+'</div>'+
 '<div style="display:flex;gap:6px;margin-top:15px"><button id="closeDebrief" class="atcBtn">CLOSE DEBRIEF</button><button id="copyFullDebrief" class="atcBtn">COPY FULL DEBRIEF</button></div>';
@@ -880,7 +890,7 @@ document.getElementById('checklistTitle').textContent=cl.title;
 document.getElementById('checklistItems').innerHTML=cl.items.map(it=>{let ok=false;try{ok=!!it[1]()}catch(e){}return '<div class="clItem '+(ok?'done':'')+'">'+(ok?'✓':'○')+' '+it[0]+'</div>'}).join('');
 }
 function updateWeather(){
-document.getElementById('weatherText').textContent='WIND '+String(Math.round(norm(s.windDir))).padStart(3,'0')+'° / '+Math.round(s.windKt)+' KT • VIS '+s.visibility+' KM • TEMP '+s.temperature+'°C';
+document.getElementById('weatherText').textContent='WIND '+String(Math.round(norm(s.windDir))).padStart(3,'0')+'° / '+Math.round(s.windKt)+' KT • VIS '+s.visibility+' KM • TEMP '+s.temperature+'°C • TURB '+(s.turbulence<.2?'LIGHT':s.turbulence<.5?'MODERATE':'STRONG');
 }
 function updateGuide(){
 const g=[
@@ -890,7 +900,7 @@ const g=[
 'TAKE-OFF: R clearance • B brake OFF • NAV + BEACON + STROBE ON • W ≥70% • centreline • ↑ at 55–65 KT • G after positive rate.',
 'CLIMB: R clearance • set 090° with J/L • 85–100 KT • 8–12° pitch • compensate for wind drift • trim with T/Y • gear UP • level 3,000 FT.',
 'CRUISE: R Center • set 090° with J/L • 3,000 FT • 80–110 KT • scan the traffic panel • follow the moving map • use T/Y trim to hold pitch.',
-'APPROACH: R Approach • scan traffic • arm ILS guidance • NAV + BEACON + LANDING LIGHT ON • follow LOC/GS • 65–90 KT • gear DOWN • F to configure flaps • correct for wind • stable final.',
+'APPROACH: R Approach • scan traffic • arm ILS guidance • NAV + BEACON + LANDING LIGHT ON • follow LOC/GS • 65–90 KT • gear DOWN • F to configure flaps • correct for wind and turbulence • stable final.',
 'LANDING: R Tower • gear DOWN • FULL FLAPS • centreline • touchdown • reduce power • <55 KT.'
 ];
 document.getElementById('guideText').textContent=s.scenario==='engine'&&s.failure==='ENGINE'?'ENGINE FAILURE: lower nose • maintain control • best glide • choose a landing area • configure for landing.':(s.started?(g[s.phase]||'Flight complete.'):'Complete pre-flight checklist to begin.');
@@ -904,7 +914,7 @@ const d=s.fdr[s.replayIndex];
 read.textContent=d?'T+'+(d.t/1000).toFixed(1)+'s • ALT '+d.alt+' FT • IAS '+d.ias+' KT • HDG '+String(d.hdg).padStart(3,'0')+'° • VS '+d.vs+' FPM • PITCH '+d.pitch+'°':'No recorded flight yet.';
 }
 function recordFDR(t){
-s.fdr.push({t:Math.round(t),phase:s.phase,alt:Math.round(s.alt),ias:Math.round(s.speed),hdg:Math.round(s.heading),vs:Math.round(s.vs),pitch:+s.pitch.toFixed(1),throttle:Math.round(s.throttle),gear:s.gear,flaps:s.flaps});
+s.fdr.push({t:Math.round(t),phase:s.phase,alt:Math.round(s.alt),ias:Math.round(s.speed),hdg:Math.round(s.heading),vs:Math.round(s.vs),pitch:+s.pitch.toFixed(1),throttle:Math.round(s.throttle),gear:s.gear,flaps:s.flaps,turb:+s.turbulence.toFixed(2),gust:+s.gust.toFixed(2)});
 if(s.fdr.length>2400)s.fdr.shift();
 }
 function updateFDR(t){
@@ -922,6 +932,11 @@ if(s.events.length>18)s.events.pop();
 const el=document.getElementById('eventLog');
 if(el)el.innerHTML=s.events.map(e=>'<div><b>'+e.t+'</b> '+e.msg+'</div>').join('');
 }
+function weatherMonitor(dt){
+if(!s.started||s.paused||s.onGround)return;
+if(s.turbulence>=.5&&Math.abs(s.bank)>28)logEvent('STRONG TURBULENCE — reduce abrupt control inputs and maintain attitude.','WARNING');
+if(s.visibility<=6&&s.phase>=5&&s.speed>90)logEvent('LOW VISIBILITY — stabilize approach early and rely on instruments.','WARNING');
+}
 function instructorMonitor(dt){
 if(!s.started||s.paused)return;
 const I=s.instructor;
@@ -935,6 +950,8 @@ const warn=(key,msg,penalty=1,type='WARNING')=>{
   logEvent(msg,type);
 };
 const hErr=Math.abs(diff(s.heading,90));
+if(s.turbulence>=.5&&Math.abs(s.bank)>30)warn('turbbank','TURBULENCE + EXCESSIVE BANK — use smooth corrections.',2);
+if(s.turbulence>=.28&&Math.abs(s.pitch)>11)warn('turbpitch','TURBULENCE + HIGH PITCH — stabilize attitude before chasing altitude.',1.5);
 const bank=Math.abs(s.bank);
 const pitch=Math.abs(s.pitch);
 if(s.phase>=2&&s.phase<=4&&!s.onGround){
