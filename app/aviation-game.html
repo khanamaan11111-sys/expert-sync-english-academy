@@ -101,6 +101,8 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #keyFeedback{position:absolute;left:50%;top:83%;transform:translateX(-50%);z-index:31;padding:7px 12px;border:1px solid #3f99b5;border-radius:6px;background:#061923f2;color:#bfefff;font-size:9px;display:none}
 
 
+#flightHelp{position:absolute;left:50%;bottom:58px;transform:translateX(-50%);z-index:32;padding:7px 12px;border:1px solid #3f99b5;border-radius:6px;background:#061923e8;color:#c8edf7;font-size:9px;display:none;white-space:nowrap;pointer-events:none}
+#flightHelp b{color:#54e6a6}
 /* VISUAL / USABILITY PASS — desktop cockpit and external aircraft */
 @media(min-width:1200px){
   #testbar{padding:8px 10px;gap:8px}
@@ -185,6 +187,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div class="prefooter"><div id="premsg" class="procedure">1 MASTER ON → 2 AVIONICS ON → 3 FUEL PUMP ON → 4 MIXTURE RICH → 5 STARTER</div><button id="starter" class="primary" disabled>START ENGINE</button></div>
 </div></div>
 </div>
+<div id="flightHelp"><b>FLIGHT CONTROLS</b> W/S throttle • ↑/↓ pitch • A/D bank • B brake • F flaps • G gear • R ATC • C view</div>
 <script>
 (()=>{const c=document.getElementById('scene'),x=c.getContext('2d');let W=innerWidth,H=innerHeight,D=Math.min(devicePixelRatio||1,2);
 function resize(){W=innerWidth;H=innerHeight;c.width=W*D;c.height=H*D;c.style.width=W+'px';c.style.height=H+'px';x.setTransform(D,0,0,D,0,0)}addEventListener('resize',resize);resize();
@@ -351,6 +354,7 @@ initAudio();
 if(s.started)return;
 s.started=true;
 s.paused=false;
+document.getElementById('flightHelp').style.display='block';
 document.getElementById('startBtn').textContent='TRAINING ACTIVE';
 document.getElementById('startBtn').disabled=true;
 document.getElementById('testState').textContent='PREFLIGHT';
@@ -366,6 +370,7 @@ if(!ready()){toast('STARTER INHIBITED — complete MASTER, AVIONICS, FUEL PUMP a
 s.starter=true;
 s.starterAt=performance.now();
 document.getElementById('preflight').style.display='none';
+document.getElementById('flightHelp').style.display='block';
 document.getElementById('testState').textContent='ENGINE START';
 document.getElementById('inputStatus').textContent='Starter engaged — wait for RPM';
 setView('COCKPIT');
@@ -511,6 +516,8 @@ s.windDir=p[0];s.windKt=p[1];s.visibility=p[2];s.temperature=p[3];
 updateWeather();toast('CONDITIONS: '+p[4]+' — wind '+p[0]+'°/'+p[1]+' kt.');
 };
 addEventListener('keydown',e=>{
+if(e.target&&['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName))return;
+if(!s.started&&e.key!=='Enter'){setInputStatus('Click START TRAINING first');return;}
 const k=e.key.toLowerCase();
 keys[k]=true;
 if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
@@ -558,33 +565,145 @@ if(k==='s')setInputStatus('S → THROTTLE '+Math.round(s.throttle)+'%');
 }
 },true);
 addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false},true);
-function controls(dt){if(keys.w)s.throttle+=38*dt;if(keys.s)s.throttle-=55*dt;s.throttle=clamp(s.throttle,0,100);if(keys.m)s.mixture=clamp(s.mixture+45*dt,0,100);if(keys.n)s.mixture=clamp(s.mixture-45*dt,0,100);if(s.yoke){if(s.onGround)s.heading=norm(s.heading+s.yx*34*dt);else s.bank+=s.yx*42*dt;s.pitch-=s.yy*12*dt}else{s.yx*=Math.pow(.04,dt);s.yy*=Math.pow(.04,dt)}if(s.onGround){
-if(!s.parkingBrake&&s.speed>0.5){
-if(keys.a||keys.arrowleft)s.heading=norm(s.heading-28*dt);
-if(keys.d||keys.arrowright)s.heading=norm(s.heading+28*dt);
+function controls(dt){
+const steer=(keys.a||keys.arrowleft?1:0)-(keys.d||keys.arrowright?1:0);
+const pitchInput=(keys.arrowup?1:0)-(keys.arrowdown?1:0);
+
+if(keys.w)s.throttle+=32*dt;
+if(keys.s)s.throttle-=45*dt;
+s.throttle=clamp(s.throttle,0,100);
+
+if(keys.m)s.mixture=clamp(s.mixture+45*dt,0,100);
+if(keys.n)s.mixture=clamp(s.mixture-45*dt,0,100);
+
+if(s.yoke){
+  if(s.onGround){
+    s.heading=norm(s.heading+s.yx*34*dt);
+  }else{
+    s.bank+=s.yx*48*dt;
+    s.pitch-=s.yy*14*dt;
+  }
+}else{
+  s.yx*=Math.pow(.035,dt);
+  s.yy*=Math.pow(.035,dt);
+  if(s.onGround&&!s.parkingBrake&&s.speed>0.5)s.heading=norm(s.heading+steer*30*dt);
+  if(!s.onGround)s.bank+=steer*46*dt;
 }
-s.brake=s.parkingBrake||keys.s
-}else{if(keys.a||keys.arrowleft)s.bank-=42*dt;if(keys.d||keys.arrowright)s.bank+=42*dt;s.bank*=Math.pow(.12,dt)}if(keys.arrowup)s.pitch+=11*dt;if(keys.arrowdown)s.pitch-=11*dt;
+
+if(pitchInput)s.pitch+=pitchInput*12*dt;
 if(keys.t)s.trim=clamp(s.trim+22*dt,-100,100);
 if(keys.y)s.trim=clamp(s.trim-22*dt,-100,100);
-if(!keys.arrowup&&!keys.arrowdown&&!s.yoke){
-s.pitch+=(s.trim/100)*3.2*dt;
-s.pitch*=Math.pow(.45,dt);
-}s.bank=clamp(s.bank,-38,38);s.pitch=clamp(s.pitch,-14,16)}
+
+if(!pitchInput&&!s.yoke){
+  // Neutral yoke naturally returns toward trim rather than forcing pitch to zero.
+  s.pitch+=(s.trim/100*3.5-s.pitch)*Math.min(1,dt*0.7);
+}
+
+if(s.onGround)s.bank*=Math.pow(.15,dt);
+else s.bank*=Math.pow(.995,dt);
+
+s.bank=clamp(s.bank,-38,38);
+s.pitch=clamp(s.pitch,-14,16);
+}
 function engine(dt){
 if(s.failure==='ENGINE')s.engineStarted=false;
-if(s.starter&&performance.now()-s.starterAt>2800){s.starter=false;s.engineStarted=true;s.engine=true;s.rpm=850;toast('ENGINE FIRED — oil pressure rising. Taxi clearance is next.');}let idle=s.engineStarted?720:0,max=2650,target=s.starter?900:(s.engineStarted?idle+s.throttle/100*(max-idle):0);
-if(s.failure==='ENGINE')target=0;s.rpm+=(target-s.rpm)*Math.min(1,dt*(s.starter?2:4));s.engine=s.rpm>500;let power=clamp((s.rpm-idle)/(max-idle),0,1);let drag=.010+s.speed*.00010+(s.flaps===1?.024:s.flaps===2?.05:0)+(!s.onGround&&s.gear?.02:0);if(s.onGround){let a=power*5.7-drag*30-(s.brake?7.5:0)-(s.parkingBrake?14:0);let groundLimit=s.phase===0?20:s.phase===1?(s.radio?18:0):110;s.speed=clamp(s.speed+a*dt,0,groundLimit)}else{s.speed=clamp(s.speed+(power*3.2-drag*2.7)*dt,38,150)}s.fuel=Math.max(0,s.fuel-(.00018+s.throttle*.000018+s.rpm*.000000035)*dt*60)}
-function flight(dt){let r=Math.PI/180;
+
+if(s.starter&&performance.now()-s.starterAt>2800){
+  s.starter=false;s.engineStarted=true;s.engine=true;s.rpm=850;
+  toast('ENGINE FIRED — oil pressure rising. Taxi clearance is next.');
+}
+
+const idle=s.engineStarted?720:0;
+const max=2650;
+const target=s.starter?900:(s.engineStarted?idle+s.throttle/100*(max-idle):0);
+s.rpm+=(target-s.rpm)*Math.min(1,dt*(s.starter?2.2:4.5));
+s.engine=s.rpm>500;
+
+const power=clamp((s.rpm-idle)/(max-idle),0,1);
+const flapDrag=[0,.020,.050][s.flaps]||0;
+const gearDrag=(!s.onGround&&s.gear)?.018:0;
+const aeroDrag=.009+s.speed*.000085+flapDrag+gearDrag;
+
+if(s.onGround){
+  const rolling=1.4+s.speed*.018;
+  const brakeForce=s.brake?8.5:0;
+  const parkingForce=s.parkingBrake?18:0;
+  const acceleration=power*6.8-aeroDrag*26-rolling*.18-brakeForce-parkingForce;
+  const limit=s.phase===0?20:(s.phase===1?(s.radio?18:0):125);
+  s.speed=clamp(s.speed+acceleration*dt,0,limit);
+}else{
+  // Propulsive acceleration with increasing aerodynamic drag.
+  const acceleration=power*4.0-aeroDrag*2.2;
+  s.speed=clamp(s.speed+acceleration*dt,38,150);
+}
+
+const fuelFlow=.00016+s.throttle*.000020+s.rpm*.000000040;
+s.fuel=Math.max(0,s.fuel-fuelFlow*dt*60);
+}
+function flight(dt){
+const r=Math.PI/180;
 const wx=Math.sin(s.windDir*r)*s.windKt;
 const wy=Math.cos(s.windDir*r)*s.windKt;
+
 if(s.onGround){
-s.alt=0;s.vs=0;s.stall=false;if(s.phase===0&&s.speed>0.5&&!s.parkingBrake)s.taxiDistance+=s.speed*0.5144*dt;s.xp+=Math.sin(s.heading*r)*s.speed*.00265*dt;s.yp-=Math.cos(s.heading*r)*s.speed*.00265*dt;if(s.scenario==='engine'&&s.phase>=2&&!s.onGround&&!s.failure){s.failure='ENGINE';s.throttle=0;toast('SCENARIO — ENGINE FAILURE. MAINTAIN CONTROL AND PLAN A LANDING.');}
-if(s.phase===2&&s.radio&&!s.parkingBrake&&s.speed>=55&&s.speed<=90&&s.throttle>=70&&s.pitch>=7&&s.pitch<=14&&Math.abs(diff(s.heading,90))<8){s.onGround=false;s.alt=12;s.vs=620;toast('ROTATE — positive rate. Maintain runway heading 090.');s.score+=30}}else{let stallSpd=48+s.flaps*5,liftA=clamp((s.pitch+2)/14,0,1.35),liftS=clamp((s.speed-stallSpd)/48,0,1.45),load=1/Math.max(.72,Math.cos(s.bank*r));let tvs=(liftA*liftS*980)/load+(s.throttle-52)*3.6+(s.trim/100)*85;s.stall=s.speed<stallSpd||(s.pitch>12&&s.speed<70);if(s.stall)tvs-=900;s.vs+=(tvs-s.vs)*Math.min(1,dt*1.8);s.vs=clamp(s.vs,-2400,2600);s.alt=Math.max(0,s.alt+s.vs*dt/60);s.heading=norm(s.heading+(s.speed/105)*Math.sin(s.bank*r)*31*dt);
-const trackX=Math.sin(s.heading*r)*s.speed+wx;
-const trackY=Math.cos(s.heading*r)*s.speed+wy;
-s.xp+=trackX*.00155*dt;
-s.yp-=trackY*.00155*dt;if(s.alt<14&&s.vs<-180){if(s.speed<88&&s.gear&&s.flaps>=1&&Math.abs(s.bank)<10){s.onGround=true;s.alt=0;s.vs=0;s.pitch=0;s.bank=0;toast('TOUCHDOWN — hold centreline and reduce power.')}else{s.alt=22;s.vs=120;s.score=Math.max(0,s.score-8);toast('UNSTABLE APPROACH — correct speed, configuration and descent.')}}}}
+  s.alt=0;s.vs=0;s.stall=false;
+
+  if(s.phase===0&&s.speed>0.5&&!s.parkingBrake)
+    s.taxiDistance+=s.speed*0.5144*dt;
+
+  s.xp+=Math.sin(s.heading*r)*s.speed*.00265*dt;
+  s.yp-=Math.cos(s.heading*r)*s.speed*.00265*dt;
+
+  if(s.phase===2&&s.radio&&!s.parkingBrake&&
+     s.speed>=55&&s.speed<=90&&s.throttle>=70&&
+     s.pitch>=6&&s.pitch<=14&&Math.abs(diff(s.heading,90))<8){
+    s.onGround=false;
+    s.alt=12;
+    s.vs=620;
+    s.score+=30;
+    toast('ROTATE — positive rate. Maintain runway heading 090.');
+  }
+}else{
+  // Simplified aerodynamic model: lift follows speed and angle of attack,
+  // bank increases load factor and therefore required lift.
+  const stallSpd=48+s.flaps*5;
+  const aoa=clamp((s.pitch+2)/14,0,1.35);
+  const speedLift=clamp((s.speed-stallSpd)/48,0,1.45);
+  const loadFactor=1/Math.max(.72,Math.cos(s.bank*r));
+
+  let targetVS=(aoa*speedLift*1020)/loadFactor;
+  targetVS+=(s.throttle-52)*3.8;
+  targetVS+=(s.trim/100)*90;
+
+  s.stall=s.speed<stallSpd||(s.pitch>12&&s.speed<70);
+  if(s.stall)targetVS-=1050;
+
+  // Roll/yaw coupling: coordinated bank produces a realistic turn rate.
+  s.vs+=(targetVS-s.vs)*Math.min(1,dt*1.9);
+  s.vs=clamp(s.vs,-2400,2600);
+  s.alt=Math.max(0,s.alt+s.vs*dt/60);
+
+  const turnRate=(s.speed/105)*Math.sin(s.bank*r)*31;
+  s.heading=norm(s.heading+turnRate*dt);
+
+  const trackX=Math.sin(s.heading*r)*s.speed+wx;
+  const trackY=Math.cos(s.heading*r)*s.speed+wy;
+  s.xp+=trackX*.00155*dt;
+  s.yp-=trackY*.00155*dt;
+
+  // Ground effect / touchdown gate.
+  if(s.alt<14&&s.vs<-180){
+    if(s.speed<88&&s.gear&&s.flaps>=1&&Math.abs(s.bank)<10&&Math.abs(s.pitch)<8){
+      s.onGround=true;s.alt=0;s.vs=0;s.pitch=0;s.bank=0;
+      toast('TOUCHDOWN — hold centreline and reduce power.');
+    }else{
+      s.alt=22;s.vs=120;
+      s.score=Math.max(0,s.score-8);
+      toast('UNSTABLE APPROACH — correct speed, configuration and descent.');
+    }
+  }
+}
+}
 function evaluate(dt){
 let g=0;
 const sys=document.getElementById('sysMsg');
@@ -884,12 +1003,16 @@ x.restore()}
 function tick(t){let dt=Math.min(.05,Math.max(.001,(t-s.last)/1000));s.last=t;if(s.started&&!s.paused){controls(dt);engine(dt);flight(dt);evaluate(dt);hud();updateAudio();updateFDR(t)}
 if(s.replayPlaying&&s.fdr.length){s.replayIndex=Math.min(s.replayIndex+1,s.fdr.length-1);if(s.replayIndex>=s.fdr.length-1){s.replayPlaying=false;document.getElementById('replayBtn').textContent='PLAY REPLAY';}updateReplayUI();}
 draw();requestAnimationFrame(tick)}
-document.getElementById('game').addEventListener('click',()=>{initAudio()});
+document.getElementById('game').addEventListener('click',()=>{initAudio();document.body.focus();});
+document.getElementById('scene').setAttribute('tabindex','0');
+document.getElementById('scene').style.outline='none';
+document.getElementById('scene').addEventListener('click',()=>document.getElementById('scene').focus());
+
 setPhase();
 setView('EXTERNAL');
 document.getElementById('aircraftLabel').style.display='block';
 document.getElementById('testState').textContent='READY';
-document.getElementById('inputStatus').textContent='Click START TRAINING';
+document.getElementById('inputStatus').textContent='Click START TRAINING — then use cockpit controls or keys';
 requestAnimationFrame(tick);
 })();
 </script>
