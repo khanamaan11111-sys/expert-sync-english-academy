@@ -158,6 +158,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 
 /* STAGE 11 — QA / SYSTEM VALIDATION */
 #qaBtn{background:#173746!important;border-color:#43bfe8!important}
+#shutdownBtn{background:#3a2020!important;border-color:#a86a6a!important}
 #qaPanel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:80;width:min(760px,92vw);max-height:82vh;overflow:auto;padding:18px 20px;background:#06131cf8;border:1px solid #43bfe8;border-radius:10px;box-shadow:0 25px 100px #000d;display:none}
 #qaPanel h2{margin:0;color:#54e6a6;font-size:18px;letter-spacing:1.2px}#qaSummary{margin-top:5px;font-size:9px;color:#9bb5be}
 #qaGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:12px}.qaItem{border:1px solid #294653;border-radius:6px;padding:8px;background:#091820;font-size:8px;color:#c6d7dc}.qaItem strong{float:right}.qaPass{color:#54e6a6}.qaFail{color:#ff8080}.qaWarn{color:#ffd27a}
@@ -207,7 +208,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="controlsRow">
 <div class="controlBox"><div class="ct">ELECTRICAL / ENGINE SYSTEMS</div><div class="switches"><div class="switch" data-s="battery"><i></i><small>MASTER</small></div><div class="switch" data-s="avionics"><i></i><small>AVIONICS</small></div><div class="switch" data-s="pump"><i></i><small>FUEL PUMP</small></div><div class="switch" data-s="beacon"><i></i><small>BEACON</small></div></div></div>
 <div class="controlBox"><div class="ct">FLIGHT CONTROLS</div><div id="yoke"><div class="wheel"></div><div class="bar"></div><div class="stem"></div></div><button id="brake">PARKING BRAKE: ON</button></div>
-<div class="controlBox"><div class="ct">POWER / MIXTURE</div><div id="throttle"><div class="tl">THROTTLE <span id="tp">0%</span></div><div class="rail"></div><div id="lever" class="lever"></div></div><button id="mixtureBtn" class="cockpitBtn">MIXTURE: LEAN</button><button id="startCockpitBtn" class="cockpitBtn">START ENGINE</button></div>
+<div class="controlBox"><div class="ct">POWER / MIXTURE</div><div id="throttle"><div class="tl">THROTTLE <span id="tp">0%</span></div><div class="rail"></div><div id="lever" class="lever"></div></div><button id="mixtureBtn" class="cockpitBtn">MIXTURE: LEAN</button><button id="startCockpitBtn" class="cockpitBtn">START ENGINE</button><button id="shutdownBtn" class="cockpitBtn" disabled>SHUT DOWN ENGINE</button></div>
 </div></div></div>
 
 <div id="preflight"><div class="card"><h1>COCKPIT — COLD & DARK</h1><p>Operate the actual cockpit controls in the correct sequence. The aircraft cannot start until the electrical and fuel systems are configured.</p>
@@ -220,7 +221,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div class="prefooter"><div id="premsg" class="procedure">1 MASTER ON → 2 AVIONICS ON → 3 FUEL PUMP ON → 4 MIXTURE RICH → 5 STARTER</div><button id="starter" class="primary" disabled>START ENGINE</button></div>
 </div></div>
 </div>
-<div id="flightHelp"><b>FLIGHT CONTROLS</b> W/S throttle • ↑/↓ pitch • A/D bank • B brake • F flaps • G gear • R ATC • C view</div>
+<div id="flightHelp"><b>FLIGHT CONTROLS</b> W/S throttle • ↑/↓ pitch • A/D bank • B brake • F flaps • G gear • R ATC • C view • X shutdown</div>
 <script>
 (()=>{const c=document.getElementById('scene'),x=c.getContext('2d');let W=innerWidth,H=innerHeight,D=Math.min(devicePixelRatio||1,2);
 function resize(){W=innerWidth;H=innerHeight;c.width=W*D;c.height=H*D;c.style.width=W+'px';c.style.height=H+'px';x.setTransform(D,0,0,D,0,0)}addEventListener('resize',resize);resize();
@@ -399,6 +400,16 @@ document.getElementById('preflight').style.display='flex';
 updatePre();
 toast('TRAINING STARTED — complete MASTER → AVIONICS → FUEL PUMP → MIXTURE RICH.');
 }
+function shutdownEngine(){
+ if(!s.started)return toast('Start the training first.');
+ if(!s.onGround)return toast('SHUTDOWN INHIBITED — aircraft must be on the ground.');
+ if(!s.parkingBrake)return toast('SET PARKING BRAKE before engine shutdown.');
+ if(s.throttle>5)return toast('REDUCE THROTTLE TO IDLE before shutdown.');
+ if(!s.engineStarted&&!s.engine)return toast('ENGINE IS ALREADY OFF.');
+ s.throttle=0;s.mixture=0;s.starter=false;s.engineStarted=false;s.engine=false;s.rpm=0;
+ document.getElementById('shutdownBtn').disabled=true;
+ updatePre();setInputStatus('X → ENGINE OFF / MIXTURE CUTOFF');logEvent('ENGINE SHUTDOWN — PARKED','INFO');toast('ENGINE SHUT DOWN — aircraft secured.');
+}
 function startEngine(){
 initAudio();
 if(!ready()){toast('STARTER INHIBITED — complete MASTER, AVIONICS, FUEL PUMP and MIXTURE RICH first.');return}
@@ -471,6 +482,7 @@ document.getElementById('startBtn').onclick=start;
 document.getElementById('starter').onclick=startEngine;
 document.getElementById('starter').ondblclick=startEngine;
 document.getElementById('startCockpitBtn').onclick=startEngine;
+document.getElementById('shutdownBtn').onclick=shutdownEngine;
 document.getElementById('atcBtn').onclick=transmit;
 document.querySelectorAll('.freqBtn').forEach(b=>b.onclick=()=>setRadioFrequency(b.dataset.freq));
 document.getElementById('navArmBtn').onclick=()=>{
@@ -706,6 +718,7 @@ s.pitch=clamp(s.pitch,-12,15);
 }
 function engine(dt){
 if(s.failure==='ENGINE'){s.engineStarted=false;s.throttle=0;}
+if(s.engineStarted&&s.mixture<5&&s.onGround&&s.parkingBrake&&s.throttle<=5){s.engineStarted=false;s.starter=false;s.engine=false;s.rpm=0;toast('ENGINE SHUT DOWN — mixture cut-off confirmed.');logEvent('ENGINE SHUTDOWN — MIXTURE CUTOFF','INFO');}
 if(s.starter&&performance.now()-s.starterAt>2800){
   s.starter=false;s.engineStarted=true;s.engine=true;s.rpm=850;
   toast('ENGINE FIRED — oil pressure rising. Taxi clearance is next.');
@@ -1295,6 +1308,9 @@ document.getElementById('apHdgBtn').onclick=()=>{if(!s.autopilot)return toast('E
 document.getElementById('apAltBtn').onclick=()=>{if(!s.autopilot)return toast('ENGAGE AP FIRST.');s.apAltitude=!s.apAltitude;if(s.apAltitude)s.selectedAltitude=Math.max(500,Math.round(s.alt/100)*100);toast('ALT HOLD '+(s.apAltitude?'ON':'OFF'));};
 
 /* STAGE 11 — QA suite */
+
+function cSafeShutdown(){return hasShutdownStateMachine();}
+function hasShutdownStateMachine(){return typeof shutdownEngine==='function'&&/MIXTURE CUTOFF/.test(shutdownEngine.toString())&&/parkingBrake/.test(shutdownEngine.toString());}
 function runSystemQA(){
  const tests=[];
  const has=id=>!!document.getElementById(id);
@@ -1302,7 +1318,8 @@ function runSystemQA(){
  add('Core canvas present',has('scene'),'scene canvas');
  add('Start / pause / restart controls',has('startBtn')&&has('pauseBtn')&&has('restartBtn'),'test controls');
  add('Cockpit controls present',has('yoke')&&has('throttle')&&has('brake'),'primary controls');
- add('Engine checklist controls',document.querySelectorAll('[data-pre]').length>=4&&has('startCockpitBtn'),'preflight system');
+ add('Engine checklist controls',document.querySelectorAll('[data-pre]').length>=4&&has('startCockpitBtn')&&has('shutdownBtn'),'preflight / shutdown controls');
+ add('Engine shutdown path',typeof shutdownEngine==='function'&&cSafeShutdown(),'ground shutdown is reachable');
  add('ATC frequency controls',document.querySelectorAll('.freqBtn').length===4&&has('atcBtn'),'GND/TWR/CTR/APP');
  add('Navigation + ILS panel',has('approachPanel')&&has('ilsStatus'),'instrument approach');
  add('Moving-map panel',has('mapCanvas')&&has('mapInfo'),'navigation display');
