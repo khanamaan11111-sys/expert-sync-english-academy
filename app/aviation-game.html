@@ -97,8 +97,37 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 .cockpitBtn.on{background:#176f59;border-color:#54e6a6}
 #mixtureBtn{min-width:110px}
 #startCockpitBtn{width:100%;margin-top:7px;background:#176f59;border-color:#54e6a6}
-#aircraftLabel{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);z-index:4;padding:9px 14px;border:1px solid #54e6a6;border-radius:8px;background:#07131ddd;box-shadow:0 8px 30px #0008;color:#54e6a6;font-size:11px;font-weight:900;letter-spacing:1px;display:none}
+#aircraftLabel{position:absolute;left:50%;top:53%;transform:translate(-50%,-50%);z-index:4;padding:9px 14px;border:1px solid #54e6a6;border-radius:8px;background:#07131ddd;box-shadow:0 8px 30px #0008;color:#54e6a6;font-size:11px;font-weight:900;letter-spacing:1px;display:none}
 #keyFeedback{position:absolute;left:50%;top:83%;transform:translateX(-50%);z-index:31;padding:7px 12px;border:1px solid #3f99b5;border-radius:6px;background:#061923f2;color:#bfefff;font-size:9px;display:none}
+
+
+/* VISUAL / USABILITY PASS — desktop cockpit and external aircraft */
+@media(min-width:1200px){
+  #testbar{padding:8px 10px;gap:8px}
+  #testbar button{padding:8px 13px;font-size:10px}
+  #startBtn{font-size:10px!important;letter-spacing:.4px}
+  #testState{font-size:10px}
+  #inputStatus{font-size:9px;min-width:170px}
+  #controlsRow{gap:12px}
+  .controlBox{padding:10px}
+  .ct{font-size:8px}
+  .switch{width:32px;height:72px}
+  .switch:before{left:14px;height:49px}
+  .switch i{left:5px;width:23px;height:15px}
+  .switch.on i{top:32px}
+  .switch small{top:56px;width:48px;left:-8px;font-size:7px}
+  #yoke{width:220px;height:125px}
+  #yoke .wheel{left:25px;width:170px;height:72px;border-width:10px}
+  #yoke .stem{left:101px;top:46px;width:12px;height:72px}
+  #yoke .bar{left:39px;top:32px;width:88px}
+  #throttle{width:90px;height:155px;right:10%}
+  #throttle .rail{left:41px}
+  #throttle .lever{left:31px}
+  #brake{font-size:9px;padding:9px 12px}
+  .cockpitBtn{font-size:9px;padding:8px 10px}
+  #mixtureBtn{min-width:130px}
+  #startCockpitBtn{font-size:9px}
+}
 
 </style>
 </head>
@@ -766,8 +795,8 @@ x.strokeStyle='#54e6a6';x.lineWidth=6;x.setLineDash([22,14]);x.beginPath();x.mov
 x.fillStyle='#54e6a6';x.font='900 13px Arial';x.fillText('RUNWAY 09 • LINE UP',cx-W*.055,top+H*.10);
 }
 if(s.phase===0){x.strokeStyle='#fff';x.lineWidth=5;x.setLineDash([18,10]);x.beginPath();x.moveTo(cx-W*.13,top+H*.105);x.lineTo(cx+W*.13,top+H*.105);x.stroke();x.setLineDash([]);x.fillStyle='#ffd84a';x.font='700 14px Arial';x.fillText('HOLD SHORT',cx-W*.045,top+H*.145)}else if(s.phase===1){x.strokeStyle='#54e6a6';x.lineWidth=4;x.setLineDash([14,12]);x.beginPath();x.moveTo(cx-W*.08,top+H*.15);x.lineTo(cx+W*.08,top+H*.15);x.stroke();x.setLineDash([]);x.fillStyle='#54e6a6';x.font='700 14px Arial';x.fillText('LINE UP • RUNWAY 09',cx-W*.055,top+H*.185)}for(let i=0;i<22;i++){let t=i/21,y=top+t*(bottom-top),half=W*.20+t*W*.28;x.fillStyle=i%3?'#bfe0ff':'#fff';x.fillRect(cx-half,y,4,4);x.fillRect(cx+half,y,4,4)}x.fillStyle='#c4cfd1';x.fillRect(W*.05,horizon-15,W*.18,40);x.fillStyle='#718187';x.fillRect(W*.235,horizon-105,18,105);x.fillStyle='#2e4148';x.fillRect(W*.224,horizon-118,40,15);x.fillStyle='#f2f7f8';x.font='bold 10px Arial';x.fillText('EXPERT SYNC AIRPORT',W*.06,horizon+10);x.fillStyle='#30393c';x.beginPath();x.moveTo(W*.10,horizon+25);x.lineTo(W*.16,horizon+25);x.lineTo(W*.20,H);x.lineTo(W*.06,H);x.closePath();x.fill();x.strokeStyle='#e4ca3e';x.setLineDash([18,16]);x.beginPath();x.moveTo(W*.13,horizon+25);x.lineTo(W*.13,H);x.stroke();x.setLineDash([]);if(s.view==='EXTERNAL'){
-let px=W*.5,py=clamp(H*.72-s.alt*.00006*H,H*.24,H*.78);
-drawPlane(px,py,1.5,s.heading,s.bank);
+let px=W*.5,py=clamp(H*.68-s.alt*.00006*H,H*.24,H*.78);
+drawPlane(px,py,2.35,s.heading,s.bank);
 const al=document.getElementById('aircraftLabel');if(al)al.style.display='block';
 }else{const al=document.getElementById('aircraftLabel');if(al)al.style.display='none';
 }}
