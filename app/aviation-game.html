@@ -485,27 +485,48 @@ addEventListener('keydown',e=>{
 const k=e.key.toLowerCase();
 keys[k]=true;
 if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
-if(!s.started&&!e.repeat&&e.key==='Enter'){start();return}
+if(!s.started&&!e.repeat&&e.key==='Enter'){start();return;}
 if(!s.started)return;
 if(!e.repeat){
 if(k==='r'){transmit();setInputStatus('R → ATC READBACK');}
-if(k==='b'){s.parkingBrake=!s.parkingBrake;s.brake=s.parkingBrake;document.getElementById('brake').textContent='PARKING BRAKE: '+(s.parkingBrake?'ON':'OFF');setInputStatus('B → PARKING BRAKE '+(s.parkingBrake?'ON':'OFF'));}
-if(k==='f'){s.flaps=s.flaps===0?1:s.flaps===1?2:0;toast('Flaps '+(s.flaps===0?'UP':s.flaps===1?'TAKE-OFF':'FULL DOWN'));setInputStatus('F → FLAPS '+(s.flaps===0?'UP':s.flaps===1?'TAKE-OFF':'FULL DOWN'));}
+if(k==='b'){
+s.parkingBrake=!s.parkingBrake;
+s.brake=s.parkingBrake;
+document.getElementById('brake').textContent='PARKING BRAKE: '+(s.parkingBrake?'ON':'OFF');
+setInputStatus('B → PARKING BRAKE '+(s.parkingBrake?'ON':'OFF'));
+}
+if(k==='f'){
+s.flaps=s.flaps===0?1:s.flaps===1?2:0;
+toast('Flaps '+(s.flaps===0?'UP':s.flaps===1?'TAKE-OFF':'FULL DOWN'));
+setInputStatus('F → FLAPS '+(s.flaps===0?'UP':s.flaps===1?'TAKE-OFF':'FULL DOWN'));
+}
 if(k==='t'){s.trim=clamp(s.trim+10,-100,100);setInputStatus('T → TRIM UP '+Math.round(s.trim)+'%');}
 if(k==='y'){s.trim=clamp(s.trim-10,-100,100);setInputStatus('Y → TRIM DOWN '+Math.round(s.trim)+'%');}
-if(k==='g'){if(!s.onGround&&s.speed<100)s.gear=!s.gear;else if(s.onGround)s.gear=true;else toast('Reduce airspeed before gear operation.');setInputStatus('G → GEAR '+(s.gear?'DOWN':'UP'));}
+if(k==='g'){
+if(!s.onGround&&s.speed<100)s.gear=!s.gear;
+else if(s.onGround)s.gear=true;
+else toast('Reduce airspeed before gear operation.');
+setInputStatus('G → GEAR '+(s.gear?'DOWN':'UP'));
+}
 if(k==='c'){setView(s.view==='COCKPIT'?'EXTERNAL':'COCKPIT');setInputStatus('C → '+s.view);}
 if(k==='j'){s.selectedHeading=norm(s.selectedHeading-5);setInputStatus('J → HEADING BUG '+String(Math.round(s.selectedHeading)).padStart(3,'0')+'°');}
 if(k==='l'){s.selectedHeading=norm(s.selectedHeading+5);setInputStatus('L → HEADING BUG '+String(Math.round(s.selectedHeading)).padStart(3,'0')+'°');}
-if(k==='1'){toggleLight('nav');}
-if(k==='2'){toggleLight('beacon');}
-if(k==='3'){toggleLight('strobe');}
-if(k==='4'){toggleLight('landing');}
+if(k==='1')toggleLight('nav');
+if(k==='2')toggleLight('beacon');
+if(k==='3')toggleLight('strobe');
+if(k==='4')toggleLight('landing');
 if(k==='x'){
-if(s.phase===7&&s.onGround&&s.parkingBrake&&s.throttle<=5){s.engineStarted=false;s.engine=false;s.rpm=0;setInputStatus('X → ENGINE SHUT DOWN');toast('ENGINE SHUT DOWN — complete the after-landing checklist.');}
-else toast('SHUTDOWN requires AFTER LANDING: on ground, parking brake ON, throttle IDLE.');
+if(s.phase===7&&s.onGround&&s.parkingBrake&&s.throttle<=5){
+s.engineStarted=false;s.engine=false;s.rpm=0;
+setInputStatus('X → ENGINE SHUT DOWN');
+toast('ENGINE SHUT DOWN — complete the after-landing checklist.');
+}else{
+toast('SHUTDOWN requires AFTER LANDING: on ground, parking brake ON, throttle IDLE.');
 }
-}}
+}
+if(k==='w')setInputStatus('W → THROTTLE '+Math.round(s.throttle)+'%');
+if(k==='s')setInputStatus('S → THROTTLE '+Math.round(s.throttle)+'%');
+}
 },true);
 addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false},true);
 function controls(dt){if(keys.w)s.throttle+=38*dt;if(keys.s)s.throttle-=55*dt;s.throttle=clamp(s.throttle,0,100);if(keys.m)s.mixture=clamp(s.mixture+45*dt,0,100);if(keys.n)s.mixture=clamp(s.mixture-45*dt,0,100);if(s.yoke){if(s.onGround)s.heading=norm(s.heading+s.yx*34*dt);else s.bank+=s.yx*42*dt;s.pitch-=s.yy*12*dt}else{s.yx*=Math.pow(.04,dt);s.yy*=Math.pow(.04,dt)}if(s.onGround){
