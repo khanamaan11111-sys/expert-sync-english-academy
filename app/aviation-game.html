@@ -800,7 +800,87 @@ drawPlane(px,py,2.35,s.heading,s.bank);
 const al=document.getElementById('aircraftLabel');if(al)al.style.display='block';
 }else{const al=document.getElementById('aircraftLabel');if(al)al.style.display='none';
 }}
-function drawPlane(px,py,sc,hdg,bank){x.save();x.translate(px,py);x.rotate((hdg-90)*Math.PI/180);x.scale(sc,sc);x.transform(1,0,Math.sin(bank*Math.PI/180)*.12,1,0,0);x.shadowColor='#000b';x.shadowBlur=15;x.shadowOffsetY=8;let g=x.createLinearGradient(-60,-40,60,40);g.addColorStop(0,'#8b9ba0');g.addColorStop(.25,'#f8fbfc');g.addColorStop(.55,'#fff');g.addColorStop(1,'#7a8c92');x.fillStyle=g;x.beginPath();x.ellipse(0,0,14,52,0,0,Math.PI*2);x.fill();x.fillStyle='#dce6e9';x.beginPath();x.moveTo(-84,-5);x.lineTo(-8,-18);x.lineTo(18,-8);x.lineTo(10,9);x.lineTo(-8,15);x.closePath();x.fill();x.beginPath();x.moveTo(8,-5);x.lineTo(84,-5);x.lineTo(9,15);x.closePath();x.fill();x.fillStyle='#17485c';x.beginPath();x.ellipse(5,-20,10,15,0,0,Math.PI*2);x.fill();if(s.gear){x.strokeStyle='#596a70';x.lineWidth=3;x.beginPath();x.moveTo(-8,17);x.lineTo(-13,33);x.moveTo(8,17);x.lineTo(13,33);x.stroke();x.fillStyle='#171d20';x.beginPath();x.arc(-13,35,5,0,7);x.arc(13,35,5,0,7);x.fill()}if(s.engine){x.strokeStyle='#fff8';x.lineWidth=2;x.beginPath();x.arc(0,-57,19,0,7);x.moveTo(-18,-57);x.lineTo(18,-57);x.stroke()}x.fillStyle='#ff3048';x.beginPath();x.arc(-70,0,3.5,0,7);x.fill();x.fillStyle='#42ff9a';x.beginPath();x.arc(70,0,3.5,0,7);x.fill();x.restore()}
+function drawPlane(px,py,sc,hdg,bank){
+x.save();x.translate(px,py);x.rotate((hdg-90)*Math.PI/180);
+const b=bank*Math.PI/180;
+x.transform(1,0,Math.sin(b)*.10,1,0,0);
+x.scale(sc,sc);
+
+/* aircraft shadow */
+x.shadowColor='#0009';x.shadowBlur=18;x.shadowOffsetY=10;
+x.fillStyle='#26343a';
+x.beginPath();x.ellipse(0,8,62,28,0,0,Math.PI*2);x.fill();
+x.shadowColor='transparent';
+
+/* main wings */
+let wing=x.createLinearGradient(0,-15,0,15);
+wing.addColorStop(0,'#eef4f6');wing.addColorStop(.5,'#ffffff');wing.addColorStop(1,'#9aaab0');
+x.fillStyle=wing;
+x.beginPath();
+x.moveTo(-9,-7);x.lineTo(-92,-13);x.lineTo(-108,-7);x.lineTo(-102,5);x.lineTo(-18,12);x.lineTo(-7,8);x.closePath();x.fill();
+x.beginPath();
+x.moveTo(9,-7);x.lineTo(92,-13);x.lineTo(108,-7);x.lineTo(102,5);x.lineTo(18,12);x.lineTo(7,8);x.closePath();x.fill();
+
+/* wing leading-edge detail */
+x.strokeStyle='#8b9ca2';x.lineWidth=2;
+x.beginPath();x.moveTo(-19,0);x.lineTo(-98,-5);x.moveTo(19,0);x.lineTo(98,-5);x.stroke();
+
+/* tailplane */
+x.fillStyle='#c8d5d9';
+x.beginPath();x.moveTo(-7,29);x.lineTo(-42,39);x.lineTo(-48,45);x.lineTo(-8,42);x.closePath();x.fill();
+x.beginPath();x.moveTo(7,29);x.lineTo(42,39);x.lineTo(48,45);x.lineTo(8,42);x.closePath();x.fill();
+
+/* vertical stabilizer */
+x.fillStyle='#aab9be';
+x.beginPath();x.moveTo(-6,28);x.lineTo(-5,48);x.lineTo(5,48);x.lineTo(7,28);x.closePath();x.fill();
+
+/* fuselage */
+let body=x.createLinearGradient(-14,0,14,0);
+body.addColorStop(0,'#71838a');body.addColorStop(.18,'#f4f8f9');body.addColorStop(.52,'#ffffff');body.addColorStop(.82,'#d4dfe2');body.addColorStop(1,'#687a81');
+x.fillStyle=body;
+x.beginPath();x.ellipse(0,0,14,58,0,0,Math.PI*2);x.fill();
+
+/* nose / engine cowling */
+x.fillStyle='#e8eef0';
+x.beginPath();x.ellipse(0,-50,13,12,0,0,Math.PI*2);x.fill();
+x.fillStyle='#234b5c';
+x.beginPath();x.ellipse(0,-35,9,13,0,0,Math.PI*2);x.fill();
+
+/* cockpit canopy */
+let canopy=x.createLinearGradient(-9,-29,9,-10);
+canopy.addColorStop(0,'#86d9ef');canopy.addColorStop(.45,'#1d6078');canopy.addColorStop(1,'#0c3443');
+x.fillStyle=canopy;
+x.beginPath();x.ellipse(0,-20,9,15,0,0,Math.PI*2);x.fill();
+x.strokeStyle='#b7f0ff';x.lineWidth=1;
+x.beginPath();x.moveTo(0,-32);x.lineTo(0,-9);x.stroke();
+
+/* cabin stripe */
+x.fillStyle='#1b6f8a';x.globalAlpha=.9;
+x.fillRect(-12,-3,24,5);x.globalAlpha=1;
+
+/* landing gear */
+if(s.gear){
+x.strokeStyle='#596a70';x.lineWidth=3;
+x.beginPath();x.moveTo(-8,16);x.lineTo(-15,35);x.moveTo(8,16);x.lineTo(15,35);x.moveTo(0,35);x.lineTo(0,47);x.stroke();
+x.fillStyle='#151b1e';
+[-15,15,0].forEach((gx,idx)=>{x.beginPath();x.ellipse(gx,idx===2?49:37,5,3,0,0,Math.PI*2);x.fill()});
+}
+
+/* spinning propeller */
+if(s.engine){
+x.strokeStyle='#ffffffaa';x.lineWidth=2;
+x.beginPath();x.arc(0,-59,22,0,Math.PI*2);x.stroke();
+x.strokeStyle='#bfefff';x.lineWidth=3;
+x.beginPath();x.moveTo(-18,-59);x.lineTo(18,-59);x.moveTo(0,-77);x.lineTo(0,-41);x.stroke();
+x.fillStyle='#1e2528';x.beginPath();x.arc(0,-59,4,0,Math.PI*2);x.fill();
+}
+
+/* navigation lights */
+x.fillStyle='#ff3048';x.beginPath();x.arc(-105,-7,4,0,Math.PI*2);x.fill();
+x.fillStyle='#42ff9a';x.beginPath();x.arc(105,-7,4,0,Math.PI*2);x.fill();
+if(s.landingLight){x.fillStyle='#fff6b0';x.shadowColor='#fff';x.shadowBlur=10;x.beginPath();x.arc(0,-57,4,0,Math.PI*2);x.fill();x.shadowColor='transparent'}
+
+x.restore()}
 function tick(t){let dt=Math.min(.05,Math.max(.001,(t-s.last)/1000));s.last=t;if(s.started&&!s.paused){controls(dt);engine(dt);flight(dt);evaluate(dt);hud();updateAudio();updateFDR(t)}
 if(s.replayPlaying&&s.fdr.length){s.replayIndex=Math.min(s.replayIndex+1,s.fdr.length-1);if(s.replayIndex>=s.fdr.length-1){s.replayPlaying=false;document.getElementById('replayBtn').textContent='PLAY REPLAY';}updateReplayUI();}
 draw();requestAnimationFrame(tick)}
