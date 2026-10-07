@@ -103,6 +103,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 
 #flightHelp{position:absolute;left:50%;bottom:58px;transform:translateX(-50%);z-index:32;padding:7px 12px;border:1px solid #3f99b5;border-radius:6px;background:#061923e8;color:#c8edf7;font-size:9px;display:none;white-space:nowrap;pointer-events:none}
 #flightHelp b{color:#54e6a6}
+.debriefMetric{border:1px solid #294653;border-radius:6px;padding:7px;text-align:center}.debriefMetric b{display:block;font-size:7px;color:#8fa8b2;letter-spacing:.6px}.debriefMetric strong{display:block;font-size:17px;color:#54e6a6;margin-top:3px}
 /* VISUAL / USABILITY PASS — desktop cockpit and external aircraft */
 @media(min-width:1200px){
   #testbar{padding:8px 10px;gap:8px}
@@ -764,6 +765,72 @@ if(s.progress>=100&&s.phase<7){next()}
 if(s.progress>=100&&s.phase===7){finishMission()}
 if(s.stall&&s.alt>40)document.getElementById('warning').style.display='block';else document.getElementById('warning').style.display='none'
 }
+function buildDebrief(){
+const A=assessmentSummary();
+const issues=[];
+const seen={};
+const add=(key,title,detail,action)=>{
+  if(seen[key])return;
+  seen[key]=true;issues.push({title,detail,action});
+};
+for(const ev of s.events.slice().reverse()){
+  const m=ev.msg;
+  if(m.includes('HEADING DEVIATION'))add('heading','Heading control','The aircraft moved away from the assigned 090° track.','Use J/L for the heading bug, then make small A/D corrections and trim.');
+  else if(m.includes('EXCESSIVE BANK'))add('bank','Bank control','Bank angle became too large for the training profile.','Use smaller roll inputs and return smoothly toward wings level.');
+  else if(m.includes('LOW AIRSPEED'))add('slow','Energy management','Airspeed dropped below the monitored safe training range.','Add appropriate power and avoid chasing altitude with excessive pitch.');
+  else if(m.includes('OVERSPEED'))add('overspeed','Overspeed control','Airspeed exceeded the monitored training limit.','Reduce power and stabilize pitch before continuing.');
+  else if(m.includes('RUNWAY ENTRY WITHOUT'))add('runway','ATC / runway discipline','Runway entry was attempted before the required clearance.','Stop, obtain the Tower clearance, then enter and line up.');
+  else if(m.includes('GEAR STILL DOWN'))add('gear','Gear management','Landing gear remained down after the positive-climb point.','After a positive rate is established, retract the gear and verify the indication.');
+  else if(m.includes('APPROACH SPEED HIGH'))add('appspeed','Approach stabilization','Approach speed became too high.','Reduce energy early and stabilize before continuing the final approach.');
+  else if(m.includes('UNSTABLE DESCENT'))add('descent','Vertical-path control','Descent rate became unstable.','Use small pitch/power changes and target a controlled descent.');
+  else if(m.includes('LANDING CONFIGURATION'))add('config','Landing configuration','The landing configuration was incomplete.','Verify gear DOWN and appropriate/full flaps before touchdown.');
+  else if(m.includes('GEAR NOT DOWN AT LANDING'))add('gearlanding','Landing gear safety','The aircraft reached the landing phase without gear DOWN.','Make the gear check a mandatory callout before final approach.');
+  else if(m.includes('FAST LANDING'))add('fastlanding','Landing energy','Touchdown occurred with excessive speed.','Reduce power and allow the aircraft to decelerate while maintaining centreline.');
+}
+const strengths=[];
+if(A.atc>=95)strengths.push('ATC discipline');
+if(A.handling>=95)strengths.push('aircraft handling');
+if(A.configuration>=95)strengths.push('configuration management');
+if(A.stability>=95)strengths.push('flight stability');
+if(A.safety>=95)strengths.push('safety discipline');
+if(!strengths.length)strengths.push('completed the full training sequence');
+const sampleCount=s.fdr.length;
+const maxAlt=sampleCount?Math.max(...s.fdr.map(d=>d.alt)):0;
+const maxIas=sampleCount?Math.max(...s.fdr.map(d=>d.ias)):0;
+const phaseTimes={};
+for(let i=1;i<s.fdr.length;i++){
+ const a=s.fdr[i-1],b=s.fdr[i];
+ if(a.phase===b.phase)phaseTimes[a.phase]=(phaseTimes[a.phase]||0)+(b.t-a.t);
+}
+return {A,issues,strengths,sampleCount,maxAlt,maxIas,phaseTimes};
+}
+function showDebrief(){
+const d=buildDebrief();
+let el=document.getElementById('debrief');
+if(el)el.remove();
+el=document.createElement('div');el.id='debrief';el.className='ui panel';
+el.style='position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:60;width:min(860px,92vw);max-height:84vh;overflow:auto;padding:20px 22px;background:#06131cf7;border:1px solid #43bfe8;border-radius:10px;box-shadow:0 25px 100px #000d';
+const issueHtml=d.issues.length?d.issues.slice(0,6).map((q,i)=>'<div style="border:1px solid #294653;border-radius:6px;padding:9px;margin-top:7px"><b style="color:#f4d35e">'+(i+1)+'. '+q.title+'</b><div style="font-size:9px;color:#b7c9cf;margin-top:4px">'+q.detail+'</div><div style="font-size:9px;color:#54e6a6;margin-top:4px"><b>Next time:</b> '+q.action+'</div></div>').join(''):'<div style="color:#54e6a6;font-size:10px;margin-top:8px">No major instructor issues were recorded.</div>';
+const timeHtml=Object.keys(d.phaseTimes).map(k=>'<span style="display:inline-block;margin:3px 6px 0 0;padding:4px 6px;border:1px solid #294653;border-radius:4px;font-size:8px">'+(missions[k]?.[0]||'Phase')+' '+Math.round(d.phaseTimes[k]/1000)+'s</span>').join('');
+el.innerHTML='<div style="color:#54e6a6;font-size:10px;font-weight:900;letter-spacing:2px">POST-FLIGHT DEBRIEF</div>'+
+'<div style="font-size:23px;font-weight:900;margin:5px 0">EXPERT SYNC — FLIGHT 01</div>'+
+'<div style="font-size:9px;color:#8fa8b2">Instructor analysis generated from the flight-data recorder and event log.</div>'+
+'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:13px 0">'+
+'<div class="debriefMetric"><b>OVERALL</b><strong>'+d.A.overall+'%</strong></div><div class="debriefMetric"><b>HANDLING</b><strong>'+d.A.handling+'%</strong></div><div class="debriefMetric"><b>ATC</b><strong>'+d.A.atc+'%</strong></div><div class="debriefMetric"><b>SAFETY</b><strong>'+d.A.safety+'%</strong></div></div>'+
+'<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:8px">WHAT YOU DID WELL</div><div style="font-size:10px;color:#c6d7dc;margin-top:4px">'+d.strengths.join(' • ')+'</div>'+
+'<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:13px">IMPROVEMENT ITEMS</div>'+issueHtml+
+'<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:13px">FLIGHT DATA</div><div style="font-size:9px;color:#9bb5be;margin-top:5px">Samples: '+d.sampleCount+' • Maximum altitude: '+d.maxAlt+' ft • Maximum IAS: '+d.maxIas+' kt</div>'+
+'<div style="margin-top:4px">'+timeHtml+'</div>'+
+'<div style="display:flex;gap:6px;margin-top:15px"><button id="closeDebrief" class="atcBtn">CLOSE DEBRIEF</button><button id="copyFullDebrief" class="atcBtn">COPY FULL DEBRIEF</button></div>';
+document.getElementById('game').appendChild(el);
+document.getElementById('closeDebrief').onclick=()=>el.remove();
+document.getElementById('copyFullDebrief').onclick=async()=>{
+const lines=['EXPERT SYNC — POST-FLIGHT DEBRIEF','Overall: '+d.A.overall+'%','Handling: '+d.A.handling+'%','Procedures: '+d.A.procedures+'%','ATC: '+d.A.atc+'%','Configuration: '+d.A.configuration+'%','Stability: '+d.A.stability+'%','Safety: '+d.A.safety+'%','Strengths: '+d.strengths.join(', '),''];
+d.issues.forEach((q,i)=>lines.push((i+1)+'. '+q.title+' — '+q.detail+' Next time: '+q.action));
+lines.push('FDR samples: '+d.sampleCount,'Maximum altitude: '+d.maxAlt+' ft','Maximum IAS: '+d.maxIas+' kt');
+try{await navigator.clipboard.writeText(lines.join('\n'));toast('FULL DEBRIEF COPIED.')}catch(e){toast('Copy unavailable — debrief remains on screen.')}
+};
+}
 function finishMission(){
 if(document.getElementById('complete'))return;
 const score=Math.round(s.score);
@@ -778,8 +845,9 @@ e.innerHTML='<div style="color:#54e6a6;font-size:11px;font-weight:900;letter-spa
 '<div style="margin:16px 0 8px;font-size:28px;font-weight:900">SCENARIO: '+s.scenario.toUpperCase()+'</div><div style="font-size:28px;font-weight:900">'+score+' <span style="font-size:12px;color:#9bb5be">POINTS</span></div>'+
 '<div style="font-size:14px;color:#54e6a6;font-weight:900;letter-spacing:1px">'+grade+'</div>'+
 '<div style="margin:14px 0;color:#9bb5be;font-size:11px;line-height:1.7">ATC discipline • aircraft control • configuration • speed/altitude management • runway handling</div><div style="font-size:9px;color:#6f8e99">Flight data and replay timeline available above.</div>'+
-'<button id="copyDebrief" class="atcBtn" style="width:100%;margin-bottom:6px">COPY FLIGHT DEBRIEF</button><button id="replay" class="atcBtn" style="width:100%">RESTART TRAINING</button>';
+'<button id="copyDebrief" class="atcBtn" style="width:100%;margin-bottom:6px">COPY FLIGHT DEBRIEF</button><button id="openDebrief" class="atcBtn" style="width:100%;margin-bottom:6px">OPEN POST-FLIGHT DEBRIEF</button><button id="replay" class="atcBtn" style="width:100%">RESTART TRAINING</button>';
 document.getElementById('game').appendChild(e);
+document.getElementById('openDebrief').onclick=showDebrief;
 document.getElementById('copyDebrief').onclick=async()=>{
 const report='EXPERT SYNC FLIGHT 01 DEBRIEF\nScenario: '+s.scenario+'\nFDR samples: '+s.fdr.length+'\nScore: '+score+'\nGrade: '+grade+'\n'+s.events.slice().reverse().map(e=>e.t+' '+e.msg).join('\n');
 try{await navigator.clipboard.writeText(report);toast('FLIGHT DEBRIEF COPIED.')}catch(e){toast('Copy unavailable — review the event log.')}
