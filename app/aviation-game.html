@@ -77,6 +77,9 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #navPanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
 .navRow{display:flex;justify-content:space-between;margin-top:5px;font-size:9px;color:#9bb5be}
 .navRow strong{color:#fff}.navHint{margin-top:6px;font-size:8px;color:#6f8e99}
+#apPanel{right:14px;top:210px;padding:9px 11px;min-width:165px;z-index:25}
+#apPanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
+#apPanel strong{color:#fff}
 #scenarioPanel{left:14px;bottom:52px;padding:9px 11px;width:220px;z-index:30}
 #scenarioPanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
 #scenarioSelect{width:100%;margin:6px 0;background:#07161d;color:#fff;border:1px solid #3c6978;padding:5px;font-size:9px}
@@ -155,6 +158,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="approachPanel" class="ui panel"><b>ILS-STYLE APPROACH</b><div class="ils"><div class="ilsBox"><span>LOC</span><strong id="locDev">0.0</strong><small>DOTS</small></div><div class="ilsBox"><span>GS</span><strong id="gsDev">0.0</strong><small>DOTS</small></div></div><div id="ilsStatus">RUNWAY 09 • ILS ARMED</div></div>
 <div id="mapPanel" class="ui panel"><b>MINI MOVING MAP</b><canvas id="mapCanvas" width="220" height="145"></canvas><div id="mapInfo">RWY 09 • ROUTE ALPHA</div></div>
 <div id="navPanel" class="ui panel"><b>NAVIGATION / HEADING</b><div class="navRow"><span>SELECTED HDG</span><strong id="selHdg">090°</strong></div><div class="navRow"><span>COURSE ERROR</span><strong id="courseErr">0°</strong></div><div class="navHint">J/L = heading bug −/+ 5°</div></div>
+<div id="apPanel" class="ui panel"><b>AUTOPILOT / FLIGHT DIRECTOR</b><div class="navRow"><span>AP MASTER</span><strong id="apState">OFF</strong></div><div class="navRow"><span>HDG MODE</span><strong id="apHdg">OFF</strong></div><div class="navRow"><span>ALT HOLD</span><strong id="apAlt">OFF</strong></div><div class="navRow"><span>ALT BUG</span><strong id="apAltBug">3000 FT</strong></div><div style="display:flex;gap:4px;margin-top:7px"><button id="apBtn" class="cockpitBtn" style="margin:0;flex:1">AP</button><button id="apHdgBtn" class="cockpitBtn" style="margin:0;flex:1">HDG</button><button id="apAltBtn" class="cockpitBtn" style="margin:0;flex:1">ALT</button></div><div class="navHint">P = AP • K = HDG • Z = ALT</div></div>
 <div id="hud" class="ui">
 <div class="read"><b>AIRSPEED</b><strong id="hspd">0</strong><small>KT</small></div><div class="read"><b>ALTITUDE</b><strong id="halt">0</strong><small>FT</small></div><div class="read"><b>HEADING</b><strong id="hhdg">090</strong><small>°</small></div><div class="read"><b>VERTICAL SPEED</b><strong id="hvs">0</strong><small>FT/MIN</small></div><div class="read"><b>RPM</b><strong id="hrpm">0</strong><small>RPM</small></div><div class="read"><b>FUEL</b><strong id="hfuel">100</strong><small>%</small></div>
 </div>
@@ -203,7 +207,7 @@ const missions=[
 ['LANDING','TOWER 118.10','Read back landing clearance. Maintain centreline, land with gear DOWN and FULL FLAPS, then reduce power and decelerate below 55 kt.','Tower: ES-01, cleared to land Runway 09.'],
 ['AFTER LANDING • PARK & SHUTDOWN','GROUND 121.90','After touchdown, keep the centreline, slow to taxi speed, exit the runway, set parking brake, reduce power to idle, and shut down the engine.','Ground: ES-01, taxi to parking via Alpha.']
 ];
-const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,trim:0,selectedHeading:90,ilsArmed:false,failure:null,
+const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,trim:0,selectedHeading:90,selectedAltitude:3000,ilsArmed:false,autopilot:false,apHeading:false,apAltitude:false,failure:null,
 events:[],lastLoggedPhase:-1,fdr:[],lastFdr:0,replayIndex:0,replayPlaying:false,
 instructor:{handling:100,procedures:100,atc:100,configuration:100,stability:100,safety:100},lastInstructor:{},assessmentStarted:false,
 traffic:[
@@ -547,6 +551,9 @@ else toast('Reduce airspeed before gear operation.');
 setInputStatus('G → GEAR '+(s.gear?'DOWN':'UP'));
 }
 if(k==='c'){setView(s.view==='COCKPIT'?'EXTERNAL':'COCKPIT');setInputStatus('C → '+s.view);}
+if(k==='p'){if(!s.onGround){s.autopilot=!s.autopilot;if(s.autopilot){s.apHeading=true;s.selectedAltitude=Math.round(s.alt/100)*100;toast('AUTOPILOT ON — HDG HOLD ACTIVE.');logEvent('AUTOPILOT ENGAGED — HDG HOLD','INFO');}else{toast('AUTOPILOT OFF — HAND FLYING.');logEvent('AUTOPILOT DISENGAGED','INFO');}}else toast('AUTOPILOT AVAILABLE AIRBORNE ONLY.');}
+if(k==='k'){if(s.autopilot){s.apHeading=!s.apHeading;toast('HDG MODE '+(s.apHeading?'ON':'OFF'));}else toast('ENGAGE AP FIRST.');}
+if(k==='z'){if(s.autopilot){s.apAltitude=!s.apAltitude;if(s.apAltitude)s.selectedAltitude=Math.max(500,Math.round(s.alt/100)*100);toast('ALT HOLD '+(s.apAltitude?'ARMED':'OFF'));}else toast('ENGAGE AP FIRST.');}
 if(k==='j'){s.selectedHeading=norm(s.selectedHeading-5);setInputStatus('J → HEADING BUG '+String(Math.round(s.selectedHeading)).padStart(3,'0')+'°');}
 if(k==='l'){s.selectedHeading=norm(s.selectedHeading+5);setInputStatus('L → HEADING BUG '+String(Math.round(s.selectedHeading)).padStart(3,'0')+'°');}
 if(k==='1')toggleLight('nav');
@@ -567,6 +574,21 @@ if(k==='s')setInputStatus('S → THROTTLE '+Math.round(s.throttle)+'%');
 }
 },true);
 addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false},true);
+function updateAutopilot(dt){
+if(!s.autopilot||s.onGround)return;
+if(s.apHeading){
+  const err=diff(s.selectedHeading,s.heading);
+  const targetBank=clamp(err*.55,-22,22);
+  s.bank+=(targetBank-s.bank)*Math.min(1,dt*1.8);
+}
+if(s.apAltitude){
+  const altErr=s.selectedAltitude-s.alt;
+  const targetPitch=clamp(altErr*.008,-7,8);
+  s.pitch+=(targetPitch-s.pitch)*Math.min(1,dt*1.2);
+  const targetPower=clamp(52+altErr*.018,35,72);
+  s.throttle+=(targetPower-s.throttle)*Math.min(1,dt*.7);
+}
+}
 function controls(dt){
 const steer=(keys.a||keys.arrowleft?1:0)-(keys.d||keys.arrowright?1:0);
 const pitchInput=(keys.arrowup?1:0)-(keys.arrowdown?1:0);
@@ -1020,6 +1042,10 @@ document.getElementById('beaconLight').textContent=s.beacon?'ON':'OFF';
 document.getElementById('strobeLight').textContent=s.strobe?'ON':'OFF';
 document.getElementById('landingLight').textContent=s.landingLight?'ON':'OFF';document.getElementById('tp').textContent=Math.round(s.throttle)+'%';document.getElementById('lever').style.bottom=(20+s.throttle*.8)+'px';document.getElementById('radioState').textContent=s.radio?'ACK':'STANDBY';
 document.getElementById('selHdg').textContent=String(Math.round(s.selectedHeading)).padStart(3,'0')+'°';
+document.getElementById('apState').textContent=s.autopilot?'ON':'OFF';
+document.getElementById('apHdg').textContent=s.apHeading?'ON':'OFF';
+document.getElementById('apAlt').textContent=s.apAltitude?'ON':'OFF';
+document.getElementById('apAltBug').textContent=Math.round(s.selectedAltitude)+' FT';
 document.getElementById('courseErr').textContent=(Math.abs(diff(s.heading,s.selectedHeading))<1?'0':(diff(s.heading,s.selectedHeading)>0?'+':'')+Math.round(diff(s.heading,s.selectedHeading)))+'°';
 setPhase();updateGuide();updateWeather();updateChecklist();updateTraffic(dt);updateILS();updateEventLog();drawMap();document.getElementById('bar').style.width=s.progress+'%';document.querySelectorAll('.switch').forEach(e=>{let k=e.dataset.s,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:false;e.classList.toggle('on',on)});document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}
 function draw(){x.clearRect(0,0,W,H);let sky=x.createLinearGradient(0,0,0,H*.62);sky.addColorStop(0,'#49a7d5');sky.addColorStop(.7,'#a6dce8');sky.addColorStop(1,'#7da66f');x.fillStyle=sky;x.fillRect(0,0,W,H*.64);let horizon=H*.48 - s.pitch*H*.018;x.save();x.translate(W*.5,horizon);x.rotate(s.bank*Math.PI/180);x.translate(-W*.5,-horizon);x.fillStyle='#526e6b';x.beginPath();x.moveTo(0,horizon+25);for(let i=0;i<=W;i+=35)x.lineTo(i,horizon+5-Math.sin(i*.008)*32-Math.sin(i*.018)*15);x.lineTo(W,horizon+25);x.fill();x.fillStyle='#4d7448';x.fillRect(-W,horizon+25,W*3,H);x.restore();for(let i=0;i<18;i++){x.fillStyle=i%2?'#52794d':'#4a7046';x.fillRect(i*W/18,horizon+25,W/18+1,H)}let cx=W*.58,top=horizon+H*.10,bottom=H*1.05;x.fillStyle='#252c2f';x.beginPath();x.moveTo(cx-W*.20,top);x.lineTo(cx+W*.20,top);x.lineTo(cx+W*.48,bottom);x.lineTo(cx-W*.48,bottom);x.closePath();x.fill();x.strokeStyle='#d8bf45';x.lineWidth=3;x.stroke();x.strokeStyle='#fff';x.lineWidth=4;x.setLineDash([28,24]);x.beginPath();x.moveTo(cx,top);x.lineTo(cx,bottom);x.stroke();x.setLineDash([]);x.fillStyle='#fff';x.font='900 35px Arial';x.fillText('09',cx+W*.08,top+H*.06);if(s.phase===1&&s.xp>64){
@@ -1116,7 +1142,7 @@ x.fillStyle='#42ff9a';x.beginPath();x.arc(105,-7,4,0,Math.PI*2);x.fill();
 if(s.landingLight){x.fillStyle='#fff6b0';x.shadowColor='#fff';x.shadowBlur=10;x.beginPath();x.arc(0,-57,4,0,Math.PI*2);x.fill();x.shadowColor='transparent'}
 
 x.restore()}
-function tick(t){let dt=Math.min(.05,Math.max(.001,(t-s.last)/1000));s.last=t;if(s.started&&!s.paused){controls(dt);engine(dt);flight(dt);evaluate(dt);hud();updateAudio();updateFDR(t)}
+function tick(t){let dt=Math.min(.05,Math.max(.001,(t-s.last)/1000));s.last=t;if(s.started&&!s.paused){controls(dt);updateAutopilot(dt);engine(dt);flight(dt);evaluate(dt);hud();updateAudio();updateFDR(t)}
 if(s.replayPlaying&&s.fdr.length){s.replayIndex=Math.min(s.replayIndex+1,s.fdr.length-1);if(s.replayIndex>=s.fdr.length-1){s.replayPlaying=false;document.getElementById('replayBtn').textContent='PLAY REPLAY';}updateReplayUI();}
 draw();requestAnimationFrame(tick)}
 document.getElementById('game').addEventListener('click',()=>{initAudio();document.body.focus();});
@@ -1124,6 +1150,9 @@ document.getElementById('scene').setAttribute('tabindex','0');
 document.getElementById('scene').style.outline='none';
 document.getElementById('scene').addEventListener('click',()=>document.getElementById('scene').focus());
 
+document.getElementById('apBtn').onclick=()=>{if(s.onGround)return toast('AUTOPILOT AVAILABLE AIRBORNE ONLY.');s.autopilot=!s.autopilot;if(s.autopilot){s.apHeading=true;s.selectedAltitude=Math.max(500,Math.round(s.alt/100)*100);toast('AUTOPILOT ON — HDG HOLD ACTIVE.');logEvent('AUTOPILOT ENGAGED — HDG HOLD','INFO')}else{toast('AUTOPILOT OFF — HAND FLYING.');logEvent('AUTOPILOT DISENGAGED','INFO')}};
+document.getElementById('apHdgBtn').onclick=()=>{if(!s.autopilot)return toast('ENGAGE AP FIRST.');s.apHeading=!s.apHeading;toast('HDG MODE '+(s.apHeading?'ON':'OFF'));};
+document.getElementById('apAltBtn').onclick=()=>{if(!s.autopilot)return toast('ENGAGE AP FIRST.');s.apAltitude=!s.apAltitude;if(s.apAltitude)s.selectedAltitude=Math.max(500,Math.round(s.alt/100)*100);toast('ALT HOLD '+(s.apAltitude?'ON':'OFF'));};
 setPhase();
 setView('EXTERNAL');
 document.getElementById('aircraftLabel').style.display='block';
