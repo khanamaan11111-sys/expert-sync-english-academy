@@ -15,6 +15,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #checklistTitle{font-size:8px;color:#9bb5be;margin:5px 0}
 .clItem{font-size:8px;line-height:1.55;color:#9bb5be}.clItem.done{color:#54e6a6}
 #mission{left:14px;top:83px;width:315px;padding:13px}.eyebrow{font-size:9px;color:var(--cyan);font-weight:900;letter-spacing:1px}.title{font-size:16px;font-weight:900;margin:5px 0}.copy{font-size:11px;line-height:1.5;color:#d4e3e8}.progress{height:5px;background:#1c3039;border-radius:8px;margin-top:10px;overflow:hidden}.progress i{display:block;height:100%;width:0;background:var(--cyan)}#check{margin-top:9px;font-size:9px;line-height:1.6;color:#829aa3}.done{color:var(--green)!important}
+.freqBtn{flex:1;background:#0a202a;border:1px solid #365563;border-radius:4px;color:#9bb5be;padding:5px 3px;font-size:8px;font-weight:900;cursor:pointer}.freqBtn.active{background:#176f59;border-color:#54e6a6;color:#fff}
 #atc{right:14px;top:83px;width:320px;padding:13px}.atcBtn{margin-top:8px;width:100%;background:#123746;border:1px solid #3f99b5;border-radius:5px;padding:7px;font-size:9px;font-weight:900;cursor:pointer}.atcBtn:hover{background:#185066}.atcHead{display:flex;justify-content:space-between;color:var(--cyan);font-size:10px;font-weight:900}.atcBody{font-size:11px;line-height:1.45;margin-top:7px}.radio{font-size:9px;color:#8da6af;margin-top:7px}
 #phasebar{top:15px;left:50%;transform:translateX(-50%);display:flex;gap:6px}.phase{min-width:65px;text-align:center;color:#6f858e;font-size:8px}.dot{width:24px;height:24px;border:2px solid #465d67;border-radius:50%;display:grid;place-items:center;margin:auto auto 3px}.phase.active{color:#fff}.phase.active .dot{background:var(--cyan);border-color:var(--cyan);color:#00141b}.phase.done .dot{background:var(--green);border-color:var(--green);color:#00140e}
 #views{right:14px;top:13px;display:flex;gap:5px}.view{background:#081923;border:1px solid #365563;border-radius:6px;padding:7px 9px;font-size:9px;cursor:pointer}.view.active{background:#147f9e;border-color:#6de2ff}
@@ -149,7 +150,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="weather" class="ui panel"><b>WEATHER / CONDITIONS</b><div id="weatherText">WIND 120° / 8 KT • VIS 10 KM • TEMP 24°C</div><button id="weatherBtn">CHANGE CONDITIONS</button><button id="audioBtn">AUDIO ON</button></div>
 <div id="checklistPanel" class="ui panel"><b>COCKPIT CHECKLIST</b><div id="checklistTitle">PRE-FLIGHT</div><div id="checklistItems"></div></div>
 <div id="mission" class="ui panel"><div class="eyebrow">ACTIVE TRAINING</div><div id="mtitle" class="title"></div><div id="mcopy" class="copy"></div><div class="progress"><i id="bar"></i></div><div id="check"></div></div>
-<div id="atc" class="ui panel"><div class="atcHead"><span>ATC • <span id="freq"></span></span><span id="radioState">STANDBY</span></div><div id="atcText" class="atcBody"></div><div class="radio">Press <b>R</b> to transmit/read back.</div><button id="atcBtn" class="atcBtn">TRANSMIT / READ BACK</button></div>
+<div id="atc" class="ui panel"><div class="atcHead"><span>ATC • <span id="freq"></span></span><span id="radioState">STANDBY</span></div><div id="atcText" class="atcBody"></div><div class="radio">Press <b>R</b> to transmit/read back.</div><div id="radioControls" style="display:flex;gap:4px;margin-top:7px"><button class="freqBtn" data-freq="GROUND">GND</button><button class="freqBtn" data-freq="TOWER">TWR</button><button class="freqBtn" data-freq="CENTER">CTR</button><button class="freqBtn" data-freq="APPROACH">APP</button></div><div id="readbackQuality" style="font-size:8px;color:#9bb5be;margin-top:6px">READBACK QUALITY: —</div><button id="atcBtn" class="atcBtn">TRANSMIT / READ BACK</button></div>
 <div id="warning" class="ui">STALL WARNING — LOWER NOSE / INCREASE AIRSPEED</div><div id="stageHint" class="ui panel" style="left:50%;top:64%;transform:translateX(-50%);padding:7px 12px;font-size:9px;color:#bfefff;display:none;z-index:20"></div><div id="nextAction" class="ui panel" style="left:50%;top:70%;transform:translateX(-50%);padding:6px 10px;font-size:8px;color:#54e6a6;display:none;z-index:20"></div><div id="toast" class="ui"></div><div id="cockpitLabel" class="ui panel">PRIMARY FLIGHT DISPLAY • LIVE</div>
 <div id="replayPanel" class="ui panel"><b>FLIGHT REPLAY</b><div id="replayReadout">No recorded flight yet.</div><input id="replaySlider" type="range" min="0" max="0" value="0"><button id="replayBtn">PLAY REPLAY</button></div>
 <div id="fdrPanel" class="ui panel"><b>FLIGHT DATA RECORDER</b><div id="fdrStatus">RECORDING READY</div><div id="fdrMetrics">ALT 0 FT • IAS 0 KT • HDG 000° • VS 0 FPM</div><button id="exportFDR">COPY FLIGHT DATA</button></div>
@@ -214,7 +215,7 @@ traffic:[
 {id:'ES-T01',x:18,y:14,alt:3100,hdg:270,speed:95},
 {id:'ES-T02',x:58,y:-8,alt:2850,hdg:90,speed:85},
 {id:'ES-T03',x:86,y:24,alt:3300,hdg:180,speed:100}
-],oilTemp:75,oilPressure:0,navLights:false,beacon:false,strobe:false,landingLight:false,taxiDistance:0,speed:0,alt:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,gear:true,flaps:0,onGround:true,parkingBrake:true,brake:true,stall:false,battery:false,avionics:false,pump:false,mixture:0,starter:false,engine:false,engineStarted:false,starterAt:0,yx:0,yy:0,yoke:false,radio:false,xp:0,yp:0,last:performance.now()};
+],oilTemp:75,oilPressure:0,navLights:false,beacon:false,strobe:false,landingLight:false,taxiDistance:0,speed:0,alt:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,gear:true,flaps:0,onGround:true,parkingBrake:true,brake:true,stall:false,battery:false,avionics:false,pump:false,mixture:0,starter:false,engine:false,engineStarted:false,starterAt:0,yx:0,yy:0,yoke:false,radio:false,radioFrequency:'GROUND',readbackQuality:0,atcAttempts:0,atcCorrect:0,frequencyChanges:0,xp:0,yp:0,last:performance.now()};
 const keys={};let toastT=0;
 let audioCtx=null,engineOsc=null,engineGain=null,warningOsc=null,warningGain=null;
 function initAudio(){
@@ -394,9 +395,39 @@ toast('STAGE 3 — TAKE-OFF. Read back clearance, brake OFF, throttle ≥70%, ro
 }if(s.phase===3){s.parkingBrake=false;s.brake=false;s.flaps=1;s.gear=true;s.pitch=8;s.throttle=85;s.trim=0}if(s.phase===4){s.flaps=0;s.trim=0;}if(s.phase===5){s.flaps=1;s.gear=true}if(s.phase===6){s.flaps=2;s.gear=true}
 if(s.phase===7){
 if(s.failure==='ENGINE'&&s.onGround&&s.speed<3&&s.parkingBrake){s.failure=null;toast('ENGINE FAILURE DRILL RECOVERED — aircraft secured.');}
-s.flaps=0;s.gear=true;s.throttle=0;s.parkingBrake=false;s.brake=false;s.radio=false;s.onGround=true;s.speed=0;s.vs=0;s.pitch=0;s.bank=0;toast('AFTER LANDING — exit the runway, park, brake ON, then shut down.')} setPhase();toast('New training stage: '+missions[s.phase][0])}
+s.flaps=0;s.gear=true;s.throttle=0;s.parkingBrake=false;s.brake=false;s.radio=false;s.onGround=true;s.speed=0;s.vs=0;s.pitch=0;s.bank=0;toast('AFTER LANDING — exit the runway, park, brake ON, then shut down.')} setRadioFrequency(['GROUND','TOWER','TOWER','TOWER','CENTER','APPROACH','TOWER','GROUND'][s.phase]);s.radio=false;document.getElementById('radioState').textContent='STANDBY';setPhase();toast('New training stage: '+missions[s.phase][0])}
+function setRadioFrequency(name){
+const allowed={GROUND:'121.90',TOWER:'118.10',CENTER:'124.70',APPROACH:'119.50'};
+if(!allowed[name])return;
+if(s.radioFrequency!==name){s.frequencyChanges++;}
+s.radioFrequency=name;
+document.getElementById('freq').textContent=name+' '+allowed[name];
+document.querySelectorAll('.freqBtn').forEach(b=>b.classList.toggle('active',b.dataset.freq===name));
+setInputStatus('RADIO → '+name+' '+allowed[name]);
+}
+function evaluateReadback(){
+const expected=['GROUND','TOWER','TOWER','TOWER','CENTER','APPROACH','TOWER','GROUND'][s.phase];
+const correct=s.radioFrequency===expected;
+s.atcAttempts++;
+if(correct){
+s.atcCorrect++;
+s.readbackQuality=Math.min(100,s.readbackQuality+10);
+s.instructor.atc=Math.min(100,s.instructor.atc+0.5);
+document.getElementById('readbackQuality').textContent='READBACK QUALITY: CORRECT • '+Math.round(s.readbackQuality)+'%';
+return true;
+}
+s.readbackQuality=Math.max(0,s.readbackQuality-8);
+s.instructor.atc=Math.max(0,s.instructor.atc-4);
+logEvent('WRONG FREQUENCY / FACILITY — expected '+expected+'.','WARNING');
+document.getElementById('readbackQuality').textContent='READBACK QUALITY: INCORRECT • '+Math.round(s.readbackQuality)+'%';
+toast('WRONG ATC FACILITY — select '+expected+' before transmitting.');
+return false;
+}
 function transmit(){
+const expected=['GROUND','TOWER','TOWER','TOWER','CENTER','APPROACH','TOWER','GROUND'][s.phase];
+if(s.radioFrequency!==expected){evaluateReadback();return;}
 s.radio=true;
+evaluateReadback();
 document.getElementById('radioState').textContent='ACK';
 if(s.phase===0)toast('GROUND: Taxi clearance read back. Continue to HOLD SHORT.');
 else if(s.phase===1)toast('TOWER: LINE UP AND WAIT Runway 09. Enter only after this clearance.');
@@ -405,13 +436,17 @@ else if(s.phase===3)toast('TOWER: climb clearance acknowledged — maintain 090 
 else if(s.phase===4)toast('CENTER: cruise clearance acknowledged — maintain 3,000 ft.');
 else if(s.phase===5)toast('APPROACH: approach clearance acknowledged — configure and descend.');
 else if(s.phase===6)toast('TOWER: landing clearance acknowledged — maintain centreline.');
-else toast('ATC transmission acknowledged.');
+else toast('GROUND: after-landing taxi clearance acknowledged.');
 }
+
 document.getElementById('startBtn').onclick=start;
 document.getElementById('starter').onclick=startEngine;
 document.getElementById('starter').ondblclick=startEngine;
 document.getElementById('startCockpitBtn').onclick=startEngine;
 document.getElementById('atcBtn').onclick=transmit;
+document.querySelectorAll('.freqBtn').forEach(b=>b.onclick=()=>setRadioFrequency(b.dataset.freq));
+setRadioFrequency('GROUND');
+
 function setInputStatus(msg){
 const e=document.getElementById('inputStatus'),k=document.getElementById('keyFeedback');
 if(e)e.textContent=msg;
@@ -538,7 +573,7 @@ if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDef
 if(!s.started&&!e.repeat&&e.key==='Enter'){start();return;}
 if(!s.started)return;
 if(!e.repeat){
-if(k==='r'){transmit();setInputStatus('R → ATC READBACK');}
+if(k==='q')setRadioFrequency('GROUND');if(k==='u')setRadioFrequency('TOWER');if(k==='i')setRadioFrequency('CENTER');if(k==='o')setRadioFrequency('APPROACH');if(k==='r'){transmit();setInputStatus('R → ATC READBACK');}
 if(k==='b'){
 s.parkingBrake=!s.parkingBrake;
 s.brake=s.parkingBrake;
@@ -844,6 +879,7 @@ el.innerHTML='<div style="color:#54e6a6;font-size:10px;font-weight:900;letter-sp
 '<div class="debriefMetric"><b>OVERALL</b><strong>'+d.A.overall+'%</strong></div><div class="debriefMetric"><b>HANDLING</b><strong>'+d.A.handling+'%</strong></div><div class="debriefMetric"><b>ATC</b><strong>'+d.A.atc+'%</strong></div><div class="debriefMetric"><b>SAFETY</b><strong>'+d.A.safety+'%</strong></div></div>'+
 '<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:8px">WHAT YOU DID WELL</div><div style="font-size:10px;color:#c6d7dc;margin-top:4px">'+d.strengths.join(' • ')+'</div>'+
 '<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:13px">IMPROVEMENT ITEMS</div>'+issueHtml+
+'<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:13px">ATC & RADIO PERFORMANCE</div><div style="font-size:9px;color:#9bb5be;margin-top:5px">Readbacks correct: '+s.atcCorrect+'/'+s.atcAttempts+' • Frequency changes: '+s.frequencyChanges+' • Readback quality: '+Math.round(s.readbackQuality)+'%</div>'+
 '<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:13px">WEATHER & ENVIRONMENT</div><div style="font-size:9px;color:#9bb5be;margin-top:5px">Wind '+Math.round(s.windDir)+'° / '+Math.round(s.windKt)+' kt • Visibility '+s.visibility+' km • Turbulence '+(s.turbulence<.2?'Light':s.turbulence<.5?'Moderate':'Strong')+'</div>'+
 '<div style="font-size:10px;color:#54e6a6;font-weight:900;margin-top:13px">FLIGHT DATA</div><div style="font-size:9px;color:#9bb5be;margin-top:5px">Samples: '+d.sampleCount+' • Maximum altitude: '+d.maxAlt+' ft • Maximum IAS: '+d.maxIas+' kt</div>'+
 '<div style="margin-top:4px">'+timeHtml+'</div>'+
@@ -970,6 +1006,7 @@ const warn=(key,msg,penalty=1,type='WARNING')=>{
   logEvent(msg,type);
 };
 const hErr=Math.abs(diff(s.heading,90));
+if(s.atcAttempts>0&&s.atcCorrect/s.atcAttempts<.7)warn('atcquality','RADIO DISCIPLINE — verify facility/frequency before readback.',1.5);
 if(s.turbulence>=.5&&Math.abs(s.bank)>30)warn('turbbank','TURBULENCE + EXCESSIVE BANK — use smooth corrections.',2);
 if(s.turbulence>=.28&&Math.abs(s.pitch)>11)warn('turbpitch','TURBULENCE + HIGH PITCH — stabilize attitude before chasing altitude.',1.5);
 const bank=Math.abs(s.bank);
