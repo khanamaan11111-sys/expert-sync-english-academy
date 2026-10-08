@@ -97,6 +97,9 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #loadRoute{width:100%;margin-top:7px;background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:900;cursor:pointer}
 #scenarioSelect{width:100%;margin:6px 0;background:#07161d;color:#fff;border:1px solid #3c6978;padding:5px;font-size:9px}
 #loadScenario{background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer;width:100%}
+#feedbackBtn{background:#176f59!important;border-color:#54e6a6!important}
+#studentFeedback{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:90;width:min(620px,92vw);max-height:84vh;overflow:auto;padding:18px 20px;background:#06131cfb;border:1px solid #43bfe8;border-radius:10px;box-shadow:0 25px 100px #000d;display:none}
+#studentFeedback h2{margin:0;color:#54e6a6;font-size:17px;letter-spacing:1.2px}.feedbackSection{margin-top:12px;padding:10px;border:1px solid #294653;border-radius:7px;background:#091820}.feedbackSection>b{font-size:9px;color:#fff;letter-spacing:.7px}.ratingRow,.choiceRow{display:flex;gap:7px;margin-top:8px}.ratingRow button,.choiceRow button,#feedbackActions button{background:#0a202a;border:1px solid #3c6978;border-radius:5px;padding:7px 11px;color:#c6d7dc;font-size:8px;font-weight:900;cursor:pointer}.ratingRow button.selected,.choiceRow button.selected{background:#176f59;border-color:#54e6a6;color:#fff}.feedbackSection label{display:flex;justify-content:space-between;gap:10px;margin-top:7px;font-size:8px;color:#9bb5be}.feedbackSection select,.feedbackSection textarea{background:#06131c;color:#d7e6ea;border:1px solid #294653;border-radius:4px;padding:6px;font-size:8px}.feedbackSection select{min-width:180px}.feedbackSection textarea{display:block;width:100%;min-height:80px;margin-top:8px;resize:vertical;box-sizing:border-box}#feedbackStatus{margin-top:10px;font-size:8px;color:#718a94}#feedbackSession{color:#54e6a6}#feedbackActions{display:flex;gap:6px;justify-content:flex-end;margin-top:12px}
 #weather{right:14px;bottom:52px;padding:9px 11px;max-width:245px;z-index:30}
 #weatherText{margin:4px 0 7px;font-size:9px;color:#c6d7dc}
 #weatherBtn,#audioBtn{background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer}
@@ -185,10 +188,10 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="brand" class="ui panel"><div class="brand">✈ EXPERT SYNC — FLIGHT TRAINING</div><div class="sub">HANDS-ON SINGLE-ENGINE SIMULATOR • N-ES01</div></div>
 <div id="phasebar" class="ui"></div>
 <div id="views" class="ui"><button class="view active" data-v="COCKPIT">COCKPIT</button><button class="view" data-v="EXTERNAL">EXTERNAL</button><button class="view" data-v="REALITY">REALITY AERIAL</button></div>
-<div id="testbar" class="ui panel"><button id="startBtn">START TRAINING</button><button id="qaBtn">SYSTEM QA</button><button id="pauseBtn">PAUSE</button><button id="restartBtn">RESTART</button><button id="recordBtn">TRAINING RECORD</button><span id="testState">READY</span><span id="inputStatus">Click START TRAINING</span></div>
+<div id="testbar" class="ui panel"><button id="startBtn">START TRAINING</button><button id="qaBtn">SYSTEM QA</button><button id="pauseBtn">PAUSE</button><button id="restartBtn">RESTART</button><button id="recordBtn">TRAINING RECORD</button><button id="feedbackBtn">STUDENT FEEDBACK</button><span id="testState">READY</span><span id="inputStatus">Click START TRAINING</span></div>
 <div id="qaPanel"><h2>SYSTEM QA • FLIGHT SIM VALIDATION</h2><div id="qaSummary">Run the validation suite before final user testing.</div><div id="qaGrid"></div><div id="qaActions"><button id="qaRun">RUN FULL QA</button><button id="qaClose">CLOSE</button></div></div><div id="controlGuide" class="ui panel"><b>CONTROL GUIDE</b><div id="guideText">Complete pre-flight checklist to begin.</div></div>
 <div id="scenarioObjective" class="ui panel"><b>SCENARIO OBJECTIVE</b><div id="scenarioObjectiveTitle">STANDARD FLIGHT</div><div id="scenarioObjectiveText">Complete the full profile with disciplined aircraft control and ATC.</div><div id="scenarioObjectiveState">PRIMARY OBJECTIVE ACTIVE</div></div><div id="routePanel" class="ui panel"><b>FLIGHT ROUTE • AIRPORT TO AIRPORT</b><select id="routeSelect"><option value="ESAI-ESBJ">ESAI → ESBJ • TRAINING ALPHA</option><option value="ESAI-ESCK">ESAI → ESCK • COASTAL TRAINING</option></select><div class="routeRow"><span>ORIGIN</span><strong id="routeOrigin">ESAI • Academy City</strong></div><div class="routeRow"><span>DESTINATION</span><strong id="routeDestination">ESBJ • Horizon City</strong></div><div class="routeRow"><span>LEG</span><strong id="routeLeg">1 / 4</strong></div><div class="routeRow"><span>NEXT FIX</span><strong id="routeFix">ES-VOR1</strong></div><div class="routeRow"><span>PROGRESS</span><strong id="routeProgress">0%</strong></div><button id="loadRoute">LOAD ROUTE</button></div><div id="scenarioPanel" class="ui panel"><b>TRAINING SCENARIO</b><select id="scenarioSelect"><option value="standard">01 • Standard Flight</option><option value="crosswind">02 • Crosswind Operations</option><option value="busy">03 • Busy Traffic</option><option value="engine">04 • Engine Failure Drill</option></select><button id="loadScenario">LOAD SCENARIO</button></div>
-<div id="adaptiveCoach" class="ui panel"><b>ADAPTIVE INSTRUCTOR COACH</b><div id="coachSkill">RUN AN ASSESSMENT TO GET A DRILL</div><div id="coachReason">The coach uses your weakest verified performance area to recommend the next focused scenario.</div><button id="coachAction">OPEN RECOMMENDED SCENARIO</button></div><div id="trainingRecord" class="ui panel"><h2>TRAINING RECORD • SCENARIO PROGRESSION</h2><div id="recordSub">Best verified performance is stored locally on this browser. Complete each scenario to build your training record.</div><div id="recordGrid"></div><div id="recordFooter"><div class="recordHint">STANDARD → CROSSWIND → BUSY TRAFFIC → ENGINE FAILURE<br>Use the record to identify the next scenario that needs practice.</div><button id="recordClose" class="recordClose">CLOSE RECORD</button></div></div><div id="weather" class="ui panel"><b>WEATHER / CONDITIONS</b><div id="weatherText">WIND 120° / 8 KT • VIS 10 KM • TEMP 24°C</div><button id="weatherBtn">CHANGE CONDITIONS</button><button id="audioBtn">AUDIO ON</button></div>
+<div id="adaptiveCoach" class="ui panel"><b>ADAPTIVE INSTRUCTOR COACH</b><div id="coachSkill">RUN AN ASSESSMENT TO GET A DRILL</div><div id="coachReason">The coach uses your weakest verified performance area to recommend the next focused scenario.</div><button id="coachAction">OPEN RECOMMENDED SCENARIO</button></div><div id="trainingRecord" class="ui panel"><h2>TRAINING RECORD • SCENARIO PROGRESSION</h2><div id="recordSub">Best verified performance is stored locally on this browser. Complete each scenario to build your training record.</div><div id="recordGrid"></div><div id="recordFooter"><div class="recordHint">STANDARD → CROSSWIND → BUSY TRAFFIC → ENGINE FAILURE<br>Use the record to identify the next scenario that needs practice.</div><button id="recordClose" class="recordClose">CLOSE RECORD</button></div></div><div id="studentFeedback" class="ui panel"><h2>STUDENT BETA FEEDBACK</h2><div id="feedbackSub">Your feedback will help us fix the simulator before wider student testing.</div><div class="feedbackSection"><b>1. OVERALL EXPERIENCE</b><div class="ratingRow" id="overallRating"><button data-rating="overall" data-value="1">1</button><button data-rating="overall" data-value="2">2</button><button data-rating="overall" data-value="3">3</button><button data-rating="overall" data-value="4">4</button><button data-rating="overall" data-value="5">5</button></div></div><div class="feedbackSection"><b>2. RATE THE SIMULATOR</b><label>Realism <select id="fbRealism"><option value="">Select</option><option>1 - Very poor</option><option>2 - Poor</option><option>3 - Okay</option><option>4 - Good</option><option>5 - Excellent</option></select></label><label>Controls <select id="fbControls"><option value="">Select</option><option>1 - Very poor</option><option>2 - Poor</option><option>3 - Okay</option><option>4 - Good</option><option>5 - Excellent</option></select></label><label>Instructions <select id="fbInstructions"><option value="">Select</option><option>1 - Very poor</option><option>2 - Poor</option><option>3 - Okay</option><option>4 - Good</option><option>5 - Excellent</option></select></label><label>Visual / reality view <select id="fbVisuals"><option value="">Select</option><option>1 - Very poor</option><option>2 - Poor</option><option>3 - Okay</option><option>4 - Good</option><option>5 - Excellent</option></select></label></div><div class="feedbackSection"><b>3. WHAT SHOULD WE FIX FIRST?</b><select id="fbPriority"><option value="">Select one</option><option>Controls / keyboard</option><option>Flight physics</option><option>ATC / communication</option><option>Navigation / ILS</option><option>Realism / external view</option><option>Instructions / usability</option><option>Performance / loading</option><option>Other</option></select><textarea id="fbComment" placeholder="Tell us what confused you, failed, felt unrealistic, or worked very well."></textarea></div><div class="feedbackSection"><b>4. WOULD YOU USE THIS FOR TRAINING?</b><div class="choiceRow"><button data-use="yes">YES</button><button data-use="maybe">MAYBE</button><button data-use="no">NO</button></div></div><div id="feedbackStatus">SESSION: <span id="feedbackSession"></span></div><div id="feedbackActions"><button id="feedbackCopy">COPY FEEDBACK</button><button id="feedbackDownload">DOWNLOAD FEEDBACK</button><button id="feedbackClose">CLOSE</button></div></div><div id="weather" class="ui panel"><b>WEATHER / CONDITIONS</b><div id="weatherText">WIND 120° / 8 KT • VIS 10 KM • TEMP 24°C</div><button id="weatherBtn">CHANGE CONDITIONS</button><button id="audioBtn">AUDIO ON</button></div>
 <div id="checklistPanel" class="ui panel"><b>COCKPIT CHECKLIST</b><div id="checklistTitle">PRE-FLIGHT</div><div id="checklistItems"></div></div>
 <div id="mission" class="ui panel"><div class="eyebrow">ACTIVE TRAINING</div><div id="mtitle" class="title"></div><div id="mcopy" class="copy"></div><div class="progress"><i id="bar"></i></div><div id="check"></div></div>
 <div id="atc" class="ui panel"><div class="atcHead"><span>ATC • <span id="freq"></span></span><span id="radioState">STANDBY</span></div><div id="atcText" class="atcBody"></div><div class="radio">Press <b>R</b> to transmit/read back.</div><div id="radioControls" style="display:flex;gap:4px;margin-top:7px"><button class="freqBtn" data-freq="GROUND">GND</button><button class="freqBtn" data-freq="TOWER">TWR</button><button class="freqBtn" data-freq="CENTER">CTR</button><button class="freqBtn" data-freq="APPROACH">APP</button></div><div id="readbackQuality" style="font-size:8px;color:#9bb5be;margin-top:6px">READBACK QUALITY: —</div><button id="atcBtn" class="atcBtn">TRANSMIT / READ BACK</button></div>
@@ -1542,7 +1545,7 @@ setPhase();
 setView('EXTERNAL');
 document.getElementById('aircraftLabel').style.display='block';
 document.getElementById('testState').textContent='READY';
-document.getElementById('inputStatus').textContent='Click START TRAINING — then use cockpit controls or keys';
+document.getElementById('inputStatus').textContent='Click START TRAINING — complete a flight, then use STUDENT FEEDBACK to report issues.';
 requestAnimationFrame(tick);
 })();
 
@@ -1577,7 +1580,13 @@ function showTrainingRecord(){
   }).join('');
   wrap.style.display='block';
 }
-document.getElementById('recordBtn').onclick=showTrainingRecord;
+document.getElementById('recordBtn').onclick=showTrainingRecord;document.getElementById('feedbackBtn').onclick=feedbackOpen;
+document.querySelectorAll('[data-rating="overall"]').forEach(b=>b.onclick=()=>feedbackSetRating(b.dataset.value));
+document.querySelectorAll('[data-use]').forEach(b=>b.onclick=()=>{feedbackState.use=b.dataset.use;document.querySelectorAll('[data-use]').forEach(x=>x.classList.toggle('selected',x===b));});
+document.getElementById('feedbackCopy').onclick=async()=>{const d=feedbackSave();try{await navigator.clipboard.writeText(feedbackText());toast('FEEDBACK COPIED — send it to the academy team.');}catch(e){toast('Copy unavailable — feedback is saved locally.');}};
+document.getElementById('feedbackDownload').onclick=()=>{const d=feedbackSave();const blob=new Blob([feedbackText()],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='expert-sync-feedback-'+d.session+'.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('FEEDBACK FILE CREATED.');};
+document.getElementById('feedbackClose').onclick=()=>document.getElementById('studentFeedback').style.display='none';
+
 document.getElementById('recordClose').onclick=()=>{document.getElementById('trainingRecord').style.display='none'};
 
 /* STAGE 12 — adaptive instructor mastery engine */
@@ -1619,6 +1628,39 @@ function updateAdaptiveCoach(){
   };
 }
 
+
+// STAGE 18 — student beta feedback capture
+const FEEDBACK_KEY='expert-sync-student-feedback-v1';
+const feedbackState={overall:0,use:'',session:'ES-'+Date.now().toString(36).toUpperCase()};
+function feedbackOpen(){
+ const el=document.getElementById('studentFeedback');if(!el)return;
+ document.getElementById('feedbackSession').textContent=feedbackState.session;
+ el.style.display='block';
+}
+function feedbackSetRating(v){
+ feedbackState.overall=Number(v);
+ document.querySelectorAll('[data-rating="overall"]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.value)===feedbackState.overall));
+}
+function feedbackPayload(){
+ return {
+  session:feedbackState.session,date:new Date().toISOString(),scenario:s.scenario,phase:s.phase,
+  mission17:!!s.mission17,mission17Complete:!!s.mission17Complete,overall:feedbackState.overall,
+  realism:document.getElementById('fbRealism')?.value||'',controls:document.getElementById('fbControls')?.value||'',
+  instructions:document.getElementById('fbInstructions')?.value||'',visuals:document.getElementById('fbVisuals')?.value||'',
+  priority:document.getElementById('fbPriority')?.value||'',wouldUse:feedbackState.use,
+  comment:document.getElementById('fbComment')?.value.trim()||''
+ };
+}
+function feedbackText(){
+ const d=feedbackPayload();
+ return ['EXPERT SYNC FLIGHT TRAINING — STUDENT BETA FEEDBACK','Session: '+d.session,'Date: '+d.date,'Scenario: '+d.scenario,'Phase: '+(d.phase+1),'Stage 17 active: '+d.mission17,'Stage 17 complete: '+d.mission17Complete,'Overall: '+d.overall+'/5','Realism: '+d.realism,'Controls: '+d.controls,'Instructions: '+d.instructions,'Visual / reality view: '+d.visuals,'Fix first: '+d.priority,'Would use for training: '+d.wouldUse,'Comments: '+d.comment].join('\n');
+}
+function feedbackSave(){
+ const d=feedbackPayload();
+ try{localStorage.setItem(FEEDBACK_KEY+'-'+d.session,JSON.stringify(d));}catch(e){}
+ document.getElementById('feedbackStatus').innerHTML='SAVED LOCALLY • SESSION: <span id="feedbackSession">'+d.session+'</span>';
+ return d;
+}
 // STAGE 17 — complete flight mission director
 function mission17DistanceToDestination(){
  const d=AIRPORTS[ACTIVE_ROUTE.destination];
