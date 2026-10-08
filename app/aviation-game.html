@@ -625,7 +625,7 @@ if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDef
 if(!s.started&&!e.repeat&&e.key==='Enter'){start();return;}
 if(!s.started)return;
 if(!e.repeat){
-if(k==='n'){if(s.phase>=5){s.ilsArmed=!s.ilsArmed;toast(s.ilsArmed?'ILS ARMED — intercept localizer and capture glideslope.':'ILS DISARMED');logEvent('ILS '+(s.ilsArmed?'ARMED':'DISARMED'),'INFO');}else toast('ILS is available during approach.');}if(k==='q')setRadioFrequency('GROUND');if(k==='u')setRadioFrequency('TOWER');if(k==='i')setRadioFrequency('CENTER');if(k==='o')setRadioFrequency('APPROACH');if(k==='r'){transmit();setInputStatus('R → ATC READBACK');}
+if(k==='n'){if(s.phase>=3){s.navModeName=s.navModeName==='NAV'?'HDG':'NAV';s.ilsArmed=s.phase>=5&&s.navModeName==='NAV';toast(s.navModeName==='NAV'?(s.ilsArmed?'NAV/ILS MODE — approach guidance armed.':'NAV MODE — route guidance active.'):'HDG MODE — heading bug active.');logEvent(s.navModeName==='NAV'?(s.ilsArmed?'NAV/ILS ARMED':'NAV MODE ACTIVE'):'HDG MODE ACTIVE','INFO');}else toast('NAV is available after takeoff.');}if(k==='q')setRadioFrequency('GROUND');if(k==='u')setRadioFrequency('TOWER');if(k==='i')setRadioFrequency('CENTER');if(k==='o')setRadioFrequency('APPROACH');if(k==='r'){transmit();setInputStatus('R → ATC READBACK');}
 if(k==='b'){
 s.parkingBrake=!s.parkingBrake;
 s.brake=s.parkingBrake;
