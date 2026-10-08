@@ -70,6 +70,13 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 .ils{display:flex;gap:8px;margin-top:6px}.ilsBox{flex:1;text-align:center;border:1px solid #294a55;padding:5px 2px}
 .ilsBox span{display:block;font-size:8px;color:#9bb5be}.ilsBox strong{display:block;font-size:16px;color:#fff}.ilsBox small{font-size:7px;color:#6f8e99}
 #ilsStatus{font-size:8px;color:#9bb5be;margin-top:5px}
+#mission17Panel{left:14px;top:600px;width:270px;padding:9px 11px;z-index:26}
+#mission17Panel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
+#mission17State{margin-top:5px;font-size:9px;font-weight:900;color:#fff}
+#mission17Gate{margin-top:4px;font-size:8px;line-height:1.45;color:#9bb5be}
+.m17row{display:flex;justify-content:space-between;gap:8px;margin-top:5px;font-size:8px;color:#9bb5be}.m17row strong{color:#fff;text-align:right}
+#mission17Start,#mission17GoAround{width:100%;margin-top:7px;background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:6px 8px;font-size:8px;font-weight:900;cursor:pointer}
+#mission17Start{background:#176f59;border-color:#54e6a6}
 #mapPanel{right:14px;top:330px;padding:8px 9px;width:220px;z-index:24}
 #mapPanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
 #mapCanvas{display:block;width:220px;height:145px;margin-top:5px;border:1px solid #294a55;border-radius:3px;background:#07161d}
@@ -191,7 +198,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="eventPanel" class="ui panel"><b>INSTRUCTOR EVENT LOG</b><div id="instructorScore" style="color:#54e6a6;font-size:14px;font-weight:900;margin-top:4px">100%</div><div id="eventLog">No events yet.</div></div>
 <div id="trafficPanel" class="ui panel"><b>TRAFFIC / SITUATIONAL AWARENESS</b><div id="trafficText">NO CONFLICTS</div><div id="trafficList"></div></div>
 <div id="approachPanel" class="ui panel"><b>ILS-STYLE APPROACH</b><div class="ils"><div class="ilsBox"><span>LOC</span><strong id="locDev">0.0</strong><small>DOTS</small></div><div class="ilsBox"><span>GS</span><strong id="gsDev">0.0</strong><small>DOTS</small></div></div><div id="ilsStatus">RUNWAY 09 • ILS ARMED</div></div>
-<div id="mapPanel" class="ui panel"><b>MINI MOVING MAP</b><canvas id="mapCanvas" width="220" height="145"></canvas><div id="mapInfo">RWY 09 • ROUTE ALPHA</div></div>
+<div id="mission17Panel" class="ui panel"><b>STAGE 17 • COMPLETE FLIGHT MISSION</b><div id="mission17State">INACTIVE</div><div id="mission17Gate">Load a route, then activate the complete mission.</div><div class="m17row"><span>ROUTE</span><strong id="mission17Route">ESAI → ESBJ</strong></div><div class="m17row"><span>ARRIVAL</span><strong id="mission17Arrival">ROUTE NOT STARTED</strong></div><div class="m17row"><span>LANDING</span><strong id="mission17Landing">NOT VERIFIED</strong></div><button id="mission17Start">ACTIVATE STAGE 17</button><button id="mission17GoAround" style="display:none">GO-AROUND / RE-ATTEMPT</button></div><div id="mapPanel" class="ui panel"><b>MINI MOVING MAP</b><canvas id="mapCanvas" width="220" height="145"></canvas><div id="mapInfo">RWY 09 • ROUTE ALPHA</div></div>
 <div id="navPanel" class="ui panel"><b>NAVIGATION / HEADING</b><div class="navRow"><span>SELECTED HDG</span><strong id="selHdg">090°</strong></div><div class="navRow"><span>COURSE ERROR</span><strong id="courseErr">0°</strong></div><div class="navRow"><span>NAV TO</span><strong id="navTo">ES-VOR1 • 0.0 NM</strong></div><div class="navRow"><span>BEARING</span><strong id="navBearing">090°</strong></div><div class="navRow"><span>MODE</span><strong id="navMode">HDG</strong></div><div style="display:flex;gap:4px;margin-top:7px"><button id="navArmBtn" class="cockpitBtn" style="margin:0;flex:1">ARM ILS</button><button id="navCourseBtn" class="cockpitBtn" style="margin:0;flex:1">COURSE 090</button></div><div class="navHint">J/L = heading bug • N = NAV • route fixes are shown on the moving map</div></div>
 <div id="apPanel" class="ui panel"><b>AUTOPILOT / FLIGHT DIRECTOR</b><div class="navRow"><span>AP MASTER</span><strong id="apState">OFF</strong></div><div class="navRow"><span>HDG MODE</span><strong id="apHdg">OFF</strong></div><div class="navRow"><span>ALT HOLD</span><strong id="apAlt">OFF</strong></div><div class="navRow"><span>ALT BUG</span><strong id="apAltBug">3000 FT</strong></div><div style="display:flex;gap:4px;margin-top:7px"><button id="apBtn" class="cockpitBtn" style="margin:0;flex:1">AP</button><button id="apHdgBtn" class="cockpitBtn" style="margin:0;flex:1">HDG</button><button id="apAltBtn" class="cockpitBtn" style="margin:0;flex:1">ALT</button></div><div class="navHint">P = AP • K = HDG • Z = ALT</div></div>
 <div id="hud" class="ui">
@@ -242,7 +249,7 @@ const missions=[
 ['LANDING','TOWER 118.10','Read back landing clearance. Maintain centreline, land with gear DOWN and FULL FLAPS, then reduce power and decelerate below 55 kt.','Tower: ES-01, cleared to land Runway 09.'],
 ['AFTER LANDING • PARK & SHUTDOWN','GROUND 121.90','After touchdown, keep the centreline, slow to taxi speed, exit the runway, set parking brake, reduce power to idle, and shut down the engine.','Ground: ES-01, taxi to parking via Alpha.']
 ];
-const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,turbulence:0.10,gust:0,trim:0,selectedHeading:90,selectedAltitude:3000,ilsArmed:false,navMode:false,navCourse:90,navX:48,navY:18,dme:0,locError:0,gsError:0,navIntercept:false,navLeg:0,navBearing:0,navTrack:90,navXtk:0,navTo:'ES-VOR1',navModeName:'HDG',navDistanceNm:0,navFixReached:false,routeId:'ESAI-ESBJ',routeLeg:0,routeProgress:0,originAirport:'ESAI',destinationAirport:'ESBJ',routeComplete:false,autopilot:false,apHeading:false,apAltitude:false,failure:null,emergencyMode:null,goAround:false,emergencyResolved:false,lastFailureLogged:false,
+const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,turbulence:0.10,gust:0,trim:0,selectedHeading:90,selectedAltitude:3000,ilsArmed:false,navMode:false,navCourse:90,navX:48,navY:18,dme:0,locError:0,gsError:0,navIntercept:false,navLeg:0,navBearing:0,navTrack:90,navXtk:0,navTo:'ES-VOR1',navModeName:'HDG',navDistanceNm:0,navFixReached:false,routeId:'ESAI-ESBJ',routeLeg:0,routeProgress:0,originAirport:'ESAI',destinationAirport:'ESBJ',routeComplete:false,mission17:false,mission17State:'INACTIVE',mission17Complete:false,mission17GoArounds:0,mission17StableApproach:false,mission17LastGate:'',autopilot:false,apHeading:false,apAltitude:false,failure:null,emergencyMode:null,goAround:false,emergencyResolved:false,lastFailureLogged:false,
 events:[],lastLoggedPhase:-1,fdr:[],lastFdr:0,replayIndex:0,replayPlaying:false,scenarioClock:0,scenarioTriggered:false,scenarioViolations:0,scenarioBonus:0,
 instructor:{handling:100,procedures:100,atc:100,configuration:100,stability:100,safety:100},lastInstructor:{},assessmentStarted:false,
 traffic:[
@@ -600,6 +607,14 @@ if(!s.fdr.length)return toast('Complete some flight time before replay.');
 s.replayPlaying=!s.replayPlaying;
 document.getElementById('replayBtn').textContent=s.replayPlaying?'STOP REPLAY':'PLAY REPLAY';
 };
+document.getElementById('mission17Start').onclick=mission17Start;
+document.getElementById('mission17GoAround').onclick=()=>{
+ if(!s.mission17||s.onGround||s.phase<5)return toast('GO-AROUND is available only during the Stage 17 approach.');
+ s.mission17GoArounds++;s.mission17StableApproach=false;
+ document.getElementById('goAroundBtn').click();
+ logEvent('STAGE 17 — GO-AROUND / APPROACH RE-ATTEMPT #'+s.mission17GoArounds,'CRITICAL');
+ mission17UpdateUI();
+};
 document.getElementById('loadScenario').onclick=()=>{
 const v=document.getElementById('scenarioSelect').value;
 s.scenario=v;s.failure=null;s.lastFailureLogged=false;s.scenarioClock=0;s.scenarioTriggered=false;s.scenarioViolations=0;s.scenarioBonus=0;s.lastScenarioTraffic=0;
@@ -831,7 +846,7 @@ if(s.onGround){
 }
 function evaluate(dt){
 let g=0;
-navigationMonitor(dt);weatherMonitor(dt);emergencyMonitor(dt);instructorMonitor(dt);scenarioMonitor(dt);
+navigationMonitor(dt);weatherMonitor(dt);emergencyMonitor(dt);instructorMonitor(dt);scenarioMonitor(dt);mission17Monitor();
 const sys=document.getElementById('sysMsg');
 if(s.fuel<25&&s.fuel>10)sys.textContent='LOW FUEL — plan for landing / monitor fuel.';
 else if(s.fuel<=10)sys.textContent='FUEL CRITICAL — LAND AS SOON AS PRACTICAL.';
@@ -1081,7 +1096,7 @@ let ACTIVE_ROUTE=ROUTES['ESAI-ESBJ'];
 function configureRoute(id,announce=true){
  const route=ROUTES[id]||ROUTES['ESAI-ESBJ'];
  ACTIVE_ROUTE=route;
- s.routeId=id;s.routeLeg=0;s.routeProgress=0;s.routeComplete=false;
+ s.routeId=id;s.routeLeg=0;s.routeProgress=0;s.routeComplete=false;s.mission17=false;s.mission17Complete=false;s.mission17State='INACTIVE';s.mission17StableApproach=false;
  s.originAirport=route.origin;s.destinationAirport=route.destination;s.navLeg=0;
  const o=AIRPORTS[route.origin];
  s.xp=o.x;s.yp=o.y;s.heading=90;s.navModeName='HDG';s.ilsArmed=false;
@@ -1602,6 +1617,78 @@ function updateAdaptiveCoach(){
     const sel=document.getElementById('scenarioSelect');
     if(sel){sel.value=rec.scenario;document.getElementById('loadScenario').click();toast('ADAPTIVE COACH → '+rec.label.toUpperCase()+' DRILL LOADED.');}
   };
+}
+
+// STAGE 17 — complete flight mission director
+function mission17DistanceToDestination(){
+ const d=AIRPORTS[ACTIVE_ROUTE.destination];
+ return Math.hypot(s.xp-d.x,s.yp-d.y);
+}
+function mission17UpdateUI(){
+ const st=document.getElementById('mission17State'),gate=document.getElementById('mission17Gate');
+ const route=document.getElementById('mission17Route'),arr=document.getElementById('mission17Arrival'),land=document.getElementById('mission17Landing');
+ if(!st)return;
+ route.textContent=ACTIVE_ROUTE.origin+' → '+ACTIVE_ROUTE.destination;
+ st.textContent=s.mission17Complete?'✓ MISSION COMPLETE':(s.mission17?'ACTIVE • '+s.mission17State:'INACTIVE');
+ st.style.color=s.mission17Complete?'#54e6a6':s.mission17?'#f4d35e':'#fff';
+ const d=mission17DistanceToDestination();
+ arr.textContent=s.routeComplete?'DESTINATION FIX CAPTURED • '+d.toFixed(1)+' NM':'EN-ROUTE • '+Math.round(s.routeProgress)+'%';
+ land.textContent=s.mission17StableApproach?'STABLE':'NOT VERIFIED';
+ if(s.mission17Complete)gate.textContent='Flight mission complete. Destination landing, route, ATC and shutdown gates verified.';
+ else if(!s.mission17)gate.textContent='Activate Stage 17 before departure to enable mission gates.';
+ else if(!s.routeComplete)gate.textContent='Fly the active route. Reach the destination approach/IAF before final.';
+ else if(s.phase<5)gate.textContent='Arrival route complete. Continue through the approach clearance and configure for landing.';
+ else if(s.phase===5)gate.textContent='Instrument approach active. Capture localizer/glideslope and maintain a stable final.';
+ else if(s.phase===6)gate.textContent='Landing phase. Touch down near the destination runway and decelerate under control.';
+ else gate.textContent='Secure the aircraft: taxi, parking brake, idle power and engine shutdown.';
+ document.getElementById('mission17Start').textContent=s.mission17?'MISSION ACTIVE':'ACTIVATE STAGE 17';
+ document.getElementById('mission17Start').disabled=s.mission17Complete;
+ const ga=document.getElementById('mission17GoAround');
+ if(ga)ga.style.display=s.mission17&&s.phase===5&&!s.onGround?'block':'none';
+}
+function mission17Start(){
+ if(s.mission17)return toast('STAGE 17 IS ALREADY ACTIVE.');
+ if(!s.started){toast('START TRAINING FIRST.');return;}
+ s.mission17=true;s.mission17Complete=false;s.mission17State='DEPARTURE';
+ s.mission17LastGate='DEPARTURE';s.mission17GoArounds=0;s.mission17StableApproach=false;
+ s.routeComplete=false;s.routeLeg=0;s.navLeg=0;s.routeProgress=0;
+ logEvent('STAGE 17 ACTIVATED — COMPLETE FLIGHT MISSION','PHASE');
+ toast('STAGE 17 ACTIVE — departure, en-route, arrival, approach, landing and shutdown are now linked.');
+ mission17UpdateUI();
+}
+function mission17Monitor(){
+ if(!s.mission17||s.mission17Complete)return;
+ const d=mission17DistanceToDestination();
+ if(s.phase>=3&&!s.onGround)s.mission17State=s.routeComplete?'ARRIVAL':'EN-ROUTE';
+ if(s.routeComplete&&s.phase>=5&&!s.onGround){
+   s.mission17State='APPROACH';
+   const stable=Math.abs(s.locError)<1.0&&Math.abs(s.gsError)<1.0&&s.speed>=65&&s.speed<=95&&s.gear&&s.flaps>=1&&Math.abs(s.bank)<10&&s.vs<-100;
+   if(stable&&!s.mission17StableApproach){
+     s.mission17StableApproach=true;s.score+=20;s.instructor.stability=Math.min(100,s.instructor.stability+2);
+     logEvent('STAGE 17 — STABLE APPROACH GATE PASSED','SUCCESS');toast('STAGE 17 — STABLE APPROACH GATE PASSED.');
+   }
+   if(!stable&&s.mission17StableApproach===false&&d<4)logEvent('STAGE 17 — unstable approach near destination. Go-around available.','WARNING');
+ }
+ if(s.phase>=6&&s.onGround){
+   s.mission17State='LANDING';
+   const dest=AIRPORTS[ACTIVE_ROUTE.destination];
+   const hErr=Math.abs(diff(s.heading,ACTIVE_ROUTE.fixes[ACTIVE_ROUTE.fixes.length-1].course));
+   const runwayOk=d<4&&hErr<18&&Math.abs(s.bank)<10&&s.speed<55;
+   if(runwayOk){s.mission17StableApproach=true;s.mission17LastGate='LANDING';}
+ }
+ if(s.phase===7&&s.onGround&&s.parkingBrake&&s.throttle<=5&&!s.engine&&s.routeComplete){
+   const dest=AIRPORTS[ACTIVE_ROUTE.destination];
+   const hErr=Math.abs(diff(s.heading,ACTIVE_ROUTE.fixes[ACTIVE_ROUTE.fixes.length-1].course));
+   if(mission17DistanceToDestination()<4&&hErr<20){
+     s.mission17Complete=true;s.mission17State='COMPLETE';s.mission17LastGate='SHUTDOWN';
+     s.score+=50;s.instructor.procedures=Math.min(100,s.instructor.procedures+3);s.instructor.safety=Math.min(100,s.instructor.safety+3);
+     logEvent('STAGE 17 COMPLETE — DESTINATION / LANDING / SHUTDOWN VERIFIED','SUCCESS');
+     toast('STAGE 17 COMPLETE — FULL FLIGHT MISSION VERIFIED.');
+   }else{
+     logEvent('STAGE 17 — shutdown gate rejected: destination landing position/heading not verified.','WARNING');
+   }
+ }
+ mission17UpdateUI();
 }
 /* STAGE 10 — scenario-specific objectives and scoring */
 function scenarioObjectiveData(){
