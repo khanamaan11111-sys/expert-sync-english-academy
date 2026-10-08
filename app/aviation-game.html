@@ -172,7 +172,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <canvas id="scene"></canvas><div id="aircraftLabel">AIRCRAFT ES-01 • EXTERNAL VIEW</div><div id="keyFeedback"></div>
 <div id="brand" class="ui panel"><div class="brand">✈ EXPERT SYNC — FLIGHT TRAINING</div><div class="sub">HANDS-ON SINGLE-ENGINE SIMULATOR • N-ES01</div></div>
 <div id="phasebar" class="ui"></div>
-<div id="views" class="ui"><button class="view active" data-v="COCKPIT">COCKPIT</button><button class="view" data-v="EXTERNAL">EXTERNAL</button></div>
+<div id="views" class="ui"><button class="view active" data-v="COCKPIT">COCKPIT</button><button class="view" data-v="EXTERNAL">EXTERNAL</button><button class="view" data-v="REALITY">REALITY AERIAL</button></div>
 <div id="testbar" class="ui panel"><button id="startBtn">START TRAINING</button><button id="qaBtn">SYSTEM QA</button><button id="pauseBtn">PAUSE</button><button id="restartBtn">RESTART</button><button id="recordBtn">TRAINING RECORD</button><span id="testState">READY</span><span id="inputStatus">Click START TRAINING</span></div>
 <div id="qaPanel"><h2>SYSTEM QA • FLIGHT SIM VALIDATION</h2><div id="qaSummary">Run the validation suite before final user testing.</div><div id="qaGrid"></div><div id="qaActions"><button id="qaRun">RUN FULL QA</button><button id="qaClose">CLOSE</button></div></div><div id="controlGuide" class="ui panel"><b>CONTROL GUIDE</b><div id="guideText">Complete pre-flight checklist to begin.</div></div>
 <div id="scenarioObjective" class="ui panel"><b>SCENARIO OBJECTIVE</b><div id="scenarioObjectiveTitle">STANDARD FLIGHT</div><div id="scenarioObjectiveText">Complete the full profile with disciplined aircraft control and ATC.</div><div id="scenarioObjectiveState">PRIMARY OBJECTIVE ACTIVE</div></div><div id="scenarioPanel" class="ui panel"><b>TRAINING SCENARIO</b><select id="scenarioSelect"><option value="standard">01 • Standard Flight</option><option value="crosswind">02 • Crosswind Operations</option><option value="busy">03 • Busy Traffic</option><option value="engine">04 • Engine Failure Drill</option></select><button id="loadScenario">LOAD SCENARIO</button></div>
@@ -553,7 +553,7 @@ else if(text.includes('strobe'))toggleLight('strobe');
 else if(text.includes('landing'))toggleLight('landing');
 });
 document.getElementById('brake').onclick=()=>{if(!s.onGround)return;s.parkingBrake=!s.parkingBrake;s.brake=s.parkingBrake;document.getElementById('brake').textContent='PARKING BRAKE: '+(s.parkingBrake?'ON':'OFF');document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)};
-document.querySelectorAll('.view').forEach(b=>b.onclick=()=>setView(b.dataset.v));function setView(v){s.view=v;document.querySelectorAll('.view').forEach(q=>q.classList.toggle('active',q.dataset.v===v));document.getElementById('cockpit').style.display=v==='COCKPIT'?'block':'none';document.getElementById('cockpitLabel').style.display=v==='COCKPIT'?'block':'none'}
+document.querySelectorAll('.view').forEach(b=>b.onclick=()=>setView(b.dataset.v));function setView(v){if(v==='REALITY')v='EXTERNAL';s.view=v;document.querySelectorAll('.view').forEach(q=>q.classList.toggle('active',q.dataset.v===v));document.getElementById('cockpit').style.display=v==='COCKPIT'?'block':'none';document.getElementById('cockpitLabel').style.display=v==='COCKPIT'?'block':'none'}
 document.getElementById('yoke').addEventListener('pointerdown',e=>{s.yoke=true;document.getElementById('yoke').setPointerCapture(e.pointerId);moveY(e)});document.getElementById('yoke').addEventListener('pointermove',e=>{if(s.yoke)moveY(e)});document.getElementById('yoke').addEventListener('pointerup',()=>{s.yoke=false;s.yx*=.35;s.yy*=.35});function moveY(e){let r=document.getElementById('yoke').getBoundingClientRect();s.yx=clamp((e.clientX-r.left-r.width/2)/(r.width*.42),-1,1);s.yy=clamp((e.clientY-r.top-r.height/2)/(r.height*.42),-1,1)}
 document.getElementById('throttle').onpointerdown=e=>{document.getElementById('throttle').setPointerCapture(e.pointerId);moveT(e)};document.getElementById('throttle').onpointermove=e=>{if(e.buttons)moveT(e)};function moveT(e){let r=document.getElementById('throttle').getBoundingClientRect();s.throttle=clamp((r.bottom-e.clientY)/r.height*100,0,100)}
 document.getElementById('pauseBtn').onclick=()=>{
@@ -1203,7 +1203,54 @@ document.getElementById('apAlt').textContent=s.apAltitude?'ON':'OFF';
 document.getElementById('apAltBug').textContent=Math.round(s.selectedAltitude)+' FT';
 document.getElementById('courseErr').textContent=(Math.abs(diff(s.heading,s.selectedHeading))<1?'0':(diff(s.heading,s.selectedHeading)>0?'+':'')+Math.round(diff(s.heading,s.selectedHeading)))+'°';
 setPhase();updateGuide();updateWeather();updateChecklist();updateTraffic(dt);updateILS();updateEventLog();drawMap();document.getElementById('bar').style.width=s.progress+'%';document.querySelectorAll('.switch').forEach(e=>{let k=e.dataset.s,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:false;e.classList.toggle('on',on)});document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}
-function draw(){x.clearRect(0,0,W,H);let sky=x.createLinearGradient(0,0,0,H*.62);sky.addColorStop(0,'#49a7d5');sky.addColorStop(.7,'#a6dce8');sky.addColorStop(1,'#7da66f');x.fillStyle=sky;x.fillRect(0,0,W,H*.64);let horizon=H*.48 - s.pitch*H*.018;x.save();x.translate(W*.5,horizon);x.rotate(s.bank*Math.PI/180);x.translate(-W*.5,-horizon);x.fillStyle='#526e6b';x.beginPath();x.moveTo(0,horizon+25);for(let i=0;i<=W;i+=35)x.lineTo(i,horizon+5-Math.sin(i*.008)*32-Math.sin(i*.018)*15);x.lineTo(W,horizon+25);x.fill();x.fillStyle='#4d7448';x.fillRect(-W,horizon+25,W*3,H);x.restore();for(let i=0;i<18;i++){x.fillStyle=i%2?'#52794d':'#4a7046';x.fillRect(i*W/18,horizon+25,W/18+1,H)}let cx=W*.58,top=horizon+H*.10,bottom=H*1.05;x.fillStyle='#252c2f';x.beginPath();x.moveTo(cx-W*.20,top);x.lineTo(cx+W*.20,top);x.lineTo(cx+W*.48,bottom);x.lineTo(cx-W*.48,bottom);x.closePath();x.fill();x.strokeStyle='#d8bf45';x.lineWidth=3;x.stroke();x.strokeStyle='#fff';x.lineWidth=4;x.setLineDash([28,24]);x.beginPath();x.moveTo(cx,top);x.lineTo(cx,bottom);x.stroke();x.setLineDash([]);x.fillStyle='#fff';x.font='900 35px Arial';x.fillText('09',cx+W*.08,top+H*.06);if(s.phase===1&&s.xp>64){
+function drawAerialWorld(){
+  const horizon=H*.46;
+  // cinematic ocean-to-city aerial scene; procedural so it works offline
+  x.save();
+  x.fillStyle='#147fa6';x.fillRect(0,horizon*.72,W,H-horizon*.72);
+  const sea=x.createLinearGradient(0,horizon,0,H);sea.addColorStop(0,'#4fc2df');sea.addColorStop(.35,'#1596bc');sea.addColorStop(1,'#086b91');x.fillStyle=sea;x.fillRect(0,horizon,W,H-horizon);
+  // distant coastline
+  x.fillStyle='#d8c6a1';x.beginPath();x.moveTo(0,horizon+H*.08);x.bezierCurveTo(W*.18,horizon-H*.01,W*.32,horizon+H*.12,W*.48,horizon+H*.06);x.bezierCurveTo(W*.67,horizon-H*.02,W*.82,horizon+H*.10,W,horizon+H*.03);x.lineTo(W,H);x.lineTo(0,H);x.closePath();x.fill();
+  // city grid / towers
+  const seed=Math.floor(s.xp*2+s.yp*3);
+  for(let i=0;i<125;i++){
+    const a=(i*83+seed*17)%1000/1000, b=(i*47+seed*11)%1000/1000;
+    const bx=(a*1.28-.14)*W, by=horizon+H*(.16+b*.48), bw=5+(i%7)*2, bh=5+(i%11)*5;
+    x.fillStyle=i%9===0?'#53666d':i%3===0?'#8b9798':'#b8aaa0';
+    x.fillRect(bx,by-bh,bw,bh);
+    if(i%6===0){x.fillStyle='#d7e7e8';x.fillRect(bx+1,by-bh+2,1,bh-3)}
+  }
+  // Palm-shaped island / resort
+  const icx=W*.58, icy=horizon+H*.15, r=Math.min(W,H)*.19;
+  x.fillStyle='#d9c6a1';x.beginPath();x.ellipse(icx,icy,r*1.32,r*.72,0,0,Math.PI*2);x.fill();
+  x.fillStyle='#e6d2ae';x.beginPath();x.ellipse(icx,icy,r*1.05,r*.52,0,0,Math.PI*2);x.fill();
+  // palm fronds as reclaimed land
+  x.strokeStyle='#dcc79d';x.lineWidth=Math.max(7,r*.085);x.lineCap='round';
+  for(let k=0;k<15;k++){
+    const ang=-Math.PI*.88+k*(Math.PI*1.76/14), ex=icx+Math.cos(ang)*r*1.03, ey=icy+Math.sin(ang)*r*.63;
+    x.beginPath();x.moveTo(icx,icy);x.quadraticCurveTo(icx+Math.cos(ang)*r*.42,icy+Math.sin(ang)*r*.28,ex,ey);x.stroke();
+    // villa clusters
+    for(let j=0;j<4;j++){const t=.35+j*.14, px=icx+(ex-icx)*t, py=icy+(ey-icy)*t; x.fillStyle='#f2ead8';x.fillRect(px-2,py-2,5,4)}
+  }
+  x.fillStyle='#d8c49b';x.beginPath();x.arc(icx,icy,r*.16,0,Math.PI*2);x.fill();
+  // breakwater crescent
+  x.strokeStyle='#d5c099';x.lineWidth=Math.max(9,r*.09);x.beginPath();x.arc(icx,icy,r*1.32,.05,Math.PI*1.95);x.stroke();
+  // marina / roads
+  x.strokeStyle='#9b8063';x.lineWidth=2;
+  for(let k=0;k<8;k++){x.beginPath();x.moveTo(W*.15+k*W*.06,horizon+H*.44);x.lineTo(W*.55+k*W*.03,horizon+H*.16);x.stroke()}
+  // clouds with soft alpha
+  x.globalAlpha=.82;
+  for(let i=0;i<7;i++){const cx=W*(.08+i*.16)+Math.sin((performance.now()/6000)+i)*18,cy=H*(.14+(i%3)*.055);x.fillStyle='#fff';x.beginPath();x.arc(cx,cy,18,0,Math.PI*2);x.arc(cx+20,cy-7,24,0,Math.PI*2);x.arc(cx+45,cy,17,0,Math.PI*2);x.fill()}
+  x.globalAlpha=1;
+  // aircraft shadow / lower foreground motion cue
+  x.strokeStyle='#ffffff55';x.lineWidth=1;
+  for(let i=0;i<9;i++){const yy=horizon+H*.08+i*H*.075;x.beginPath();x.moveTo(W*.5-55-i*4,yy);x.lineTo(W*.5+55+i*4,yy);x.stroke()}
+  x.restore();
+  // cinematic vignette
+  const v=x.createRadialGradient(W*.5,H*.45,H*.1,W*.5,H*.45,H*.8);v.addColorStop(.72,'transparent');v.addColorStop(1,'#00131a99');x.fillStyle=v;x.fillRect(0,0,W,H);
+}
+function draw(){x.clearRect(0,0,W,H);let sky=x.createLinearGradient(0,0,0,H*.62);sky.addColorStop(0,'#49a7d5');sky.addColorStop(.7,'#a6dce8');sky.addColorStop(1,'#7da66f');x.fillStyle=sky;x.fillRect(0,0,W,H*.64);if(s.view==='EXTERNAL'&&!s.onGround&&s.alt>250){drawAerialWorld();const al=document.getElementById('aircraftLabel');if(al)al.style.display='block';drawPlane(W*.5,H*.68,2.25,s.heading,s.bank);return;}
+let horizon=H*.48 - s.pitch*H*.018;x.save();x.translate(W*.5,horizon);x.rotate(s.bank*Math.PI/180);x.translate(-W*.5,-horizon);x.fillStyle='#526e6b';x.beginPath();x.moveTo(0,horizon+25);for(let i=0;i<=W;i+=35)x.lineTo(i,horizon+5-Math.sin(i*.008)*32-Math.sin(i*.018)*15);x.lineTo(W,horizon+25);x.fill();x.fillStyle='#4d7448';x.fillRect(-W,horizon+25,W*3,H);x.restore();for(let i=0;i<18;i++){x.fillStyle=i%2?'#52794d':'#4a7046';x.fillRect(i*W/18,horizon+25,W/18+1,H)}let cx=W*.58,top=horizon+H*.10,bottom=H*1.05;x.fillStyle='#252c2f';x.beginPath();x.moveTo(cx-W*.20,top);x.lineTo(cx+W*.20,top);x.lineTo(cx+W*.48,bottom);x.lineTo(cx-W*.48,bottom);x.closePath();x.fill();x.strokeStyle='#d8bf45';x.lineWidth=3;x.stroke();x.strokeStyle='#fff';x.lineWidth=4;x.setLineDash([28,24]);x.beginPath();x.moveTo(cx,top);x.lineTo(cx,bottom);x.stroke();x.setLineDash([]);x.fillStyle='#fff';x.font='900 35px Arial';x.fillText('09',cx+W*.08,top+H*.06);if(s.phase===1&&s.xp>64){
 x.strokeStyle='#54e6a6';x.lineWidth=5;x.setLineDash([18,12]);x.beginPath();x.moveTo(cx-W*.12,top+H*.105);x.lineTo(cx+W*.12,top+H*.105);x.stroke();x.setLineDash([]);
 x.fillStyle='#54e6a6';x.font='900 12px Arial';x.fillText('RUNWAY 09 • LINE UP',cx-W*.055,top+H*.14);
 
