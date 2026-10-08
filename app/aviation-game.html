@@ -139,6 +139,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 
 /* STAGE 9 — TRAINING RECORD & SCENARIO PROGRESSION */
 #recordBtn{background:#123746!important;border-color:#3f99b5!important}
+#adaptiveCoach{right:14px;top:380px;width:320px;padding:11px;z-index:22}#adaptiveCoach b{font-size:9px;letter-spacing:1px;color:#54e6a6}#coachSkill{font-size:14px;font-weight:900;color:#fff;margin-top:5px}#coachReason{font-size:9px;line-height:1.45;color:#9bb5be;margin-top:5px}#coachAction{margin-top:8px;width:100%;background:#123746;border:1px solid #3f99b5;border-radius:5px;padding:7px;font-size:9px;font-weight:900;cursor:pointer}#coachAction:hover{background:#185066}
 #trainingRecord{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:70;width:min(760px,92vw);max-height:82vh;overflow:auto;padding:20px 22px;background:#06131cf8;border:1px solid #43bfe8;border-radius:10px;box-shadow:0 25px 100px #000d;display:none}
 #trainingRecord h2{margin:0;color:#54e6a6;font-size:18px;letter-spacing:1.5px}
 #recordSub{font-size:9px;color:#8fa8b2;margin-top:5px}
@@ -175,7 +176,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="testbar" class="ui panel"><button id="startBtn">START TRAINING</button><button id="qaBtn">SYSTEM QA</button><button id="pauseBtn">PAUSE</button><button id="restartBtn">RESTART</button><button id="recordBtn">TRAINING RECORD</button><span id="testState">READY</span><span id="inputStatus">Click START TRAINING</span></div>
 <div id="qaPanel"><h2>SYSTEM QA • FLIGHT SIM VALIDATION</h2><div id="qaSummary">Run the validation suite before final user testing.</div><div id="qaGrid"></div><div id="qaActions"><button id="qaRun">RUN FULL QA</button><button id="qaClose">CLOSE</button></div></div><div id="controlGuide" class="ui panel"><b>CONTROL GUIDE</b><div id="guideText">Complete pre-flight checklist to begin.</div></div>
 <div id="scenarioObjective" class="ui panel"><b>SCENARIO OBJECTIVE</b><div id="scenarioObjectiveTitle">STANDARD FLIGHT</div><div id="scenarioObjectiveText">Complete the full profile with disciplined aircraft control and ATC.</div><div id="scenarioObjectiveState">PRIMARY OBJECTIVE ACTIVE</div></div><div id="scenarioPanel" class="ui panel"><b>TRAINING SCENARIO</b><select id="scenarioSelect"><option value="standard">01 • Standard Flight</option><option value="crosswind">02 • Crosswind Operations</option><option value="busy">03 • Busy Traffic</option><option value="engine">04 • Engine Failure Drill</option></select><button id="loadScenario">LOAD SCENARIO</button></div>
-<div id="trainingRecord" class="ui panel"><h2>TRAINING RECORD • SCENARIO PROGRESSION</h2><div id="recordSub">Best verified performance is stored locally on this browser. Complete each scenario to build your training record.</div><div id="recordGrid"></div><div id="recordFooter"><div class="recordHint">STANDARD → CROSSWIND → BUSY TRAFFIC → ENGINE FAILURE<br>Use the record to identify the next scenario that needs practice.</div><button id="recordClose" class="recordClose">CLOSE RECORD</button></div></div><div id="weather" class="ui panel"><b>WEATHER / CONDITIONS</b><div id="weatherText">WIND 120° / 8 KT • VIS 10 KM • TEMP 24°C</div><button id="weatherBtn">CHANGE CONDITIONS</button><button id="audioBtn">AUDIO ON</button></div>
+<div id="adaptiveCoach" class="ui panel"><b>ADAPTIVE INSTRUCTOR COACH</b><div id="coachSkill">RUN AN ASSESSMENT TO GET A DRILL</div><div id="coachReason">The coach uses your weakest verified performance area to recommend the next focused scenario.</div><button id="coachAction">OPEN RECOMMENDED SCENARIO</button></div><div id="trainingRecord" class="ui panel"><h2>TRAINING RECORD • SCENARIO PROGRESSION</h2><div id="recordSub">Best verified performance is stored locally on this browser. Complete each scenario to build your training record.</div><div id="recordGrid"></div><div id="recordFooter"><div class="recordHint">STANDARD → CROSSWIND → BUSY TRAFFIC → ENGINE FAILURE<br>Use the record to identify the next scenario that needs practice.</div><button id="recordClose" class="recordClose">CLOSE RECORD</button></div></div><div id="weather" class="ui panel"><b>WEATHER / CONDITIONS</b><div id="weatherText">WIND 120° / 8 KT • VIS 10 KM • TEMP 24°C</div><button id="weatherBtn">CHANGE CONDITIONS</button><button id="audioBtn">AUDIO ON</button></div>
 <div id="checklistPanel" class="ui panel"><b>COCKPIT CHECKLIST</b><div id="checklistTitle">PRE-FLIGHT</div><div id="checklistItems"></div></div>
 <div id="mission" class="ui panel"><div class="eyebrow">ACTIVE TRAINING</div><div id="mtitle" class="title"></div><div id="mcopy" class="copy"></div><div class="progress"><i id="bar"></i></div><div id="check"></div></div>
 <div id="atc" class="ui panel"><div class="atcHead"><span>ATC • <span id="freq"></span></span><span id="radioState">STANDBY</span></div><div id="atcText" class="atcBody"></div><div class="radio">Press <b>R</b> to transmit/read back.</div><div id="radioControls" style="display:flex;gap:4px;margin-top:7px"><button class="freqBtn" data-freq="GROUND">GND</button><button class="freqBtn" data-freq="TOWER">TWR</button><button class="freqBtn" data-freq="CENTER">CTR</button><button class="freqBtn" data-freq="APPROACH">APP</button></div><div id="readbackQuality" style="font-size:8px;color:#9bb5be;margin-top:6px">READBACK QUALITY: —</div><button id="atcBtn" class="atcBtn">TRANSMIT / READ BACK</button></div>
@@ -952,6 +953,7 @@ const score=Math.round(s.score);
 const A=assessmentSummary();
 const grade=A.overall>=90?'EXCELLENT':A.overall>=75?'GOOD':A.overall>=60?'SATISFACTORY':'NEEDS PRACTICE';
 writeTrainingRecord(score,A.overall,grade);
+updateAdaptiveCoach();
 const e=document.createElement('div');e.id='complete';e.className='ui panel';
 e.style='left:50%;top:50%;transform:translate(-50%,-50%);z-index:50;padding:24px 30px;text-align:center;min-width:360px;max-width:90vw';
 logEvent('FLIGHT ASSESSMENT COMPLETE','SUCCESS');
@@ -1359,9 +1361,9 @@ function writeTrainingRecord(score,overall,grade){
   const records=readTrainingRecords();
   const key=s.scenario||'standard';
   const prev=records[key];
-  const entry={score,overall,grade,date:new Date().toISOString(),attempts:(prev?.attempts||0)+1};
+  const entry={score,overall,grade,date:new Date().toISOString(),attempts:(prev?.attempts||0)+1,dimensions:{handling:Math.round(s.instructor.handling),procedures:Math.round(s.instructor.procedures),atc:Math.round(s.instructor.atc),configuration:Math.round(s.instructor.configuration),stability:Math.round(s.instructor.stability),safety:Math.round(s.instructor.safety)}};
   if(!prev||overall>prev.overall||(overall===prev.overall&&score>prev.score))records[key]=entry;
-  else records[key]={...prev,attempts:entry.attempts};
+  else records[key]={...prev,attempts:entry.attempts,dimensions:prev.dimensions||entry.dimensions};
   try{localStorage.setItem(RECORD_KEY,JSON.stringify(records))}catch(e){}
 }
 function showTrainingRecord(){
@@ -1384,6 +1386,44 @@ function showTrainingRecord(){
 document.getElementById('recordBtn').onclick=showTrainingRecord;
 document.getElementById('recordClose').onclick=()=>{document.getElementById('trainingRecord').style.display='none'};
 
+/* STAGE 12 — adaptive instructor mastery engine */
+function adaptiveRecommendation(){
+  const A=assessmentSummary();
+  const areas=[
+    ['handling','Aircraft handling','crosswind','Handling score is the limiting area. Repeat crosswind operations with smaller control inputs and smoother energy management.'],
+    ['procedures','Procedures','standard','Procedure execution is the limiting area. Repeat the standard profile and follow each clearance/checklist step in sequence.'],
+    ['atc','ATC discipline','busy','ATC discipline is the limiting area. Repeat the busy-traffic scenario and prioritize correct facility/readback before aircraft tasks.'],
+    ['configuration','Configuration management','standard','Configuration management is the limiting area. Repeat the standard profile and verify gear, flaps, lights and shutdown states at each phase.'],
+    ['stability','Flight stability','crosswind','Flight stability is the limiting area. Repeat crosswind operations and target smoother heading, bank and vertical-path control.'],
+    ['safety','Safety discipline','engine','Safety discipline is the limiting area. Repeat the engine-failure drill and prioritize control, best glide, landing-area selection and secure shutdown.']
+  ];
+  areas.sort((a,b)=>A[a[0]]-A[b[0]]);
+  const w=areas[0];
+  const gap=Math.max(0,100-A[w[0]]);
+  return {area:w[0],label:w[1],scenario:w[2],reason:w[3],score:A[w[0]],gap};
+}
+function updateAdaptiveCoach(){
+  const box=document.getElementById('adaptiveCoach');
+  if(!box)return;
+  const rec=adaptiveRecommendation();
+  const skill=document.getElementById('coachSkill');
+  const reason=document.getElementById('coachReason');
+  const action=document.getElementById('coachAction');
+  if(!s.started && !s.completed){
+    skill.textContent='READY FOR BASELINE ASSESSMENT';
+    reason.textContent='Complete a flight assessment. The coach will identify the weakest verified skill and select the most relevant drill.';
+    action.textContent='VIEW TRAINING RECORD';
+    action.onclick=showTrainingRecord;
+    return;
+  }
+  skill.textContent=rec.label.toUpperCase()+' • '+rec.score+'%';
+  reason.textContent=rec.reason;
+  action.textContent='PRACTICE '+rec.scenario.toUpperCase();
+  action.onclick=()=>{
+    const sel=document.getElementById('scenarioSelect');
+    if(sel){sel.value=rec.scenario;document.getElementById('loadScenario').click();toast('ADAPTIVE COACH → '+rec.label.toUpperCase()+' DRILL LOADED.');}
+  };
+}
 /* STAGE 10 — scenario-specific objectives and scoring */
 function scenarioObjectiveData(){
 const data={
