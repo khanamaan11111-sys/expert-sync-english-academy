@@ -187,7 +187,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="trafficPanel" class="ui panel"><b>TRAFFIC / SITUATIONAL AWARENESS</b><div id="trafficText">NO CONFLICTS</div><div id="trafficList"></div></div>
 <div id="approachPanel" class="ui panel"><b>ILS-STYLE APPROACH</b><div class="ils"><div class="ilsBox"><span>LOC</span><strong id="locDev">0.0</strong><small>DOTS</small></div><div class="ilsBox"><span>GS</span><strong id="gsDev">0.0</strong><small>DOTS</small></div></div><div id="ilsStatus">RUNWAY 09 • ILS ARMED</div></div>
 <div id="mapPanel" class="ui panel"><b>MINI MOVING MAP</b><canvas id="mapCanvas" width="220" height="145"></canvas><div id="mapInfo">RWY 09 • ROUTE ALPHA</div></div>
-<div id="navPanel" class="ui panel"><b>NAVIGATION / HEADING</b><div class="navRow"><span>SELECTED HDG</span><strong id="selHdg">090°</strong></div><div class="navRow"><span>COURSE ERROR</span><strong id="courseErr">0°</strong></div><div style="display:flex;gap:4px;margin-top:7px"><button id="navArmBtn" class="cockpitBtn" style="margin:0;flex:1">ARM ILS</button><button id="navCourseBtn" class="cockpitBtn" style="margin:0;flex:1">COURSE 090</button></div><div class="navHint">J/L = heading bug • N = NAV/ILS</div></div>
+<div id="navPanel" class="ui panel"><b>NAVIGATION / HEADING</b><div class="navRow"><span>SELECTED HDG</span><strong id="selHdg">090°</strong></div><div class="navRow"><span>COURSE ERROR</span><strong id="courseErr">0°</strong></div><div class="navRow"><span>NAV TO</span><strong id="navTo">ES-VOR1 • 0.0 NM</strong></div><div class="navRow"><span>BEARING</span><strong id="navBearing">090°</strong></div><div class="navRow"><span>MODE</span><strong id="navMode">HDG</strong></div><div style="display:flex;gap:4px;margin-top:7px"><button id="navArmBtn" class="cockpitBtn" style="margin:0;flex:1">ARM ILS</button><button id="navCourseBtn" class="cockpitBtn" style="margin:0;flex:1">COURSE 090</button></div><div class="navHint">J/L = heading bug • N = NAV • route fixes are shown on the moving map</div></div>
 <div id="apPanel" class="ui panel"><b>AUTOPILOT / FLIGHT DIRECTOR</b><div class="navRow"><span>AP MASTER</span><strong id="apState">OFF</strong></div><div class="navRow"><span>HDG MODE</span><strong id="apHdg">OFF</strong></div><div class="navRow"><span>ALT HOLD</span><strong id="apAlt">OFF</strong></div><div class="navRow"><span>ALT BUG</span><strong id="apAltBug">3000 FT</strong></div><div style="display:flex;gap:4px;margin-top:7px"><button id="apBtn" class="cockpitBtn" style="margin:0;flex:1">AP</button><button id="apHdgBtn" class="cockpitBtn" style="margin:0;flex:1">HDG</button><button id="apAltBtn" class="cockpitBtn" style="margin:0;flex:1">ALT</button></div><div class="navHint">P = AP • K = HDG • Z = ALT</div></div>
 <div id="hud" class="ui">
 <div class="read"><b>AIRSPEED</b><strong id="hspd">0</strong><small>KT</small></div><div class="read"><b>ALTITUDE</b><strong id="halt">0</strong><small>FT</small></div><div class="read"><b>HEADING</b><strong id="hhdg">090</strong><small>°</small></div><div class="read"><b>VERTICAL SPEED</b><strong id="hvs">0</strong><small>FT/MIN</small></div><div class="read"><b>RPM</b><strong id="hrpm">0</strong><small>RPM</small></div><div class="read"><b>FUEL</b><strong id="hfuel">100</strong><small>%</small></div>
@@ -237,7 +237,7 @@ const missions=[
 ['LANDING','TOWER 118.10','Read back landing clearance. Maintain centreline, land with gear DOWN and FULL FLAPS, then reduce power and decelerate below 55 kt.','Tower: ES-01, cleared to land Runway 09.'],
 ['AFTER LANDING • PARK & SHUTDOWN','GROUND 121.90','After touchdown, keep the centreline, slow to taxi speed, exit the runway, set parking brake, reduce power to idle, and shut down the engine.','Ground: ES-01, taxi to parking via Alpha.']
 ];
-const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,turbulence:0.10,gust:0,trim:0,selectedHeading:90,selectedAltitude:3000,ilsArmed:false,navMode:false,navCourse:90,navX:48,navY:18,dme:0,locError:0,gsError:0,navIntercept:false,autopilot:false,apHeading:false,apAltitude:false,failure:null,emergencyMode:null,goAround:false,emergencyResolved:false,lastFailureLogged:false,
+const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,turbulence:0.10,gust:0,trim:0,selectedHeading:90,selectedAltitude:3000,ilsArmed:false,navMode:false,navCourse:90,navX:48,navY:18,dme:0,locError:0,gsError:0,navIntercept:false,navLeg:0,navBearing:0,navTrack:90,navXtk:0,navTo:'ES-VOR1',navModeName:'HDG',navDistanceNm:0,navFixReached:false,autopilot:false,apHeading:false,apAltitude:false,failure:null,emergencyMode:null,goAround:false,emergencyResolved:false,lastFailureLogged:false,
 events:[],lastLoggedPhase:-1,fdr:[],lastFdr:0,replayIndex:0,replayPlaying:false,scenarioClock:0,scenarioTriggered:false,scenarioViolations:0,scenarioBonus:0,
 instructor:{handling:100,procedures:100,atc:100,configuration:100,stability:100,safety:100},lastInstructor:{},assessmentStarted:false,
 traffic:[
@@ -1032,8 +1032,36 @@ if(s.events.length>18)s.events.pop();
 const el=document.getElementById('eventLog');
 if(el)el.innerHTML=s.events.map(e=>'<div><b>'+e.t+'</b> '+e.msg+'</div>').join('');
 }
+// STAGE 15 — geographic navigation database, route legs and moving-map guidance
+const NAV_FIXES=[
+  {id:'ES-VOR1',name:'SYNC VOR',x:48,y:18,type:'VOR',freq:'113.20',course:90},
+  {id:'ES-DME1',name:'DELTA DME',x:78,y:34,type:'DME',freq:'110.30',course:120},
+  {id:'ES-ILS09',name:'RUNWAY 09 ILS',x:73,y:-12.5,type:'ILS',freq:'109.90',course:90}
+];
+const nmDistance=(ax,ay,bx,by)=>Math.hypot(ax-bx,ay-by)*0.11;
+const bearingTo=(ax,ay,bx,by)=>norm(Math.atan2(bx-ax,by-ay)*180/Math.PI);
+function updateNavigationDatabase(){
+  const fix=NAV_FIXES[s.navLeg]||NAV_FIXES[0];
+  const dx=fix.x-s.xp,dy=fix.y-s.yp;
+  s.navTo=fix.id;s.navBearing=bearingTo(s.xp,s.yp,fix.x,fix.y);
+  s.navDistanceNm=nmDistance(s.xp,s.yp,fix.x,fix.y);
+  s.navTrack=norm(s.heading);
+  const brErr=diff(s.navBearing,s.heading);
+  const lateral=Math.sin(brErr*Math.PI/180)*s.navDistanceNm;
+  s.navXtk=clamp(lateral,-9.9,9.9);
+  s.dme=s.navDistanceNm;
+  s.navCourse=fix.course;
+  if(s.navDistanceNm<1.2 && s.navLeg<NAV_FIXES.length-1){
+    s.navLeg++;
+    s.navFixReached=true;
+    logEvent('NAV FIX PASSED — next leg: '+NAV_FIXES[s.navLeg].id+'.','INFO');
+  }else if(s.navDistanceNm>=1.2)s.navFixReached=false;
+  const ce=diff(s.heading,fix.course);
+  if(s.navModeName==='NAV' && !s.onGround && Math.abs(ce)>3) s.navIntercept=Math.abs(ce)<12;
+}
 function navigationMonitor(dt){
 if(!s.started||s.paused)return;
+if(s.phase>=3&&!s.onGround)updateNavigationDatabase();
 if(s.phase===4&&!s.onGround){
 const err=Math.abs(diff(s.heading,s.navCourse));
 if(err>12){s.navIntercept=false;logEvent('NAVIGATION — intercept course 090 with a controlled heading change.','INFO');}
@@ -1173,19 +1201,20 @@ document.getElementById('ilsStatus').textContent=active?(s.ilsArmed?'RUNWAY 09 �
 
 function drawMap(){
 const m=document.getElementById('mapCanvas');if(!m)return;
-const q=m.getContext('2d'),w=m.width,h=m.height;
-q.clearRect(0,0,w,h);
+const q=m.getContext('2d'),w=m.width,h=m.height;q.clearRect(0,0,w,h);
 q.fillStyle='#07161d';q.fillRect(0,0,w,h);
 q.strokeStyle='#1b3944';q.lineWidth=1;
 for(let i=0;i<6;i++){q.beginPath();q.moveTo(i*w/5,0);q.lineTo(i*w/5,h);q.stroke();q.beginPath();q.moveTo(0,i*h/5);q.lineTo(w,i*h/5);q.stroke();}
-q.strokeStyle='#d6d9d6';q.lineWidth=4;q.beginPath();q.moveTo(22,118);q.lineTo(194,25);q.stroke();
-q.fillStyle='#54e6a6';q.font='bold 9px Arial';q.fillText('09',8,123);q.fillText('27',196,27);
-q.strokeStyle='#3b7788';q.lineWidth=2;q.setLineDash([5,4]);q.beginPath();q.moveTo(15,122);q.lineTo(195,27);q.stroke();q.setLineDash([]);
-q.fillStyle='#f4d35e';q.fillRect(78,83,50,2);q.fillStyle='#9bb5be';q.font='8px Arial';q.fillText('ALPHA',60,96);
-const px=clamp(112+s.xp*.72,8,w-8),py=clamp(104-s.yp*.55,8,h-8);
-q.save();q.translate(px,py);q.rotate((s.heading-90)*Math.PI/180);q.fillStyle='#fff';q.beginPath();q.moveTo(0,-6);q.lineTo(4,5);q.lineTo(0,3);q.lineTo(-4,5);q.closePath();q.fill();q.restore();
-q.fillStyle='#54e6a6';q.fillText('ES-01',px+6,py-5);
-document.getElementById('mapInfo').textContent='RWY 09 • '+(s.onGround?'GROUND':'AIRBORNE')+' • HDG '+String(Math.round(s.heading)).padStart(3,'0');
+const sx=v=>clamp(112+v*.72,8,w-8), sy=v=>clamp(104-v*.55,8,h-8);
+q.strokeStyle='#d6d9d6';q.lineWidth=4;q.beginPath();q.moveTo(sx(73),sy(-12.5));q.lineTo(sx(25),sy(18));q.stroke();
+q.fillStyle='#54e6a6';q.font='bold 8px Arial';q.fillText('09',sx(73)+4,sy(-12.5)+3);
+q.fillText('VOR1',sx(48)+4,sy(18)-4);q.fillText('DME1',sx(78)+4,sy(34)-4);
+q.strokeStyle='#54e6a6';q.lineWidth=2;q.setLineDash([5,4]);q.beginPath();q.moveTo(sx(73),sy(-12.5));q.lineTo(sx(48),sy(18));q.lineTo(sx(78),sy(34));q.stroke();q.setLineDash([]);
+const px=sx(s.xp),py=sy(s.yp);
+q.fillStyle='#f4d35e';q.fillRect(px-18,py-1,36,2);
+q.save();q.translate(px,py);q.rotate((s.heading-90)*Math.PI/180);q.fillStyle='#fff';q.beginPath();q.moveTo(0,-7);q.lineTo(5,5);q.lineTo(0,2);q.lineTo(-5,5);q.closePath();q.fill();q.restore();
+q.fillStyle='#54e6a6';q.font='8px Arial';q.fillText('ES-01',px+6,py-6);
+document.getElementById('mapInfo').textContent=(s.navModeName==='NAV'?'NAV • ':'HDG • ')+s.navTo+' • '+s.navDistanceNm.toFixed(1)+' NM • BRG '+String(Math.round(s.navBearing)).padStart(3,'0')+'°';
 }
 function hud(){let h=String(Math.round(norm(s.heading))).padStart(3,'0');document.getElementById('hspd').textContent=Math.round(s.speed);document.getElementById('halt').textContent=Math.round(s.alt);document.getElementById('hhdg').textContent=h;document.getElementById('hvs').textContent=Math.round(s.vs);document.getElementById('hrpm').textContent=Math.round(s.rpm);document.getElementById('hfuel').textContent=Math.round(s.fuel);document.getElementById('gs').textContent=Math.round(s.speed);document.getElementById('ga').textContent=Math.round(s.pitch)+'°';document.getElementById('galt').textContent=Math.round(s.alt);document.getElementById('gh').textContent=h;document.getElementById('gv').textContent=Math.round(s.vs);document.getElementById('stEngine').textContent=s.engine?'RUNNING':'OFF';document.getElementById('stEngine').className=s.engine?'green':'red';document.getElementById('stOil').textContent=Math.round(s.engine?clamp((s.rpm-500)*.042,0,65):0)+' PSI';
 s.oilPressure=s.engine?clamp((s.rpm-500)*.042,0,65):0;
@@ -1201,7 +1230,10 @@ document.getElementById('apState').textContent=s.autopilot?'ON':'OFF';
 document.getElementById('apHdg').textContent=s.apHeading?'ON':'OFF';
 document.getElementById('apAlt').textContent=s.apAltitude?'ON':'OFF';
 document.getElementById('apAltBug').textContent=Math.round(s.selectedAltitude)+' FT';
-document.getElementById('courseErr').textContent=(Math.abs(diff(s.heading,s.selectedHeading))<1?'0':(diff(s.heading,s.selectedHeading)>0?'+':'')+Math.round(diff(s.heading,s.selectedHeading)))+'°';
+document.getElementById('courseErr').textContent=(s.navModeName==='NAV'?(s.navXtk>=0?'+':'')+s.navXtk.toFixed(1)+' NM XTK':(Math.abs(diff(s.heading,s.selectedHeading))<1?'0':(diff(s.heading,s.selectedHeading)>0?'+':'')+Math.round(diff(s.heading,s.selectedHeading)))+'°');
+const navToEl=document.getElementById('navTo');if(navToEl)navToEl.textContent=s.navTo+' • '+s.navDistanceNm.toFixed(1)+' NM';
+const navBrEl=document.getElementById('navBearing');if(navBrEl)navBrEl.textContent=String(Math.round(s.navBearing)).padStart(3,'0')+'°';
+const navModeEl=document.getElementById('navMode');if(navModeEl)navModeEl.textContent=s.navModeName;
 setPhase();updateGuide();updateWeather();updateChecklist();updateTraffic(dt);updateILS();updateEventLog();drawMap();document.getElementById('bar').style.width=s.progress+'%';document.querySelectorAll('.switch').forEach(e=>{let k=e.dataset.s,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:false;e.classList.toggle('on',on)});document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}
 function drawAerialWorld(){
   // STAGE 14 — flight-linked cinematic camera / world motion
