@@ -83,6 +83,11 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #apPanel strong{color:#fff}
 #scenarioPanel{left:14px;bottom:52px;padding:9px 11px;width:220px;z-index:30}
 #scenarioPanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
+#routePanel{right:14px;top:392px;padding:9px 11px;min-width:185px;z-index:25}
+#routePanel b{font-size:9px;letter-spacing:1px;color:#54e6a6}
+#routeSelect{width:100%;margin:6px 0;background:#07161d;color:#fff;border:1px solid #3c6978;padding:5px;font-size:9px}
+.routeRow{display:flex;justify-content:space-between;gap:8px;margin-top:5px;font-size:8px;color:#9bb5be}.routeRow strong{color:#fff;text-align:right}
+#loadRoute{width:100%;margin-top:7px;background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:900;cursor:pointer}
 #scenarioSelect{width:100%;margin:6px 0;background:#07161d;color:#fff;border:1px solid #3c6978;padding:5px;font-size:9px}
 #loadScenario{background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer;width:100%}
 #weather{right:14px;bottom:52px;padding:9px 11px;max-width:245px;z-index:30}
@@ -175,7 +180,7 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 <div id="views" class="ui"><button class="view active" data-v="COCKPIT">COCKPIT</button><button class="view" data-v="EXTERNAL">EXTERNAL</button><button class="view" data-v="REALITY">REALITY AERIAL</button></div>
 <div id="testbar" class="ui panel"><button id="startBtn">START TRAINING</button><button id="qaBtn">SYSTEM QA</button><button id="pauseBtn">PAUSE</button><button id="restartBtn">RESTART</button><button id="recordBtn">TRAINING RECORD</button><span id="testState">READY</span><span id="inputStatus">Click START TRAINING</span></div>
 <div id="qaPanel"><h2>SYSTEM QA • FLIGHT SIM VALIDATION</h2><div id="qaSummary">Run the validation suite before final user testing.</div><div id="qaGrid"></div><div id="qaActions"><button id="qaRun">RUN FULL QA</button><button id="qaClose">CLOSE</button></div></div><div id="controlGuide" class="ui panel"><b>CONTROL GUIDE</b><div id="guideText">Complete pre-flight checklist to begin.</div></div>
-<div id="scenarioObjective" class="ui panel"><b>SCENARIO OBJECTIVE</b><div id="scenarioObjectiveTitle">STANDARD FLIGHT</div><div id="scenarioObjectiveText">Complete the full profile with disciplined aircraft control and ATC.</div><div id="scenarioObjectiveState">PRIMARY OBJECTIVE ACTIVE</div></div><div id="scenarioPanel" class="ui panel"><b>TRAINING SCENARIO</b><select id="scenarioSelect"><option value="standard">01 • Standard Flight</option><option value="crosswind">02 • Crosswind Operations</option><option value="busy">03 • Busy Traffic</option><option value="engine">04 • Engine Failure Drill</option></select><button id="loadScenario">LOAD SCENARIO</button></div>
+<div id="scenarioObjective" class="ui panel"><b>SCENARIO OBJECTIVE</b><div id="scenarioObjectiveTitle">STANDARD FLIGHT</div><div id="scenarioObjectiveText">Complete the full profile with disciplined aircraft control and ATC.</div><div id="scenarioObjectiveState">PRIMARY OBJECTIVE ACTIVE</div></div><div id="routePanel" class="ui panel"><b>FLIGHT ROUTE • AIRPORT TO AIRPORT</b><select id="routeSelect"><option value="ESAI-ESBJ">ESAI → ESBJ • TRAINING ALPHA</option><option value="ESAI-ESCK">ESAI → ESCK • COASTAL TRAINING</option></select><div class="routeRow"><span>ORIGIN</span><strong id="routeOrigin">ESAI • Academy City</strong></div><div class="routeRow"><span>DESTINATION</span><strong id="routeDestination">ESBJ • Horizon City</strong></div><div class="routeRow"><span>LEG</span><strong id="routeLeg">1 / 4</strong></div><div class="routeRow"><span>NEXT FIX</span><strong id="routeFix">ES-VOR1</strong></div><div class="routeRow"><span>PROGRESS</span><strong id="routeProgress">0%</strong></div><button id="loadRoute">LOAD ROUTE</button></div><div id="scenarioPanel" class="ui panel"><b>TRAINING SCENARIO</b><select id="scenarioSelect"><option value="standard">01 • Standard Flight</option><option value="crosswind">02 • Crosswind Operations</option><option value="busy">03 • Busy Traffic</option><option value="engine">04 • Engine Failure Drill</option></select><button id="loadScenario">LOAD SCENARIO</button></div>
 <div id="adaptiveCoach" class="ui panel"><b>ADAPTIVE INSTRUCTOR COACH</b><div id="coachSkill">RUN AN ASSESSMENT TO GET A DRILL</div><div id="coachReason">The coach uses your weakest verified performance area to recommend the next focused scenario.</div><button id="coachAction">OPEN RECOMMENDED SCENARIO</button></div><div id="trainingRecord" class="ui panel"><h2>TRAINING RECORD • SCENARIO PROGRESSION</h2><div id="recordSub">Best verified performance is stored locally on this browser. Complete each scenario to build your training record.</div><div id="recordGrid"></div><div id="recordFooter"><div class="recordHint">STANDARD → CROSSWIND → BUSY TRAFFIC → ENGINE FAILURE<br>Use the record to identify the next scenario that needs practice.</div><button id="recordClose" class="recordClose">CLOSE RECORD</button></div></div><div id="weather" class="ui panel"><b>WEATHER / CONDITIONS</b><div id="weatherText">WIND 120° / 8 KT • VIS 10 KM • TEMP 24°C</div><button id="weatherBtn">CHANGE CONDITIONS</button><button id="audioBtn">AUDIO ON</button></div>
 <div id="checklistPanel" class="ui panel"><b>COCKPIT CHECKLIST</b><div id="checklistTitle">PRE-FLIGHT</div><div id="checklistItems"></div></div>
 <div id="mission" class="ui panel"><div class="eyebrow">ACTIVE TRAINING</div><div id="mtitle" class="title"></div><div id="mcopy" class="copy"></div><div class="progress"><i id="bar"></i></div><div id="check"></div></div>
@@ -237,7 +242,7 @@ const missions=[
 ['LANDING','TOWER 118.10','Read back landing clearance. Maintain centreline, land with gear DOWN and FULL FLAPS, then reduce power and decelerate below 55 kt.','Tower: ES-01, cleared to land Runway 09.'],
 ['AFTER LANDING • PARK & SHUTDOWN','GROUND 121.90','After touchdown, keep the centreline, slow to taxi speed, exit the runway, set parking brake, reduce power to idle, and shut down the engine.','Ground: ES-01, taxi to parking via Alpha.']
 ];
-const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,turbulence:0.10,gust:0,trim:0,selectedHeading:90,selectedAltitude:3000,ilsArmed:false,navMode:false,navCourse:90,navX:48,navY:18,dme:0,locError:0,gsError:0,navIntercept:false,navLeg:0,navBearing:0,navTrack:90,navXtk:0,navTo:'ES-VOR1',navModeName:'HDG',navDistanceNm:0,navFixReached:false,autopilot:false,apHeading:false,apAltitude:false,failure:null,emergencyMode:null,goAround:false,emergencyResolved:false,lastFailureLogged:false,
+const s={phase:0,view:'COCKPIT',started:false,paused:false,score:0,progress:0,windDir:120,windKt:8,visibility:10,temperature:24,turbulence:0.10,gust:0,trim:0,selectedHeading:90,selectedAltitude:3000,ilsArmed:false,navMode:false,navCourse:90,navX:48,navY:18,dme:0,locError:0,gsError:0,navIntercept:false,navLeg:0,navBearing:0,navTrack:90,navXtk:0,navTo:'ES-VOR1',navModeName:'HDG',navDistanceNm:0,navFixReached:false,routeId:'ESAI-ESBJ',routeLeg:0,routeProgress:0,originAirport:'ESAI',destinationAirport:'ESBJ',routeComplete:false,autopilot:false,apHeading:false,apAltitude:false,failure:null,emergencyMode:null,goAround:false,emergencyResolved:false,lastFailureLogged:false,
 events:[],lastLoggedPhase:-1,fdr:[],lastFdr:0,replayIndex:0,replayPlaying:false,scenarioClock:0,scenarioTriggered:false,scenarioViolations:0,scenarioBonus:0,
 instructor:{handling:100,procedures:100,atc:100,configuration:100,stability:100,safety:100},lastInstructor:{},assessmentStarted:false,
 traffic:[
@@ -426,6 +431,7 @@ toast('STARTER ENGAGED — monitor RPM and oil pressure.');
 function next(){
 if(s.phase>=7)return;
 s.phase++;s.progress=0;s.radio=false;s.taxiDistance=0;
+if(s.phase===1){const o=AIRPORTS[ACTIVE_ROUTE.origin];s.xp=o.x;s.yp=o.y;s.routeLeg=0;s.navLeg=0;s.routeProgress=0;s.routeComplete=false;updateRouteUI();}
 if(s.phase===1){
 s.xp=60;s.yp=-12.5;s.speed=0;s.heading=90;s.parkingBrake=true;s.brake=true;s.flaps=1;
 toast('STAGE 2 — STOPPED AT HOLD SHORT. Read back TOWER LINE-UP clearance with R.')
@@ -601,10 +607,14 @@ if(v==='standard'){s.windDir=120;s.windKt=8;s.visibility=10;s.temperature=24;s.t
 if(v==='crosswind'){s.windDir=270;s.windKt=18;s.visibility=8;s.temperature=30;}
 if(v==='busy'){s.windDir=120;s.windKt=8;s.visibility=10;s.temperature=24;s.traffic[0].alt=3020;s.traffic[1].alt=3050;s.traffic[2].alt=2980;}
 if(v==='engine'){s.windDir=90;s.windKt=5;s.visibility=12;s.temperature=20;s.failure=null;}
-updateWeather();updateScenarioObjective();toast('SCENARIO LOADED — '+document.getElementById('scenarioSelect').selectedOptions[0].text);
+updateWeather();configureRoute(s.routeId,false);updateScenarioObjective();toast('SCENARIO LOADED — '+document.getElementById('scenarioSelect').selectedOptions[0].text);
 logEvent('SCENARIO: '+document.getElementById('scenarioSelect').selectedOptions[0].text,'PHASE');
 };
-document.getElementById('weatherBtn').onclick=()=>{
+document.getElementById('loadRoute').onclick=()=>{
+ const id=document.getElementById('routeSelect').value;
+ if(s.started&&s.phase>0){toast('ROUTE CHANGE AVAILABLE BEFORE TRAINING START OR AFTER RESTART.');return;}
+ configureRoute(id,true);
+};document.getElementById('weatherBtn').onclick=()=>{
 const presets=[
 [120,8,10,24,.12,'LIGHT CROSSWIND'],
 [180,12,8,28,.28,'MODERATE HEADWIND'],
@@ -1038,10 +1048,61 @@ const NAV_FIXES=[
   {id:'ES-DME1',name:'DELTA DME',x:78,y:34,type:'DME',freq:'110.30',course:120},
   {id:'ES-ILS09',name:'RUNWAY 09 ILS',x:73,y:-12.5,type:'ILS',freq:'109.90',course:90}
 ];
+
+// STAGE 16 — airport-to-airport route network connected to the flight model
+const AIRPORTS={
+ ESAI:{icao:'ESAI',name:'Expert Sync International',city:'Academy City',x:73,y:-12.5,runway:'09/27',elevation:420},
+ ESBJ:{icao:'ESBJ',name:'Blue Horizon International',city:'Horizon City',x:108,y:48,runway:'14/32',elevation:610},
+ ESCK:{icao:'ESCK',name:'Coastal Knowledge Airport',city:'Coastal City',x:28,y:62,runway:'06/24',elevation:180}
+};
+const ROUTES={
+ 'ESAI-ESBJ':{
+   name:'ESAI → ESBJ • TRAINING ALPHA',
+   origin:'ESAI',destination:'ESBJ',
+   fixes:[
+    {id:'ES-VOR1',name:'SYNC VOR',x:48,y:18,type:'VOR',freq:'113.20',course:90},
+    {id:'ES-DME1',name:'DELTA DME',x:78,y:34,type:'DME',freq:'110.30',course:58},
+    {id:'ESBJ-IAF',name:'HORIZON IAF',x:96,y:46,type:'IAF',freq:'112.70',course:38},
+    {id:'ESBJ-ILS14',name:'ESBJ ILS 14',x:108,y:48,type:'ILS',freq:'109.30',course:140}
+   ]
+ },
+ 'ESAI-ESCK':{
+   name:'ESAI → ESCK • COASTAL TRAINING',
+   origin:'ESAI',destination:'ESCK',
+   fixes:[
+    {id:'ES-VOR2',name:'SYNC SOUTH',x:52,y:18,type:'VOR',freq:'114.10',course:165},
+    {id:'ESCK-DME',name:'COAST DME',x:38,y:42,type:'DME',freq:'111.20',course:205},
+    {id:'ESCK-IAF',name:'COASTAL IAF',x:30,y:55,type:'IAF',freq:'113.60',course:215},
+    {id:'ESCK-ILS06',name:'ESCK ILS 06',x:28,y:62,type:'ILS',freq:'109.70',course:60}
+   ]
+ }
+};
+let ACTIVE_ROUTE=ROUTES['ESAI-ESBJ'];
+function configureRoute(id,announce=true){
+ const route=ROUTES[id]||ROUTES['ESAI-ESBJ'];
+ ACTIVE_ROUTE=route;
+ s.routeId=id;s.routeLeg=0;s.routeProgress=0;s.routeComplete=false;
+ s.originAirport=route.origin;s.destinationAirport=route.destination;s.navLeg=0;
+ const o=AIRPORTS[route.origin];
+ s.xp=o.x;s.yp=o.y;s.heading=90;s.navModeName='HDG';s.ilsArmed=false;
+ if(announce){logEvent('ROUTE LOADED — '+route.name,'PHASE');toast('ROUTE: '+route.name);}
+ updateRouteUI();
+}
+function updateRouteUI(){
+ const r=ACTIVE_ROUTE, o=AIRPORTS[r.origin], d=AIRPORTS[r.destination];
+ const el=id=>document.getElementById(id);
+ if(el('routeName'))el('routeName').textContent=r.name;
+ if(el('routeOrigin'))el('routeOrigin').textContent=o.icao+' • '+o.city;
+ if(el('routeDestination'))el('routeDestination').textContent=d.icao+' • '+d.city;
+ if(el('routeLeg'))el('routeLeg').textContent=(s.routeLeg+1)+' / '+r.fixes.length;
+ if(el('routeFix'))el('routeFix').textContent=(r.fixes[s.routeLeg]||r.fixes[r.fixes.length-1]).id;
+ if(el('routeProgress'))el('routeProgress').textContent=Math.round(s.routeProgress)+'%';
+}
 const nmDistance=(ax,ay,bx,by)=>Math.hypot(ax-bx,ay-by)*0.11;
 const bearingTo=(ax,ay,bx,by)=>norm(Math.atan2(bx-ax,by-ay)*180/Math.PI);
 function updateNavigationDatabase(){
-  const fix=NAV_FIXES[s.navLeg]||NAV_FIXES[0];
+  const routeFixes=ACTIVE_ROUTE.fixes;
+  const fix=routeFixes[s.routeLeg]||routeFixes[routeFixes.length-1];
   const dx=fix.x-s.xp,dy=fix.y-s.yp;
   s.navTo=fix.id;s.navBearing=bearingTo(s.xp,s.yp,fix.x,fix.y);
   s.navDistanceNm=nmDistance(s.xp,s.yp,fix.x,fix.y);
@@ -1051,11 +1112,18 @@ function updateNavigationDatabase(){
   s.navXtk=clamp(lateral,-9.9,9.9);
   s.dme=s.navDistanceNm;
   s.navCourse=fix.course;
-  if(s.navDistanceNm<1.2 && s.navLeg<NAV_FIXES.length-1){
-    s.navLeg++;
+  if(s.navDistanceNm<1.2 && s.routeLeg<ACTIVE_ROUTE.fixes.length-1){
+    s.routeLeg++;
+    s.navLeg=s.routeLeg;
     s.navFixReached=true;
-    logEvent('NAV FIX PASSED — next leg: '+NAV_FIXES[s.navLeg].id+'.','INFO');
+    s.routeProgress=(s.routeLeg/ACTIVE_ROUTE.fixes.length)*100;
+    logEvent('NAV FIX PASSED — next leg: '+ACTIVE_ROUTE.fixes[s.routeLeg].id+'.','INFO');
   }else if(s.navDistanceNm>=1.2)s.navFixReached=false;
+  if(s.routeLeg===ACTIVE_ROUTE.fixes.length-1 && s.navDistanceNm<1.2 && s.phase>=5){
+    s.routeComplete=true;s.routeProgress=100;
+    logEvent('DESTINATION IAF/APPROACH FIX — '+s.destinationAirport+' READY.','SUCCESS');
+  }else{s.routeProgress=Math.max(s.routeProgress,(s.routeLeg/ACTIVE_ROUTE.fixes.length)*100);}
+  updateRouteUI();
   const ce=diff(s.heading,fix.course);
   if(s.navModeName==='NAV' && !s.onGround && Math.abs(ce)>3) s.navIntercept=Math.abs(ce)<12;
 }
@@ -1205,16 +1273,18 @@ const q=m.getContext('2d'),w=m.width,h=m.height;q.clearRect(0,0,w,h);
 q.fillStyle='#07161d';q.fillRect(0,0,w,h);
 q.strokeStyle='#1b3944';q.lineWidth=1;
 for(let i=0;i<6;i++){q.beginPath();q.moveTo(i*w/5,0);q.lineTo(i*w/5,h);q.stroke();q.beginPath();q.moveTo(0,i*h/5);q.lineTo(w,i*h/5);q.stroke();}
-const sx=v=>clamp(112+v*.72,8,w-8), sy=v=>clamp(104-v*.55,8,h-8);
-q.strokeStyle='#d6d9d6';q.lineWidth=4;q.beginPath();q.moveTo(sx(73),sy(-12.5));q.lineTo(sx(25),sy(18));q.stroke();
-q.fillStyle='#54e6a6';q.font='bold 8px Arial';q.fillText('09',sx(73)+4,sy(-12.5)+3);
-q.fillText('VOR1',sx(48)+4,sy(18)-4);q.fillText('DME1',sx(78)+4,sy(34)-4);
-q.strokeStyle='#54e6a6';q.lineWidth=2;q.setLineDash([5,4]);q.beginPath();q.moveTo(sx(73),sy(-12.5));q.lineTo(sx(48),sy(18));q.lineTo(sx(78),sy(34));q.stroke();q.setLineDash([]);
+const pts=[AIRPORTS[ACTIVE_ROUTE.origin],...ACTIVE_ROUTE.fixes,AIRPORTS[ACTIVE_ROUTE.destination]];
+const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y),minX=Math.min(...xs)-10,maxX=Math.max(...xs)+10,minY=Math.min(...ys)-10,maxY=Math.max(...ys)+10;
+const sx=v=>clamp(12+(v-minX)/(maxX-minX)*(w-24),8,w-8),sy=v=>clamp(h-12-(v-minY)/(maxY-minY)*(h-24),8,h-8);
+q.strokeStyle='#3b7788';q.lineWidth=2;q.setLineDash([5,4]);q.beginPath();
+pts.forEach((p,i)=>i?q.lineTo(sx(p.x),sy(p.y)):q.moveTo(sx(p.x),sy(p.y)));q.stroke();q.setLineDash([]);
+q.strokeStyle='#54e6a6';q.lineWidth=2;q.beginPath();
+ACTIVE_ROUTE.fixes.forEach((p,i)=>i===s.routeLeg?q.moveTo(sx(p.x),sy(p.y)):null);q.stroke();
+pts.forEach((p,i)=>{q.fillStyle=i===0||i===pts.length-1?'#f4d35e':'#54e6a6';q.beginPath();q.arc(sx(p.x),sy(p.y),i===0||i===pts.length-1?4:3,0,Math.PI*2);q.fill();q.font='7px Arial';q.fillText(p.id,sx(p.x)+4,sy(p.y)-4);});
 const px=sx(s.xp),py=sy(s.yp);
-q.fillStyle='#f4d35e';q.fillRect(px-18,py-1,36,2);
 q.save();q.translate(px,py);q.rotate((s.heading-90)*Math.PI/180);q.fillStyle='#fff';q.beginPath();q.moveTo(0,-7);q.lineTo(5,5);q.lineTo(0,2);q.lineTo(-5,5);q.closePath();q.fill();q.restore();
 q.fillStyle='#54e6a6';q.font='8px Arial';q.fillText('ES-01',px+6,py-6);
-document.getElementById('mapInfo').textContent=(s.navModeName==='NAV'?'NAV • ':'HDG • ')+s.navTo+' • '+s.navDistanceNm.toFixed(1)+' NM • BRG '+String(Math.round(s.navBearing)).padStart(3,'0')+'°';
+document.getElementById('mapInfo').textContent=ACTIVE_ROUTE.origin+' → '+ACTIVE_ROUTE.destination+' • LEG '+(s.routeLeg+1)+' • '+s.navDistanceNm.toFixed(1)+' NM • BRG '+String(Math.round(s.navBearing)).padStart(3,'0')+'°';
 }
 function hud(){let h=String(Math.round(norm(s.heading))).padStart(3,'0');document.getElementById('hspd').textContent=Math.round(s.speed);document.getElementById('halt').textContent=Math.round(s.alt);document.getElementById('hhdg').textContent=h;document.getElementById('hvs').textContent=Math.round(s.vs);document.getElementById('hrpm').textContent=Math.round(s.rpm);document.getElementById('hfuel').textContent=Math.round(s.fuel);document.getElementById('gs').textContent=Math.round(s.speed);document.getElementById('ga').textContent=Math.round(s.pitch)+'°';document.getElementById('galt').textContent=Math.round(s.alt);document.getElementById('gh').textContent=h;document.getElementById('gv').textContent=Math.round(s.vs);document.getElementById('stEngine').textContent=s.engine?'RUNNING':'OFF';document.getElementById('stEngine').className=s.engine?'green':'red';document.getElementById('stOil').textContent=Math.round(s.engine?clamp((s.rpm-500)*.042,0,65):0)+' PSI';
 s.oilPressure=s.engine?clamp((s.rpm-500)*.042,0,65):0;
@@ -1234,7 +1304,7 @@ document.getElementById('courseErr').textContent=(s.navModeName==='NAV'?(s.navXt
 const navToEl=document.getElementById('navTo');if(navToEl)navToEl.textContent=s.navTo+' • '+s.navDistanceNm.toFixed(1)+' NM';
 const navBrEl=document.getElementById('navBearing');if(navBrEl)navBrEl.textContent=String(Math.round(s.navBearing)).padStart(3,'0')+'°';
 const navModeEl=document.getElementById('navMode');if(navModeEl)navModeEl.textContent=s.navModeName;
-setPhase();updateGuide();updateWeather();updateChecklist();updateTraffic(dt);updateILS();updateEventLog();drawMap();document.getElementById('bar').style.width=s.progress+'%';document.querySelectorAll('.switch').forEach(e=>{let k=e.dataset.s,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:false;e.classList.toggle('on',on)});document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}
+setPhase();updateGuide();updateWeather();updateChecklist();updateTraffic(dt);updateILS();updateEventLog();updateRouteUI();drawMap();document.getElementById('bar').style.width=s.progress+'%';document.querySelectorAll('.switch').forEach(e=>{let k=e.dataset.s,on=k==='battery'?s.battery:k==='avionics'?s.avionics:k==='pump'?s.pump:false;e.classList.toggle('on',on)});document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)}
 function drawAerialWorld(){
   // STAGE 14 — flight-linked cinematic camera / world motion
   const climbLook=clamp(s.pitch*H*.018,-H*.10,H*.10);
