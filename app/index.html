@@ -5527,6 +5527,14 @@ body {
 <script>
 
 /* ================= AVIATION SIMULATOR INTEGRATION ================= */
+function updateSimulatorProgressCard(){
+ try{
+  const p=JSON.parse(localStorage.getItem('esaSimulatorProgress')||'null');
+  const el=document.getElementById('simProgressText');if(!el)return;
+  if(!p){el.textContent='No simulator flight recorded yet.';return;}
+  el.textContent=(p.origin||'ESAI')+' → '+(p.destination||'ESBJ')+' • '+(p.routeProgress||0)+'% route • Phase '+((p.phase||0)+1)+' • Score '+(p.score||0)+(p.mission17Complete?' • ✓ Mission complete':'');
+ }catch(e){}
+}
 function openAviationSimulator(){
   const url = new URL("aviation-game.html", window.location.href);
   url.searchParams.set("from","student-app");
@@ -17693,6 +17701,7 @@ async function restoreStudentSession() {
 }
 
 restoreStudentSession();
+updateSimulatorProgressCard();
   
   /* ================= REAL STUDENT SIGN UP ================= */
 
