@@ -2798,6 +2798,14 @@ body {
     </div>
 
 
+    <!-- AVIATION FLIGHT SIMULATOR -->
+    <div class="aviation-feature-card primary" onclick="openAviationSimulator()">
+      <div class="aviation-module-label">MODULE 09 • LIVE</div>
+      <div class="aviation-feature-icon">✈️</div>
+      <h3>Aviation Flight Simulator</h3>
+      <p>Practice ATC, navigation, ILS, landing & flight procedures</p>
+    </div>
+
     <!-- SPEAKING -->
 
     <div
@@ -5517,6 +5525,13 @@ body {
 
 
 <script>
+
+/* ================= AVIATION SIMULATOR INTEGRATION ================= */
+function openAviationSimulator(){
+  const url = new URL("aviation-game.html", window.location.href);
+  url.searchParams.set("from","student-app");
+  window.location.href = url.toString();
+}
 
 /* ================= SECTION NAVIGATION ================= */
 
