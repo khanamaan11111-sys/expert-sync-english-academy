@@ -181,8 +181,17 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #qaActions{display:flex;gap:6px;margin-top:12px}#qaActions button{background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:7px 10px;font-size:8px;font-weight:900;color:#fff;cursor:pointer}
 @media(max-width:700px){#qaGrid{grid-template-columns:1fr}}
 </style>
+<style>
+#academyBack{position:fixed;left:12px;top:12px;z-index:120;background:#063b91;border:1px solid #ffd978;color:#fff;border-radius:6px;padding:7px 10px;font-size:9px;font-weight:900;cursor:pointer}
+#studentIdentity{position:fixed;right:12px;top:12px;z-index:120;background:#061b32dd;border:1px solid #3c6978;color:#dceaff;border-radius:6px;padding:7px 10px;font-size:9px;font-weight:800;display:none}
+#academyConnect{position:fixed;left:12px;top:50px;z-index:120;background:#0b2b43dd;border:1px solid #54e6a6;color:#dfffee;border-radius:6px;padding:6px 9px;font-size:8px;font-weight:800;display:none}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+<button id="academyBack" type="button">← STUDENT APP</button>
+<div id="studentIdentity">STUDENT: <span id="studentIdentityName">STUDENT</span></div>
+<div id="academyConnect">✓ CONNECTED TO EXPERT SYNC ACADEMY</div>
 <div id="game">
 <canvas id="scene"></canvas><div id="aircraftLabel">AIRCRAFT ES-01 • EXTERNAL VIEW</div><div id="keyFeedback"></div>
 <div id="brand" class="ui panel"><div class="brand">✈ EXPERT SYNC — FLIGHT TRAINING</div><div class="sub">HANDS-ON SINGLE-ENGINE SIMULATOR • N-ES01</div></div>
@@ -1696,7 +1705,7 @@ function mission17Start(){
  s.routeComplete=false;s.routeLeg=0;s.navLeg=0;s.routeProgress=0;
  logEvent('STAGE 17 ACTIVATED — COMPLETE FLIGHT MISSION','PHASE');
  toast('STAGE 17 ACTIVE — departure, en-route, arrival, approach, landing and shutdown are now linked.');
- mission17UpdateUI();
+ mission17UpdateUI();saveSimulatorProgress();
 }
 function mission17Monitor(){
  if(!s.mission17||s.mission17Complete)return;
@@ -1778,8 +1787,46 @@ function scenarioMonitor(dt){
  }
  if(s.scenario==='busy'&&s.phase>=6&&s.scenarioViolations===0&&s.scenarioBonus===0){s.scenarioBonus=25;s.score+=25;logEvent('BUSY TRAFFIC — SEPARATION OBJECTIVE COMPLETE','SUCCESS');}
  if(s.scenario==='engine'&&s.emergencyResolved&&s.scenarioBonus===0){s.scenarioBonus=30;s.score+=30;logEvent('ENGINE FAILURE DRILL — EMERGENCY OBJECTIVE COMPLETE','SUCCESS');}
- updateScenarioObjective();
+ updateScenarioObjective();saveSimulatorProgress();
 }
 </script>
+
+// STAGE 19 — Expert Sync Student App integration
+const ACADEMY_SUPABASE_URL="https://bhxmbbkgkaxikisugrcs.supabase.co";
+const ACADEMY_SUPABASE_KEY="sb_publishable_RvYvEhsMIFM0W6M9SHiVw_d2NSlhnz";
+let academyStudent=null;
+async function connectAcademyStudent(){
+ try{
+  const client=window.supabase.createClient(ACADEMY_SUPABASE_URL,ACADEMY_SUPABASE_KEY);
+  const {data,error}=await client.auth.getSession();
+  if(error)throw error;
+  if(data.session?.user){
+   academyStudent=data.session.user;
+   const name=academyStudent.user_metadata?.full_name||academyStudent.email||"STUDENT";
+   document.getElementById('studentIdentityName').textContent=name.toUpperCase();
+   document.getElementById('studentIdentity').style.display='block';
+   document.getElementById('academyConnect').style.display='block';
+   localStorage.setItem('esaSimulatorStudent',JSON.stringify({id:academyStudent.id,name,email:academyStudent.email||'',lastSeen:new Date().toISOString()}));
+  }
+ }catch(e){console.warn('Academy connection unavailable:',e);}
+}
+function saveSimulatorProgress(){
+ try{
+  const payload={
+   studentId:academyStudent?.id||null,studentName:academyStudent?.user_metadata?.full_name||'',
+   route:s.routeId,origin:s.originAirport,destination:s.destinationAirport,
+   phase:s.phase,score:Math.round(s.score),routeProgress:Math.round(s.routeProgress),
+   mission17:!!s.mission17,mission17Complete:!!s.mission17Complete,
+   scenario:s.scenario,updatedAt:new Date().toISOString()
+  };
+  localStorage.setItem('esaSimulatorProgress',JSON.stringify(payload));
+ }catch(e){}
+}
+document.getElementById('academyBack').onclick=()=>{
+ saveSimulatorProgress();
+ window.location.href=new URL('index.html',window.location.href).toString();
+};
+connectAcademyStudent();
+
 </body>
 </html>
