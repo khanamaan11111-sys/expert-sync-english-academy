@@ -2348,6 +2348,33 @@ body {
     margin-bottom: 16px;
   }
 }
+
+/* ================= EXPERT SYNC DICTIONARY ================= */
+.dictionary-hero{background:linear-gradient(135deg,#041b3d,#063b91);color:#fff;border-radius:20px;padding:22px 18px;margin:16px 0;box-shadow:0 8px 22px rgba(3,27,63,.16)}
+.dictionary-hero h2{margin:0 0 7px;color:#ffd978;font-size:24px}
+.dictionary-hero p{margin:0;color:#dbe8f7;line-height:1.55;font-size:13px}
+.dictionary-tools{display:grid;grid-template-columns:1fr auto;gap:9px;margin:14px 0}
+.dictionary-tools input{width:100%;height:48px;border:2px solid #dce5f5;border-radius:12px;padding:0 14px;font-size:14px;outline:none}
+.dictionary-tools input:focus{border-color:#063b91}
+.dictionary-card{background:#fff;border:1px solid #dce6f4;border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 5px 16px rgba(0,0,0,.06)}
+.dictionary-word-row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.dictionary-word{color:#063b91;font-size:22px;font-weight:800}
+.dictionary-pos{color:#687386;font-size:11px;margin-top:3px}
+.dictionary-level{background:#eef4ff;color:#063b91;border-radius:20px;padding:5px 8px;font-size:10px;font-weight:800}
+.dictionary-label{color:#063b91;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-top:12px;margin-bottom:4px}
+.dictionary-text{color:#333;font-size:13px;line-height:1.55}
+.dictionary-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.dictionary-actions button{font-size:12px;padding:9px 12px}
+.dictionary-empty{text-align:center;padding:22px;color:#687386}
+@media(max-width:500px){.dictionary-tools{grid-template-columns:1fr}.dictionary-word{font-size:20px}}
+
+@media print{
+ body>*{display:none!important}
+ #vocabulary{display:block!important;position:static!important}
+ #vocabulary .dictionary-tools,#vocabulary .card{display:none!important}
+ .dictionary-hero{box-shadow:none}
+ .dictionary-card{break-inside:avoid;box-shadow:none}
+}
 </style>
 </head>
 
@@ -2806,7 +2833,15 @@ body {
       <p>Practice ATC, navigation, ILS, landing & flight procedures</p>
     </div>
 
-    <!-- SPEAKING -->
+    <!-- EXPERT SYNC DICTIONARY -->
+<div class="aviation-feature-card primary" onclick="showSection('vocabulary')">
+  <div class="aviation-module-label">MODULE 10 • READY</div>
+  <div class="aviation-feature-icon">📖</div>
+  <h3>Expert Sync Vocabulary</h3>
+  <p>Search words, learn Roman Hinglish, pronunciation and practical usage</p>
+</div>
+
+<!-- SPEAKING -->
 
     <div
       class="aviation-feature-card primary"
@@ -3143,6 +3178,28 @@ body {
   </div>
 
 </section>
+<!-- ================= EXPERT SYNC DICTIONARY ================= -->
+<section id="vocabulary" class="section">
+  <div class="dictionary-hero">
+    <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:#ffd978;margin-bottom:7px;">MODULE 10 • EXPERT SYNC VOCABULARY</div>
+    <h2>📖 Learn Words That You Can Use</h2>
+    <p>English-first definitions with easy explanations, Roman Hinglish, pronunciation, examples and career-focused usage.</p>
+  </div>
+
+  <div class="dictionary-tools">
+    <input id="dictionarySearch" type="search" placeholder="Search a word or meaning…" autocomplete="off" oninput="renderDictionary()">
+    <button type="button" class="gold" onclick="printDictionaryPDF()">📥 Download / Save PDF</button>
+  </div>
+
+  <div class="card" style="background:#f7faff;border:1px solid #dce6f4;">
+    <p style="font-size:12px;color:#536176;line-height:1.5;">
+      <strong>PDF:</strong> Choose <strong>Save as PDF</strong> in your browser's print dialog to keep an offline copy of the current Expert Sync Dictionary.
+    </p>
+  </div>
+
+  <div id="dictionaryResults"></div>
+</section>
+
 <!-- ================= COURSES ================= -->
 
 <section id="courses" class="section">
@@ -5497,6 +5554,13 @@ body {
 
   <button
     class="nav-item"
+    onclick="showSection('vocabulary', this)">
+    <span>📖</span>
+    Vocabulary
+  </button>
+
+  <button
+    class="nav-item"
     onclick="showSection('practice', this)">
     <span>🗣️</span>
     Practice
@@ -5525,6 +5589,43 @@ body {
 
 
 <script>
+
+/* ================= EXPERT SYNC DICTIONARY ================= */
+const expertSyncDictionary = [
+ {word:"abandon",pos:"verb",ipa:"/əˈbændən/",level:"B1",meaning:"to leave something completely, or stop doing something before it is finished.",easy:"Leave it completely, or stop it and not continue.",hinglish:"Kisi cheez ya jagah ko chhod dena, ya kaam ko beech mein rok dena.",example:"The crew had to abandon the aircraft after the warning.",collocations:"abandon a plan • abandon a project • abandon a vehicle",career:"Interview: I do not abandon a task when it becomes difficult."},
+ {word:"ability",pos:"noun",ipa:"/əˈbɪləti/",level:"B1",meaning:"the skill or qualities that you need to do something.",easy:"A skill or power that lets you do something.",hinglish:"Kisi kaam ko karne ki skill ya capability.",example:"Good communication ability is important in customer service.",collocations:"ability to communicate • problem-solving ability • technical ability",career:"Interview: One of my key abilities is communicating calmly with customers."},
+ {word:"aboard",pos:"adverb / preposition",ipa:"/əˈbɔːd/",level:"B1",meaning:"on or onto a plane, ship, bus, or train.",easy:"Inside a vehicle, especially when travelling.",hinglish:"Plane, ship, bus ya train ke andar ya usmein chadhkar.",example:"Welcome aboard Flight 109.",collocations:"welcome aboard • come aboard • all aboard",career:"Aviation: Please ensure all passengers are safely aboard before departure."},
+ {word:"accurate",pos:"adjective",ipa:"/ˈækjərət/",level:"B1",meaning:"correct and without mistakes.",easy:"Exactly correct.",hinglish:"Bilkul sahi, bina galti ke.",example:"Please provide accurate passenger information.",collocations:"accurate information • accurate report • highly accurate",career:"Interview: I always check my work to ensure the information is accurate."},
+ {word:"achieve",pos:"verb",ipa:"/əˈtʃiːv/",level:"B1",meaning:"to succeed in doing or getting something after effort.",easy:"To reach a goal through effort.",hinglish:"Mehnat karke goal ya result hasil karna.",example:"She worked hard to achieve her career goal.",collocations:"achieve a goal • achieve success • achieve results",career:"Interview: My goal is to achieve a leadership role through continuous learning."},
+ {word:"adapt",pos:"verb",ipa:"/əˈdæpt/",level:"B1",meaning:"to change your behaviour, method, or approach so that it works in a new situation.",easy:"Change your way of doing something to fit a new situation.",hinglish:"Nayi situation ke according apne tareeke ko change karna.",example:"Employees must adapt to changing customer needs.",collocations:"adapt to change • adapt quickly • adapt a strategy",career:"Interview: I adapt quickly when priorities or customer requirements change."},
+ {word:"advise",pos:"verb",ipa:"/ədˈvaɪz/",level:"B1",meaning:"to tell someone what you think they should do.",easy:"To give someone advice or a recommendation.",hinglish:"Kisi ko kya karna chahiye, uske baare mein suggestion dena.",example:"The supervisor advised me to check the document again.",collocations:"advise someone to do something • strongly advise • advise against",career:"Customer service: I would advise the customer to keep the receipt."},
+ {word:"affect",pos:"verb",ipa:"/əˈfekt/",level:"B1",meaning:"to have an influence on someone or something.",easy:"To change or influence a result, person, or situation.",hinglish:"Kisi person ya situation par influence ya impact dalna.",example:"Weather conditions can affect flight operations.",collocations:"affect performance • affect operations • significantly affect",career:"Interview: I stay calm because stress can affect decision-making."},
+ {word:"alert",pos:"adjective / noun / verb",ipa:"/əˈlɜːt/",level:"B1",meaning:"awake, attentive, and ready to notice danger or changes; also a warning.",easy:"Ready and paying close attention, especially to danger.",hinglish:"Sajag rehna, dhyan se situation ko notice karna.",example:"Cabin crew must remain alert during the flight.",collocations:"remain alert • raise an alert • security alert",career:"Aviation: Crew members must remain alert and follow safety procedures."},
+ {word:"approach",pos:"verb / noun",ipa:"/əˈprəʊtʃ/",level:"B1",meaning:"to move nearer to something, or to deal with a task or problem in a particular way.",easy:"To come closer, or to handle a situation in a particular way.",hinglish:"Paas aana, ya kisi problem ko ek particular tareeke se handle karna.",example:"We need a professional approach to customer complaints.",collocations:"approach a problem • final approach • professional approach",career:"Interview: My approach to difficult customers is calm and solution-focused."},
+ {word:"assure",pos:"verb",ipa:"/əˈʃʊə/",level:"B1",meaning:"to tell someone confidently that something is true or will happen, especially to remove doubt or worry.",easy:"To make someone feel sure or less worried.",hinglish:"Kisi ko confidence dena ki sab theek hai ya kuch definitely hoga.",example:"I can assure you that we will investigate the issue.",collocations:"assure someone that • assure a customer • rest assured",career:"Customer service: I can assure you that your complaint will be handled professionally."}
+];
+
+function escapeDictionaryHTML(value){
+ return String(value).replace(/[&<>"']/g,function(ch){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch];});
+}
+function renderDictionary(){
+ const root=document.getElementById("dictionaryResults"); if(!root)return;
+ const q=(document.getElementById("dictionarySearch")?.value||"").trim().toLowerCase();
+ const items=expertSyncDictionary.filter(e=>!q || [e.word,e.pos,e.meaning,e.easy,e.hinglish,e.example,e.collocations,e.career].join(" ").toLowerCase().includes(q));
+ if(!items.length){root.innerHTML='<div class="dictionary-empty">No matching word found. Try another search.</div>';return;}
+ root.innerHTML=items.map((e,i)=>'<article class="dictionary-card"><div class="dictionary-word-row"><div><div class="dictionary-word">'+escapeDictionaryHTML(e.word)+'</div><div class="dictionary-pos">'+escapeDictionaryHTML(e.pos)+' • '+escapeDictionaryHTML(e.ipa)+'</div></div><span class="dictionary-level">'+escapeDictionaryHTML(e.level)+'</span></div><div class="dictionary-label">Meaning</div><div class="dictionary-text">'+escapeDictionaryHTML(e.meaning)+'</div><div class="dictionary-label">Easy explanation</div><div class="dictionary-text">'+escapeDictionaryHTML(e.easy)+'</div><div class="dictionary-label">Roman Hinglish</div><div class="dictionary-text">'+escapeDictionaryHTML(e.hinglish)+'</div><div class="dictionary-label">Example</div><div class="dictionary-text">'+escapeDictionaryHTML(e.example)+'</div><div class="dictionary-label">Common collocations</div><div class="dictionary-text">'+escapeDictionaryHTML(e.collocations)+'</div><div class="dictionary-label">Speaking / Career use</div><div class="dictionary-text">'+escapeDictionaryHTML(e.career)+'</div><div class="dictionary-actions"><button type="button" class="outline" onclick="speakDictionaryWord('+i+')">🔊 Hear word</button></div></article>').join("");
+ window._dictionaryVisible=items;
+}
+function speakDictionaryWord(i){
+ const e=(window._dictionaryVisible||expertSyncDictionary)[i]; if(!e||!("speechSynthesis" in window))return;
+ window.speechSynthesis.cancel(); window.speechSynthesis.speak(new SpeechSynthesisUtterance(e.word));
+}
+function printDictionaryPDF(){
+ const previousTitle=document.title;
+ document.title="Expert Sync Vocabulary";
+ window.print();
+ setTimeout(()=>document.title=previousTitle,500);
+}
 
 /* ================= AVIATION SIMULATOR INTEGRATION ================= */
 function updateSimulatorProgressCard(){
