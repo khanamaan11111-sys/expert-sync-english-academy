@@ -1791,6 +1791,7 @@ function scenarioMonitor(dt){
 }
 </script>
 
+<script>
 // STAGE 19 — Expert Sync Student App integration
 const ACADEMY_SUPABASE_URL="https://bhxmbbkgkaxikisugrcs.supabase.co";
 const ACADEMY_SUPABASE_KEY="sb_publishable_RvYvEhsMIFM0W6M9SHiVw_d2NSlhnz";
@@ -1824,9 +1825,12 @@ function saveSimulatorProgress(){
 }
 document.getElementById('academyBack').onclick=()=>{
  saveSimulatorProgress();
- window.location.href=new URL('index.html',window.location.href).toString();
+ const target = new URL('./index.html', window.location.href);
+target.searchParams.set('from','aviation-simulator');
+window.location.assign(target.href);
 };
 connectAcademyStudent();
 
 </body>
 </html>
+</script>
