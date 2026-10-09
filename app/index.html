@@ -5637,7 +5637,7 @@ function runDictionaryQA(){
  const words=expertSyncDictionary.map(e=>String(e.word).trim().toLowerCase());
  const duplicateWords=words.filter((w,i)=>words.indexOf(w)!==i);
  const missing=expertSyncDictionary.flatMap(e=>required.filter(k=>!String(e[k]||"").trim()).map(k=>e.word+" → "+k));
- const malformedIPA=expertSyncDictionary.filter(e=>!/^\\/.+\\/$/.test(e.ipa)).map(e=>e.word);
+ const malformedIPA=expertSyncDictionary.filter(e=>!/^\/.+\/$/.test(e.ipa)).map(e=>e.word);
  const pass=duplicateWords.length===0&&missing.length===0&&malformedIPA.length===0;
  const qa=document.getElementById("dictionaryQA");
  if(qa) qa.innerHTML='<strong style="color:#063b91;">DICTIONARY QA STATUS</strong><div style="margin-top:7px;font-size:12px;line-height:1.6;color:#536176;">'+(pass?'✅ Structure check passed':'⚠️ Review required')+' • '+expertSyncDictionary.length+' entries • '+new Set(expertSyncDictionary.map(e=>e.level)).size+' levels • '+(duplicateWords.length?'Duplicates: '+duplicateWords.join(", "):'No duplicate headwords')+' • '+(missing.length?'Missing fields: '+missing.join(", "):'All required fields present')+'</div>';
