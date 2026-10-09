@@ -3188,12 +3188,14 @@ body {
 
   <div class="dictionary-tools">
     <input id="dictionarySearch" type="search" placeholder="Search a word or meaning…" autocomplete="off" oninput="renderDictionary()">
-    <button type="button" class="gold" onclick="printDictionaryPDF()">📥 Download / Save PDF</button>
+    <button type="button" class="gold" onclick="printDictionaryPDF()">📥 Download Full PDF</button>
   </div>
+
+  <div id="dictionaryQA" class="card" style="background:#f7faff;border:1px solid #dce6f4;"></div>
 
   <div class="card" style="background:#f7faff;border:1px solid #dce6f4;">
     <p style="font-size:12px;color:#536176;line-height:1.5;">
-      <strong>PDF:</strong> Choose <strong>Save as PDF</strong> in your browser's print dialog to keep an offline copy of the current Expert Sync Dictionary.
+      <strong>PDF:</strong> The button creates a print-ready copy of the complete dictionary. Choose <strong>Save as PDF</strong> in your browser's print dialog.
     </p>
   </div>
 
@@ -5602,7 +5604,17 @@ const expertSyncDictionary = [
  {word:"affect",pos:"verb",ipa:"/əˈfekt/",level:"B1",meaning:"to have an influence on someone or something.",easy:"To change or influence a result, person, or situation.",hinglish:"Kisi person ya situation par influence ya impact dalna.",example:"Weather conditions can affect flight operations.",collocations:"affect performance • affect operations • significantly affect",career:"Interview: I stay calm because stress can affect decision-making."},
  {word:"alert",pos:"adjective / noun / verb",ipa:"/əˈlɜːt/",level:"B1",meaning:"awake, attentive, and ready to notice danger or changes; also a warning.",easy:"Ready and paying close attention, especially to danger.",hinglish:"Sajag rehna, dhyan se situation ko notice karna.",example:"Cabin crew must remain alert during the flight.",collocations:"remain alert • raise an alert • security alert",career:"Aviation: Crew members must remain alert and follow safety procedures."},
  {word:"approach",pos:"verb / noun",ipa:"/əˈprəʊtʃ/",level:"B1",meaning:"to move nearer to something, or to deal with a task or problem in a particular way.",easy:"To come closer, or to handle a situation in a particular way.",hinglish:"Paas aana, ya kisi problem ko ek particular tareeke se handle karna.",example:"We need a professional approach to customer complaints.",collocations:"approach a problem • final approach • professional approach",career:"Interview: My approach to difficult customers is calm and solution-focused."},
- {word:"assure",pos:"verb",ipa:"/əˈʃʊə/",level:"B1",meaning:"to tell someone confidently that something is true or will happen, especially to remove doubt or worry.",easy:"To make someone feel sure or less worried.",hinglish:"Kisi ko confidence dena ki sab theek hai ya kuch definitely hoga.",example:"I can assure you that we will investigate the issue.",collocations:"assure someone that • assure a customer • rest assured",career:"Customer service: I can assure you that your complaint will be handled professionally."}
+ {word:"assure",pos:"verb",ipa:"/əˈʃʊə/",level:"B1",meaning:"to tell someone confidently that something is true or will happen, especially to remove doubt or worry.",easy:"To make someone feel sure or less worried.",hinglish:"Kisi ko confidence dena ki sab theek hai ya kuch definitely hoga.",example:"I can assure you that we will investigate the issue.",collocations:"assure someone that • assure a customer • rest assured",career:"Customer service: I can assure you that your complaint will be handled professionally."},
+ {word:"accommodate",pos:"verb",ipa:"/əˈkɒmədeɪt/",level:"B2",meaning:"to provide someone with a place to stay, or to make space for someone's needs or requirements.",easy:"To provide a place or adjust something to meet someone's needs.",hinglish:"Kisi ko jagah dena ya unki need ke according arrangement karna.",example:"We will do our best to accommodate your request.",collocations:"accommodate a request • accommodate passengers • accommodate needs",career:"Customer service: We should try to accommodate reasonable passenger requests."},
+ {word:"apologize",pos:"verb",ipa:"/əˈpɒlədʒaɪz/",level:"B1",meaning:"to say that you are sorry for something you have done or for a problem you caused.",easy:"To say sorry for a mistake or problem.",hinglish:"Apni galti ya problem ke liye sincerely sorry kehna.",example:"We apologize for the delay in boarding.",collocations:"apologize for a delay • sincerely apologize • apologize to a customer",career:"Customer service: I would apologize politely and then offer a solution."},
+ {word:"assistance",pos:"noun",ipa:"/əˈsɪstəns/",level:"B1",meaning:"help or support given to someone.",easy:"Help given to a person who needs it.",hinglish:"Kisi ko di gayi help ya support.",example:"Please ask a member of staff if you need assistance.",collocations:"provide assistance • require assistance • special assistance",career:"Aviation: Passengers requiring special assistance should contact the airline in advance."},
+ {word:"baggage",pos:"noun",ipa:"/ˈbæɡɪdʒ/",level:"B1",meaning:"the bags and other personal things that a passenger takes when travelling.",easy:"The bags and personal items you take on a journey.",hinglish:"Travel karte waqt saath le jaane wale bags aur personal items.",example:"Please collect your baggage from the carousel.",collocations:"baggage allowance • baggage claim • checked baggage",career:"Aviation: I can help the passenger locate the baggage-claim area."},
+ {word:"boarding",pos:"noun",ipa:"/ˈbɔːdɪŋ/",level:"B1",meaning:"the process of getting onto a plane, train, bus, or ship.",easy:"The process of getting onto a vehicle.",hinglish:"Plane ya kisi vehicle mein chadhne ka process.",example:"Boarding will begin at Gate 4 shortly.",collocations:"boarding pass • boarding gate • boarding time",career:"Aviation: Please have your boarding pass ready at the gate."},
+ {word:"delay",pos:"noun / verb",ipa:"/dɪˈleɪ/",level:"B1",meaning:"a situation in which something happens later than planned, or to make something happen later.",easy:"A situation where something is late, or to make it late.",hinglish:"Kisi cheez ka planned time se late hona, ya usse late karna.",example:"The flight was delayed because of bad weather.",collocations:"flight delay • delayed departure • avoid delays",career:"Customer service: I would explain the delay clearly and provide the latest information."},
+ {word:"departure",pos:"noun",ipa:"/dɪˈpɑːtʃə/",level:"B1",meaning:"the act of leaving a place, especially to start a journey.",easy:"The time or act of leaving.",hinglish:"Kisi jagah se nikalna, especially journey start karna.",example:"The departure gate has changed to Gate 8.",collocations:"departure time • departure gate • scheduled departure",career:"Aviation: Please arrive early enough for the scheduled departure."},
+ {word:"destination",pos:"noun",ipa:"/ˌdestɪˈneɪʃən/",level:"B1",meaning:"the place that someone or something is travelling to.",easy:"The place you are going to.",hinglish:"Woh jagah jahan aap travel karke pahunchna chahte hain.",example:"Delhi is our final destination.",collocations:"final destination • travel destination • reach a destination",career:"Customer service: Let me confirm your destination before I update the booking."},
+ {word:"emergency",pos:"noun",ipa:"/ɪˈmɜːdʒənsi/",level:"B1",meaning:"a sudden serious situation that requires immediate action.",easy:"A serious unexpected situation that needs quick action.",hinglish:"Achanak serious situation jismein turant action lena zaroori ho.",example:"The crew followed the emergency procedure calmly.",collocations:"emergency procedure • emergency exit • in an emergency",career:"Aviation: In an emergency, follow the crew's instructions carefully."},
+ {word:"passenger",pos:"noun",ipa:"/ˈpæsɪndʒə/",level:"B1",meaning:"a person travelling in a vehicle who is not driving or operating it.",easy:"A person who is travelling in a vehicle.",hinglish:"Jo person vehicle mein travel kar raha hai aur vehicle operate nahi kar raha.",example:"The passenger asked for help at the check-in counter.",collocations:"airline passenger • passenger service • passenger information",career:"Customer service: I always listen carefully to the passenger before responding."}
 ];
 
 function escapeDictionaryHTML(value){
@@ -5620,12 +5632,33 @@ function speakDictionaryWord(i){
  const e=(window._dictionaryVisible||expertSyncDictionary)[i]; if(!e||!("speechSynthesis" in window))return;
  window.speechSynthesis.cancel(); window.speechSynthesis.speak(new SpeechSynthesisUtterance(e.word));
 }
+function runDictionaryQA(){
+ const required=["word","pos","ipa","level","meaning","easy","hinglish","example","collocations","career"];
+ const words=expertSyncDictionary.map(e=>String(e.word).trim().toLowerCase());
+ const duplicateWords=words.filter((w,i)=>words.indexOf(w)!==i);
+ const missing=expertSyncDictionary.flatMap(e=>required.filter(k=>!String(e[k]||"").trim()).map(k=>e.word+" → "+k));
+ const malformedIPA=expertSyncDictionary.filter(e=>!/^\\/.+\\/$/.test(e.ipa)).map(e=>e.word);
+ const pass=duplicateWords.length===0&&missing.length===0&&malformedIPA.length===0;
+ const qa=document.getElementById("dictionaryQA");
+ if(qa) qa.innerHTML='<strong style="color:#063b91;">DICTIONARY QA STATUS</strong><div style="margin-top:7px;font-size:12px;line-height:1.6;color:#536176;">'+(pass?'✅ Structure check passed':'⚠️ Review required')+' • '+expertSyncDictionary.length+' entries • '+new Set(expertSyncDictionary.map(e=>e.level)).size+' levels • '+(duplicateWords.length?'Duplicates: '+duplicateWords.join(", "):'No duplicate headwords')+' • '+(missing.length?'Missing fields: '+missing.join(", "):'All required fields present')+'</div>';
+ return {pass,duplicateWords,missing,malformedIPA};
+}
 function printDictionaryPDF(){
  const previousTitle=document.title;
+ const search=document.getElementById("dictionarySearch");
+ const previousQuery=search?search.value:"";
+ if(search) search.value="";
+ renderDictionary();
  document.title="Expert Sync Vocabulary";
  window.print();
- setTimeout(()=>document.title=previousTitle,500);
+ setTimeout(function(){
+   if(search) search.value=previousQuery;
+   renderDictionary();
+   document.title=previousTitle;
+ },700);
 }
+runDictionaryQA();
+renderDictionary();
 
 /* ================= AVIATION SIMULATOR INTEGRATION ================= */
 function updateSimulatorProgressCard(){
