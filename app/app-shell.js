@@ -1,4 +1,7 @@
 (function(){
+  const ctxKey="esaLearningContextV1";
+  function saveNav(module){try{const x=JSON.parse(localStorage.getItem(ctxKey)||"{}");x.currentModule=module;x.lastVisited=new Date().toISOString();localStorage.setItem(ctxKey,JSON.stringify(x))}catch(e){}}
+
   const path=(location.pathname.split("/").pop()||"index.html");
   if(document.getElementById("esa-app-shell")) return;
   const links=[
@@ -22,7 +25,7 @@
   const nav=wrap.querySelector(".esa-nav");
   links.forEach(function(item){
     const a=document.createElement("a");
-    a.href=item[2]; a.innerHTML=item[0]+" "+item[1];
+    a.href=item[2]; a.addEventListener("click",function(){saveNav(item[1].toLowerCase().replace(/\\s+/g,"-"))}); a.innerHTML=item[0]+" "+item[1];
     if(path===item[2]) a.className="active";
     nav.appendChild(a);
   });
