@@ -10,5 +10,14 @@
   "theme_color": "#063b91",
   "categories": [
     "education"
+  ],
+  "id": "./",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
   ]
 }
