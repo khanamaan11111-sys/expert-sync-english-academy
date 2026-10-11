@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#063b91">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Expert Sync">
+<title>Expert Sync — Mobile Launchpad</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f8ff;color:#172033;padding-bottom:30px}
+.hero{background:linear-gradient(135deg,#031b3f,#063b91,#0b63ce);color:#fff;text-align:center;padding:30px 16px 28px;border-radius:0 0 28px 28px}
+.ey{font-size:10px;font-weight:900;letter-spacing:2px;color:#ffd54a}.hero h1{margin:8px 0;font-size:28px}.hero p{margin:0;line-height:1.5;opacity:.92}
+.wrap{max-width:760px;margin:auto;padding:15px}.card{background:#fff;border:1px solid #dbe5f2;border-radius:18px;padding:17px;margin:12px 0;box-shadow:0 5px 16px rgba(3,27,63,.06)}
+h2{color:#063b91;font-size:19px;margin:0 0 10px}.small{font-size:11px;color:#68768b;line-height:1.55}
+.status{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.s{padding:13px;border:1px solid #dbe5f2;border-radius:13px;background:#f8fbff;text-align:center}.dot{font-size:23px}.s b{display:block;color:#063b91;font-size:12px;margin-top:5px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{display:block;width:100%;padding:12px;border:0;border-radius:11px;background:#063b91;color:#fff;text-decoration:none;font-weight:800;text-align:center;cursor:pointer}.gold{background:#d6a900;color:#111}.light{background:#edf4fd;color:#063b91;border:1px solid #cbdced}
+.install{display:none}.install.show{display:block}.note{padding:12px;border-radius:12px;background:#fff7d9;border-left:4px solid #d6a900;font-size:12px;line-height:1.5}
+@media(max-width:520px){.status{grid-template-columns:1fr 1fr 1fr}.actions{grid-template-columns:1fr}.hero h1{font-size:24px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="ey">STAGE 92 • EXPERT SYNC ENGLISH ACADEMY</div><h1>📱 Mobile Launchpad</h1><p>One place to verify the app, install it, and reach the main learning systems.</p></header>
+<main class="wrap">
+<div class="card"><h2>System Check</h2><div class="status">
+<div class="s"><div class="dot" id="net">⏳</div><b>Connection</b><span class="small" id="netText">Checking…</span></div>
+<div class="s"><div class="dot" id="secure">⏳</div><b>Secure site</b><span class="small" id="secureText">Checking…</span></div>
+<div class="s"><div class="dot" id="sw">⏳</div><b>App support</b><span class="small" id="swText">Checking…</span></div>
+</div></div>
+<div class="card install" id="installCard"><h2>🏠 Install Expert Sync</h2><p class="small">On supported browsers, install this website so students can open Expert Sync directly from the phone home screen.</p><button class="btn gold" id="installBtn">Add to Home Screen</button></div>
+<div class="card"><h2>🚀 Student Entry</h2><div class="actions">
+<a class="btn gold" href="index.html">📱 Student App</a>
+<a class="btn" href="mobile-hub.html">🧭 Mobile Hub</a>
+<a class="btn light" href="interview-hub.html">🎤 Interview</a>
+<a class="btn light" href="dictionary.html">📖 Dictionary</a>
+<a class="btn light" href="vocabulary-achievement-center.html">📚 Vocabulary</a>
+<a class="btn light" href="pronunciation-lab.html">🔊 Pronunciation</a>
+</div></div>
+<div class="card"><h2>↩️ Navigation Test</h2><p class="small">Use the buttons above to confirm each module opens. Each module should provide a route back to the Student App. If a page fails to load, note its filename so it can be repaired in the next integration pass.</p><a class="btn light" href="index.html">← Return to Student App</a></div>
+<div class="card"><h2>📲 Phone Installation Help</h2><div class="note"><b>Android Chrome:</b> open this live page → browser menu ⋮ → <b>Add to Home screen</b> or <b>Install app</b>.<br><br><b>iPhone Safari:</b> open the live page → Share → <b>Add to Home Screen</b>.</div><p class="small" style="margin-top:10px">The exact wording can vary by browser and device. The website must be opened from the live HTTPS address for normal PWA installation behavior.</p></div>
+</main>
+<script>
+let deferredPrompt=null;
+const $=id=>document.getElementById(id);
+function set(id,ok,text){$(id).textContent=ok?"✅":"⚠️";$(id+"Text").textContent=text}
+set("net",navigator.onLine,"Online");
+set("secure",location.protocol==="https:"||location.hostname==="localhost",location.protocol==="https:"?"HTTPS enabled":"Use the live HTTPS site");
+if("serviceWorker"in navigator){
+ navigator.serviceWorker.register("sw.js").then(()=>set("sw",true,"Service worker ready")).catch(()=>set("sw",false,"Registration failed"));
+}else set("sw",false,"Not supported");
+window.addEventListener("online",()=>set("net",true,"Online"));
+window.addEventListener("offline",()=>set("net",false,"Offline"));
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;$("installCard").classList.add("show")});
+$("installBtn").addEventListener("click",async()=>{if(!deferredPrompt){alert("Your browser may already offer installation from its menu. Use Add to Home screen / Install app.");return}deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$("installCard").classList.remove("show")});
+window.addEventListener("appinstalled",()=>{$("installCard").classList.remove("show")});
+</script>
+</body>
+</html>
