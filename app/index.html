@@ -2632,6 +2632,9 @@ body {
 </style>
 <style id="es-career-profile-css">
 .career-profile-progress{height:7px;background:#e8eef6;border-radius:99px;overflow:hidden;margin:12px 0}.career-profile-progress div{height:100%;width:0;background:#063b91;border-radius:99px;transition:width .3s}.career-profile-preview{margin-top:11px;border:1px solid #dbe5f2;border-radius:15px;padding:11px;background:#f8fbff;display:none}.career-profile-preview strong{display:block;color:#063b91;font-size:13px}.career-profile-preview span{display:block;color:#66758b;font-size:10px;margin-top:3px;line-height:1.45}
+</style><style id="es-career-resume-css">
+.career-resume-paper{background:#fff;border:1px solid #dbe5f2;border-radius:10px;padding:28px;color:#172033;line-height:1.45}.career-resume-paper h1{margin:0;color:#063b91;font-size:26px}.career-resume-paper .resume-headline{font-weight:800;color:#536176;margin:4px 0 8px}.career-resume-paper .resume-contact{font-size:10px;color:#66758b;border-bottom:2px solid #063b91;padding-bottom:12px}.career-resume-paper h4{margin:16px 0 5px;color:#063b91;font-size:11px;letter-spacing:1px;text-transform:uppercase}.career-resume-paper p{margin:3px 0;font-size:11px;white-space:pre-line}.career-resume-paper .resume-empty{color:#8a3a3a;background:#fff5f5;border:1px solid #f0cccc;padding:9px;border-radius:8px;font-size:10px}
+@media print{body>*{display:none!important}#careerResumePrintRoot{display:block!important}.career-resume-paper{border:0!important;border-radius:0!important;box-shadow:none!important}}
 </style></head>
 
 <body class="es-premium"> 
@@ -5376,7 +5379,7 @@ body {
     </div>
     <p style="margin:0;color:#66758b;font-size:11px;line-height:1.5">Build your professional profile once and reuse it when applying for Expert Sync opportunities.</p>
     <div class="career-profile-progress"><div id="careerProfileBar"></div></div>
-    <button class="jobs-submit" type="button" onclick="openCareerProfile()">Create / Edit Profile</button>
+    <button class="jobs-submit" type="button" onclick="openCareerProfile()">Create / Edit Profile</button><button class="jobs-submit" type="button" style="margin-top:8px;background:#f4f8ff;color:#063b91;border:1px solid #dbe5f2" onclick="previewCareerResume()">📄 Preview & Print CV</button>
     <div id="careerProfilePreview" class="career-profile-preview"></div>
   </div>
 
@@ -5442,7 +5445,13 @@ body {
 
 </div>
 
-<div id="jobApplyModal" class="jobs-modal" aria-hidden="true">
+<div id="careerResumeModal" class="jobs-modal" aria-hidden="true">
+  <div class="jobs-form" style="max-width:760px">
+    <div class="jobs-form-head"><div><div style="font-size:9px;font-weight:900;letter-spacing:1.5px;color:#66758b">EXPERT SYNC CAREER</div><h3>Professional CV</h3></div><button class="jobs-close" type="button" onclick="closeCareerResume()">×</button></div>
+    <div id="careerResumePaper" class="career-resume-paper"></div>
+    <div style="display:flex;gap:8px;margin-top:12px"><button class="jobs-submit" type="button" onclick="printCareerResume()">🖨️ Print / Save PDF</button><button class="jobs-submit" type="button" style="background:#f4f8ff;color:#063b91;border:1px solid #dbe5f2" onclick="closeCareerResume()">Close</button></div>
+  </div>
+</div><div id="jobApplyModal" class="jobs-modal" aria-hidden="true">
   <form class="jobs-form" id="jobApplyForm" onsubmit="submitCareerApplication(event)"><div id="careerApplyProfileNotice" class="job-empty" style="margin-bottom:10px"></div>
     <div class="jobs-form-head">
       <div><div style="font-size:9px;font-weight:900;letter-spacing:1.5px;color:#66758b">JOB APPLICATION</div><h3 id="jobApplyTitle">Apply for Job</h3></div>
@@ -18963,7 +18972,24 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   window.addEventListener("load",renderMyApplications);
 })();
 </script>
-<script id="es-career-profile-controller">
+<script id="es-career-resume-controller">
+(function(){
+ function esc(x){return String(x||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]})}
+ async function getProfile(){var u=(await supabaseClient.auth.getUser()).data?.user;if(!u)return null;var r=await supabaseClient.from("career_profiles").select("*").eq("user_id",u.id).maybeSingle();return r.data||null}
+ window.previewCareerResume=async function(){
+  var p=await getProfile();if(!p){alert("Please create your Career Profile first.");return}
+  var paper=document.getElementById("careerResumePaper");paper.innerHTML='<h1>'+esc(p.full_name)+'</h1><div class="resume-headline">'+esc(p.headline||"Professional Profile")+'</div><div class="resume-contact">'+[p.city,p.phone].filter(Boolean).map(esc).join(" • ")+'</div><h4>Professional Summary</h4><p>'+esc(p.summary||"Not provided")+'</p><h4>Skills</h4><p>'+esc(p.skills||"Not provided")+'</p><h4>Experience</h4><p>'+esc(p.experience||"Not provided")+'</p><h4>Education</h4><p>'+esc(p.education||"Not provided")+'</p><h4>Languages</h4><p>'+esc(p.languages||"Not provided")+'</p>';
+  var m=document.getElementById("careerResumeModal");m.classList.add("open");m.setAttribute("aria-hidden","false");
+ };
+ window.closeCareerResume=function(){var m=document.getElementById("careerResumeModal");if(m)m.classList.remove("open")};
+ window.printCareerResume=function(){
+  var paper=document.getElementById("careerResumePaper");if(!paper)return;
+  var w=window.open("","_blank","width=850,height=1100");if(!w){alert("Please allow pop-ups to print your CV.");return}
+  w.document.write('<!doctype html><html><head><title>Expert Sync CV</title><style>body{font-family:Arial,sans-serif;color:#172033;padding:40px;line-height:1.45}h1{color:#063b91;margin:0}.resume-headline{font-weight:800;color:#536176;margin:4px 0 8px}.resume-contact{font-size:11px;color:#66758b;border-bottom:2px solid #063b91;padding-bottom:12px}h4{margin:18px 0 5px;color:#063b91;font-size:11px;letter-spacing:1px;text-transform:uppercase}p{font-size:11px;white-space:pre-line}</style></head><body>'+paper.innerHTML+'</body></html>');w.document.close();w.focus();setTimeout(function(){w.print()},250)
+ };
+ document.addEventListener("click",function(e){if(e.target.id==="careerResumeModal")closeCareerResume()});
+})();
+</script><script id="es-career-profile-controller">
 (function(){
  function g(id){return document.getElementById(id)} function val(id){return g(id)?.value?.trim()||""}
  function setv(id,v){if(g(id))g(id).value=v||""}
