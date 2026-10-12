@@ -405,6 +405,18 @@ width:auto!important;max-width:none!important;max-height:calc(100vh - 92px)!impo
 padding:18px 15px!important;border-radius:22px!important;background:#081a24f8!important;border:1px solid #42616b!important;box-shadow:0 24px 70px #000b!important
 }
 }
+</style><style id="es-flight-next-training-mobile-v11">
+@media(max-width:700px){
+#es-next-training{margin:14px 0;padding:14px;border:1px solid #3c6978;border-radius:16px;background:#102a35;text-align:left}
+#es-next-training .nt-kicker{font-size:8px;letter-spacing:1.3px;color:#54e6a6;font-weight:900}
+#es-next-training h3{margin:4px 0;font-size:15px;color:#fff}
+#es-next-training p{margin:5px 0 10px;font-size:9px;line-height:1.5;color:#b9d0d7}
+#es-next-training .nt-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px}
+#es-next-training .nt-metric{padding:7px 4px;border-radius:10px;background:#081a24;border:1px solid #294653;text-align:center}
+#es-next-training .nt-metric b{display:block;font-size:12px;color:#54e6a6}.es-premium #es-next-training .nt-metric small{font-size:6px;color:#8fb4c0}
+#es-next-training button{width:100%;min-height:50px;border-radius:13px;border:1px solid #6de2ff;background:#147f9e;color:#fff;font-weight:900;font-size:10px}
+#es-next-training .nt-secondary{margin-top:7px;background:#0a202a;border-color:#3c6978}
+}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
@@ -2180,6 +2192,28 @@ if(complete){
 }
 var obs=new MutationObserver(enhance);obs.observe(document.body,{childList:true});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",enhance);else enhance();
+})();
+</script><script id="es-flight-next-training-controller">
+(function(){
+function build(){
+var complete=document.getElementById("complete");if(!complete||document.getElementById("es-next-training"))return;
+var rec=null;try{rec=typeof adaptiveRecommendation==="function"?adaptiveRecommendation():null}catch(e){}
+var A=null;try{A=typeof assessmentSummary==="function"?assessmentSummary():null}catch(e){}
+var scenario=rec&&rec.scenario?String(rec.scenario).toUpperCase():"STANDARD";
+var label=rec&&rec.label?rec.label:"Next skill";
+var reason=rec&&rec.reason?rec.reason:"Review your post-flight performance and choose the next focused drill.";
+var overall=A?A.overall:Math.round(Number(document.getElementById("instructorScore")?.textContent)||0);
+var handling=A?A.handling:0,atc=A?A.atc:0,safety=A?A.safety:0;
+var box=document.createElement("div");box.id="es-next-training";
+box.innerHTML='<div class="nt-kicker">ADAPTIVE INSTRUCTOR</div><h3>🎯 Your next training step</h3><p><b>'+label+'</b> — '+reason+'</p><div class="nt-metrics"><div class="nt-metric"><b>'+overall+'%</b><small>OVERALL</small></div><div class="nt-metric"><b>'+handling+'%</b><small>HANDLING</small></div><div class="nt-metric"><b>'+atc+'%</b><small>ATC</small></div></div><button id="es-start-next">PRACTICE '+scenario+' NEXT</button><button id="es-open-record" class="nt-secondary">VIEW TRAINING RECORD</button>';
+var anchor=document.getElementById("openDebrief");(anchor?anchor.parentNode:complete).appendChild(box);
+document.getElementById("es-start-next").onclick=function(){
+var sel=document.getElementById("scenarioSelect");
+if(sel&&rec){sel.value=rec.scenario;var load=document.getElementById("loadScenario");if(load)load.click();toast("NEXT DRILL LOADED • "+label.toUpperCase());}
+};
+document.getElementById("es-open-record").onclick=function(){if(typeof showTrainingRecord==="function")showTrainingRecord();};
+}
+var obs=new MutationObserver(build);obs.observe(document.body,{childList:true,subtree:true});build();
 })();
 </script></body>
 </html>
