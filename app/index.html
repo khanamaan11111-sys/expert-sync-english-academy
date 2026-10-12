@@ -19261,43 +19261,8 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
  window.printCareerResume=function(){
   var paper=document.getElementById("careerResumePaper");if(!paper)return;
   var w=window.open("","_blank","width=850,height=1100");if(!w){alert("Please allow pop-ups to print your CV.");return}
-  w.document.write('<!doctype html><html><head><title>Expert Sync CV</title><style>body{font-family:Arial,sans-serif;color:#172033;padding:40px;line-height:1.45}h1{color:#063b91;margin:0}.resume-headline{font-weight:800;color:#536176;margin:4px 0 8px}.resume-contact{font-size:11px;color:#66758b;border-bottom:2px solid #063b91;padding-bottom:12px}h4{margin:18px 0 5px;color:#063b91;font-size:11px;letter-spacing:1px;text-transform:uppercase}p{font-size:11px;white-space:pre-line}</style></head><body>'+paper.innerHTML+'<div id="quick-course-messenger" style="position:fixed;left:10px;right:10px;bottom:10px;z-index:4500;display:flex;gap:8px;max-width:720px;margin:auto">
-  <a href="#courses" class="btn" style="flex:1;text-align:center;padding:10px 8px;font-size:12px;background:#063b91">📚 Courses</a>
-  <a href="https://khanamaan11111-sys.github.io/expert-sync-messenger/" class="btn" style="flex:1;text-align:center;padding:10px 8px;font-size:12px;background:#168a45" target="_blank" rel="noopener noreferrer">💬 Expert Sync Messenger</a>
-</div>
-<section id="courses" class="section">
- <div class="hero"><h2>📚 Expert Sync Courses</h2><p>Build practical English skills for communication, interviews, customer service and professional growth.</p>
-  <div class="quick-grid">
-   <div class="quick-card"><div class="icon">🗣️</div><h3>Spoken English</h3><p>Build confidence and everyday communication skills.</p></div>
-   <div class="quick-card"><div class="icon">💼</div><h3>Interview English</h3><p>Prepare for professional interviews and workplace conversations.</p></div>
-   <div class="quick-card"><div class="icon">✈️</div><h3>Aviation English</h3><p>Develop aviation-focused communication skills.</p></div>
-   <div class="quick-card"><div class="icon">🎧</div><h3>Customer Service English</h3><p>Improve professional customer communication.</p></div>
-  </div>
- </div>
-</section>
-<div id="es-main-tools" aria-label="Expert Sync quick access">
-  <button type="button" onclick="openExpertSyncCourses()">📚 Courses</button>
-  <a href="https://khanamaan11111-sys.github.io/expert-sync-messenger/" target="_blank" rel="noopener noreferrer">💬 Expert Sync Messenger</a>
-</div>
-<div id="es-courses-panel" aria-hidden="true">
- <div class="es-courses-box">
-  <button class="es-courses-close" type="button" onclick="closeExpertSyncCourses()">×</button>
-  <div class="es-courses-eyebrow">EXPERT SYNC ENGLISH ACADEMY</div>
-  <h2>📚 Courses</h2>
-  <p>Choose the learning path that matches your goals.</p>
-  <div class="es-course-grid">
-   <div><b>🗣️ Spoken English</b><span>Everyday communication & confidence</span></div>
-   <div><b>💼 Interview English</b><span>Professional interview preparation</span></div>
-   <div><b>✈️ Aviation English</b><span>Aviation communication skills</span></div>
-   <div><b>🎧 Customer Service English</b><span>Professional customer communication</span></div>
-  </div>
- </div>
-</div>
-<script id="es-course-messenger-controller">
-window.openExpertSyncCourses=function(){var p=document.getElementById("es-courses-panel");if(p){p.classList.add("open");p.setAttribute("aria-hidden","false")}};
-window.closeExpertSyncCourses=function(){var p=document.getElementById("es-courses-panel");if(p){p.classList.remove("open");p.setAttribute("aria-hidden","true")}};
-document.addEventListener("click",function(e){if(e.target&&e.target.id==="es-courses-panel")closeExpertSyncCourses()});
-</script></body></html>');w.document.close();w.focus();setTimeout(function(){w.print()},250)
+  w.document.write('<!doctype html><html><head><title>Expert Sync CV</title><style>body{font-family:Arial,sans-serif;color:#172033;padding:40px;line-height:1.45}h1{color:#063b91;margin:0}.resume-headline{font-weight:800;color:#536176;margin:4px 0 8px}.resume-contact{font-size:11px;color:#66758b;border-bottom:2px solid #063b91;padding-bottom:12px}h4{margin:18px 0 5px;color:#063b91;font-size:11px;letter-spacing:1px;text-transform:uppercase}p{font-size:11px;white-space:pre-line}</style></head><body>'+paper.innerHTML+'
+</body></html>');w.document.close();w.focus();setTimeout(function(){w.print()},250)
  };
  document.addEventListener("click",function(e){if(e.target.id==="careerResumeModal")closeCareerResume()});
 })();
@@ -19415,6 +19380,29 @@ window.createCareerAlertMatches=async function(){var u=await currentUser();if(!u
 window.renderCareerNotifications=async function(){var b=document.getElementById("careerNotifications"),n=document.getElementById("careerNotificationCount");if(!b)return;var u=await currentUser();if(!u){b.innerHTML='<div class="job-empty"><strong>Log in to see notifications</strong></div>';return}await createCareerAlertMatches();var r=await supabaseClient.from("career_alert_deliveries").select("*,career_jobs(title,company,location,category)").eq("user_id",u.id).order("created_at",{ascending:false}).limit(30);if(r.error){b.innerHTML='<div class="job-empty"><strong>Notifications unavailable</strong>Run the latest career-board SQL migration.</div>';return}var a=r.data||[],unread=a.filter(x=>x.status==="unread").length;if(n)n.textContent=unread;b.innerHTML=a.length?a.map(x=>'<article class="job-item"><div class="job-top"><div><h4 class="job-title">'+escapeHtml(x.career_jobs?.title||"Career opportunity")+'</h4><p class="job-company">'+escapeHtml(x.career_jobs?.company||"")+' • '+escapeHtml(x.career_jobs?.location||"")+'</p></div><span class="job-status '+(x.status==="unread"?"pending":"approved")+'">'+x.status.toUpperCase()+'</span></div><div class="job-meta"><span>'+escapeHtml(x.career_jobs?.category||"")+'</span><span>'+escapeHtml((x.created_at||"").slice(0,10))+'</span></div><button class="job-btn apply" type="button" onclick="markCareerNotificationRead(\''+x.id+'\')">View Opportunity</button></article>').join(""):'<div class="job-empty"><strong>No new career alerts</strong>We will show matching opportunities here.</div>'};
 window.markCareerNotificationRead=async function(id){var u=await currentUser();if(!u)return;await supabaseClient.from("career_alert_deliveries").update({status:"read"}).eq("id",id).eq("user_id",u.id);renderCareerNotifications()};
 window.addEventListener("load",renderCareerNotifications);
+</script>
+<div id="es-main-tools" aria-label="Expert Sync quick access">
+  <button type="button" onclick="openExpertSyncCourses()">📚 Courses</button>
+  <a href="https://khanamaan11111-sys.github.io/expert-sync-messenger/" target="_blank" rel="noopener noreferrer">💬 Expert Sync Messenger</a>
+</div>
+<div id="es-courses-panel" aria-hidden="true">
+ <div class="es-courses-box">
+  <button class="es-courses-close" type="button" onclick="closeExpertSyncCourses()">×</button>
+  <div class="es-courses-eyebrow">EXPERT SYNC ENGLISH ACADEMY</div>
+  <h2>📚 Courses</h2>
+  <p>Choose the learning path that matches your goals.</p>
+  <div class="es-course-grid">
+   <div><b>🗣️ Spoken English</b><span>Everyday communication & confidence</span></div>
+   <div><b>💼 Interview English</b><span>Professional interview preparation</span></div>
+   <div><b>✈️ Aviation English</b><span>Aviation communication skills</span></div>
+   <div><b>🎧 Customer Service English</b><span>Professional customer communication</span></div>
+  </div>
+ </div>
+</div>
+<script id="es-course-messenger-controller">
+window.openExpertSyncCourses=function(){var p=document.getElementById("es-courses-panel");if(p){p.classList.add("open");p.setAttribute("aria-hidden","false")}};
+window.closeExpertSyncCourses=function(){var p=document.getElementById("es-courses-panel");if(p){p.classList.remove("open");p.setAttribute("aria-hidden","true")}};
+document.addEventListener("click",function(e){if(e.target&&e.target.id==="es-courses-panel")closeExpertSyncCourses()});
 </script>
 </body>
 </html>
