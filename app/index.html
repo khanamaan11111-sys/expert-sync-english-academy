@@ -2630,7 +2630,9 @@ body {
   #es-bottom-nav,#es-more-sheet{display:none!important}
 }
 </style>
-</head>
+<style id="es-career-profile-css">
+.career-profile-progress{height:7px;background:#e8eef6;border-radius:99px;overflow:hidden;margin:12px 0}.career-profile-progress div{height:100%;width:0;background:#063b91;border-radius:99px;transition:width .3s}.career-profile-preview{margin-top:11px;border:1px solid #dbe5f2;border-radius:15px;padding:11px;background:#f8fbff;display:none}.career-profile-preview strong{display:block;color:#063b91;font-size:13px}.career-profile-preview span{display:block;color:#66758b;font-size:10px;margin-top:3px;line-height:1.45}
+</style></head>
 
 <body class="es-premium"> 
   <!-- ================= STUDENT ACCOUNT GATE ================= -->
@@ -5365,6 +5367,37 @@ body {
       <h3 style="margin:18px 0 6px;color:#063b91;font-size:17px">⚑ Trust & Safety Reports</h3><div id="careerAdminReports" class="jobs-list"></div><h3 style="margin:18px 0 6px;color:#063b91;font-size:17px">📨 Recruitment Activity</h3>
       <div id="careerAdminApplications" class="jobs-list"></div>
     </div>
+  </div>
+
+  <div class="jobs-search-card career-profile-card" style="margin-top:0">
+    <div class="jobs-search-title">
+      <h3>👤 Career Profile</h3>
+      <span class="jobs-count" id="careerProfileScore">0%</span>
+    </div>
+    <p style="margin:0;color:#66758b;font-size:11px;line-height:1.5">Build your professional profile once and reuse it when applying for Expert Sync opportunities.</p>
+    <div class="career-profile-progress"><div id="careerProfileBar"></div></div>
+    <button class="jobs-submit" type="button" onclick="openCareerProfile()">Create / Edit Profile</button>
+    <div id="careerProfilePreview" class="career-profile-preview"></div>
+  </div>
+
+  <div id="careerProfileModal" class="jobs-modal" aria-hidden="true">
+    <form class="jobs-form" id="careerProfileForm" onsubmit="saveCareerProfile(event)">
+      <div class="jobs-form-head"><div><div style="font-size:9px;font-weight:900;letter-spacing:1.5px;color:#66758b">CAREER PROFILE</div><h3>Professional Profile</h3></div><button class="jobs-close" type="button" onclick="closeCareerProfile()">×</button></div>
+      <div class="jobs-form-grid">
+        <div class="jobs-field"><label>FULL NAME *</label><input id="profileName" required placeholder="Your professional name"></div>
+        <div class="jobs-field"><label>PHONE</label><input id="profilePhone" type="tel" placeholder="+91 ..."></div>
+        <div class="jobs-field full"><label>PROFESSIONAL HEADLINE</label><input id="profileHeadline" placeholder="Customer Support • Aviation • English Communication"></div>
+        <div class="jobs-field"><label>CITY</label><input id="profileCity" placeholder="City"></div>
+        <div class="jobs-field"><label>LANGUAGES</label><input id="profileLanguages" placeholder="English, Hindi..."></div>
+        <div class="jobs-field full"><label>PROFESSIONAL SUMMARY</label><textarea id="profileSummary" placeholder="2–4 lines describing your strengths, experience and career goal."></textarea></div>
+        <div class="jobs-field full"><label>SKILLS</label><textarea id="profileSkills" placeholder="Customer service, communication, MS Office, sales..."></textarea></div>
+        <div class="jobs-field full"><label>EDUCATION</label><textarea id="profileEducation" placeholder="Degree / school, institution, year..."></textarea></div>
+        <div class="jobs-field full"><label>EXPERIENCE</label><textarea id="profileExperience" placeholder="Company, role, responsibilities and achievements..."></textarea></div>
+        <div class="jobs-field full"><label>RESUME / CV LINK</label><input id="profileResumeLink" type="url" placeholder="https://..."></div>
+      </div>
+      <button class="jobs-submit" type="submit">💾 Save Career Profile</button>
+      <p class="jobs-note">Only you and authorized Expert Sync administrators can access your profile through the database policies.</p>
+    </form>
   </div>
 
   <div class="jobs-search-card" style="margin-top:0">
@@ -18927,7 +18960,34 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   window.addEventListener("load",renderMyApplications);
 })();
 </script>
-<script id="es-career-cloud-sync">
+<script id="es-career-profile-controller">
+(function(){
+ function g(id){return document.getElementById(id)} function val(id){return g(id)?.value?.trim()||""}
+ function setv(id,v){if(g(id))g(id).value=v||""}
+ async function user(){return (await supabaseClient.auth.getUser()).data?.user||null}
+ window.openCareerProfile=async function(){
+  const u=await user();if(!u){alert("Please log in to create your career profile.");return}
+  const r=await supabaseClient.from("career_profiles").select("*").eq("user_id",u.id).maybeSingle();
+  if(r.data){const p=r.data;setv("profileName",p.full_name);setv("profileHeadline",p.headline);setv("profilePhone",p.phone);setv("profileCity",p.city);setv("profileLanguages",p.languages);setv("profileSummary",p.summary);setv("profileSkills",p.skills);setv("profileEducation",p.education);setv("profileExperience",p.experience);setv("profileResumeLink",p.resume_link)}
+  const m=g("careerProfileModal");m.classList.add("open");m.setAttribute("aria-hidden","false");
+ };
+ window.closeCareerProfile=function(){const m=g("careerProfileModal");if(m)m.classList.remove("open")};
+ window.saveCareerProfile=async function(e){
+  e.preventDefault();const u=await user();if(!u){alert("Please log in.");return}
+  const payload={user_id:u.id,full_name:val("profileName"),headline:val("profileHeadline"),phone:val("profilePhone"),city:val("profileCity"),languages:val("profileLanguages"),summary:val("profileSummary"),skills:val("profileSkills"),education:val("profileEducation"),experience:val("profileExperience"),resume_link:val("profileResumeLink"),updated_at:new Date().toISOString()};
+  const r=await supabaseClient.from("career_profiles").upsert(payload,{onConflict:"user_id"});if(r.error){alert("Could not save profile: "+r.error.message);return}
+  closeCareerProfile();renderCareerProfile();alert("Career profile saved successfully.");
+ };
+ window.renderCareerProfile=async function(){
+  const u=await user();if(!u)return;const r=await supabaseClient.from("career_profiles").select("*").eq("user_id",u.id).maybeSingle();if(r.error||!r.data)return;
+  const p=r.data, fields=["full_name","headline","phone","city","summary","skills","education","experience","languages","resume_link"],complete=fields.filter(k=>p[k]&&String(p[k]).trim()).length,score=Math.round(complete/fields.length*100);
+  if(g("careerProfileScore"))g("careerProfileScore").textContent=score+"%";if(g("careerProfileBar"))g("careerProfileBar").style.width=score+"%";
+  const preview=g("careerProfilePreview");if(preview){preview.style.display="block";preview.innerHTML="<strong>"+escapeHtml(p.full_name)+"</strong><span>"+escapeHtml(p.headline||"Add a professional headline")+"</span><span>"+escapeHtml(p.city||"Add your city")+" • "+escapeHtml(p.skills||"Add your key skills")+"</span>"}
+ };
+ document.addEventListener("click",e=>{if(e.target.id==="careerProfileModal")closeCareerProfile()});
+ window.addEventListener("load",renderCareerProfile);
+})();
+</script><script id="es-career-cloud-sync">
 (function(){
   const table="career_jobs";
   function cloudReady(){return typeof supabaseClient!=="undefined"&&supabaseClient&&supabaseClient.from}
