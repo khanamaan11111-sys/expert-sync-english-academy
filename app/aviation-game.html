@@ -417,6 +417,23 @@ padding:18px 15px!important;border-radius:22px!important;background:#081a24f8!im
 #es-next-training button{width:100%;min-height:50px;border-radius:13px;border:1px solid #6de2ff;background:#147f9e;color:#fff;font-weight:900;font-size:10px}
 #es-next-training .nt-secondary{margin-top:7px;background:#0a202a;border-color:#3c6978}
 }
+</style><style id="es-cockpit-focus-mobile-v12">
+@media(max-width:700px){
+  /* Focus cockpit: prevent the information panels from stacking on top of one another. */
+  #mission,#atc,#checklistPanel,#adaptiveCoach,#scenarioObjective,#routePanel,#scenarioPanel,#weather,#status,#help,#lightsPanel,#emergencyStatus,#mission17Panel,#navPanel,#apPanel{display:none}
+  #mission.mobile-panel-open,#atc.mobile-panel-open,#checklistPanel.mobile-panel-open,#adaptiveCoach.mobile-panel-open,#scenarioObjective.mobile-panel-open,#routePanel.mobile-panel-open,#scenarioPanel.mobile-panel-open,#weather.mobile-panel-open,#status.mobile-panel-open,#help.mobile-panel-open,#lightsPanel.mobile-panel-open,#emergencyStatus.mobile-panel-open,#mission17Panel.mobile-panel-open,#navPanel.mobile-panel-open,#apPanel.mobile-panel-open{display:block}
+  #abnormal{top:118px!important;left:10px!important;right:10px!important;max-width:none!important;padding:11px 12px!important;border-radius:17px!important}
+  #abnormal>div:nth-child(2){font-size:10px!important}
+  #abnormal button{min-height:42px!important;padding:8px 10px!important;border-radius:10px!important;font-size:9px!important}
+  #navPanel,#apPanel,#routePanel,#scenarioPanel,#weather,#lightsPanel,#checklistPanel,#adaptiveCoach,#scenarioObjective,#mission17Panel,#atc,#status,#help,#mission{left:10px!important;right:10px!important;top:112px!important;bottom:76px!important;max-width:none!important;width:auto!important;max-height:calc(100vh - 200px)!important;overflow:auto!important;padding:14px!important;border-radius:18px!important;background:#081a24f5!important;box-shadow:0 20px 55px #000b!important}
+  #es-cockpit-dock{position:fixed;left:8px;right:8px;bottom:8px;z-index:10010;display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:6px;border:1px solid #3c6978;border-radius:17px;background:#06131cf2;backdrop-filter:blur(10px);box-shadow:0 10px 35px #0009}
+  #es-cockpit-dock button{min-width:0;min-height:46px;border:1px solid #294653;border-radius:11px;background:#102a35;color:#dff5f8;font-size:8px;font-weight:900;line-height:1.1}
+  #es-cockpit-dock button.active{background:#147f9e;border-color:#6de2ff;color:#fff}
+  #es-cockpit-dock button span{display:block;font-size:16px;margin-bottom:2px}
+  #es-cockpit-close{position:absolute!important;right:13px;top:7px;width:38px!important;min-height:34px!important;background:#102a35!important}
+  body.es-cockpit-drawer-open #cockpit{filter:brightness(.8)}
+}
+@media(min-width:701px){#es-cockpit-dock{display:none}}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
@@ -2214,6 +2231,38 @@ if(sel&&rec){sel.value=rec.scenario;var load=document.getElementById("loadScenar
 document.getElementById("es-open-record").onclick=function(){if(typeof showTrainingRecord==="function")showTrainingRecord();};
 }
 var obs=new MutationObserver(build);obs.observe(document.body,{childList:true,subtree:true});build();
+})();
+</script><script id="es-cockpit-focus-mobile-controller">
+(function(){
+function init(){
+ if(innerWidth>700||document.getElementById("es-cockpit-dock"))return;
+ var ids=[
+  ["navPanel","🧭","NAV"],
+  ["apPanel","✈️","AUTO"],
+  ["lightsPanel","💡","LIGHTS"],
+  ["routePanel","🗺️","ROUTE"],
+  ["weather","🌤️","WEATHER"]
+ ];
+ var dock=document.createElement("nav");dock.id="es-cockpit-dock";dock.setAttribute("aria-label","Cockpit quick panels");
+ ids.forEach(function(item){
+   var b=document.createElement("button");b.type="button";b.dataset.panel=item[0];b.innerHTML="<span>"+item[1]+"</span>"+item[2];dock.appendChild(b);
+ });
+ document.body.appendChild(dock);
+ var panels=ids.map(function(x){return document.getElementById(x[0])}).filter(Boolean);
+ function closeAll(){panels.forEach(function(p){p.classList.remove("mobile-panel-open")});dock.querySelectorAll("button").forEach(function(b){b.classList.remove("active")});}
+ dock.querySelectorAll("button").forEach(function(b){
+   b.addEventListener("click",function(){
+     var p=document.getElementById(b.dataset.panel);
+     if(!p)return;
+     var open=p.classList.contains("mobile-panel-open");
+     closeAll();
+     if(!open){p.classList.add("mobile-panel-open");b.classList.add("active");}
+   });
+ });
+ var obs=new MutationObserver(function(){dock.querySelectorAll("button").forEach(function(b){var p=document.getElementById(b.dataset.panel);b.classList.toggle("active",!!p&&p.classList.contains("mobile-panel-open"))})});
+ panels.length&&obs.observe(document.body,{attributes:true,subtree:true,attributeFilter:["class"]});
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 </script></body>
 </html>
