@@ -5303,7 +5303,7 @@ body {
 .jobs-submit{width:100%;min-height:48px;margin-top:13px;border:0;border-radius:13px;background:linear-gradient(135deg,#d6a900,#ffd54a);color:#031b3f;font-size:13px;font-weight:900;cursor:pointer}
 .jobs-note{margin:9px 0 0;text-align:center;color:#718096;font-size:10px;line-height:1.45}
 @media(max-width:430px){.jobs-form-grid{grid-template-columns:1fr}.jobs-field.full{grid-column:auto}.jobs-actions{grid-template-columns:1fr 1fr}}
-</style>
+</style><style id="es-employer-dashboard-css">.employer-job-actions{display:flex;gap:7px;margin-top:9px}.employer-job-actions button{flex:1;min-height:40px;border:1px solid #d4dfed;border-radius:10px;background:#f5f9ff;color:#063b91;font-size:10px;font-weight:900;cursor:pointer}.applicant-item{border:1px solid #dbe5f2;border-radius:15px;background:#f9fbff;padding:13px;margin-bottom:9px}.applicant-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.applicant-name{margin:0;color:#063b91;font-size:14px}.applicant-meta{margin:4px 0;color:#66758b;font-size:10px;line-height:1.45}.applicant-message{margin:9px 0;color:#536176;font-size:11px;line-height:1.55}.applicant-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}.applicant-actions select{width:100%;height:38px;border:1px solid #d4dfed;border-radius:9px;background:#fff;color:#063b91;font-size:10px;font-weight:800;padding:0 7px}.applicant-actions a{display:flex;align-items:center;justify-content:center;border-radius:9px;background:#063b91;color:#fff;text-decoration:none;font-size:10px;font-weight:900;min-height:38px}</style>
 <style id="es-job-status-css">.job-status{flex:none;border-radius:999px;padding:5px 8px;font-size:9px;font-weight:900}.job-status.pending{background:#fff5d6;color:#765900}.job-status.rejected{background:#fff0f0;color:#a32626}</style>
 
 <div class="jobs-hub">
@@ -5351,6 +5351,25 @@ body {
       <span class="jobs-count" id="myApplicationCount">0</span>
     </div>
     <div id="myApplications" class="jobs-list"></div>
+  </div>
+
+  <div class="jobs-search-card" style="margin-top:0">
+    <div class="jobs-search-title">
+      <h3>🏢 Employer Dashboard</h3>
+      <span class="jobs-count" id="employerJobCount">0</span>
+    </div>
+    <p style="margin:0;color:#66758b;font-size:11px;line-height:1.5">Manage your approved vacancies and review applicants from one place.</p>
+    <div id="employerJobs" class="jobs-list"></div>
+  </div>
+
+  <div id="employerApplicantModal" class="jobs-modal" aria-hidden="true">
+    <div class="jobs-form">
+      <div class="jobs-form-head">
+        <div><div style="font-size:9px;font-weight:900;letter-spacing:1.5px;color:#66758b">APPLICATIONS</div><h3 id="employerApplicantTitle">Applicants</h3></div>
+        <button class="jobs-close" type="button" onclick="closeEmployerApplicants()">×</button>
+      </div>
+      <div id="employerApplicantList"></div>
+    </div>
   </div>
 
   <div class="job-safety">
@@ -18741,6 +18760,48 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeJobPostForm();closeJobAdmin();}});
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){renderJobListings();renderJobAdmin();});
   else {renderJobListings();renderJobAdmin();}
+})();
+</script>
+<script id="es-employer-dashboard-controller">
+(function(){
+ async function getUser(){return (await supabaseClient.auth.getUser()).data?.user||null}
+ window.renderEmployerDashboard=async function(){
+  const box=document.getElementById("employerJobs"),count=document.getElementById("employerJobCount");if(!box)return;
+  const u=await getUser();if(!u){box.innerHTML='<div class="job-empty"><strong>Log in to manage vacancies</strong>Your employer dashboard is available after login.</div>';if(count)count.textContent="0";return}
+  const {data,error}=await supabaseClient.from("career_jobs").select("*").eq("submitted_by",u.id).order("created_at",{ascending:false});
+  if(error){box.innerHTML='<div class="job-empty"><strong>Employer dashboard unavailable</strong>Please run the career board database setup first.</div>';return}
+  if(count)count.textContent=(data||[]).length;
+  if(!(data||[]).length){box.innerHTML='<div class="job-empty"><strong>No vacancies yet</strong>Post a job to start receiving applications.</div>';return}
+  box.innerHTML=data.map(j=>{
+   const status=j.status||"pending";
+   return '<article class="job-item"><div class="job-top"><div><h4 class="job-title">'+escapeHtml(j.title)+'</h4><p class="job-company">'+escapeHtml(j.company)+'</p></div><span class="job-status '+(status==="pending"?"pending":status==="rejected"?"rejected":"approved")+'">'+status.toUpperCase()+'</span></div><div class="job-meta"><span>📍 '+escapeHtml(j.location)+'</span><span>🏷️ '+escapeHtml(j.category)+'</span></div><div class="employer-job-actions">'+(status==="approved"?'<button type="button" onclick="openEmployerApplicants(\''+j.id+'\',\''+encodeURIComponent(j.title)+'\')">👥 View Applicants</button>':'<button type="button" disabled>👥 Applicants after approval</button>')+'<button type="button" onclick="copyEmployerJob(\''+encodeURIComponent(j.title+" — "+j.company+" | "+j.location)+'\')">↗ Share Job</button></div></article>';
+  }).join("");
+ };
+ window.openEmployerApplicants=async function(jobId,title){
+  const m=document.getElementById("employerApplicantModal");if(!m)return;
+  m.classList.add("open");m.setAttribute("aria-hidden","false");document.getElementById("employerApplicantTitle").textContent="Applicants: "+decodeURIComponent(title);
+  const box=document.getElementById("employerApplicantList");box.innerHTML='<div class="job-empty">Loading applications…</div>';
+  const u=await getUser();if(!u){box.innerHTML='<div class="job-empty"><strong>Login required</strong></div>';return}
+  const {data:job}=await supabaseClient.from("career_jobs").select("id").eq("id",jobId).eq("submitted_by",u.id).maybeSingle();if(!job){box.innerHTML='<div class="job-empty"><strong>Access denied</strong></div>';return}
+  const {data,error}=await supabaseClient.from("career_applications").select("*").eq("job_id",jobId).order("created_at",{ascending:false});
+  if(error){box.innerHTML='<div class="job-empty"><strong>Could not load applicants</strong>'+escapeHtml(error.message)+'</div>';return}
+  if(!(data||[]).length){box.innerHTML='<div class="job-empty"><strong>No applications yet</strong>Applicants will appear here when students apply.</div>';return}
+  box.innerHTML=data.map(a=>'<article class="applicant-item"><div class="applicant-head"><div><h4 class="applicant-name">'+escapeHtml(a.applicant_name||"Applicant")+'</h4><p class="applicant-meta">'+escapeHtml(a.applicant_email||"No email")+' • Applied '+escapeHtml((a.created_at||"").slice(0,10))+'</p></div><span class="job-status '+(a.status==="rejected"?"rejected":a.status==="shortlisted"?"approved":"pending")+'">'+escapeHtml((a.status||"submitted").toUpperCase())+'</span></div><p class="applicant-message">'+escapeHtml(a.message)+'</p>'+(a.resume_link?'<a href="'+escapeHtml(a.resume_link)+'" target="_blank" rel="noopener noreferrer" class="job-btn apply">📄 View Resume / CV ↗</a>':'<small class="applicant-meta">No resume link provided.</small>')+'<div class="applicant-actions"><select onchange="updateApplicationStatus(\''+a.id+'\',this.value)"><option value="submitted" '+(a.status==="submitted"?"selected":"")+'>Submitted</option><option value="shortlisted" '+(a.status==="shortlisted"?"selected":"")+'>Shortlisted</option><option value="rejected" '+(a.status==="rejected"?"selected":"")+'>Rejected</option><option value="hired" '+(a.status==="hired"?"selected":"")+'>Hired</option></select><a href="mailto:'+encodeURIComponent(a.applicant_email||"")+'">✉ Contact</a></div></article>').join("");
+ };
+ window.closeEmployerApplicants=function(){const m=document.getElementById("employerApplicantModal");if(m)m.classList.remove("open")};
+ window.updateApplicationStatus=async function(id,status){
+  const u=await getUser();if(!u){alert("Please log in.");return}
+  const {error}=await supabaseClient.from("career_applications").update({status:status,updated_at:new Date().toISOString()}).eq("id",id);
+  if(error){alert("Could not update application: "+error.message);return}
+  const title=document.getElementById("employerApplicantTitle").textContent;
+  const jobId=document.querySelector("#applyJobId")?.value;
+  alert("Application status updated.");
+ };
+ window.copyEmployerJob=function(encoded){
+  const t=decodeURIComponent(encoded);if(navigator.share){navigator.share({title:"Job Opportunity",text:t}).catch(()=>{})}else if(navigator.clipboard){navigator.clipboard.writeText(t).then(()=>alert("Job details copied."))}
+ };
+ document.addEventListener("click",e=>{if(e.target.id==="employerApplicantModal")closeEmployerApplicants()});
+ window.addEventListener("load",renderEmployerDashboard);
 })();
 </script>
 <script id="es-career-application-controller">
