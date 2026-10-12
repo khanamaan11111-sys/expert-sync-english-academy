@@ -5250,78 +5250,152 @@ body {
 
 <section id="jobs" class="section">
 
-  <div class="hero">
+<style>
+/* ================= JOBS & CAREER HUB ================= */
+.jobs-hub{display:grid;gap:14px}
+.jobs-hero{background:linear-gradient(135deg,#031b3f,#063b91 58%,#0b63ce);color:#fff;border-radius:24px;padding:24px 18px;box-shadow:0 14px 34px rgba(3,27,63,.18);position:relative;overflow:hidden}
+.jobs-hero:after{content:"💼";position:absolute;right:12px;top:8px;font-size:86px;opacity:.10;transform:rotate(-8deg)}
+.jobs-eyebrow{font-size:10px;font-weight:900;letter-spacing:1.8px;color:#ffd54a;text-transform:uppercase}
+.jobs-hero h2{margin:7px 0 8px;color:#fff;font-size:28px}
+.jobs-hero p{margin:0;color:rgba(255,255,255,.88);line-height:1.55;font-size:13px}
+.jobs-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:17px}
+.jobs-action{border:0;border-radius:14px;padding:13px 10px;font-weight:900;font-size:12px;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px}
+.jobs-action.primary{background:#ffd54a;color:#031b3f}
+.jobs-action.secondary{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25)}
+.jobs-search-card{background:#fff;border:1px solid #dbe5f2;border-radius:22px;padding:16px;box-shadow:0 10px 28px rgba(3,27,63,.07)}
+.jobs-search-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.jobs-search-title h3{margin:0;color:#063b91;font-size:18px}
+.jobs-count{font-size:10px;font-weight:900;background:#edf4fd;color:#063b91;border:1px solid #dbe5f2;padding:6px 9px;border-radius:999px}
+.jobs-search{width:100%;height:48px;border:1px solid #ccd8e8;border-radius:13px;padding:0 14px;font-size:14px;outline:none;background:#f9fbff}
+.jobs-search:focus{border-color:#063b91;box-shadow:0 0 0 3px rgba(6,59,145,.10);background:#fff}
+.jobs-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.jobs-filters select{width:100%;height:42px;border:1px solid #d4dfed;border-radius:11px;padding:0 10px;background:#f8fbff;color:#172033;font-size:12px}
+.jobs-list{display:grid;gap:10px;margin-top:12px}
+.job-item{background:#fff;border:1px solid #dbe5f2;border-radius:18px;padding:15px;box-shadow:0 7px 20px rgba(3,27,63,.06)}
+.job-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.job-title{margin:0;color:#063b91;font-size:17px;line-height:1.25}
+.job-company{margin:4px 0 0;color:#536176;font-size:12px;font-weight:700}
+.job-badge{flex:none;background:#eaf7ef;color:#146b3a;border-radius:999px;padding:5px 8px;font-size:9px;font-weight:900}
+.job-meta{display:flex;flex-wrap:wrap;gap:6px;margin:11px 0}
+.job-meta span{background:#f4f8ff;color:#536176;border:1px solid #e0e8f3;border-radius:8px;padding:5px 7px;font-size:10px}
+.job-desc{font-size:12px;color:#536176;line-height:1.55;margin:8px 0 12px}
+.job-actions{display:flex;gap:7px}
+.job-btn{flex:1;min-height:40px;border-radius:11px;border:1px solid #d4dfed;background:#f5f9ff;color:#063b91;font-size:11px;font-weight:900;text-decoration:none;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.job-btn.apply{background:#063b91;color:#fff;border-color:#063b91}
+.job-empty{text-align:center;padding:25px 14px;background:#f8fbff;border:1px dashed #b9cce4;border-radius:16px;color:#66758b;font-size:12px}
+.job-empty strong{display:block;color:#063b91;font-size:15px;margin-bottom:5px}
+.job-safety{background:#fff8df;border:1px solid #f0df9d;border-radius:18px;padding:15px}
+.job-safety h3{margin:0 0 7px;color:#765900;font-size:15px}
+.job-safety p{margin:0;color:#5c512f;font-size:11px;line-height:1.6}
+.jobs-modal{position:fixed;inset:0;z-index:2147483005;display:none;background:rgba(3,27,63,.50);backdrop-filter:blur(4px);padding:14px;overflow:auto}
+.jobs-modal.open{display:flex;align-items:flex-end;justify-content:center}
+.jobs-form{width:min(680px,100%);background:#fff;border-radius:24px 24px 18px 18px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:92vh;overflow:auto}
+.jobs-form-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.jobs-form-head h3{margin:0;color:#063b91;font-size:20px}
+.jobs-close{width:38px;height:38px;border:1px solid #dbe5f2;border-radius:11px;background:#f7faff;color:#063b91;font-size:23px;cursor:pointer}
+.jobs-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.jobs-field{display:grid;gap:5px}
+.jobs-field.full{grid-column:1/-1}
+.jobs-field label{font-size:10px;font-weight:900;color:#536176}
+.jobs-field input,.jobs-field select,.jobs-field textarea{width:100%;border:1px solid #ccd8e8;border-radius:11px;background:#f9fbff;padding:10px 11px;font-size:12px;color:#172033;outline:none}
+.jobs-field textarea{min-height:100px;resize:vertical}
+.jobs-field input:focus,.jobs-field select:focus,.jobs-field textarea:focus{border-color:#063b91;box-shadow:0 0 0 3px rgba(6,59,145,.10);background:#fff}
+.jobs-submit{width:100%;min-height:48px;margin-top:13px;border:0;border-radius:13px;background:linear-gradient(135deg,#d6a900,#ffd54a);color:#031b3f;font-size:13px;font-weight:900;cursor:pointer}
+.jobs-note{margin:9px 0 0;text-align:center;color:#718096;font-size:10px;line-height:1.45}
+@media(max-width:430px){.jobs-form-grid{grid-template-columns:1fr}.jobs-field.full{grid-column:auto}.jobs-actions{grid-template-columns:1fr 1fr}}
+</style>
 
+<div class="jobs-hub">
+
+  <div class="jobs-hero">
+    <div class="jobs-eyebrow">Expert Sync Career Hub</div>
     <h2>💼 Jobs & Career</h2>
-
-    <p>
-      Discover career opportunities and prepare
-      for your next professional step.
-    </p>
-
+    <p>Search opportunities, explore career information, or post a genuine vacancy for other learners.</p>
+    <div class="jobs-actions">
+      <button class="jobs-action primary" type="button" onclick="openJobPostForm()">➕ Post a Job</button>
+      <button class="jobs-action secondary" type="button" onclick="document.getElementById('jobSearchInput').focus()">🔎 Search Jobs</button>
+    </div>
   </div>
 
-
-  <div class="card">
-
-    <h3>📢 Latest Job Updates</h3>
-
-    <p>
-      We will share customer support, BPO, aviation,
-      airport operations and other career opportunities here.
-    </p>
-
+  <div class="jobs-search-card">
+    <div class="jobs-search-title">
+      <h3>🔎 Find a Job</h3>
+      <span class="jobs-count" id="jobResultCount">0 jobs</span>
+    </div>
+    <input id="jobSearchInput" class="jobs-search" type="search" placeholder="Search job title, company, city or keyword..." oninput="renderJobListings()">
+    <div class="jobs-filters">
+      <select id="jobTypeFilter" onchange="renderJobListings()">
+        <option value="">All job types</option>
+        <option>Full-time</option><option>Part-time</option><option>Internship</option><option>Contract</option><option>Work from home</option>
+      </select>
+      <select id="jobCategoryFilter" onchange="renderJobListings()">
+        <option value="">All categories</option>
+        <option>Customer Support</option><option>BPO</option><option>Aviation</option><option>Airport Operations</option><option>Sales</option><option>Other</option>
+      </select>
+    </div>
+    <div id="jobListings" class="jobs-list"></div>
   </div>
 
-
-  <div class="card">
-
-    <h3>🚀 Career Preparation</h3>
-
-    <ul>
-
-      <li>Resume & interview preparation</li>
-
-      <li>Customer service interview practice</li>
-
-      <li>BPO communication skills</li>
-
-      <li>Aviation interview preparation</li>
-
-      <li>Professional English</li>
-
-    </ul>
-
+  <div class="job-safety">
+    <h3>⚠️ Job Safety</h3>
+    <p>Never pay money to get a job. Independently verify the employer and vacancy. Never share OTPs, UPI PINs, ATM PINs, passwords or sensitive financial information with recruiters.</p>
   </div>
 
+</div>
 
-  <div class="warning">
+<div id="jobPostModal" class="jobs-modal" aria-hidden="true">
+  <form class="jobs-form" id="jobPostForm" onsubmit="submitJobPost(event)">
+    <div class="jobs-form-head">
+      <div>
+        <div style="font-size:9px;font-weight:900;letter-spacing:1.5px;color:#66758b">EMPLOYER / RECRUITER</div>
+        <h3>Post a Job</h3>
+      </div>
+      <button class="jobs-close" type="button" onclick="closeJobPostForm()" aria-label="Close">×</button>
+    </div>
 
-    <h3>⚠️ Important Job Safety Warning</h3>
+    <div class="jobs-form-grid">
+      <div class="jobs-field">
+        <label>JOB TITLE *</label>
+        <input id="postJobTitle" required placeholder="e.g. Customer Support Executive">
+      </div>
+      <div class="jobs-field">
+        <label>COMPANY *</label>
+        <input id="postJobCompany" required placeholder="Company name">
+      </div>
+      <div class="jobs-field">
+        <label>LOCATION *</label>
+        <input id="postJobLocation" required placeholder="City / Remote">
+      </div>
+      <div class="jobs-field">
+        <label>JOB TYPE *</label>
+        <select id="postJobType" required>
+          <option value="">Select</option><option>Full-time</option><option>Part-time</option><option>Internship</option><option>Contract</option><option>Work from home</option>
+        </select>
+      </div>
+      <div class="jobs-field">
+        <label>CATEGORY *</label>
+        <select id="postJobCategory" required>
+          <option value="">Select</option><option>Customer Support</option><option>BPO</option><option>Aviation</option><option>Airport Operations</option><option>Sales</option><option>Other</option>
+        </select>
+      </div>
+      <div class="jobs-field">
+        <label>SALARY / CTC</label>
+        <input id="postJobSalary" placeholder="e.g. ₹18,000–₹25,000/month">
+      </div>
+      <div class="jobs-field full">
+        <label>APPLICATION LINK OR EMAIL *</label>
+        <input id="postJobApply" required placeholder="https://... or hiring@example.com">
+      </div>
+      <div class="jobs-field full">
+        <label>JOB DESCRIPTION *</label>
+        <textarea id="postJobDescription" required placeholder="Responsibilities, requirements and important details..."></textarea>
+      </div>
+    </div>
 
-    <p>
-      Never pay money to get a job.
-      Be careful of registration fees, interview fees,
-      security deposits, training fees, document-verification fees,
-      offer-letter fees and placement fees.
-    </p>
-
-    <br>
-
-    <p>
-      Never share your OTP, UPI PIN, ATM PIN,
-      bank password or sensitive financial information.
-    </p>
-
-    <br>
-
-    <p>
-      Always independently verify the company,
-      recruiter, vacancy, salary and official recruitment details
-      before sharing documents or making any payment.
-    </p>
-
-  </div>
+    <button class="jobs-submit" type="submit">📤 Publish Job</button>
+    <p class="jobs-note">Posts are stored locally on this device in this version. Before public launch, connect this form to a moderated database so submitted vacancies can be reviewed and shared safely.</p>
+  </form>
+</div>
 
 </section>
 
@@ -18528,5 +18602,66 @@ function init(){
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
-</script></body>
+</script>
+<script id="es-jobs-career-controller">
+(function(){
+  const KEY="esaCareerJobsV1";
+  function seedJobs(){
+    try{
+      const existing=JSON.parse(localStorage.getItem(KEY)||"null");
+      if(Array.isArray(existing)) return existing;
+    }catch(e){}
+    const seed=[
+      {id:"seed-1",title:"Customer Support Executive",company:"Expert Sync Career Board",location:"Bhopal",type:"Full-time",category:"Customer Support",salary:"As per employer",apply:"",description:"Customer communication, professional English and service support. Verify the employer and vacancy details independently before applying.",posted:"2026-10-12"},
+      {id:"seed-2",title:"BPO Communication Associate",company:"Career Opportunities",location:"Bhopal / Remote",type:"Full-time",category:"BPO",salary:"As per employer",apply:"",description:"English communication and customer-handling role. Applicants should independently verify the company, recruiter and official application process.",posted:"2026-10-12"}
+    ];
+    localStorage.setItem(KEY,JSON.stringify(seed)); return seed;
+  }
+  window.getCareerJobs=function(){return seedJobs()};
+  window.openJobPostForm=function(){
+    const m=document.getElementById("jobPostModal"); if(m){m.classList.add("open");m.setAttribute("aria-hidden","false");document.body.classList.add("es-menu-open");}
+  };
+  window.closeJobPostForm=function(){
+    const m=document.getElementById("jobPostModal"); if(m){m.classList.remove("open");m.setAttribute("aria-hidden","true");document.body.classList.remove("es-menu-open");}
+  };
+  window.submitJobPost=function(e){
+    e.preventDefault();
+    const get=id=>document.getElementById(id)?.value.trim()||"";
+    const job={id:"job-"+Date.now(),title:get("postJobTitle"),company:get("postJobCompany"),location:get("postJobLocation"),type:get("postJobType"),category:get("postJobCategory"),salary:get("postJobSalary")||"Not specified",apply:get("postJobApply"),description:get("postJobDescription"),posted:new Date().toISOString().slice(0,10)};
+    const jobs=seedJobs(); jobs.unshift(job); localStorage.setItem(KEY,JSON.stringify(jobs));
+    document.getElementById("jobPostForm").reset(); closeJobPostForm(); renderJobListings();
+    alert("Job posted on this device. For a public job board, connect the form to the moderated career database in the next stage.");
+  };
+  window.renderJobListings=function(){
+    const list=document.getElementById("jobListings"),count=document.getElementById("jobResultCount"); if(!list)return;
+    const q=(document.getElementById("jobSearchInput")?.value||"").trim().toLowerCase();
+    const type=document.getElementById("jobTypeFilter")?.value||"";
+    const category=document.getElementById("jobCategoryFilter")?.value||"";
+    const jobs=seedJobs().filter(j=>{
+      const hay=[j.title,j.company,j.location,j.type,j.category,j.salary,j.description].join(" ").toLowerCase();
+      return (!q||hay.includes(q))&&(!type||j.type===type)&&(!category||j.category===category);
+    });
+    if(count)count.textContent=jobs.length+" "+(jobs.length===1?"job":"jobs");
+    if(!jobs.length){list.innerHTML='<div class="job-empty"><strong>No matching jobs found</strong>Try another keyword, location or filter.</div>';return;}
+    list.innerHTML=jobs.map(j=>{
+      const safe=x=>String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+      const apply=j.apply||"";
+      let applyHtml='<button class="job-btn apply" type="button" onclick="alert(\'Application contact is not available yet. Please verify the employer before applying.\')">Apply / Contact</button>';
+      if(/^https?:\\/\\//i.test(apply)) applyHtml='<a class="job-btn apply" href="'+safe(apply)+'" target="_blank" rel="noopener noreferrer">Apply Now ↗</a>';
+      else if(apply) applyHtml='<a class="job-btn apply" href="mailto:'+encodeURIComponent(apply)+'">Apply by Email</a>';
+      return '<article class="job-item"><div class="job-top"><div><h4 class="job-title">'+safe(j.title)+'</h4><p class="job-company">'+safe(j.company)+'</p></div><span class="job-badge">NEW</span></div><div class="job-meta"><span>📍 '+safe(j.location)+'</span><span>🕐 '+safe(j.type)+'</span><span>🏷️ '+safe(j.category)+'</span><span>💰 '+safe(j.salary)+'</span></div><p class="job-desc">'+safe(j.description)+'</p><div class="job-actions">'+applyHtml+'<button class="job-btn" type="button" onclick="shareJobPost(\''+encodeURIComponent(j.title+' — '+j.company+' | '+j.location+' | '+j.type)+'\')">↗ Share</button></div></article>';
+    }).join("");
+  };
+  window.shareJobPost=function(encoded){
+    const text=decodeURIComponent(encoded);
+    if(navigator.share){navigator.share({title:"Job Opportunity",text:text}).catch(()=>{});}
+    else if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>alert("Job details copied to clipboard."));}
+    else alert(text);
+  };
+  document.addEventListener("click",function(e){if(e.target.id==="jobPostModal")closeJobPostForm();});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")closeJobPostForm();});
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",renderJobListings);else renderJobListings();
+})();
+</script>
+</body>
 </html>
