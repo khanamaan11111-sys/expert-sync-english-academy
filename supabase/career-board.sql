@@ -213,3 +213,37 @@ drop policy if exists career_alert_delivery_read on public.career_alert_deliveri
 create policy career_alert_delivery_read on public.career_alert_deliveries for select to authenticated using (user_id=auth.uid());
 drop policy if exists career_alert_delivery_update on public.career_alert_deliveries;
 create policy career_alert_delivery_update on public.career_alert_deliveries for update to authenticated using (user_id=auth.uid()) with check (user_id=auth.uid());
+
+
+-- ================= COMPANY PROFILES & VERIFICATION =================
+create table if not exists public.career_company_profiles (
+  owner_id uuid primary key references auth.users(id) on delete cascade,
+  company_name text not null,
+  legal_name text,
+  industry text,
+  website text,
+  city text,
+  description text,
+  contact_email text,
+  logo_url text,
+  verification_status text not null default 'unverified'
+    check (verification_status in ('unverified','pending','verified','suspended')),
+  verification_note text,
+  verified_at timestamptz,
+  updated_at timestamptz not null default now()
+);
+alter table public.career_company_profiles enable row level security;
+drop policy if exists company_profile_read on public.career_company_profiles;
+create policy company_profile_read on public.career_company_profiles
+for select to authenticated
+using (owner_id=auth.uid() or verification_status='verified' or public.is_career_admin());
+drop policy if exists company_profile_insert on public.career_company_profiles;
+create policy company_profile_insert on public.career_company_profiles
+for insert to authenticated with check (owner_id=auth.uid());
+drop policy if exists company_profile_update on public.career_company_profiles;
+create policy company_profile_update on public.career_company_profiles
+for update to authenticated using (owner_id=auth.uid() or public.is_career_admin())
+with check (owner_id=auth.uid() or public.is_career_admin());
+
+alter table public.career_jobs add column if not exists company_owner_id uuid references public.career_company_profiles(owner_id) on delete set null;
+create index if not exists career_jobs_company_owner_idx on public.career_jobs(company_owner_id);
