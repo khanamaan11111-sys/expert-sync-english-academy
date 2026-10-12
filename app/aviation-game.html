@@ -340,6 +340,19 @@ margin:0!important;
 .es-confirm-actions button{min-height:48px;border-radius:13px;font-weight:900;border:1px solid #dbe5f2}
 .es-confirm-yes{background:#063b91;color:#fff}.es-confirm-no{background:#f4f8ff;color:#063b91}
 }
+</style><style id="es-flight-atc-mobile-v7">
+@media(max-width:700px){
+#atc.mobile-panel-open{top:145px!important;bottom:76px!important;padding:15px!important;border-radius:20px!important;background:#081a24f7!important;border:1px solid #42616b!important;box-shadow:0 20px 60px #000b!important}
+#atc .atcHead{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;font-size:11px!important}
+#atc .atcBody{min-height:58px!important;margin:10px 0!important;padding:11px!important;border-radius:13px!important;background:#06131c!important;border:1px solid #294653!important;font-size:11px!important;line-height:1.55!important}
+#atc .radio{padding:9px!important;border-radius:11px!important;background:#102a35!important;font-size:9px!important;text-align:center!important}
+#radioControls{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:7px!important}
+#radioControls .freqBtn{min-height:48px!important;border-radius:12px!important;font-size:10px!important;font-weight:900!important}
+#radioControls .freqBtn.active{background:#147f9e!important;border-color:#6de2ff!important;color:#fff!important}
+#atcBtn{width:100%!important;min-height:54px!important;margin-top:9px!important;border-radius:14px!important;font-size:11px!important;font-weight:900!important}
+#readbackQuality{font-size:9px!important;padding:7px 0!important;text-align:center!important}
+#radioState{padding:5px 7px!important;border-radius:999px!important;background:#102a35!important}
+}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
@@ -2059,6 +2072,24 @@ sheet.querySelector(".es-em-back").addEventListener("click",close);sheet.querySe
 sheet.querySelectorAll(".es-em-action").forEach(function(x){x.addEventListener("click",function(){pending=x.dataset.em;document.getElementById("es-confirm-title").textContent="Confirm "+x.textContent.trim();document.getElementById("es-confirm-text").textContent="This will start a simulated training event. Continue?";confirm.classList.add("open")})});
 confirm.querySelector(".es-confirm-no").addEventListener("click",close);confirm.querySelector(".es-em-back").addEventListener("click",close);
 confirm.querySelector(".es-confirm-yes").addEventListener("click",function(){var map={failure:"failureBtn",stall:"stallBtn",go:"goAroundBtn"};var target=document.getElementById(map[pending]);close();if(target)target.click()});
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup);else setup();
+})();
+</script><script id="es-flight-atc-mobile-controller">
+(function(){
+function setup(){
+if(window.innerWidth>700)return;
+var panel=document.getElementById("atc");
+if(!panel)return;
+document.querySelectorAll("#radioControls .freqBtn").forEach(function(b){
+ b.setAttribute("aria-label","Select "+(b.dataset.freq||b.textContent)+" frequency");
+ b.addEventListener("click",function(){
+  document.querySelectorAll("#radioControls .freqBtn").forEach(function(x){x.classList.remove("active")});
+  b.classList.add("active");
+ });
+});
+var transmit=document.getElementById("atcBtn");
+if(transmit){transmit.setAttribute("aria-label","Transmit or read back ATC instruction");}
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup);else setup();
 })();
