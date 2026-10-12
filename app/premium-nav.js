@@ -31,7 +31,6 @@ document.head.appendChild(style);
 var onIndex=typeof window.showSection==="function" || location.pathname.endsWith("/index.html") || location.pathname.endsWith("/");
 var items=[
  ["learning-home-premium.html","⌂","Home"],
- ["courses","📚","Courses"],
  ["practice","🎯","Practice"],
  ["goal-progress.html","📈","Progress"]
 ];
