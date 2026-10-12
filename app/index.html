@@ -19372,6 +19372,34 @@ window.renderCareerNotifications=async function(){var b=document.getElementById(
 window.markCareerNotificationRead=async function(id){var u=await currentUser();if(!u)return;await supabaseClient.from("career_alert_deliveries").update({status:"read"}).eq("id",id).eq("user_id",u.id);renderCareerNotifications()};
 window.addEventListener("load",renderCareerNotifications);
 </script>
+<style id="es-course-messenger-final-css">
+#es-courses-panel{display:none;position:fixed;inset:0;z-index:2147483005;background:rgba(3,20,45,.62);padding:18px;align-items:center;justify-content:center}
+#es-courses-panel.open{display:flex}
+.es-courses-box{position:relative;width:min(620px,100%);max-height:82vh;overflow:auto;background:#fff;border-radius:20px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.es-courses-close{position:absolute;right:12px;top:12px;width:36px;height:36px;border-radius:50%;border:0;background:#eef3fa;color:#063b91;font-size:22px;cursor:pointer}
+.es-courses-eyebrow{font-size:9px;letter-spacing:1.5px;font-weight:900;color:#66758b}
+.es-courses-box h2{color:#063b91;margin:6px 0}
+.es-courses-box p{color:#66758b;margin-bottom:16px}
+.es-course-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.es-course-grid div{padding:14px;border:1px solid #dbe5f2;border-radius:13px;background:#f8fbff}
+.es-course-grid b{display:block;color:#063b91;font-size:11px}
+.es-course-grid span{display:block;color:#66758b;font-size:9px;margin-top:4px}
+@media(max-width:600px){#es-courses-panel{padding:12px}.es-courses-box{padding:20px;border-radius:18px}.es-course-grid{grid-template-columns:1fr}}
+</style>
+<div id="es-courses-panel" aria-hidden="true">
+ <div class="es-courses-box">
+  <button class="es-courses-close" type="button" onclick="closeExpertSyncCourses()" aria-label="Close Courses">×</button>
+  <div class="es-courses-eyebrow">EXPERT SYNC ENGLISH ACADEMY</div>
+  <h2>📚 Courses</h2>
+  <p>Choose the learning path that matches your goals.</p>
+  <div class="es-course-grid">
+   <div><b>🗣️ Spoken English</b><span>Everyday communication & confidence</span></div>
+   <div><b>💼 Interview English</b><span>Professional interview preparation</span></div>
+   <div><b>✈️ Aviation English</b><span>Aviation communication skills</span></div>
+   <div><b>🎧 Customer Service English</b><span>Professional customer communication</span></div>
+  </div>
+ </div>
+</div>
 <script id="es-course-messenger-controller">
 window.openExpertSyncCourses=function(){var p=document.getElementById("es-courses-panel");if(p){p.classList.add("open");p.setAttribute("aria-hidden","false")}};
 window.closeExpertSyncCourses=function(){var p=document.getElementById("es-courses-panel");if(p){p.classList.remove("open");p.setAttribute("aria-hidden","true")}};
