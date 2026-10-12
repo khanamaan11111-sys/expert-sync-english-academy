@@ -5362,7 +5362,7 @@ body {
         </select>
       </div>
       <div id="careerAdminJobs" class="jobs-list"></div>
-      <h3 style="margin:18px 0 6px;color:#063b91;font-size:17px">📨 Recruitment Activity</h3>
+      <h3 style="margin:18px 0 6px;color:#063b91;font-size:17px">⚑ Trust & Safety Reports</h3><div id="careerAdminReports" class="jobs-list"></div><h3 style="margin:18px 0 6px;color:#063b91;font-size:17px">📨 Recruitment Activity</h3>
       <div id="careerAdminApplications" class="jobs-list"></div>
     </div>
   </div>
@@ -5465,6 +5465,10 @@ body {
       <div class="jobs-field full">
         <label>APPLICATION LINK OR EMAIL *</label>
         <input id="postJobApply" required placeholder="https://... or hiring@example.com">
+      </div>
+      <div class="jobs-field">
+        <label>EXPIRY DATE</label>
+        <input id="postJobExpiry" type="date">
       </div>
       <div class="jobs-field full">
         <label>JOB DESCRIPTION *</label>
@@ -18790,6 +18794,23 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeJobPostForm();closeJobAdmin();}});
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){renderJobListings();renderJobAdmin();});
   else {renderJobListings();renderJobAdmin();}
+})();
+</script>
+<script id="es-career-trust-stage">
+(function(){
+ async function admin(){try{var u=(await supabaseClient.auth.getUser()).data?.user;return !!u&&u.app_metadata?.role==="admin"}catch(e){return false}}
+ window.reportCareerJob=async function(id){
+  try{var u=(await supabaseClient.auth.getUser()).data?.user;if(!u){alert("Please log in to report a job.");return}var reason=prompt("Why are you reporting this job?");if(reason===null||!reason.trim())return;var r=await supabaseClient.from("career_job_reports").insert({job_id:id,reporter_id:u.id,reason:reason.trim()});if(r.error){alert("Report could not be submitted.");return}alert("Report submitted for Expert Sync review.");}catch(e){alert("Report could not be submitted.")}};
+ window.renderCareerReports=async function(){
+  var box=document.getElementById("careerAdminReports");if(!box||!(await admin()))return;
+  var r=await supabaseClient.from("career_job_reports").select("*,career_jobs(title,company)").is("resolved_at",null).order("created_at",{ascending:false}).limit(100);
+  if(r.error){box.innerHTML='<div class="job-empty"><strong>Trust reports unavailable</strong>Run the latest career-board SQL migration first.</div>';return}
+  box.innerHTML=(r.data||[]).length?(r.data||[]).map(function(x){return '<article class="career-app"><b>'+escapeHtml(x.career_jobs?.title||"Job")+'</b><small>'+escapeHtml(x.career_jobs?.company||"")+' • '+escapeHtml(x.reason)+'</small><button class="job-btn" style="margin-top:7px" onclick="resolveCareerReport(\''+x.id+'\')">✓ Resolve Report</button></article>'}).join(""):'<div class="job-empty"><strong>No open reports</strong>No unresolved job reports.</div>';
+ };
+ window.resolveCareerReport=async function(id){if(!(await admin()))return;var r=await supabaseClient.from("career_job_reports").update({resolved_at:new Date().toISOString()}).eq("id",id);if(r.error){alert("Could not resolve report.");return}renderCareerReports()};
+ window.setCareerTrust=async function(id,field,value){if(!(await admin()))return;var o={};o[field]=value;var r=await supabaseClient.from("career_jobs").update(o).eq("id",id);if(r.error){alert("Could not update listing.");return}renderCareerControlCenter();renderJobListings()};
+ window.renderCareerTrustActions=function(){};
+ window.addEventListener("load",function(){renderCareerReports()});
 })();
 </script>
 <script id="es-career-control-center">
