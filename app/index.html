@@ -2385,7 +2385,34 @@ body {
 .es-premium button,.es-premium .btn{min-height:48px}
 .es-premium section,.es-premium .card{border-radius:24px}
 @media(max-width:600px){.es-premium{padding-bottom:82px}.es-premium .container{padding-left:14px!important;padding-right:14px!important}}
-</style></head>
+</style>
+<style id="es-mobile-app-polish">
+/* Expert Sync mobile-first app shell polish */
+.es-premium #home,.es-premium #courses,.es-premium #practice,.es-premium #jobs,.es-premium #services,.es-premium #dashboard{scroll-margin-top:12px}
+@media(max-width:600px){
+  .es-premium{overflow-x:hidden}
+  .es-premium .container{width:100%!important;max-width:none!important;padding-left:14px!important;padding-right:14px!important}
+  .es-premium section{width:100%;max-width:100%;overflow:visible}
+  .es-premium .hero,.es-premium .main-hero,.es-premium .aviation-hero{border-radius:0 0 28px 28px!important}
+  .es-premium h1{line-height:1.08!important}
+  .es-premium h2{line-height:1.15!important}
+  .es-premium p{line-height:1.55}
+  .es-premium .practice-grid,.es-premium .services-grid,.es-premium .courses-grid,.es-premium .aviation-feature-grid{grid-template-columns:1fr!important}
+  .es-premium .practice-card,.es-premium .service-card,.es-premium .course-card,.es-premium .aviation-feature-card{min-width:0!important;width:100%!important}
+  .es-premium .service-actions,.es-premium .practice-actions,.es-premium .actions{display:grid!important;grid-template-columns:1fr!important;width:100%!important}
+  .es-premium .service-actions .btn,.es-premium .practice-card button,.es-premium .actions .btn{width:100%!important;min-width:0!important}
+  .es-premium .nav,.es-premium .navbar,.es-premium header nav{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .es-premium .nav a,.es-premium .navbar a,.es-premium header nav a{white-space:nowrap}
+  .es-premium .section-title{font-size:25px!important}
+  .es-premium .card{margin:12px 0!important}
+  .es-premium #es-bottom-nav{display:grid!important}
+  .es-premium .floating-btn{bottom:78px!important}
+}
+@media(min-width:601px){
+  .es-premium #es-bottom-nav{display:none!important}
+}
+</style>
+</head>
 
 <body class="es-premium"> 
   <!-- ================= STUDENT ACCOUNT GATE ================= -->
