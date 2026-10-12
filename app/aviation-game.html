@@ -434,6 +434,19 @@ padding:18px 15px!important;border-radius:22px!important;background:#081a24f8!im
   body.es-cockpit-drawer-open #cockpit{filter:brightness(.8)}
 }
 @media(min-width:701px){#es-cockpit-dock{display:none}}
+</style><style id="es-cockpit-essential-dock-v13">
+@media(max-width:700px){
+  #es-cockpit-dock{grid-template-columns:repeat(6,1fr)!important;overflow-x:auto!important;scrollbar-width:none!important}
+  #es-cockpit-dock::-webkit-scrollbar{display:none}
+  #es-cockpit-dock button{min-width:58px!important}
+  #es-cockpit-dock button.urgent{border-color:#9b625f!important;color:#ffd6d2!important}
+  #es-cockpit-dock button.urgent.active{background:#7b302c!important;border-color:#ff9b92!important;color:#fff!important}
+  #abnormal{transition:transform .18s ease,opacity .18s ease}
+  #abnormal.es-collapsed{transform:translateY(-8px);opacity:.72}
+  #abnormal.es-collapsed .es-emergency-content{display:none!important}
+  #abnormal .es-emergency-toggle{position:absolute;right:8px;top:7px;min-width:34px!important;min-height:30px!important;padding:4px 8px!important;border-radius:9px!important}
+  #abnormal .es-emergency-content{margin-top:5px}
+}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
@@ -2261,6 +2274,46 @@ function init(){
  });
  var obs=new MutationObserver(function(){dock.querySelectorAll("button").forEach(function(b){var p=document.getElementById(b.dataset.panel);b.classList.toggle("active",!!p&&p.classList.contains("mobile-panel-open"))})});
  panels.length&&obs.observe(document.body,{attributes:true,subtree:true,attributeFilter:["class"]});
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script><script id="es-cockpit-essential-dock-v13-controller">
+(function(){
+function init(){
+ if(innerWidth>700)return;
+ var dock=document.getElementById("es-cockpit-dock");if(!dock||dock.dataset.v13)return;dock.dataset.v13="1";
+ var emergency=document.getElementById("abnormal");
+ if(emergency&&!emergency.querySelector(".es-emergency-toggle")){
+   var toggle=document.createElement("button");toggle.type="button";toggle.className="es-emergency-toggle";toggle.textContent="−";toggle.setAttribute("aria-label","Collapse emergency training panel");
+   var content=document.createElement("div");content.className="es-emergency-content";
+   while(emergency.childNodes.length){var n=emergency.childNodes[0];if(n!==toggle)content.appendChild(n);}
+   emergency.appendChild(toggle);emergency.appendChild(content);
+   toggle.onclick=function(){
+     var collapsed=emergency.classList.toggle("es-collapsed");
+     toggle.textContent=collapsed?"+":"−";
+     toggle.setAttribute("aria-label",collapsed?"Expand emergency training panel":"Collapse emergency training panel");
+   };
+ }
+ var extras=[
+  ["atc","📡","ATC",false],
+  ["checklistPanel","📋","CHECK",false],
+  ["abnormal","🚨","EMERG",true]
+ ];
+ extras.forEach(function(item){
+   if(dock.querySelector('[data-panel="'+item[0]+'"]'))return;
+   var b=document.createElement("button");b.type="button";b.dataset.panel=item[0];b.innerHTML="<span>"+item[1]+"</span>"+item[2];if(item[3])b.classList.add("urgent");
+   dock.appendChild(b);
+ });
+ dock.querySelectorAll("button[data-panel]").forEach(function(b){
+   if(b.dataset.v13)return;b.dataset.v13="1";
+   b.addEventListener("click",function(){
+     var p=document.getElementById(b.dataset.panel);if(!p)return;
+     var open=p.classList.contains("mobile-panel-open");
+     document.querySelectorAll("#es-cockpit-dock button[data-panel]").forEach(function(x){x.classList.remove("active")});
+     document.querySelectorAll(".mobile-panel-open").forEach(function(x){if(x!==p)x.classList.remove("mobile-panel-open")});
+     if(!open){p.classList.add("mobile-panel-open");b.classList.add("active");}
+   });
+ });
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
