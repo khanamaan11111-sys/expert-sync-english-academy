@@ -2639,6 +2639,8 @@ body {
 .career-match-card .job-match-score{font-size:10px;font-weight:900;color:#063b91;background:#edf4fd;border-radius:999px;padding:6px 9px}.match-good{color:#146b3a!important;background:#eaf7ef!important}.match-mid{color:#765900!important;background:#fff5d6!important}.match-low{color:#8a3a3a!important;background:#fff0f0!important}.career-match-points{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}.career-match-points span{font-size:9px;padding:5px 7px;border:1px solid #dbe5f2;border-radius:8px;color:#536176;background:#fff}.career-match-tip{font-size:10px;color:#66758b;line-height:1.45;margin:7px 0 0}
 </style><style id="es-company-profile-css">.company-verified{color:#146b3a!important;background:#eaf7ef!important}.company-pending{color:#765900!important;background:#fff5d6!important}.company-suspended{color:#a32626!important;background:#fff0f0!important}</style><style id="es-public-company-css">
 .company-directory-item{cursor:pointer}.company-directory-item:hover{border-color:#b9cbe2}.company-public-hero{border:1px solid #dbe5f2;border-radius:14px;padding:14px;background:#f8fbff}.company-public-hero h4{margin:0;color:#063b91;font-size:18px}.company-public-hero p{margin:5px 0;color:#66758b;font-size:10px;line-height:1.5}.company-public-badge{display:inline-block;margin-top:7px;padding:5px 8px;border-radius:999px;background:#eaf7ef;color:#146b3a;font-size:9px;font-weight:900}.company-public-jobs{margin-top:12px}
+</style><style id="es-career-messaging-css">
+.career-message{padding:9px 11px;border-radius:12px;margin:6px 0;max-width:90%;font-size:10px;line-height:1.5}.career-message.mine{margin-left:auto;background:#eaf2fc;color:#17385f}.career-message.theirs{margin-right:auto;background:#f3f6fa;color:#35445a}.career-message small{display:block;margin-top:3px;opacity:.65;font-size:8px}.career-thread{border:1px solid #dbe5f2;border-radius:13px;padding:11px;background:#f8fbff;cursor:pointer}.career-thread b{display:block;color:#063b91;font-size:11px}.career-thread small{display:block;color:#66758b;font-size:9px;margin-top:3px}
 </style></head>
 
 <body class="es-premium"> 
@@ -5405,6 +5407,19 @@ body {
       <button class="jobs-submit" type="submit">💾 Save Career Profile</button>
       <p class="jobs-note">Only you and authorized Expert Sync administrators can access your profile through the database policies.</p>
     </form>
+  </div>
+
+  <div class="jobs-search-card" id="careerMessagesCard" style="margin-top:0">
+    <div class="jobs-search-title"><h3>💬 Career Messages</h3><span class="jobs-count" id="careerUnreadCount">0</span></div>
+    <p style="margin:0;color:#66758b;font-size:11px">Communicate with employers or candidates safely inside the application workflow.</p>
+    <div id="careerMessageThreads" class="jobs-list"></div>
+  </div>
+  <div id="careerMessageModal" class="jobs-modal" aria-hidden="true">
+    <div class="jobs-form" style="max-width:700px">
+      <div class="jobs-form-head"><div><div style="font-size:9px;font-weight:900;letter-spacing:1.5px;color:#66758b">APPLICATION MESSAGES</div><h3 id="careerMessageTitle">Conversation</h3></div><button class="jobs-close" type="button" onclick="closeCareerMessages()">×</button></div>
+      <div id="careerMessageList" style="max-height:360px;overflow:auto"></div>
+      <form onsubmit="sendCareerMessage(event)" style="margin-top:10px"><input id="careerMessageApplicationId" type="hidden"><input id="careerMessageRecipientId" type="hidden"><div class="jobs-field full"><label>MESSAGE</label><textarea id="careerMessageText" required maxlength="4000" placeholder="Write a professional message..."></textarea></div><button class="jobs-submit" type="submit">Send Message</button><p class="jobs-note">Never share passwords, OTPs, bank details, or other sensitive information.</p></form>
+    </div>
   </div>
 
   <div class="jobs-search-card" style="margin-top:0">
@@ -19040,6 +19055,42 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
  window.closePublicCompany=function(){var m=document.getElementById("careerCompanyPublicModal");if(m)m.classList.remove("open")};
  document.addEventListener("click",function(e){if(e.target.id==="careerCompanyPublicModal")closePublicCompany()});
  window.addEventListener("load",renderPublicCompanies);
+})();
+</script>
+<script id="es-career-messaging-controller">
+(function(){
+ function esc(x){return String(x||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]})}
+ async function cu(){return (await supabaseClient.auth.getUser()).data?.user||null}
+ window.openCareerMessages=async function(appId,title,recipientId){
+  var u=await cu();if(!u){alert("Please log in.");return}
+  var m=document.getElementById("careerMessageModal");if(!m)return;
+  document.getElementById("careerMessageApplicationId").value=appId;document.getElementById("careerMessageRecipientId").value=recipientId||"";
+  document.getElementById("careerMessageTitle").textContent=title||"Conversation";m.classList.add("open");m.setAttribute("aria-hidden","false");await renderCareerMessageList(appId,u.id);
+ };
+ window.closeCareerMessages=function(){var m=document.getElementById("careerMessageModal");if(m)m.classList.remove("open")};
+ window.renderCareerMessageList=async function(appId,uid){
+  var box=document.getElementById("careerMessageList");if(!box)return;
+  var r=await supabaseClient.from("career_messages").select("*").eq("application_id",appId).order("created_at",{ascending:true});
+  if(r.error){box.innerHTML='<div class="job-empty"><strong>Messaging unavailable</strong>Run the latest career-board SQL migration.</div>';return}
+  box.innerHTML=(r.data||[]).length?(r.data||[]).map(function(x){return '<div class="career-message '+(x.sender_id===uid?"mine":"theirs")+'">'+esc(x.message)+'<small>'+esc((x.created_at||"").replace("T"," ").slice(0,16))+'</small></div>'}).join(""):'<div class="job-empty"><strong>No messages yet</strong>Start a professional conversation.</div>';
+  await supabaseClient.from("career_messages").update({read_at:new Date().toISOString()}).eq("application_id",appId).eq("recipient_id",uid).is("read_at",null);
+ };
+ window.sendCareerMessage=async function(e){
+  e.preventDefault();var u=await cu();if(!u)return;var appId=document.getElementById("careerMessageApplicationId").value,recipient=document.getElementById("careerMessageRecipientId").value,msg=document.getElementById("careerMessageText").value.trim();
+  if(!recipient){alert("The conversation recipient could not be determined.");return}
+  var r=await supabaseClient.from("career_messages").insert({application_id:appId,sender_id:u.id,recipient_id:recipient,message:msg});if(r.error){alert("Message could not be sent.");return}
+  document.getElementById("careerMessageText").value="";await renderCareerMessageList(appId,u.id);renderCareerMessageThreads();
+ };
+ window.renderCareerMessageThreads=async function(){
+  var box=document.getElementById("careerMessageThreads");if(!box)return;var u=await cu();if(!u){box.innerHTML='<div class="job-empty"><strong>Log in to use messages</strong></div>';return}
+  var a=await supabaseClient.from("career_applications").select("id,job_id,applicant_id,career_jobs(title,company,submitted_by)").or("applicant_id.eq."+u.id+",career_jobs.submitted_by.eq."+u.id);
+  if(a.error){box.innerHTML='<div class="job-empty"><strong>Messages unavailable</strong>Run the latest career-board SQL migration.</div>';return}
+  var ids=(a.data||[]).map(x=>x.id);if(!ids.length){box.innerHTML='<div class="job-empty"><strong>No application conversations</strong>Messages become available after an application.</div>';return}
+  var mr=await supabaseClient.from("career_messages").select("application_id,recipient_id,sender_id,message,created_at,read_at").in("application_id",ids).order("created_at",{ascending:false});var latest={};(mr.data||[]).forEach(function(x){if(!latest[x.application_id])latest[x.application_id]=x});
+  var unread=(mr.data||[]).filter(x=>x.recipient_id===u.id&&!x.read_at).length;var n=document.getElementById("careerUnreadCount");if(n)n.textContent=unread;
+  box.innerHTML=(a.data||[]).filter(x=>latest[x.id]).map(function(x){var last=latest[x.id],recipient=x.applicant_id===u.id?x.career_jobs?.submitted_by:x.applicant_id;return '<div class="career-thread" onclick="openCareerMessages(\''+x.id+'\',\''+encodeURIComponent((x.career_jobs?.title||"Job")+' — '+(x.career_jobs?.company||""))+'\',\''+recipient+'\')"><b>'+esc(x.career_jobs?.title||"Job")+'</b><small>'+esc(x.career_jobs?.company||"")+' • '+esc(last.message)+'</small></div>'}).join("")||'<div class="job-empty"><strong>No messages yet</strong></div>';
+ };
+ document.addEventListener("click",function(e){if(e.target.id==="careerMessageModal")closeCareerMessages()});window.addEventListener("load",renderCareerMessageThreads);
 })();
 </script>
 <script id="es-career-match-controller">
