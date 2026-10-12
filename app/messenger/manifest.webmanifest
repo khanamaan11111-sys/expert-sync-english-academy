@@ -1,0 +1,18 @@
+{
+  "id": "/",
+  "name": "Expert Sync Messenger",
+  "short_name": "Expert Sync",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#091927",
+  "theme_color": "#091927",
+  "icons": [
+    {
+      "src": "/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
