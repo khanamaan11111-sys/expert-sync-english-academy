@@ -2635,6 +2635,8 @@ body {
 </style><style id="es-career-resume-css">
 .career-resume-paper{background:#fff;border:1px solid #dbe5f2;border-radius:10px;padding:28px;color:#172033;line-height:1.45}.career-resume-paper h1{margin:0;color:#063b91;font-size:26px}.career-resume-paper .resume-headline{font-weight:800;color:#536176;margin:4px 0 8px}.career-resume-paper .resume-contact{font-size:10px;color:#66758b;border-bottom:2px solid #063b91;padding-bottom:12px}.career-resume-paper h4{margin:16px 0 5px;color:#063b91;font-size:11px;letter-spacing:1px;text-transform:uppercase}.career-resume-paper p{margin:3px 0;font-size:11px;white-space:pre-line}.career-resume-paper .resume-empty{color:#8a3a3a;background:#fff5f5;border:1px solid #f0cccc;padding:9px;border-radius:8px;font-size:10px}
 @media print{body>*{display:none!important}#careerResumePrintRoot{display:block!important}.career-resume-paper{border:0!important;border-radius:0!important;box-shadow:none!important}}
+</style><style id="es-career-match-css">
+.career-match-card .job-match-score{font-size:10px;font-weight:900;color:#063b91;background:#edf4fd;border-radius:999px;padding:6px 9px}.match-good{color:#146b3a!important;background:#eaf7ef!important}.match-mid{color:#765900!important;background:#fff5d6!important}.match-low{color:#8a3a3a!important;background:#fff0f0!important}.career-match-points{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}.career-match-points span{font-size:9px;padding:5px 7px;border:1px solid #dbe5f2;border-radius:8px;color:#536176;background:#fff}.career-match-tip{font-size:10px;color:#66758b;line-height:1.45;margin:7px 0 0}
 </style></head>
 
 <body class="es-premium"> 
@@ -5401,6 +5403,13 @@ body {
       <button class="jobs-submit" type="submit">💾 Save Career Profile</button>
       <p class="jobs-note">Only you and authorized Expert Sync administrators can access your profile through the database policies.</p>
     </form>
+  </div>
+
+  <div class="jobs-search-card career-match-card" style="margin-top:0">
+    <div class="jobs-search-title"><h3>🎯 Career Match</h3><span class="jobs-count" id="careerMatchScore">—</span></div>
+    <p style="margin:0;color:#66758b;font-size:11px;line-height:1.5">See which approved jobs best match your Career Profile and what to improve before applying.</p>
+    <button class="jobs-submit" type="button" onclick="runCareerMatch()">Find My Best Matches</button>
+    <div id="careerMatchResults" class="jobs-list"></div>
   </div>
 
   <div class="jobs-search-card" style="margin-top:0">
@@ -18972,7 +18981,35 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   window.addEventListener("load",renderMyApplications);
 })();
 </script>
-<script id="es-career-resume-controller">
+<script id="es-career-match-controller">
+(function(){
+ function esc(x){return String(x||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]})}
+ function tokens(x){return String(x||"").toLowerCase().split(/[^a-z0-9+#.]+/).filter(function(v){return v.length>2})}
+ function score(p,j){
+  var profile=tokens([p.headline,p.summary,p.skills,p.experience,p.education,p.languages].join(" ")),job=tokens([j.title,j.category,j.description].join(" ")),set=new Set(profile),hits=job.filter(function(t){return set.has(t)}),unique=[...new Set(hits)],cat=(p.headline||"").toLowerCase().includes(String(j.category||"").toLowerCase())?15:0;
+  var base=Math.min(70,unique.length*8)+cat;
+  if((p.city||"").toLowerCase() && (j.location||"").toLowerCase().includes(p.city.toLowerCase()))base+=10;
+  if(p.experience)base+=5;if(p.skills)base+=5;
+  return Math.min(98,Math.max(0,base));
+ }
+ window.runCareerMatch=async function(){
+  var box=document.getElementById("careerMatchResults"),badge=document.getElementById("careerMatchScore");if(!box)return;
+  var u=(await supabaseClient.auth.getUser()).data?.user;if(!u){box.innerHTML='<div class="job-empty"><strong>Log in to use Career Match</strong>Create your profile and sign in to continue.</div>';return}
+  var pr=await supabaseClient.from("career_profiles").select("*").eq("user_id",u.id).maybeSingle();
+  if(!pr.data){box.innerHTML='<div class="job-empty"><strong>Create your Career Profile first</strong>Your profile powers the job-match recommendations.</div>';return}
+  var jr=await supabaseClient.from("career_jobs").select("*").eq("status","approved").eq("is_suspended",false).order("created_at",{ascending:false}).limit(50);
+  if(jr.error){box.innerHTML='<div class="job-empty"><strong>Could not load jobs</strong>Please try again later.</div>';return}
+  var ranked=(jr.data||[]).filter(function(j){return !j.expires_at||new Date(j.expires_at)>new Date()}).map(function(j){return {j:j,s:score(pr.data,j)}}).sort(function(a,b){return b.s-a.s}).slice(0,5);
+  if(!ranked.length){box.innerHTML='<div class="job-empty"><strong>No approved jobs yet</strong>Check back when new opportunities are published.</div>';if(badge)badge.textContent="—";return}
+  if(badge)badge.textContent=ranked[0].s+"% top match";
+  box.innerHTML=ranked.map(function(x){
+   var cls=x.s>=75?"match-good":x.s>=50?"match-mid":"match-low";
+   return '<article class="job-item"><div class="job-top"><div><h4 class="job-title">'+esc(x.j.title)+'</h4><p class="job-company">'+esc(x.j.company)+' • '+esc(x.j.location)+'</p></div><span class="job-match-score '+cls+'">'+x.s+'% MATCH</span></div><div class="career-match-points"><span>'+esc(x.j.category)+'</span><span>'+esc(x.j.job_type)+'</span></div><p class="career-match-tip">'+(x.s>=75?"Strong alignment. Review the job requirements before applying.":x.s>=50?"Good potential match. Consider strengthening the skills highlighted in the vacancy.":"Lower match. Review the vacancy requirements and improve relevant profile skills before applying.")+'</p><button class="job-btn apply" type="button" onclick="document.getElementById("jobSearchInput").value='+JSON.stringify(x.j.title)+';renderJobListings();document.getElementById("jobSearchInput").scrollIntoView({behavior:"smooth",block:"center"})">View Job</button></article>';
+  }).join("");
+ };
+ window.addEventListener("load",function(){});
+})();
+</script><script id="es-career-resume-controller">
 (function(){
  function esc(x){return String(x||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]})}
  async function getProfile(){var u=(await supabaseClient.auth.getUser()).data?.user;if(!u)return null;var r=await supabaseClient.from("career_profiles").select("*").eq("user_id",u.id).maybeSingle();return r.data||null}
