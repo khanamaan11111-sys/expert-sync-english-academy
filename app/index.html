@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head><link rel="stylesheet" href="design-system.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#063b91">
@@ -2377,9 +2377,17 @@ body {
 }
 </style>
 
-<script>if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(console.error)); }</script>\n<script src="app-shell.js"></script><script src="learning-context.js"></script></head>
+<script>if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(console.error)); }</script>\n<script src="app-shell.js"></script><script src="learning-context.js"></script><style>
+.es-premium{scroll-behavior:smooth}
+.es-premium .container,.es-premium main{max-width:1180px}
+.es-premium header,.es-premium .hero{box-shadow:0 18px 45px rgba(6,27,61,.12)}
+.es-premium button,.es-premium .btn,.es-premium input,.es-premium select,.es-premium textarea{border-radius:14px}
+.es-premium button,.es-premium .btn{min-height:48px}
+.es-premium section,.es-premium .card{border-radius:24px}
+@media(max-width:600px){.es-premium{padding-bottom:82px}.es-premium .container{padding-left:14px!important;padding-right:14px!important}}
+</style></head>
 
-<body> 
+<body class="es-premium"> 
   <!-- ================= STUDENT ACCOUNT GATE ================= -->
 
 <div id="studentAccountGate" class="student-account-gate">
@@ -18304,5 +18312,5 @@ if (studentLogoutButton) {
 }
 </script>
 
-<div style="position:fixed;right:14px;bottom:14px;z-index:9999"><a href="launch-hub.html" style="display:block;background:#d6a900;color:#111;text-decoration:none;font-weight:900;padding:12px 16px;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.18)">🚀 Open Student Launch Hub</a></div></body>
+<div style="position:fixed;right:14px;bottom:14px;z-index:9999"><a href="launch-hub.html" style="display:block;background:#d6a900;color:#111;text-decoration:none;font-weight:900;padding:12px 16px;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.18)">🚀 Open Student Launch Hub</a></div><script src="premium-nav.js"></script></body>
 </html>
