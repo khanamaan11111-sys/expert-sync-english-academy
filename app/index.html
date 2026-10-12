@@ -18721,5 +18721,65 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   else {renderJobListings();renderJobAdmin();}
 })();
 </script>
+<script id="es-career-cloud-sync">
+(function(){
+  const table="career_jobs";
+  function cloudReady(){return typeof supabaseClient!=="undefined"&&supabaseClient&&supabaseClient.from}
+  function currentUser(){return supabaseClient.auth.getUser().then(r=>r.data?.user||null).catch(()=>null)}
+  function mapJob(j){return {id:j.id,title:j.title,company:j.company,location:j.location,type:j.job_type,category:j.category,salary:j.salary||"Not specified",apply:j.apply_to,description:j.description,posted:(j.created_at||"").slice(0,10),status:j.status,submitted_by:j.submitted_by,reviewedAt:j.reviewed_at}}
+  window.renderJobListings=async function(){
+    const list=document.getElementById("jobListings"),count=document.getElementById("jobResultCount");if(!list)return;
+    if(!cloudReady()){return}
+    const q=(document.getElementById("jobSearchInput")?.value||"").trim().toLowerCase(),type=document.getElementById("jobTypeFilter")?.value||"",category=document.getElementById("jobCategoryFilter")?.value||"";
+    const {data,error}=await supabaseClient.from(table).select("*").eq("status","approved").order("created_at",{ascending:false});
+    if(error){list.innerHTML='<div class="job-empty"><strong>Career board is temporarily unavailable</strong>Please try again shortly.</div>';if(count)count.textContent="0 jobs";return}
+    const jobs=(data||[]).map(mapJob).filter(j=>{const hay=[j.title,j.company,j.location,j.type,j.category,j.salary,j.description].join(" ").toLowerCase();return (!q||hay.includes(q))&&(!type||j.type===type)&&(!category||j.category===category)});
+    if(count)count.textContent=jobs.length+" "+(jobs.length===1?"job":"jobs");
+    if(!jobs.length){list.innerHTML='<div class="job-empty"><strong>No matching jobs found</strong>Try another keyword, location or filter.</div>';return}
+    list.innerHTML=jobs.map(j=>{
+      let apply='<button class="job-btn apply" type="button" onclick="alert(\'Application contact is not available. Please verify the employer before applying.\')">Apply / Contact</button>';
+      if(/^https?:\/\//i.test(j.apply||""))apply='<a class="job-btn apply" href="'+escapeHtml(j.apply)+'" target="_blank" rel="noopener noreferrer">Apply Now ↗</a>';
+      else if(j.apply)apply='<a class="job-btn apply" href="mailto:'+encodeURIComponent(j.apply)+'">Apply by Email</a>';
+      return '<article class="job-item"><div class="job-top"><div><h4 class="job-title">'+escapeHtml(j.title)+'</h4><p class="job-company">'+escapeHtml(j.company)+'</p></div><span class="job-badge">VERIFIED</span></div><div class="job-meta"><span>📍 '+escapeHtml(j.location)+'</span><span>🕐 '+escapeHtml(j.type)+'</span><span>🏷️ '+escapeHtml(j.category)+'</span><span>💰 '+escapeHtml(j.salary)+'</span></div><p class="job-desc">'+escapeHtml(j.description)+'</p><div class="job-actions">'+apply+'<button class="job-btn" type="button" onclick="shareJobPost(\''+encodeURIComponent(j.title+" — "+j.company+" | "+j.location+" | "+j.type)+'\')">↗ Share</button></div></article>';
+    }).join("");
+  };
+  window.submitJobPost=async function(e){
+    e.preventDefault();
+    if(!cloudReady()){alert("Career service is not connected.");return}
+    const user=await currentUser();
+    if(!user){alert("Please log in to submit a job.");return}
+    const get=id=>document.getElementById(id)?.value.trim()||"";
+    const payload={title:get("postJobTitle"),company:get("postJobCompany"),location:get("postJobLocation"),job_type:get("postJobType"),category:get("postJobCategory"),salary:get("postJobSalary")||"Not specified",apply_to:get("postJobApply"),description:get("postJobDescription"),submitted_by:user.id,submitter_email:user.email||null,status:"pending"};
+    const {error}=await supabaseClient.from(table).insert(payload);
+    if(error){alert("Job could not be submitted: "+error.message);return}
+    document.getElementById("jobPostForm").reset();closeJobPostForm();alert("Job submitted successfully. It is now pending Expert Sync review.");renderMyCloudSubmissions();
+  };
+  window.renderMyCloudSubmissions=async function(){
+    const box=document.getElementById("myJobSubmissions"),count=document.getElementById("myJobCount");if(!box||!cloudReady())return;
+    const user=await currentUser();if(!user){box.innerHTML='<div class="job-empty"><strong>Log in to see your submissions</strong>Your job submissions are tied to your account.</div>';if(count)count.textContent="0";return}
+    const {data,error}=await supabaseClient.from(table).select("*").eq("submitted_by",user.id).order("created_at",{ascending:false}).limit(20);
+    if(error){box.innerHTML='<div class="job-empty"><strong>Could not load submissions</strong>Please try again.</div>';return}
+    if(count)count.textContent=(data||[]).length;
+    box.innerHTML=(data||[]).length?(data||[]).map(j=>'<article class="job-item"><div class="job-top"><div><h4 class="job-title">'+escapeHtml(j.title)+'</h4><p class="job-company">'+escapeHtml(j.company)+'</p></div><span class="job-status '+(j.status==="pending"?"pending":j.status==="rejected"?"rejected":"approved")+'">'+j.status.toUpperCase()+'</span></div><div class="job-meta"><span>📍 '+escapeHtml(j.location)+'</span><span>🏷️ '+escapeHtml(j.category)+'</span></div><p class="job-desc">Submitted '+escapeHtml((j.created_at||"").slice(0,10))+(j.reviewed_at?" • Reviewed "+escapeHtml(j.reviewed_at.slice(0,10)):"")+'</p></article>').join(""):'<div class="job-empty"><strong>No submitted jobs</strong>Your submissions will appear here with their moderation status.</div>';
+  };
+  window.renderJobAdmin=async function(){
+    const box=document.getElementById("jobAdminList"),count=document.getElementById("jobPendingCount");if(!box||!cloudReady())return;
+    const user=await currentUser();
+    if(!user||user.app_metadata?.role!=="admin"){if(count)count.textContent="";box.innerHTML='<div class="job-empty"><strong>Admin access required</strong>Sign in with an approved Expert Sync administrator account.</div>';return}
+    const {data,error}=await supabaseClient.from(table).select("*").eq("status","pending").order("created_at",{ascending:true});
+    if(error){box.innerHTML='<div class="job-empty"><strong>Could not load submissions</strong>'+escapeHtml(error.message)+'</div>';return}
+    if(count)count.textContent=(data||[]).length+" pending";
+    box.innerHTML=(data||[]).length?(data||[]).map(j=>'<article class="job-admin-item"><div><b>'+escapeHtml(j.title)+'</b><small>'+escapeHtml(j.company)+' • '+escapeHtml(j.location)+' • '+escapeHtml(j.category)+'</small><p>'+escapeHtml(j.description)+'</p><small>Apply: '+escapeHtml(j.apply_to)+'</small><small>Submitted by: '+escapeHtml(j.submitter_email||"Account user")+'</small></div><div class="job-admin-actions"><button type="button" onclick="moderateCloudJob(\''+j.id+'\',\'approved\')">✓ Approve</button><button type="button" class="reject" onclick="moderateCloudJob(\''+j.id+'\',\'rejected\')">× Reject</button></div></article>').join(""):'<div class="job-empty"><strong>No pending submissions</strong>New employer submissions will appear here.</div>';
+  };
+  window.moderateCloudJob=async function(id,status){
+    const user=await currentUser();if(!user||user.app_metadata?.role!=="admin"){alert("Admin access required.");return}
+    const {error}=await supabaseClient.from(table).update({status:status,reviewed_at:new Date().toISOString()}).eq("id",id);
+    if(error){alert("Could not update job: "+error.message);return}
+    renderJobAdmin();renderJobListings();
+  };
+  window.openJobAdmin=async function(){const p=document.getElementById("jobAdminPanel");if(p){p.classList.add("open");renderJobAdmin()}};
+  window.addEventListener("load",function(){renderJobListings();renderMyCloudSubmissions();});
+})();
+</script>
 </body>
 </html>
