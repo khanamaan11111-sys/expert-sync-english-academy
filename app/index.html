@@ -5443,7 +5443,7 @@ body {
 </div>
 
 <div id="jobApplyModal" class="jobs-modal" aria-hidden="true">
-  <form class="jobs-form" id="jobApplyForm" onsubmit="submitCareerApplication(event)">
+  <form class="jobs-form" id="jobApplyForm" onsubmit="submitCareerApplication(event)"><div id="careerApplyProfileNotice" class="job-empty" style="margin-bottom:10px"></div>
     <div class="jobs-form-head">
       <div><div style="font-size:9px;font-weight:900;letter-spacing:1.5px;color:#66758b">JOB APPLICATION</div><h3 id="jobApplyTitle">Apply for Job</h3></div>
       <button class="jobs-close" type="button" onclick="closeCareerApplication()">×</button>
@@ -18909,7 +18909,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   const box=document.getElementById("employerApplicantList");box.innerHTML='<div class="job-empty">Loading applications…</div>';
   const u=await getUser();if(!u){box.innerHTML='<div class="job-empty"><strong>Login required</strong></div>';return}
   const {data:job}=await supabaseClient.from("career_jobs").select("id").eq("id",jobId).eq("submitted_by",u.id).maybeSingle();if(!job){box.innerHTML='<div class="job-empty"><strong>Access denied</strong></div>';return}
-  const {data,error}=await supabaseClient.from("career_applications").select("*").eq("job_id",jobId).order("created_at",{ascending:false});
+  const {data,error}=await supabaseClient.from("career_applications").select("*,career_profiles(full_name,headline,city,skills,education,experience,resume_link)").eq("job_id",jobId).order("created_at",{ascending:false});
   if(error){box.innerHTML='<div class="job-empty"><strong>Could not load applicants</strong>'+escapeHtml(error.message)+'</div>';return}
   if(!(data||[]).length){box.innerHTML='<div class="job-empty"><strong>No applications yet</strong>Applicants will appear here when students apply.</div>';return}
   box.innerHTML=data.map(a=>'<article class="applicant-item"><div class="applicant-head"><div><h4 class="applicant-name">'+escapeHtml(a.applicant_name||"Applicant")+'</h4><p class="applicant-meta">'+escapeHtml(a.applicant_email||"No email")+' • Applied '+escapeHtml((a.created_at||"").slice(0,10))+'</p></div><span class="job-status '+(a.status==="rejected"?"rejected":a.status==="shortlisted"?"approved":"pending")+'">'+escapeHtml((a.status||"submitted").toUpperCase())+'</span></div><p class="applicant-message">'+escapeHtml(a.message)+'</p>'+(a.resume_link?'<a href="'+escapeHtml(a.resume_link)+'" target="_blank" rel="noopener noreferrer" class="job-btn apply">📄 View Resume / CV ↗</a>':'<small class="applicant-meta">No resume link provided.</small>')+'<div class="applicant-actions"><select onchange="updateApplicationStatus(\''+a.id+'\',this.value)"><option value="submitted" '+(a.status==="submitted"?"selected":"")+'>Submitted</option><option value="shortlisted" '+(a.status==="shortlisted"?"selected":"")+'>Shortlisted</option><option value="rejected" '+(a.status==="rejected"?"selected":"")+'>Rejected</option><option value="hired" '+(a.status==="hired"?"selected":"")+'>Hired</option></select><a href="mailto:'+encodeURIComponent(a.applicant_email||"")+'">✉ Contact</a></div></article>').join("");
@@ -18935,6 +18935,9 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   async function user(){return (await supabaseClient.auth.getUser()).data?.user||null}
   window.openCareerApplication=async function(id,title){
     const u=await user();if(!u){alert("Please log in to apply for a job.");return}
+    const pr=await supabaseClient.from("career_profiles").select("*").eq("user_id",u.id).maybeSingle();
+    const notice=document.getElementById("careerApplyProfileNotice");
+    if(notice) notice.innerHTML=pr.data?'<strong>✓ Profile ready</strong>Your saved profile will be used for this application.':'<strong>Complete your Career Profile first</strong>Save your professional profile before applying.';
     document.getElementById("applyJobId").value=id;
     document.getElementById("jobApplyTitle").textContent="Apply: "+decodeURIComponent(title);
     const m=document.getElementById("jobApplyModal");m.classList.add("open");m.setAttribute("aria-hidden","false");
@@ -18943,7 +18946,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   window.submitCareerApplication=async function(e){
     e.preventDefault();
     const u=await user();if(!u){alert("Please log in first.");return}
-    const payload={job_id:document.getElementById("applyJobId").value,applicant_id:u.id,applicant_name:u.user_metadata?.full_name||"Student",applicant_email:u.email||null,message:document.getElementById("applyMessage").value.trim(),resume_link:document.getElementById("applyResumeLink").value.trim()||null};
+    const pr=await supabaseClient.from("career_profiles").select("*").eq("user_id",u.id).maybeSingle(); if(!pr.data){alert("Please complete your Career Profile before applying.");return} const payload={job_id:document.getElementById("applyJobId").value,applicant_id:u.id,applicant_name:pr.data.full_name||u.user_metadata?.full_name||"Student",applicant_email:u.email||null,message:document.getElementById("applyMessage").value.trim(),resume_link:document.getElementById("applyResumeLink").value.trim()||pr.data.resume_link||null};
     const {error}=await supabaseClient.from("career_applications").insert(payload);
     if(error){alert(error.code==="23505"?"You have already applied for this job.":("Application could not be submitted: "+error.message));return}
     document.getElementById("jobApplyForm").reset();closeCareerApplication();renderMyApplications();alert("Application submitted successfully.");
