@@ -301,6 +301,23 @@ margin:0!important;
   #cockpit #mixtureBtn{min-height:46px}
   #cockpit #lever{touch-action:none}
 }
+</style><style id="es-flight-hud-v5">
+@media(max-width:700px){
+#hud{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;padding:6px!important;background:#06131ce8!important;border:1px solid #315361!important;border-radius:14px!important;backdrop-filter:blur(8px)!important}
+#hud .read{min-height:48px!important;padding:6px 3px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:1px!important}
+#hud .read b{font-size:6px!important;letter-spacing:.6px!important;color:#8fb4c0!important}
+#hud .read strong{font-size:15px!important;line-height:1!important;color:#fff!important;font-variant-numeric:tabular-nums}
+#hud .read small{font-size:5px!important;color:#74d9f4!important}
+#hud .read:nth-child(1) strong{color:#8fdcff!important}
+#hud .read:nth-child(2) strong{color:#fff!important}
+#hud .read:nth-child(3) strong{color:#54e6a6!important}
+#hud .read:nth-child(4) strong{color:#f4d35e!important}
+#hud .read:nth-child(5) strong,#hud .read:nth-child(6) strong{color:#dceff4!important}
+#warning{left:50%!important;right:auto!important;top:15%!important;bottom:auto!important;transform:translateX(-50%)!important;width:max-content!important;max-width:88vw!important;padding:9px 12px!important;border-radius:12px!important;font-size:9px!important;z-index:210!important}
+#stageHint,#nextAction{left:50%!important;right:10px!important;width:auto!important;max-width:calc(100% - 20px)!important;transform:translateX(-50%)!important;text-align:center!important}
+#stageHint{top:21%!important}#nextAction{top:28%!important}
+#toast{left:50%!important;right:auto!important;bottom:73px!important;transform:translateX(-50%)!important;max-width:88vw!important;text-align:center!important;z-index:220!important}
+}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
