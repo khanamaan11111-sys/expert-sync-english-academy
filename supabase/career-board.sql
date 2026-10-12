@@ -310,3 +310,46 @@ drop policy if exists career_messages_update on public.career_messages;
 create policy career_messages_update on public.career_messages for update to authenticated
 using (recipient_id=auth.uid() or public.is_career_admin())
 with check (recipient_id=auth.uid() or public.is_career_admin());
+
+
+-- ================= INTERVIEW MANAGEMENT =================
+create table if not exists public.career_interviews (
+  id uuid primary key default gen_random_uuid(),
+  application_id uuid not null references public.career_applications(id) on delete cascade,
+  organizer_id uuid not null references auth.users(id) on delete cascade,
+  candidate_id uuid not null references auth.users(id) on delete cascade,
+  scheduled_at timestamptz not null,
+  duration_minutes integer not null default 30 check (duration_minutes between 15 and 180),
+  mode text not null default 'online' check (mode in ('online','phone','in_person')),
+  meeting_link text,
+  location text,
+  notes text,
+  status text not null default 'proposed' check (status in ('proposed','confirmed','declined','cancelled','completed')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists career_interviews_candidate_idx on public.career_interviews(candidate_id,scheduled_at);
+create index if not exists career_interviews_organizer_idx on public.career_interviews(organizer_id,scheduled_at);
+alter table public.career_interviews enable row level security;
+
+drop policy if exists career_interviews_read on public.career_interviews;
+create policy career_interviews_read on public.career_interviews for select to authenticated
+using (candidate_id=auth.uid() or organizer_id=auth.uid() or public.is_career_admin());
+
+drop policy if exists career_interviews_insert on public.career_interviews;
+create policy career_interviews_insert on public.career_interviews for insert to authenticated
+with check (
+ organizer_id=auth.uid()
+ and exists (
+   select 1 from public.career_applications a
+   join public.career_jobs j on j.id=a.job_id
+   where a.id=career_interviews.application_id
+     and a.applicant_id=career_interviews.candidate_id
+     and j.submitted_by=auth.uid()
+ )
+);
+
+drop policy if exists career_interviews_update on public.career_interviews;
+create policy career_interviews_update on public.career_interviews for update to authenticated
+using (candidate_id=auth.uid() or organizer_id=auth.uid() or public.is_career_admin())
+with check (candidate_id=auth.uid() or organizer_id=auth.uid() or public.is_career_admin());
