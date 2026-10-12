@@ -2645,7 +2645,16 @@ body {
 .career-analytics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}.career-stat{border:1px solid #dbe5f2;border-radius:12px;padding:10px;background:#f8fbff;text-align:center}.career-stat b{display:block;color:#063b91;font-size:18px}.career-stat span{display:block;color:#66758b;font-size:8px;font-weight:800;margin-top:3px}.career-funnel{margin-top:9px;border:1px solid #dbe5f2;border-radius:12px;padding:10px}.career-funnel div{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #edf1f6;font-size:9px;color:#66758b}.career-funnel div:last-child{border-bottom:0}.career-funnel b{color:#063b91}@media(max-width:600px){.career-analytics-grid{grid-template-columns:repeat(2,1fr)}}
 </style><style id="es-career-ats-css">
 .ats-card{border:1px solid #dbe5f2;border-radius:14px;padding:11px;background:#f8fbff}.ats-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.ats-top h4{margin:0;color:#063b91;font-size:12px}.ats-company{font-size:9px;color:#66758b;margin-top:3px}.ats-status{font-size:8px;font-weight:900;padding:5px 7px;border-radius:999px;background:#edf4fd;color:#063b91}.ats-status.success{background:#eaf7ef;color:#146b3a}.ats-status.warn{background:#fff5d6;color:#765900}.ats-status.fail{background:#fff0f0;color:#a32626}.ats-progress{display:flex;gap:3px;margin-top:12px}.ats-step{flex:1;height:5px;border-radius:9px;background:#e4eaf2}.ats-step.done{background:#063b91}.ats-labels{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-top:5px}.ats-labels span{font-size:7px;color:#66758b;text-align:center;line-height:1.2}.ats-actions{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}.ats-actions button{border:1px solid #d4dfed;background:#fff;color:#063b91;border-radius:8px;padding:7px 9px;font-size:8px;font-weight:900}
-</style><style>.career-activity-line{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid #edf1f6}.career-activity-dot{width:8px;height:8px;border-radius:50%;background:#063b91;margin-top:4px;flex:none}.career-activity-line b{display:block;color:#063b91;font-size:10px}.career-activity-line small{display:block;color:#66758b;font-size:8px;margin-top:2px}.career-activity-line p{margin:3px 0;font-size:9px;color:#4b5870}</style><style id="es-career-status-notifications-css">.career-notification{border:1px solid #dbe5f2;border-radius:13px;padding:11px;background:#f8fbff;cursor:pointer}.career-notification.unread{border-left:3px solid #063b91}.career-notification b{display:block;color:#063b91;font-size:11px}.career-notification p{margin:4px 0;color:#536176;font-size:9px;line-height:1.45}.career-notification small{color:#8793a5;font-size:8px}</style><style id="course-messenger-link-css">@media(max-width:600px){#quick-course-messenger{bottom:8px;left:8px;right:8px}#quick-course-messenger .btn{border-radius:11px;box-shadow:0 4px 14px rgba(0,0,0,.14)}}</style></head>
+</style><style>.career-activity-line{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid #edf1f6}.career-activity-dot{width:8px;height:8px;border-radius:50%;background:#063b91;margin-top:4px;flex:none}.career-activity-line b{display:block;color:#063b91;font-size:10px}.career-activity-line small{display:block;color:#66758b;font-size:8px;margin-top:2px}.career-activity-line p{margin:3px 0;font-size:9px;color:#4b5870}</style><style id="es-career-status-notifications-css">.career-notification{border:1px solid #dbe5f2;border-radius:13px;padding:11px;background:#f8fbff;cursor:pointer}.career-notification.unread{border-left:3px solid #063b91}.career-notification b{display:block;color:#063b91;font-size:11px}.career-notification p{margin:4px 0;color:#536176;font-size:9px;line-height:1.45}.career-notification small{color:#8793a5;font-size:8px}</style><style id="course-messenger-link-css">@media(max-width:600px){#quick-course-messenger{bottom:8px;left:8px;right:8px}#quick-course-messenger .btn{border-radius:11px;box-shadow:0 4px 14px rgba(0,0,0,.14)}}</style><style id="es-course-messenger-final-css">
+#es-main-tools{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:6000;display:flex;gap:8px;width:min(680px,calc(100% - 20px));padding:7px;border-radius:16px;background:rgba(255,255,255,.96);box-shadow:0 8px 28px rgba(0,0,0,.16);border:1px solid #dbe5f2}
+#es-main-tools button,#es-main-tools a{flex:1;border:0;border-radius:10px;padding:10px 8px;background:#063b91;color:#fff;text-align:center;text-decoration:none;font-size:11px;font-weight:800;cursor:pointer}
+#es-main-tools a{background:#168a45}
+#es-courses-panel{display:none;position:fixed;inset:0;z-index:6500;background:rgba(3,20,45,.62);padding:20px;align-items:center;justify-content:center}
+#es-courses-panel.open{display:flex}
+.es-courses-box{position:relative;width:min(620px,100%);background:#fff;border-radius:20px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.es-courses-close{position:absolute;right:12px;top:12px;width:34px;height:34px;border-radius:50%;border:0;background:#eef3fa;color:#063b91;font-size:22px;cursor:pointer}
+.es-courses-eyebrow{font-size:9px;letter-spacing:1.5px;font-weight:900;color:#66758b}.es-courses-box h2{color:#063b91;margin:6px 0}.es-courses-box p{color:#66758b;margin-bottom:16px}.es-course-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.es-course-grid div{padding:14px;border:1px solid #dbe5f2;border-radius:13px;background:#f8fbff}.es-course-grid b{display:block;color:#063b91;font-size:11px}.es-course-grid span{display:block;color:#66758b;font-size:9px;margin-top:4px}@media(max-width:600px){#es-main-tools{bottom:8px;width:calc(100% - 16px)}.es-course-grid{grid-template-columns:1fr}.es-courses-box{padding:20px}}
+</style></head>
 
 <body class="es-premium"> 
   <!-- ================= STUDENT ACCOUNT GATE ================= -->
@@ -19266,7 +19275,29 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   </div>
  </div>
 </section>
-</body></html>');w.document.close();w.focus();setTimeout(function(){w.print()},250)
+<div id="es-main-tools" aria-label="Expert Sync quick access">
+  <button type="button" onclick="openExpertSyncCourses()">📚 Courses</button>
+  <a href="https://khanamaan11111-sys.github.io/expert-sync-messenger/" target="_blank" rel="noopener noreferrer">💬 Expert Sync Messenger</a>
+</div>
+<div id="es-courses-panel" aria-hidden="true">
+ <div class="es-courses-box">
+  <button class="es-courses-close" type="button" onclick="closeExpertSyncCourses()">×</button>
+  <div class="es-courses-eyebrow">EXPERT SYNC ENGLISH ACADEMY</div>
+  <h2>📚 Courses</h2>
+  <p>Choose the learning path that matches your goals.</p>
+  <div class="es-course-grid">
+   <div><b>🗣️ Spoken English</b><span>Everyday communication & confidence</span></div>
+   <div><b>💼 Interview English</b><span>Professional interview preparation</span></div>
+   <div><b>✈️ Aviation English</b><span>Aviation communication skills</span></div>
+   <div><b>🎧 Customer Service English</b><span>Professional customer communication</span></div>
+  </div>
+ </div>
+</div>
+<script id="es-course-messenger-controller">
+window.openExpertSyncCourses=function(){var p=document.getElementById("es-courses-panel");if(p){p.classList.add("open");p.setAttribute("aria-hidden","false")}};
+window.closeExpertSyncCourses=function(){var p=document.getElementById("es-courses-panel");if(p){p.classList.remove("open");p.setAttribute("aria-hidden","true")}};
+document.addEventListener("click",function(e){if(e.target&&e.target.id==="es-courses-panel")closeExpertSyncCourses()});
+</script></body></html>');w.document.close();w.focus();setTimeout(function(){w.print()},250)
  };
  document.addEventListener("click",function(e){if(e.target.id==="careerResumeModal")closeCareerResume()});
 })();
