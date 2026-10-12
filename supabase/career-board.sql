@@ -247,3 +247,23 @@ with check (owner_id=auth.uid() or public.is_career_admin());
 
 alter table public.career_jobs add column if not exists company_owner_id uuid references public.career_company_profiles(owner_id) on delete set null;
 create index if not exists career_jobs_company_owner_idx on public.career_jobs(company_owner_id);
+
+
+-- Require a verified company for new public career submissions.
+drop policy if exists career_insert on public.career_jobs;
+create policy career_insert on public.career_jobs
+for insert to authenticated
+with check (
+  submitted_by = auth.uid()
+  and exists (
+    select 1 from public.career_company_profiles cp
+    where cp.owner_id = auth.uid()
+      and cp.verification_status = 'verified'
+  )
+);
+
+drop policy if exists company_profile_admin_update on public.career_company_profiles;
+create policy company_profile_admin_update on public.career_company_profiles
+for update to authenticated
+using (owner_id=auth.uid() or public.is_career_admin())
+with check (owner_id=auth.uid() or public.is_career_admin());
