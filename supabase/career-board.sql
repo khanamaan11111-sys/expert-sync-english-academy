@@ -157,3 +157,40 @@ create policy career_profiles_update on public.career_profiles
 for update to authenticated
 using (user_id = auth.uid() or public.is_career_admin())
 with check (user_id = auth.uid() or public.is_career_admin());
+
+
+-- ================= SAVED JOBS & JOB ALERTS =================
+create table if not exists public.career_saved_jobs (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  job_id uuid not null references public.career_jobs(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, job_id)
+);
+alter table public.career_saved_jobs enable row level security;
+drop policy if exists career_saved_jobs_read on public.career_saved_jobs;
+create policy career_saved_jobs_read on public.career_saved_jobs for select to authenticated using (user_id=auth.uid());
+drop policy if exists career_saved_jobs_insert on public.career_saved_jobs;
+create policy career_saved_jobs_insert on public.career_saved_jobs for insert to authenticated with check (user_id=auth.uid());
+drop policy if exists career_saved_jobs_delete on public.career_saved_jobs;
+create policy career_saved_jobs_delete on public.career_saved_jobs for delete to authenticated using (user_id=auth.uid());
+
+create table if not exists public.career_alerts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  keyword text,
+  category text,
+  location text,
+  job_type text,
+  enabled boolean not null default true,
+  created_at timestamptz not null default now()
+);
+create index if not exists career_alerts_user_idx on public.career_alerts(user_id);
+alter table public.career_alerts enable row level security;
+drop policy if exists career_alerts_read on public.career_alerts;
+create policy career_alerts_read on public.career_alerts for select to authenticated using (user_id=auth.uid());
+drop policy if exists career_alerts_insert on public.career_alerts;
+create policy career_alerts_insert on public.career_alerts for insert to authenticated with check (user_id=auth.uid());
+drop policy if exists career_alerts_update on public.career_alerts;
+create policy career_alerts_update on public.career_alerts for update to authenticated using (user_id=auth.uid()) with check (user_id=auth.uid());
+drop policy if exists career_alerts_delete on public.career_alerts;
+create policy career_alerts_delete on public.career_alerts for delete to authenticated using (user_id=auth.uid());
