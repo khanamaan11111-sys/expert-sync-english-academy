@@ -380,6 +380,31 @@ margin:0!important;
 #preflight .procedure{font-size:9px!important;line-height:1.5!important;padding:10px!important;border-radius:13px!important;background:#edf4fd!important;color:#063b91!important;font-weight:800!important}
 #preflight #starter{min-height:54px!important;width:100%!important;border-radius:14px!important;font-size:11px!important;font-weight:900!important}
 }
+</style><style id="es-flight-postflight-mobile-v10">
+@media(max-width:700px){
+#complete{
+left:8px!important;right:8px!important;top:8px!important;bottom:76px!important;transform:none!important;
+width:auto!important;min-width:0!important;max-width:none!important;max-height:calc(100vh - 92px)!important;overflow:auto!important;
+padding:20px 15px!important;border-radius:22px!important;background:#081a24f8!important;border:1px solid #42616b!important;
+box-shadow:0 24px 70px #000b!important;text-align:center!important;
+}
+#complete>div:nth-child(1){font-size:10px!important;letter-spacing:1.5px!important}
+#complete>div:nth-child(2){font-size:21px!important;line-height:1.12!important;margin:8px 0!important;color:#fff!important}
+#complete>div:nth-child(3){font-size:9px!important;line-height:1.45!important;color:#9bb5be!important}
+#complete>div:nth-child(4){font-size:20px!important;margin:13px 0 5px!important;color:#fff!important}
+#complete>div:nth-child(5){font-size:27px!important;color:#54e6a6!important}
+#complete>div:nth-child(6){font-size:12px!important}
+#complete>div:nth-child(7){font-size:10px!important;line-height:1.55!important;color:#b9d0d7!important;margin:12px 0!important}
+#complete>div:nth-child(8){font-size:8px!important;color:#6f8e99!important}
+#complete .atcBtn{width:100%!important;min-height:48px!important;margin:5px 0!important;border-radius:13px!important}
+#complete #copyDebrief,#complete #openDebrief,#complete #openRecordFromComplete{background:#147f9e!important;border-color:#6de2ff!important;color:#fff!important}
+#complete #replay{background:#176f59!important;border-color:#54e6a6!important;color:#fff!important}
+#es-postflight-debrief{
+left:8px!important;right:8px!important;top:8px!important;bottom:76px!important;transform:none!important;
+width:auto!important;max-width:none!important;max-height:calc(100vh - 92px)!important;overflow:auto!important;
+padding:18px 15px!important;border-radius:22px!important;background:#081a24f8!important;border:1px solid #42616b!important;box-shadow:0 24px 70px #000b!important
+}
+}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
@@ -2144,6 +2169,17 @@ var s=document.getElementById("starter");if(s)s.setAttribute("aria-label","Start
 p.querySelectorAll("[data-pre]").forEach(function(b){b.setAttribute("aria-label","Set "+b.dataset.pre+" checklist item");});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup);else setup();
+})();
+</script><script id="es-flight-postflight-mobile-controller">
+(function(){
+function enhance(){
+var complete=document.getElementById("complete");
+if(complete){
+["copyDebrief","openDebrief","openRecordFromComplete","replay"].forEach(function(id){var b=document.getElementById(id);if(b)b.setAttribute("aria-label",b.textContent.trim())});
+}
+}
+var obs=new MutationObserver(enhance);obs.observe(document.body,{childList:true});
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",enhance);else enhance();
 })();
 </script></body>
 </html>
