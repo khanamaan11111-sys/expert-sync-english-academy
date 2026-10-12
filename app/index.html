@@ -2412,7 +2412,14 @@ body {
   .es-premium #es-bottom-nav{display:none!important}
 }
 </style>
-</head>
+<style id="es-clean-home-branding">
+.student-home-header-clean{padding:18px 14px 8px;text-align:center}
+.student-home-header-clean .tagline{margin:0;color:#66758b;font-size:13px;font-weight:800}
+.student-home-footer-clean{padding:22px 14px 28px;text-align:center}
+.student-home-footer-clean a{color:#063b91;font-size:12px;font-weight:900;text-decoration:none}
+.student-home-footer-clean a:hover{text-decoration:underline}
+@media(max-width:600px){.student-home-header-clean{padding-top:12px}.student-home-footer-clean{padding-bottom:calc(28px + env(safe-area-inset-bottom))}}
+</style></head>
 
 <body class="es-premium"> 
   <!-- ================= STUDENT ACCOUNT GATE ================= -->
@@ -2617,19 +2624,8 @@ body {
 
 </div>
 
-<header>
-
-  <img
-    src="../logo.png"
-    alt="Expert Sync English Academy Logo"
-    class="logo">
-
-  <h1>Expert Sync English Academy</h1>
-
-  <p class="tagline">
-    Speak English with Confidence
-  </p>
-
+<header class="student-home-header-clean">
+  <p class="tagline">Speak English with Confidence</p>
 </header>
 
 
@@ -5583,22 +5579,10 @@ body {
 </section>
 
 
-<footer>
-  <p>Part of the Expert Sync family · <a href="https://expert-sync-mart.khanamaan11111.chatgpt.site" target="_blank" rel="noopener noreferrer">Expert Sync Mart</a></p>
-
-
-  © 2026 Expert Sync English Academy
-
-  <br>
-
-  Speak English with Confidence
-
-  <br>
-
-  <span class="small">
-    Bhopal, Madhya Pradesh
-  </span>
-
+<footer class="student-home-footer-clean">
+  <a href="https://khanamaan11111-sys.github.io/expert-sync-english-academy/" target="_blank" rel="noopener noreferrer" aria-label="Open Expert Sync English Academy website">
+    Expert Sync English Academy Website
+  </a>
 </footer>
 
 </main>
