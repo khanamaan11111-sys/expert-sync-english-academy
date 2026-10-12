@@ -32,12 +32,18 @@ var onIndex=typeof window.showSection==="function" || location.pathname.endsWith
 var items=[
  ["learning-home-premium.html","⌂","Home"],
  ["practice","🎯","Practice"],
- ["goal-progress.html","📈","Progress"]
+ ["courses","📚","Courses"],
+ ["messenger/","💬","Messenger"]
 ];
 var n=document.createElement("nav");
 n.id="es-bottom-nav";
 n.setAttribute("aria-label","Primary navigation");
 function go(target){
+ if(target==="courses"){
+   if(typeof window.openExpertSyncCourses==="function"){ window.openExpertSyncCourses(); return; }
+   location.href=onIndex?"#courses":"index.html#courses"; return;
+ }
+ if(target==="messenger/"){ location.href="messenger/"; return; }
  if(onIndex && typeof window.showSection==="function"){ window.showSection(target); window.scrollTo({top:0,behavior:"smooth"}); return; }
  location.href=target;
 }
@@ -58,6 +64,7 @@ sheet.id="es-more-sheet";
 sheet.innerHTML='<div class="es-sheet-backdrop"></div><section class="es-sheet" role="dialog" aria-modal="true" aria-label="More learning areas"><div class="es-sheet-head"><div><div class="es-kicker">EXPERT SYNC</div><h2>More Learning Areas</h2></div><button type="button" class="es-sheet-close" aria-label="Close menu">×</button></div><div class="es-sheet-grid">'+[
 ["📖","Dictionary","dictionary.html"],
 ["📚","Vocabulary","vocabulary-achievement-center.html"],
+["📈","Progress","goal-progress.html"],
 ["🎤","Interview Academy","interview-hub.html"],
 ["🔊","Pronunciation","pronunciation-lab.html"],
 ["💼","Jobs","jobs"],
