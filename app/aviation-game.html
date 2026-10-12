@@ -464,6 +464,15 @@ padding:18px 15px!important;border-radius:22px!important;background:#081a24f8!im
   #abnormal{top:268px!important}
   #es-cockpit-dock{bottom:7px!important}
 }
+</style><style id="es-cockpit-immersive-mobile-v15">
+@media(max-width:700px){
+  body.es-immersive #brand,body.es-immersive #views,body.es-immersive #phasebar,body.es-immersive #academyConnect,body.es-immersive #studentIdentity{opacity:0;pointer-events:none;transform:translateY(-10px)}
+  body.es-immersive #academyBack{opacity:.72}
+  body.es-immersive #hud{top:12px!important;transition:top .2s ease}
+  body.es-immersive #abnormal{top:76px!important}
+  #es-focus-btn{min-width:58px!important;border-color:#54e6a6!important}
+  #es-focus-btn.active{background:#176f59!important;border-color:#54e6a6!important;color:#fff!important}
+}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
@@ -2330,6 +2339,21 @@ function init(){
      document.querySelectorAll(".mobile-panel-open").forEach(function(x){if(x!==p)x.classList.remove("mobile-panel-open")});
      if(!open){p.classList.add("mobile-panel-open");b.classList.add("active");}
    });
+ });
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script><script id="es-cockpit-immersive-mobile-v15-controller">
+(function(){
+function init(){
+ if(innerWidth>700)return;
+ var dock=document.getElementById("es-cockpit-dock");if(!dock||document.getElementById("es-focus-btn"))return;
+ var b=document.createElement("button");b.type="button";b.id="es-focus-btn";b.innerHTML="<span>⛶</span>FOCUS";b.setAttribute("aria-label","Toggle immersive cockpit focus");
+ dock.insertBefore(b,dock.firstChild);
+ b.addEventListener("click",function(){
+   var on=document.body.classList.toggle("es-immersive");
+   b.classList.toggle("active",on);
+   b.setAttribute("aria-label",on?"Exit immersive cockpit focus":"Enter immersive cockpit focus");
  });
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
