@@ -194,3 +194,22 @@ drop policy if exists career_alerts_update on public.career_alerts;
 create policy career_alerts_update on public.career_alerts for update to authenticated using (user_id=auth.uid()) with check (user_id=auth.uid());
 drop policy if exists career_alerts_delete on public.career_alerts;
 create policy career_alerts_delete on public.career_alerts for delete to authenticated using (user_id=auth.uid());
+
+
+-- ================= ALERT DELIVERY QUEUE =================
+create table if not exists public.career_alert_deliveries (
+  id uuid primary key default gen_random_uuid(),
+  alert_id uuid not null references public.career_alerts(id) on delete cascade,
+  job_id uuid not null references public.career_jobs(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  channel text not null default 'in_app' check (channel in ('in_app','email','push')),
+  status text not null default 'unread' check (status in ('unread','read')),
+  created_at timestamptz not null default now(),
+  unique(alert_id, job_id, channel)
+);
+create index if not exists career_alert_deliveries_user_idx on public.career_alert_deliveries(user_id,created_at desc);
+alter table public.career_alert_deliveries enable row level security;
+drop policy if exists career_alert_delivery_read on public.career_alert_deliveries;
+create policy career_alert_delivery_read on public.career_alert_deliveries for select to authenticated using (user_id=auth.uid());
+drop policy if exists career_alert_delivery_update on public.career_alert_deliveries;
+create policy career_alert_delivery_update on public.career_alert_deliveries for update to authenticated using (user_id=auth.uid()) with check (user_id=auth.uid());
