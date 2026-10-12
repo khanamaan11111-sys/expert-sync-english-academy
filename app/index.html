@@ -2643,6 +2643,8 @@ body {
 .career-message{padding:9px 11px;border-radius:12px;margin:6px 0;max-width:90%;font-size:10px;line-height:1.5}.career-message.mine{margin-left:auto;background:#eaf2fc;color:#17385f}.career-message.theirs{margin-right:auto;background:#f3f6fa;color:#35445a}.career-message small{display:block;margin-top:3px;opacity:.65;font-size:8px}.career-thread{border:1px solid #dbe5f2;border-radius:13px;padding:11px;background:#f8fbff;cursor:pointer}.career-thread b{display:block;color:#063b91;font-size:11px}.career-thread small{display:block;color:#66758b;font-size:9px;margin-top:3px}
 </style><style id="es-interview-css">.interview-item{border:1px solid #dbe5f2;border-radius:14px;padding:12px;background:#f8fbff}.interview-item h4{margin:0;color:#063b91;font-size:13px}.interview-item p{margin:5px 0;color:#66758b;font-size:10px;line-height:1.5}.interview-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.interview-actions button,.interview-actions a{border:1px solid #d4dfed;border-radius:9px;background:#fff;color:#063b91;padding:8px 10px;font-size:9px;font-weight:900;text-decoration:none;cursor:pointer}</style><style id="es-career-analytics-css">
 .career-analytics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}.career-stat{border:1px solid #dbe5f2;border-radius:12px;padding:10px;background:#f8fbff;text-align:center}.career-stat b{display:block;color:#063b91;font-size:18px}.career-stat span{display:block;color:#66758b;font-size:8px;font-weight:800;margin-top:3px}.career-funnel{margin-top:9px;border:1px solid #dbe5f2;border-radius:12px;padding:10px}.career-funnel div{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #edf1f6;font-size:9px;color:#66758b}.career-funnel div:last-child{border-bottom:0}.career-funnel b{color:#063b91}@media(max-width:600px){.career-analytics-grid{grid-template-columns:repeat(2,1fr)}}
+</style><style id="es-career-ats-css">
+.ats-card{border:1px solid #dbe5f2;border-radius:14px;padding:11px;background:#f8fbff}.ats-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.ats-top h4{margin:0;color:#063b91;font-size:12px}.ats-company{font-size:9px;color:#66758b;margin-top:3px}.ats-status{font-size:8px;font-weight:900;padding:5px 7px;border-radius:999px;background:#edf4fd;color:#063b91}.ats-status.success{background:#eaf7ef;color:#146b3a}.ats-status.warn{background:#fff5d6;color:#765900}.ats-status.fail{background:#fff0f0;color:#a32626}.ats-progress{display:flex;gap:3px;margin-top:12px}.ats-step{flex:1;height:5px;border-radius:9px;background:#e4eaf2}.ats-step.done{background:#063b91}.ats-labels{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-top:5px}.ats-labels span{font-size:7px;color:#66758b;text-align:center;line-height:1.2}.ats-actions{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}.ats-actions button{border:1px solid #d4dfed;background:#fff;color:#063b91;border-radius:8px;padding:7px 9px;font-size:8px;font-weight:900}
 </style></head>
 
 <body class="es-premium"> 
@@ -5444,6 +5446,11 @@ body {
     <div id="careerAnalyticsNote" class="job-empty" style="margin-top:10px"></div>
   </div>
 
+  <div class="jobs-search-card" id="careerApplicationTracker" style="margin-top:0">
+    <div class="jobs-search-title"><h3>📋 My Applications</h3><span class="jobs-count" id="careerApplicationTrackerCount">0</span></div>
+    <p style="margin:0;color:#66758b;font-size:11px">Track every application from submission to final outcome.</p>
+    <div id="careerApplicationTrackerList" class="jobs-list"></div>
+  </div>
   <div class="jobs-search-card" style="margin-top:0">
     <div class="jobs-search-title"><h3>🏢 Verified Companies</h3><span class="jobs-count" id="careerCompanyCount">0</span></div>
     <p style="margin:0;color:#66758b;font-size:11px">Explore verified employers and their active opportunities.</p>
@@ -19108,6 +19115,26 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
  window.respondToInterview=async function(id,status){var u=await cu();if(!u)return;var r=await supabaseClient.from("career_interviews").update({status:status,updated_at:new Date().toISOString()}).eq("id",id);if(r.error){alert("Could not update interview.");return}renderCareerInterviews()};
  window.renderCareerInterviews=async function(){var b=document.getElementById("careerInterviews"),n=document.getElementById("careerInterviewCount");if(!b)return;var u=await cu();if(!u){b.innerHTML='<div class="job-empty"><strong>Log in to view interviews</strong></div>';return}var r=await supabaseClient.from("career_interviews").select("*,career_applications(applicant_id,career_jobs(title,company))").or("candidate_id.eq."+u.id+",organizer_id.eq."+u.id).order("scheduled_at",{ascending:true});if(r.error){b.innerHTML='<div class="job-empty"><strong>Interviews unavailable</strong>Run the latest career-board SQL migration.</div>';return}var a=r.data||[],up=a.filter(x=>x.status!=="cancelled"&&x.status!=="completed");if(n)n.textContent=up.length;b.innerHTML=a.length?a.map(function(x){var mine=x.organizer_id===u.id,title=x.career_applications?.career_jobs?.title||"Job",company=x.career_applications?.career_jobs?.company||"";return '<article class="interview-item"><h4>'+esc(title)+' — '+esc(company)+'</h4><p>📅 '+esc(new Date(x.scheduled_at).toLocaleString())+' • '+x.duration_minutes+' min • '+esc(x.mode)+'<br>Status: <b>'+esc(x.status)+'</b></p>'+(x.notes?'<p>'+esc(x.notes)+'</p>':'')+'<div class="interview-actions">'+(x.meeting_link?'<a href="'+esc(x.meeting_link)+'" target="_blank" rel="noopener noreferrer">Join / Open ↗</a>':'')+(mine&&x.status==="proposed"?'<button onclick="respondToInterview(\''+x.id+'\',\'cancelled\')">Cancel</button>':'')+(!mine&&x.status==="proposed"?'<button onclick="respondToInterview(\''+x.id+'\',\'confirmed\')">✓ Accept</button><button onclick="respondToInterview(\''+x.id+'\',\'declined\')">Decline</button>':'')+'</div></article>'}).join(""):'<div class="job-empty"><strong>No interviews scheduled</strong>Interview proposals will appear here.</div>'};
  document.addEventListener("click",function(e){if(e.target.id==="careerInterviewModal")closeInterviewModal()});window.addEventListener("load",renderCareerInterviews);
+})();
+</script>
+<script id="es-career-ats-controller">
+(function(){
+ function esc(x){return String(x||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]})}
+ function normalize(status){var x=String(status||"").toLowerCase();if(x.includes("reject")||x.includes("not selected"))return "rejected";if(x.includes("hire")||x.includes("selected"))return "hired";if(x.includes("interview"))return "interview";if(x.includes("short"))return "shortlisted";if(x.includes("review"))return "review";return "applied"}
+ function stage(s){return s==="applied"?0:s==="review"?1:s==="shortlisted"?2:s==="interview"?3:s==="hired"?4:-1}
+ window.renderCareerApplicationTracker=async function(){
+  var box=document.getElementById("careerApplicationTrackerList"),count=document.getElementById("careerApplicationTrackerCount");if(!box)return;
+  var u=(await supabaseClient.auth.getUser()).data?.user;if(!u){box.innerHTML='<div class="job-empty"><strong>Log in to track applications</strong></div>';return}
+  var r=await supabaseClient.from("career_applications").select("id,status,created_at,resume_link,message,career_jobs(title,company,location,job_type)").eq("applicant_id",u.id).order("created_at",{ascending:false});
+  if(r.error){box.innerHTML='<div class="job-empty"><strong>Application tracking unavailable</strong>Run the latest career-board SQL migration if needed.</div>';return}
+  var a=r.data||[];if(count)count.textContent=a.length;
+  box.innerHTML=a.length?a.map(function(x){
+   var st=normalize(x.status),idx=stage(st),cls=st==="hired"?"success":st==="rejected"?"fail":(st==="shortlisted"||st==="interview")?"warn":"";
+   var labels=["Applied","Under Review","Shortlisted","Interview","Selected"];
+   return '<article class="ats-card"><div class="ats-top"><div><h4>'+esc(x.career_jobs?.title||"Job")+'</h4><div class="ats-company">'+esc(x.career_jobs?.company||"")+' • '+esc(x.career_jobs?.location||"")+'</div></div><span class="ats-status '+cls+'">'+esc(st==="hired"?"SELECTED":st.replace("_"," ").toUpperCase())+'</span></div><div class="ats-progress">'+labels.map(function(_,i){return '<span class="ats-step '+(idx>=i?"done":"")+'"></span>'}).join("")+'</div><div class="ats-labels">'+labels.map(function(l){return '<span>'+l+'</span>'}).join("")+'</div><div class="ats-actions"><button type="button" onclick="openCareerMessages(\''+x.id+'\',\''+encodeURIComponent((x.career_jobs?.title||"Job")+' — '+(x.career_jobs?.company||""))+'\',\''+(x.career_jobs?.submitted_by||"")+'\')">💬 Messages</button></div></article>';
+  }).join(""):'<div class="job-empty"><strong>No applications yet</strong>Your submitted applications will appear here.';
+ };
+ window.addEventListener("load",renderCareerApplicationTracker);
 })();
 </script>
 <script id="es-career-messaging-controller">
