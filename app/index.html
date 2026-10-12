@@ -5317,7 +5317,7 @@ body {
     </div>
   </div>
 
-  <div class="jobs-search-card">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="jobs-action secondary" style="background:#f4f8ff;color:#063b91;border:1px solid #dbe5f2" type="button" onclick="openJobAdmin()">🛡️ Review Submissions</button></div><div class="jobs-search-card">
     <div class="jobs-search-title">
       <h3>🔎 Find a Job</h3>
       <span class="jobs-count" id="jobResultCount">0 jobs</span>
@@ -18605,62 +18605,93 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 </script>
 <script id="es-jobs-career-controller">
 (function(){
-  const KEY="esaCareerJobsV1";
-  function seedJobs(){
+  const KEY="esaCareerJobsV2";
+  const ADMIN_KEY="esaCareerAdminSessionV1";
+
+  function load(){
     try{
-      const existing=JSON.parse(localStorage.getItem(KEY)||"null");
-      if(Array.isArray(existing)) return existing;
+      const data=JSON.parse(localStorage.getItem(KEY)||"null");
+      if(data && Array.isArray(data.jobs)) return data;
+      if(Array.isArray(data)) return {jobs:data.map(j=>({...j,status:"approved"})),version:2};
     }catch(e){}
-    const seed=[
-      {id:"seed-1",title:"Customer Support Executive",company:"Expert Sync Career Board",location:"Bhopal",type:"Full-time",category:"Customer Support",salary:"As per employer",apply:"",description:"Customer communication, professional English and service support. Verify the employer and vacancy details independently before applying.",posted:"2026-10-12"},
-      {id:"seed-2",title:"BPO Communication Associate",company:"Career Opportunities",location:"Bhopal / Remote",type:"Full-time",category:"BPO",salary:"As per employer",apply:"",description:"English communication and customer-handling role. Applicants should independently verify the company, recruiter and official application process.",posted:"2026-10-12"}
-    ];
-    localStorage.setItem(KEY,JSON.stringify(seed)); return seed;
+    return {version:2,jobs:[
+      {id:"seed-1",title:"Customer Support Executive",company:"Expert Sync Career Board",location:"Bhopal",type:"Full-time",category:"Customer Support",salary:"As per employer",apply:"",description:"Customer communication, professional English and service support. Verify the employer and vacancy details independently before applying.",posted:"2026-10-12",status:"approved"},
+      {id:"seed-2",title:"BPO Communication Associate",company:"Career Opportunities",location:"Bhopal / Remote",type:"Full-time",category:"BPO",salary:"As per employer",apply:"",description:"English communication and customer-handling role. Applicants should independently verify the company, recruiter and official application process.",posted:"2026-10-12",status:"approved"}
+    ]};
   }
-  window.getCareerJobs=function(){return seedJobs()};
+  function save(data){localStorage.setItem(KEY,JSON.stringify(data));}
+  function escapeHtml(x){return String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+  window.getCareerJobs=function(){return load().jobs};
   window.openJobPostForm=function(){
-    const m=document.getElementById("jobPostModal"); if(m){m.classList.add("open");m.setAttribute("aria-hidden","false");document.body.classList.add("es-menu-open");}
+    const m=document.getElementById("jobPostModal"); if(m){m.classList.add("open");m.setAttribute("aria-hidden","false");}
   };
   window.closeJobPostForm=function(){
-    const m=document.getElementById("jobPostModal"); if(m){m.classList.remove("open");m.setAttribute("aria-hidden","true");document.body.classList.remove("es-menu-open");}
+    const m=document.getElementById("jobPostModal"); if(m){m.classList.remove("open");m.setAttribute("aria-hidden","true");}
   };
   window.submitJobPost=function(e){
     e.preventDefault();
     const get=id=>document.getElementById(id)?.value.trim()||"";
-    const job={id:"job-"+Date.now(),title:get("postJobTitle"),company:get("postJobCompany"),location:get("postJobLocation"),type:get("postJobType"),category:get("postJobCategory"),salary:get("postJobSalary")||"Not specified",apply:get("postJobApply"),description:get("postJobDescription"),posted:new Date().toISOString().slice(0,10)};
-    const jobs=seedJobs(); jobs.unshift(job); localStorage.setItem(KEY,JSON.stringify(jobs));
-    document.getElementById("jobPostForm").reset(); closeJobPostForm(); renderJobListings();
-    alert("Job posted on this device. For a public job board, connect the form to the moderated career database in the next stage.");
+    const job={id:"job-"+Date.now(),title:get("postJobTitle"),company:get("postJobCompany"),location:get("postJobLocation"),type:get("postJobType"),category:get("postJobCategory"),salary:get("postJobSalary")||"Not specified",apply:get("postJobApply"),description:get("postJobDescription"),posted:new Date().toISOString().slice(0,10),status:"pending"};
+    const data=load(); data.jobs.unshift(job); save(data);
+    document.getElementById("jobPostForm").reset(); closeJobPostForm(); renderJobListings(); renderJobAdmin();
+    alert("Your job has been submitted for review. It will appear in the public job list only after approval.");
   };
   window.renderJobListings=function(){
     const list=document.getElementById("jobListings"),count=document.getElementById("jobResultCount"); if(!list)return;
     const q=(document.getElementById("jobSearchInput")?.value||"").trim().toLowerCase();
     const type=document.getElementById("jobTypeFilter")?.value||"";
     const category=document.getElementById("jobCategoryFilter")?.value||"";
-    const jobs=seedJobs().filter(j=>{
+    const jobs=load().jobs.filter(j=>{
+      if(j.status!=="approved")return false;
       const hay=[j.title,j.company,j.location,j.type,j.category,j.salary,j.description].join(" ").toLowerCase();
       return (!q||hay.includes(q))&&(!type||j.type===type)&&(!category||j.category===category);
     });
     if(count)count.textContent=jobs.length+" "+(jobs.length===1?"job":"jobs");
     if(!jobs.length){list.innerHTML='<div class="job-empty"><strong>No matching jobs found</strong>Try another keyword, location or filter.</div>';return;}
     list.innerHTML=jobs.map(j=>{
-      const safe=x=>String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
-      const apply=j.apply||"";
-      let applyHtml='<button class="job-btn apply" type="button" onclick="alert(\'Application contact is not available yet. Please verify the employer before applying.\')">Apply / Contact</button>';
-      if(/^https?:\\/\\//i.test(apply)) applyHtml='<a class="job-btn apply" href="'+safe(apply)+'" target="_blank" rel="noopener noreferrer">Apply Now ↗</a>';
-      else if(apply) applyHtml='<a class="job-btn apply" href="mailto:'+encodeURIComponent(apply)+'">Apply by Email</a>';
-      return '<article class="job-item"><div class="job-top"><div><h4 class="job-title">'+safe(j.title)+'</h4><p class="job-company">'+safe(j.company)+'</p></div><span class="job-badge">NEW</span></div><div class="job-meta"><span>📍 '+safe(j.location)+'</span><span>🕐 '+safe(j.type)+'</span><span>🏷️ '+safe(j.category)+'</span><span>💰 '+safe(j.salary)+'</span></div><p class="job-desc">'+safe(j.description)+'</p><div class="job-actions">'+applyHtml+'<button class="job-btn" type="button" onclick="shareJobPost(\''+encodeURIComponent(j.title+' — '+j.company+' | '+j.location+' | '+j.type)+'\')">↗ Share</button></div></article>';
+      let applyHtml='<button class="job-btn apply" type="button" onclick="alert(\'Application contact is not available. Please verify the employer before applying.\')">Apply / Contact</button>';
+      if(/^https?:\/\//i.test(j.apply||"")) applyHtml='<a class="job-btn apply" href="'+escapeHtml(j.apply)+'" target="_blank" rel="noopener noreferrer">Apply Now ↗</a>';
+      else if(j.apply) applyHtml='<a class="job-btn apply" href="mailto:'+encodeURIComponent(j.apply)+'">Apply by Email</a>';
+      return '<article class="job-item"><div class="job-top"><div><h4 class="job-title">'+escapeHtml(j.title)+'</h4><p class="job-company">'+escapeHtml(j.company)+'</p></div><span class="job-badge">VERIFIED</span></div><div class="job-meta"><span>📍 '+escapeHtml(j.location)+'</span><span>🕐 '+escapeHtml(j.type)+'</span><span>🏷️ '+escapeHtml(j.category)+'</span><span>💰 '+escapeHtml(j.salary)+'</span></div><p class="job-desc">'+escapeHtml(j.description)+'</p><div class="job-actions">'+applyHtml+'<button class="job-btn" type="button" onclick="shareJobPost(\''+encodeURIComponent(j.title+' — '+j.company+' | '+j.location+' | '+j.type)+'\')">↗ Share</button></div></article>';
     }).join("");
   };
   window.shareJobPost=function(encoded){
     const text=decodeURIComponent(encoded);
-    if(navigator.share){navigator.share({title:"Job Opportunity",text:text}).catch(()=>{});}
-    else if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>alert("Job details copied to clipboard."));}
-    else alert(text);
+    if(navigator.share)navigator.share({title:"Job Opportunity",text:text}).catch(()=>{});
+    else if(navigator.clipboard)navigator.clipboard.writeText(text).then(()=>alert("Job details copied to clipboard."));
   };
-  document.addEventListener("click",function(e){if(e.target.id==="jobPostModal")closeJobPostForm();});
-  document.addEventListener("keydown",function(e){if(e.key==="Escape")closeJobPostForm();});
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",renderJobListings);else renderJobListings();
+  window.openJobAdmin=function(){
+    const panel=document.getElementById("jobAdminPanel"); if(panel){panel.classList.add("open");renderJobAdmin();}
+  };
+  window.closeJobAdmin=function(){
+    const panel=document.getElementById("jobAdminPanel"); if(panel)panel.classList.remove("open");
+  };
+  window.renderJobAdmin=function(){
+    const box=document.getElementById("jobAdminList"),count=document.getElementById("jobPendingCount"); if(!box)return;
+    const data=load(), pending=data.jobs.filter(j=>j.status==="pending");
+    if(count)count.textContent=pending.length+" pending";
+    box.innerHTML=pending.length?pending.map(j=>'<article class="job-admin-item"><div><b>'+escapeHtml(j.title)+'</b><small>'+escapeHtml(j.company)+' • '+escapeHtml(j.location)+' • '+escapeHtml(j.category)+'</small><p>'+escapeHtml(j.description)+'</p><small>Apply: '+escapeHtml(j.apply)+'</small></div><div class="job-admin-actions"><button type="button" onclick="moderateJob(\''+j.id+'\',\'approved\')">✓ Approve</button><button type="button" class="reject" onclick="moderateJob(\''+j.id+'\',\'rejected\')">× Reject</button></div></article>').join(""):'<div class="job-empty"><strong>No pending submissions</strong>New job posts will appear here for review.</div>';
+  };
+  window.moderateJob=function(id,status){
+    const data=load(), job=data.jobs.find(j=>j.id===id); if(!job)return;
+    job.status=status; job.reviewedAt=new Date().toISOString(); save(data); renderJobAdmin(); renderJobListings();
+  };
+  window.exportCareerJobs=function(){
+    const blob=new Blob([JSON.stringify(load(),null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+    a.href=url;a.download="expert-sync-career-board.json";a.click();URL.revokeObjectURL(url);
+  };
+  window.importCareerJobs=function(input){
+    const file=input.files&&input.files[0];if(!file)return;
+    const reader=new FileReader();reader.onload=function(){
+      try{const data=JSON.parse(reader.result);if(!data||!Array.isArray(data.jobs))throw Error("Invalid file");save({version:2,jobs:data.jobs});renderJobAdmin();renderJobListings();alert("Career board data imported.");}
+      catch(e){alert("Could not import this file.");}
+      input.value="";
+    };reader.readAsText(file);
+  };
+  document.addEventListener("click",function(e){if(e.target.id==="jobPostModal")closeJobPostForm();if(e.target.id==="jobAdminPanel")closeJobAdmin();});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeJobPostForm();closeJobAdmin();}});
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){renderJobListings();renderJobAdmin();});
+  else {renderJobListings();renderJobAdmin();}
 })();
 </script>
 </body>
