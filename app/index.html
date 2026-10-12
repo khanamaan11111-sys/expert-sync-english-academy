@@ -2450,7 +2450,187 @@ body {
   body.es-login-gate-open .account-panel input{height:46px!important;font-size:14px!important}
   body.es-login-gate-open .account-primary-button{min-height:50px!important;margin-top:16px!important}
 }
-</style></head>
+</style>
+<style id="es-mobile-professional-nav-fix">
+/* Professional mobile bottom navigation — inline fallback for WebView/PWA */
+@media (max-width:700px){
+  body{padding-bottom:96px!important}
+  #es-bottom-nav{
+    position:fixed!important;
+    left:50%!important;
+    bottom:max(8px,env(safe-area-inset-bottom))!important;
+    transform:translateX(-50%)!important;
+    z-index:2147483000!important;
+    width:calc(100% - 16px)!important;
+    height:68px!important;
+    min-height:68px!important;
+    padding:6px!important;
+    display:grid!important;
+    grid-template-columns:repeat(5,1fr)!important;
+    gap:3px!important;
+    background:rgba(255,255,255,.98)!important;
+    border:1px solid #d8e2ef!important;
+    border-radius:20px!important;
+    box-shadow:0 12px 32px rgba(6,27,61,.18)!important;
+    backdrop-filter:blur(18px)!important;
+    -webkit-backdrop-filter:blur(18px)!important;
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif!important;
+  }
+  #es-bottom-nav a,
+  #es-bottom-nav .es-more-btn{
+    min-width:0!important;
+    min-height:54px!important;
+    margin:0!important;
+    padding:4px 2px!important;
+    border:0!important;
+    border-radius:14px!important;
+    background:transparent!important;
+    color:#68768b!important;
+    text-decoration:none!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:3px!important;
+    font:inherit!important;
+    font-weight:800!important;
+    cursor:pointer!important;
+    -webkit-tap-highlight-color:transparent!important;
+  }
+  #es-bottom-nav a span,
+  #es-bottom-nav .es-more-btn span{
+    display:block!important;
+    margin:0!important;
+    font-size:21px!important;
+    line-height:1!important;
+  }
+  #es-bottom-nav a small,
+  #es-bottom-nav .es-more-btn small{
+    display:block!important;
+    margin:0!important;
+    font-size:9px!important;
+    line-height:1.1!important;
+    font-weight:800!important;
+    color:inherit!important;
+  }
+  #es-bottom-nav a.active{
+    color:#063b91!important;
+    background:#edf4fd!important;
+  }
+  #es-bottom-nav a.active small{font-weight:900!important}
+  #es-bottom-nav a:active,
+  #es-bottom-nav .es-more-btn:active{transform:scale(.96)!important}
+
+  #es-more-sheet{
+    position:fixed!important;
+    inset:0!important;
+    z-index:2147483001!important;
+    display:none!important;
+  }
+  #es-more-sheet.open{display:block!important}
+  #es-more-sheet .es-sheet-backdrop{
+    position:absolute!important;
+    inset:0!important;
+    background:rgba(6,27,61,.42)!important;
+    backdrop-filter:blur(3px)!important;
+    -webkit-backdrop-filter:blur(3px)!important;
+  }
+  #es-more-sheet .es-sheet{
+    position:absolute!important;
+    left:50%!important;
+    bottom:0!important;
+    transform:translateX(-50%)!important;
+    width:100%!important;
+    max-width:760px!important;
+    max-height:78vh!important;
+    overflow:auto!important;
+    background:#fff!important;
+    border:1px solid #d8e2ef!important;
+    border-bottom:0!important;
+    border-radius:24px 24px 0 0!important;
+    padding:18px 14px max(18px,env(safe-area-inset-bottom))!important;
+    box-shadow:0 -18px 50px rgba(6,27,61,.22)!important;
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif!important;
+  }
+  #es-more-sheet .es-sheet-head{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:10px!important;
+    margin:0 0 12px!important;
+    padding:0 2px 12px!important;
+    border-bottom:1px solid #e6edf5!important;
+  }
+  #es-more-sheet .es-kicker{
+    margin:0 0 4px!important;
+    color:#66758b!important;
+    font-size:9px!important;
+    font-weight:900!important;
+    letter-spacing:1.7px!important;
+  }
+  #es-more-sheet h2{
+    margin:0!important;
+    color:#063b91!important;
+    font-size:20px!important;
+    line-height:1.15!important;
+  }
+  #es-more-sheet .es-sheet-close{
+    width:40px!important;
+    height:40px!important;
+    flex:none!important;
+    border:1px solid #d8e2ef!important;
+    border-radius:12px!important;
+    background:#f7faff!important;
+    color:#063b91!important;
+    font-size:25px!important;
+    line-height:1!important;
+    cursor:pointer!important;
+  }
+  #es-more-sheet .es-sheet-grid{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:9px!important;
+    padding-top:2px!important;
+  }
+  #es-more-sheet .es-sheet-item{
+    min-height:64px!important;
+    margin:0!important;
+    border:1px solid #d8e2ef!important;
+    border-radius:15px!important;
+    background:#f8fbff!important;
+    color:#172033!important;
+    padding:10px!important;
+    display:grid!important;
+    grid-template-columns:34px 1fr!important;
+    align-items:center!important;
+    gap:8px!important;
+    text-align:left!important;
+    font:inherit!important;
+    cursor:pointer!important;
+  }
+  #es-more-sheet .es-sheet-item span{
+    display:block!important;
+    font-size:23px!important;
+    line-height:1!important;
+    text-align:center!important;
+  }
+  #es-more-sheet .es-sheet-item b{
+    color:#063b91!important;
+    font-size:12px!important;
+    line-height:1.2!important;
+  }
+}
+@media(max-width:380px){
+  #es-bottom-nav{height:64px!important;min-height:64px!important}
+  #es-bottom-nav a,#es-bottom-nav .es-more-btn{min-height:50px!important}
+  #es-bottom-nav a span,#es-bottom-nav .es-more-btn span{font-size:19px!important}
+  #es-bottom-nav a small,#es-bottom-nav .es-more-btn small{font-size:8px!important}
+}
+@media(min-width:701px){
+  #es-bottom-nav,#es-more-sheet{display:none!important}
+}
+</style>
+</head>
 
 <body class="es-premium"> 
   <!-- ================= STUDENT ACCOUNT GATE ================= -->
