@@ -365,6 +365,21 @@ margin:0!important;
 #scenarioPanel{height:max-content!important;max-height:58vh!important}
 #scenarioPanel:after{content:"Choose one scenario, then load it before starting the flight.";display:block;margin-top:10px;padding:9px;border-radius:11px;background:#102a35;color:#b9d0d7;font-size:8px;line-height:1.45}
 }
+</style><style id="es-flight-preflight-mobile-v9">
+@media(max-width:700px){
+#preflight{position:fixed!important;inset:0!important;z-index:10050!important;overflow:auto!important;background:#06131cf7!important;padding:14px!important}
+#preflight .card{width:100%!important;max-width:560px!important;margin:0 auto!important;border-radius:22px!important;padding:18px!important;box-sizing:border-box!important;background:#fff!important}
+#preflight h1{font-size:22px!important;line-height:1.08!important;margin:0 0 7px!important;color:#063b91!important}
+#preflight p{font-size:11px!important;line-height:1.5!important;margin:0 0 14px!important;color:#66758b!important}
+#preflight .pregrid{display:grid!important;grid-template-columns:1fr!important;gap:9px!important}
+#preflight .preitem{display:grid!important;grid-template-columns:78px 1fr!important;align-items:center!important;gap:10px!important;padding:10px!important;border:1px solid #dbe5f2!important;border-radius:15px!important;background:#f8fbff!important}
+#preflight .preitem button{min-height:48px!important;border-radius:12px!important;font-size:10px!important;font-weight:900!important}
+#preflight .preitem b{display:block!important;font-size:10px!important;color:#172033!important}
+#preflight .preitem small{display:block!important;font-size:8px!important;line-height:1.4!important;color:#66758b!important;margin-top:2px!important}
+#preflight .prefooter{display:grid!important;grid-template-columns:1fr!important;gap:9px!important;margin-top:13px!important}
+#preflight .procedure{font-size:9px!important;line-height:1.5!important;padding:10px!important;border-radius:13px!important;background:#edf4fd!important;color:#063b91!important;font-weight:800!important}
+#preflight #starter{min-height:54px!important;width:100%!important;border-radius:14px!important;font-size:11px!important;font-weight:900!important}
+}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
@@ -2117,6 +2132,16 @@ el.addEventListener("change",function(){el.dataset.selected="true"});
 var lr=document.getElementById("loadRoute"),ls=document.getElementById("loadScenario");
 if(lr)lr.setAttribute("aria-label","Load selected flight route");
 if(ls)ls.setAttribute("aria-label","Load selected training scenario");
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup);else setup();
+})();
+</script><script id="es-flight-preflight-controller">
+(function(){
+function setup(){
+var p=document.getElementById("preflight");if(!p)return;
+p.querySelectorAll("button").forEach(function(b){b.style.touchAction="manipulation";});
+var s=document.getElementById("starter");if(s)s.setAttribute("aria-label","Start engine after completing pre-flight checklist");
+p.querySelectorAll("[data-pre]").forEach(function(b){b.setAttribute("aria-label","Set "+b.dataset.pre+" checklist item");});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup);else setup();
 })();
