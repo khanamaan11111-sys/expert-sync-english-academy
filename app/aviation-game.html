@@ -473,6 +473,17 @@ padding:18px 15px!important;border-radius:22px!important;background:#081a24f8!im
   #es-focus-btn{min-width:58px!important;border-color:#54e6a6!important}
   #es-focus-btn.active{background:#176f59!important;border-color:#54e6a6!important;color:#fff!important}
 }
+</style><style id="es-mobile-flight-guidance-v16">
+@media(max-width:700px){
+#es-mobile-guidance{position:fixed;left:10px;right:10px;top:236px;z-index:40;display:flex;align-items:center;gap:7px;padding:8px 10px;border:1px solid #315d6b;border-radius:13px;background:#06131ce8;backdrop-filter:blur(7px);box-shadow:0 8px 24px #0007;pointer-events:none}
+#es-mobile-guidance .mg-phase{font-size:8px;font-weight:900;color:#54e6a6;letter-spacing:.8px;white-space:nowrap}
+#es-mobile-guidance .mg-divider{width:1px;height:18px;background:#315d6b}
+#es-mobile-guidance .mg-action{font-size:8px;line-height:1.3;color:#e7f5f8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#es-mobile-guidance .mg-dot{width:7px;height:7px;border-radius:50%;background:#54e6a6;flex:none;box-shadow:0 0 10px #54e6a6}
+body.es-immersive #es-mobile-guidance{top:68px}
+@media(max-width:390px){#es-mobile-guidance{top:232px;padding:7px 9px}.mg-action{font-size:7px!important}}
+}
+@media(min-width:701px){#es-mobile-guidance{display:none}}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
@@ -2355,6 +2366,25 @@ function init(){
    b.classList.toggle("active",on);
    b.setAttribute("aria-label",on?"Exit immersive cockpit focus":"Enter immersive cockpit focus");
  });
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script><script id="es-mobile-flight-guidance-v16-controller">
+(function(){
+function init(){
+ if(innerWidth>700||document.getElementById("es-mobile-guidance"))return;
+ var phase=document.getElementById("phasebar"),g=document.createElement("div");
+ g.id="es-mobile-guidance";g.innerHTML='<span class="mg-dot"></span><span class="mg-phase">READY</span><span class="mg-divider"></span><span class="mg-action">Complete the current training instruction.</span>';
+ document.body.appendChild(g);
+ function update(){
+  var text=(phase?phase.textContent:"").replace(/\s+/g," ").trim();
+  if(!text)return;
+  var parts=text.split("•"),p=(parts[0]||text).trim(),a=(parts[1]||"Follow the current flight instruction.").trim();
+  g.querySelector(".mg-phase").textContent=p.toUpperCase();
+  g.querySelector(".mg-action").textContent=a;
+ }
+ update();
+ if(phase)new MutationObserver(update).observe(phase,{childList:true,subtree:true,characterData:true});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
