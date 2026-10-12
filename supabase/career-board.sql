@@ -380,3 +380,24 @@ with check (
  actor_id=auth.uid() and
  exists (select 1 from public.career_applications a join public.career_jobs j on j.id=a.job_id where a.id=career_application_events.application_id and (a.applicant_id=auth.uid() or j.submitted_by=auth.uid()))
 );
+
+
+-- ================= CAREER STATUS NOTIFICATIONS =================
+create table if not exists public.career_status_notifications (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  application_id uuid references public.career_applications(id) on delete cascade,
+  event_id uuid references public.career_application_events(id) on delete cascade,
+  title text not null,
+  body text not null,
+  status text not null default 'unread' check (status in ('unread','read')),
+  created_at timestamptz not null default now()
+);
+create index if not exists career_status_notifications_user_idx on public.career_status_notifications(user_id,created_at desc);
+alter table public.career_status_notifications enable row level security;
+drop policy if exists career_status_notifications_read on public.career_status_notifications;
+create policy career_status_notifications_read on public.career_status_notifications for select to authenticated using (user_id=auth.uid());
+drop policy if exists career_status_notifications_update on public.career_status_notifications;
+create policy career_status_notifications_update on public.career_status_notifications for update to authenticated using (user_id=auth.uid()) with check (user_id=auth.uid());
+drop policy if exists career_status_notifications_insert on public.career_status_notifications;
+create policy career_status_notifications_insert on public.career_status_notifications for insert to authenticated with check (user_id=auth.uid() or public.is_career_admin());
