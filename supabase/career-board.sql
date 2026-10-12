@@ -123,3 +123,37 @@ using (
   or submitted_by=auth.uid()
   or public.is_career_admin()
 );
+
+
+-- ================= CAREER PROFILES =================
+create table if not exists public.career_profiles (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  full_name text not null,
+  headline text,
+  phone text,
+  city text,
+  summary text,
+  skills text,
+  education text,
+  experience text,
+  languages text,
+  resume_link text,
+  updated_at timestamptz not null default now()
+);
+alter table public.career_profiles enable row level security;
+
+drop policy if exists career_profiles_read on public.career_profiles;
+create policy career_profiles_read on public.career_profiles
+for select to authenticated
+using (user_id = auth.uid() or public.is_career_admin());
+
+drop policy if exists career_profiles_insert on public.career_profiles;
+create policy career_profiles_insert on public.career_profiles
+for insert to authenticated
+with check (user_id = auth.uid());
+
+drop policy if exists career_profiles_update on public.career_profiles;
+create policy career_profiles_update on public.career_profiles
+for update to authenticated
+using (user_id = auth.uid() or public.is_career_admin())
+with check (user_id = auth.uid() or public.is_career_admin());
