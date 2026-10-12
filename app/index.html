@@ -18995,7 +18995,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   const {error}=await supabaseClient.from("career_applications").update({status:status,updated_at:new Date().toISOString()}).eq("id",id);
   if(error){alert("Update failed: "+error.message);return}
   const ev=await supabaseClient.from("career_application_events").insert({application_id:id,actor_id:(await supabaseClient.auth.getUser()).data.user.id,from_status:current.status,to_status:status,note:note});
-  if(ev.error){alert("Status changed, but the activity timeline could not be recorded.");}
+  if(ev.error){alert("Status changed, but the activity timeline could not be recorded.");} else { await supabaseClient.from("career_status_notifications").insert({user_id:(await supabaseClient.from("career_applications").select("applicant_id").eq("id",id).single()).data.applicant_id,application_id:id,event_id:ev.data?.[0]?.id||null,title:"Application status updated",body:"Your application status is now "+status+"."}); }
   renderCareerApplicationsAdmin();renderMyApplications();renderCareerApplicationTracker();
  };
  window.careerStatusEvent=true;
