@@ -240,6 +240,13 @@ margin:0!important;
 #phasebar{transform:translateX(-50%) scale(.68)}
 }
 @media(min-width:701px){#mobileFlightNav{display:none!important}}
+</style><style id="es-flight-touch-css">
+@media(max-width:700px){
+#mobileFlightNav button{min-height:50px}
+#routeSelect,#scenarioSelect{min-height:46px;font-size:16px}
+#panel button,#panel .switch,#panel .cockpitBtn,#panel input,#panel select{touch-action:manipulation}
+#mission.mobile-panel-open,#atc.mobile-panel-open,#routePanel.mobile-panel-open,#scenarioPanel.mobile-panel-open,#weather.mobile-panel-open,#checklistPanel.mobile-panel-open,#adaptiveCoach.mobile-panel-open,#lightsPanel.mobile-panel-open,#status.mobile-panel-open,#help.mobile-panel-open{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
@@ -1918,6 +1925,19 @@ if(open){document.querySelectorAll(".mobile-panel-open").forEach(function(x){x.c
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup);else setup();
 window.addEventListener("resize",function(){if(window.innerWidth>700){var n=document.getElementById("mobileFlightNav");if(n)n.remove();document.querySelectorAll(".mobile-panel-open").forEach(function(x){x.classList.remove("mobile-panel-open")});}else setup();});
+})();
+</script><script id="es-flight-touch-qa">
+(function(){
+function q(sel){return document.querySelector(sel)}
+function markButton(sel,label){var el=q(sel);if(!el)return;el.setAttribute("aria-label",label);el.style.touchAction="manipulation";el.style.webkitTapHighlightColor="transparent";}
+function setup(){
+["#academyBack","#startCockpitBtn","#loadRoute","#loadScenario","#weatherBtn","#atcBtn","#loadScenario","#mission17Start","#mission17GoAround","#shutdownBtn","#qaBtn","#recordBtn"].forEach(function(s){markButton(s,s.replace("#","").replace(/([A-Z])/g," $1").trim())});
+document.querySelectorAll("button,.freqBtn,.view,.switch,.cockpitBtn").forEach(function(el){el.style.touchAction="manipulation";});
+var targets=["#routeSelect","#scenarioSelect"];
+targets.forEach(function(s){var el=q(s);if(el){el.style.minHeight="46px";el.style.fontSize="16px";el.style.touchAction="manipulation";}});
+document.querySelectorAll("#mobileFlightNav button").forEach(function(b){b.setAttribute("aria-label",b.textContent.trim());});
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup);else setup();
 })();
 </script></body>
 </html>
