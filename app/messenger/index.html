@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#091927">
+  <meta name="description" content="Connect with friends on Expert Sync Messenger.">
+  <title>Expert Sync Messenger</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./app-icon.svg" type="image/svg+xml">
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="app-header">
+    <div class="brand">
+      <img src="./app-icon.svg" alt="Expert Sync logo" width="64" height="64" style="object-fit:contain; border-radius:12px; flex-shrink:0;">
+      <div>
+        <h1>Expert Sync Messenger</h1>
+        <p>Your people. Your community.</p>
+      </div>
+    </div>
+    <button id="logout-button" type="button" hidden>Sign out</button>
+  </header>
+
+  <main id="main-content">
+    <p id="notice" role="status" aria-live="polite">
+      Welcome to Expert Sync Messenger.
+    </p>
+
+    <p id="connection-status" role="status" hidden></p>
+    <section id="recovery-section" class="card" hidden>
+      <h2>Choose a new password</h2>
+      <form id="recovery-form">
+        <label for="new-password">New password</label>
+        <input id="new-password" type="password" autocomplete="new-password" minlength="8" required>
+        <button type="button" class="password-toggle" data-password="new-password" aria-controls="new-password" aria-pressed="false">Show password</button>
+        <label for="confirm-password">Confirm new password</label>
+        <input id="confirm-password" type="password" autocomplete="new-password" minlength="8" required>
+        <button type="button" class="password-toggle" data-password="confirm-password" aria-controls="confirm-password" aria-pressed="false">Show password</button>
+        <button id="update-password-button" type="submit">Update password</button>
+        <button id="cancel-recovery" type="button">Cancel and sign out</button>
+      </form>
+    </section>
+    <section id="auth-section" class="card">
+      <p class="eyebrow">A space to connect</p>
+      <h2>Good conversations<br>start here.</h2>
+      <p>Catch up with friends, share your moments, and grow together on Expert Sync.</p>
+
+      <form id="auth-form">
+        <label for="email">Email address</label>
+        <input id="email" type="email" autocomplete="email" required>
+
+        <label for="password">Password</label>
+        <input id="password" type="password"
+          autocomplete="current-password" minlength="8" required>
+        <button type="button" class="password-toggle" data-password="password" aria-controls="password" aria-pressed="false">Show password</button>
+
+        <button id="signin-button" type="submit">Sign in</button>
+        <button id="signup-button" type="button">Create account</button>
+        <button id="forgot-password-button" type="button">Forgot password?</button>
+      </form>
+    </section>
+
+    <section id="profile-section" class="card" hidden>
+      <h2>Create your profile</h2>
+      <form id="profile-form">
+        <label for="display-name">Your name</label>
+        <input id="display-name" maxlength="60"
+          autocomplete="name" required>
+
+        <label for="username">Username</label>
+        <input id="username" minlength="3" maxlength="24"
+          pattern="[a-z0-9_]{3,24}" autocomplete="off"
+          aria-describedby="username-help" required>
+        <p id="username-help">
+          Use 3–24 lowercase letters, numbers or underscores.
+        </p>
+
+        <label for="bio">Bio</label>
+<textarea id="bio" rows="3" maxlength="160"
+  placeholder="Tell us about yourself…"></textarea>
+
+<label for="avatar-file">Profile photo</label>
+<input id="avatar-file" type="file"
+  accept="image/jpeg,image/png,image/webp"
+  aria-describedby="avatar-help">
+<p id="avatar-help">Choose a JPEG, PNG or WebP image up to 2 MB.</p>
+
+<button id="save-profile-button" type="submit">Save profile</button>
+<button id="cancel-profile-button" type="button" hidden>Cancel</button>
+      </form>
+    </section>
+    <nav id="app-navigation" aria-label="Main navigation" hidden>
+  <button id="show-chats-button" type="button" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11.5A8.5 8.5 0 0 1 10.5 3h2A8.5 8.5 0 0 1 21 11.5Z"/><path d="M7 10h9M7 14h6"/></svg><span>Chats</span></button>
+  <button id="show-feed-button" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="8" cy="8" r="1"/><path d="m3 16 5-5 5 5 3-3 5 5"/></svg><span>Photo feed</span></button>
+  <button id="show-notifications-button" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span>Notifications</span></button>
+  <button id="show-settings-button" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg><span>Account &amp; help</span></button>
+  <a class="academy-link" href="https://khanamaan11111-sys.github.io/expert-sync-english-academy/" target="_blank" rel="noopener noreferrer">English Academy</a>
+</nav>
+
+<section id="notifications-section" class="card" hidden aria-labelledby="notifications-title">
+  <h2 id="notifications-title">Notifications</h2>
+  <p>Latest 50 updates about your posts and followers. Refresh to check for new activity.</p>
+  <button id="refresh-notifications" type="button">Refresh notifications</button>
+  <button id="read-notifications" type="button" disabled>Mark displayed notifications as read</button>
+  <p id="notifications-status" role="status" aria-live="polite"></p>
+  <div id="notifications-list"></div>
+</section>
+
+<section id="settings-section" class="card" hidden aria-labelledby="settings-title">
+  <h2 id="settings-title">Account &amp; help</h2>
+  <p id="account-details"></p>
+  <p>Expert Sync Messenger · Founder: Aman</p>
+  <h3>Connection &amp; feature check</h3>
+  <p>Check basic access to app features. This does not send messages or change your data. Slow requests time out after eight seconds. Retry when connected. Passing these checks does not verify every feature or photo permission.</p>
+  <button id="check-app-connection" type="button">Run connection check</button>
+  <div id="connection-check-results" role="status" aria-live="polite"></div>
+  <h3>Your profile data</h3>
+  <p>Download your profile name, username, bio and photo path as JSON. This download does not include chat history, posts or uploaded photo files.</p>
+  <button id="download-profile-data" type="button">Download profile data</button>
+  <h3>Account deletion</h3>
+  <p>A deletion request is sent to the app’s administrator queue. Your account stays active until an administrator processes it. You can cancel while it is pending. Downloaded copies held by others cannot be erased.</p>
+  <p id="deletion-request-status" role="status"></p>
+  <button id="refresh-deletion-request" type="button">Refresh request status</button>
+  <button id="request-account-deletion" type="button">Request account deletion</button>
+  <button id="cancel-account-deletion" type="button" hidden>Cancel deletion request</button>
+  <section id="deletion-admin-panel" hidden><h3>Pending deletion requests</h3><p>Administrator processing required. Verify the current request and account ID before removing any account in Supabase.</p><div id="deletion-admin-list"></div></section>
+  <h3>Blocked members</h3>
+  <p>Blocking stops new direct messages in both directions. Existing chats, community posts and shared groups remain visible.</p>
+  <button id="refresh-blocks" type="button">Refresh blocked members</button>
+  <div id="blocked-members-list" role="status"></div>
+  <h3>My reports</h3>
+  <p>Report a post or message using its Report button. Your reason and the selected content’s text are shared with moderators. Reporting does not automatically remove content.</p>
+  <button id="refresh-reports" type="button">Refresh my reports</button>
+  <p id="reports-status" role="status" aria-live="polite"></p>
+  <div id="my-reports-list"></div>
+  <section id="moderator-panel" hidden aria-labelledby="moderator-title">
+    <h3 id="moderator-title">Moderator review</h3>
+    <p>Latest 100 open reports. Review notes are visible to the reporter. Mark reviewed records a decision. Use Remove reported post or Clear reported message to remove content, with a reason and confirmation. Stored photo files and downloaded copies are not erased by these actions.</p>
+    <div id="moderator-reports-list"></div>
+  </section>
+  <h3>Your learning community</h3>
+  <a class="academy-link" href="https://khanamaan11111-sys.github.io/expert-sync-english-academy/" target="_blank" rel="noopener noreferrer">Explore English Academy ↗</a>
+  <h3>Invite a friend</h3>
+  <label for="invite-text">Your invitation</label>
+  <textarea id="invite-text" rows="4" readonly></textarea>
+  <button id="share-invite" type="button">Share or copy invitation</button>
+  <button id="install-app" type="button" hidden>Install Expert Sync</button>
+  <details><summary>How to use Expert Sync</summary>
+    <p>Use Chats to find a friend by name or username. Choose a matching profile to preview it and start chatting. Open Photo feed to publish photos, like posts and add comments. Edit your name, username, bio and photo using Edit profile in Chats.</p>
+    <p>Photos must be JPEG, PNG or WebP and no larger than 2 MB. Use Ctrl+Enter to send a message on a computer.</p>
+    <p>On iPhone, use Safari's Share menu and Add to Home Screen. On Android, use Install Expert Sync when available, or your browser's install menu.</p>
+  </details>
+  <details><summary>Privacy and community rules</summary>
+    <p>Posts and comments are visible to signed-in members. Profile names, usernames, bios and photos can be viewed by other members. Private chats use membership access controls; end-to-end encryption is not implemented.</p>
+    <p>Be respectful. Do not share passwords, sensitive personal information, abusive content or images you do not have permission to share.</p>
+    <p>Your login session stays on this device. Sign out on shared devices. The app does not store chats or shared photos for offline use.</p>
+  </details>
+</section>
+<section id="feed-section" aria-labelledby="feed-title" hidden>
+  <div class="feed-header">
+    <div><p class="eyebrow">From your community</p><h2 id="feed-title">Discover moments.</h2></div>
+    <button id="refresh-feed-button" type="button">
+      Refresh feed
+    </button>
+  </div>
+
+  <section class="stories-section" aria-labelledby="stories-title">
+    <div class="feed-header"><h3 id="stories-title">Community stories</h3><button id="refresh-stories" type="button">Refresh stories</button></div>
+    <p>Text updates visible to members for 24 hours. Up to three active stories per person. Expired stories are hidden; downloaded copies may remain.</p>
+    <details><summary>Share a text story</summary><form id="story-form">
+      <label for="story-body">Your update</label><textarea id="story-body" maxlength="500" rows="3" required placeholder="Share a thought, a win, or today's learning…"></textarea>
+      <button id="publish-story" type="submit">Publish for 24 hours</button>
+    </form></details>
+    <p id="stories-status" role="status"></p><div id="stories-list"></div>
+  </section>
+
+  <label for="feed-filter">Show posts</label>
+  <select id="feed-filter" style="font:inherit; padding:12px; margin:8px 0 16px; max-width:100%; background:#091927; color:#e8f0fa; border:1px solid #48617d; border-radius:10px;">
+    <option value="all">Everyone</option>
+    <option value="mine">My posts</option>
+    <option value="following">Following</option>
+    <option value="saved">Saved posts</option>
+  </select>
+
+  <details class="post-composer" id="post-composer">
+    <summary>Share a moment <span aria-hidden="true">＋</span></summary>
+    <section aria-labelledby="create-post-title">
+    <h3 id="create-post-title">Share a photo</h3>
+    <p>Your post will be visible to everyone signed in to Expert Sync.</p>
+
+    <form id="post-form">
+      <label for="post-photo">Choose a photo</label>
+      <input id="post-photo" type="file"
+        accept="image/jpeg,image/png,image/webp"
+        aria-describedby="post-photo-help" required>
+      <p id="post-photo-help">
+        Choose a JPEG, PNG or WebP image up to 2 MB.
+      </p>
+
+      <button id="clear-post-photo" type="button">Remove selected photo</button>
+      <img id="post-photo-preview" class="photo-preview" alt="Selected post photo preview" hidden>
+      <label for="post-caption">Caption (optional)</label>
+      <textarea id="post-caption" rows="3" maxlength="2000"
+        placeholder="Write something about your photo…"></textarea>
+
+      <button id="publish-post-button" type="submit">
+        Publish post
+      </button>
+    </form>
+    </section>
+  </details>
+
+  <p id="feed-status" role="status" aria-live="polite"></p>
+  <div id="posts-list"></div>
+  <div class="pagination" aria-label="Feed pages">
+    <button id="previous-feed" type="button" disabled>Previous posts</button>
+    <span id="feed-page-label" role="status">Page 1</span>
+    <button id="next-feed" type="button" disabled>Next posts</button>
+  </div>
+</section>
+
+    <section id="messenger-section" hidden>
+      <aside class="chat-sidebar">
+        <p class="eyebrow">Stay close</p><h2>Your conversations</h2>
+        <img id="my-avatar" alt="Your profile photo"
+  width="72" height="72" hidden
+  style="object-fit:cover; border-radius:50%;">
+<p id="my-profile"></p>
+<p id="my-bio" hidden></p>
+<button id="edit-profile-button" type="button" hidden>
+  Edit profile
+</button>
+
+        <form id="search-form">
+          <label for="search-username">Find your people</label>
+          <input id="search-username" maxlength="60" minlength="2" placeholder="Name or username…"
+            autocomplete="off" required>
+          <button type="submit">Find people</button>
+        </form>
+
+        <div id="search-results"></div>
+        <details>
+          <summary>Create a group chat</summary>
+          <form id="create-group-form">
+            <label for="group-title">Group name</label>
+            <input id="group-title" maxlength="60" required>
+            <label for="group-usernames">Member usernames</label>
+            <textarea id="group-usernames" rows="3" maxlength="500" placeholder="friend_one, friend_two" required></textarea>
+            <p>Add 1–19 other people by exact username, separated by commas. New members can see the group’s chat history.</p>
+            <button id="create-group-button" type="submit">Create group</button>
+          </form>
+        </details>
+        <button id="refresh-chats" type="button">Refresh chats</button>
+        <label for="chat-filter">Filter your chats</label>
+        <input id="chat-filter" type="search" placeholder="Name or username…" autocomplete="off">
+        <div id="chat-list"></div>
+      </aside>
+
+      <section class="conversation" aria-label="Conversation">
+        <div class="conversation-header">
+  <button id="back-to-chats" type="button">Back to chats</button>
+  <h2 id="chat-title">Select a chat</h2>
+  <button id="view-profile-button" type="button" hidden>
+    View profile
+  </button>
+</div>
+
+<section id="group-panel" hidden aria-labelledby="group-panel-title" style="padding:16px; border-bottom:1px solid #304963;">
+  <h3 id="group-panel-title">Group members</h3>
+  <button id="refresh-group-members" type="button">Refresh members</button>
+  <button id="rename-group-button" type="button" hidden>Rename group</button>
+  <ul id="group-members-list"></ul>
+  <form id="add-group-member-form" hidden>
+    <label for="new-group-member">Add someone by username</label>
+    <input id="new-group-member" maxlength="25" required>
+    <button id="add-group-member-button" type="submit">Add member</button>
+  </form>
+  <p>Groups support up to 20 members. New members can see earlier messages. The owner can choose Make owner beside a member to transfer group management. If the owner leaves, ownership passes to the remaining member first in username order. The last member leaving removes the group.</p>
+  <button id="leave-group-button" type="button">Leave group</button>
+</section>
+<section id="friend-profile" aria-labelledby="friend-name" hidden>
+  <img id="friend-avatar" alt="Friend's profile photo"
+    width="96" height="96" hidden
+    style="object-fit:cover; border-radius:50%;">
+  <h3 id="friend-name"></h3>
+  <p id="friend-username"></p>
+  <p id="friend-bio"></p>
+  <div id="friend-block-controls"></div>
+  <button id="close-profile-button" type="button">
+    Close profile
+  </button>
+</section>
+        <div class="chat-tools">
+          <label for="message-search">Search loaded messages</label>
+          <input id="message-search" type="search" placeholder="Search this conversation…" autocomplete="off">
+          <p id="message-search-status" role="status"></p>
+          <button id="refresh-messages" type="button">Refresh messages</button>
+          <button id="load-older-messages" type="button" hidden>Load older messages</button>
+          <p id="history-help"></p>
+        </div>
+        <div id="messages" role="log" aria-live="polite"></div>
+
+        <form id="message-form" hidden>
+  <div id="reply-preview" hidden>
+    <p id="reply-preview-text"></p>
+    <button id="cancel-reply" type="button">Cancel reply</button>
+  </div>
+  <label for="message-input">Message or photo caption</label>
+  <textarea id="message-input" rows="2" maxlength="4000"
+    placeholder="Type a message or add a photo…"></textarea>
+
+  <label for="message-photo">Attach a photo</label>
+  <input id="message-photo" type="file"
+    accept="image/jpeg,image/png,image/webp"
+    aria-describedby="message-photo-help">
+
+  <p id="message-photo-help">
+    Optional: JPEG, PNG or WebP, up to 2 MB. Text drafts are kept for up to 20 chats during this session. Photos and reply selections are not saved as drafts. Signing out or reloading clears drafts.
+  </p>
+
+  <button id="clear-message-photo" type="button">Remove selected photo</button>
+  <img id="message-photo-preview" class="photo-preview" alt="Selected chat photo preview" hidden>
+  <button id="send-button" type="submit">Send</button>
+</form>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="photo-viewer" aria-label="Shared photo">
+    <button id="close-photo-viewer" type="button">Close photo</button>
+    <img id="photo-viewer-image" alt="Shared photo">
+  </dialog>
+  <footer>
+    <p>Expert Sync Messenger · Founder: Aman · Community release</p>
+  </footer>
+</body>
+</html>
+
