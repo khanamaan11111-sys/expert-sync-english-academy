@@ -5369,7 +5369,7 @@ body {
         </select>
       </div>
       <div id="careerAdminJobs" class="jobs-list"></div>
-      <h3 style="margin:18px 0 6px;color:#063b91;font-size:17px">⚑ Trust & Safety Reports</h3><div id="careerAdminReports" class="jobs-list"></div><h3 style="margin:18px 0 6px;color:#063b91;font-size:17px">📨 Recruitment Activity</h3>
+      <h3 style="margin:18px 0 6px;color:#063b91;font-size:17px">⚑ Trust & Safety Reports</h3><div id="careerAdminReports" class="jobs-list"></div><h3 style="margin:18px 0 6px;color:#063b91;font-size:17px">🏢 Employer Verification</h3><div id="careerAdminCompanies" class="jobs-list"></div><h3 style="margin:18px 0 6px;color:#063b91;font-size:17px">📨 Recruitment Activity</h3>
       <div id="careerAdminApplications" class="jobs-list"></div>
     </div>
   </div>
@@ -5487,7 +5487,7 @@ body {
 </div>
 
 <div id="jobPostModal" class="jobs-modal" aria-hidden="true">
-  <form class="jobs-form" id="jobPostForm" onsubmit="submitJobPost(event)">
+  <form class="jobs-form" id="jobPostForm" onsubmit="submitJobPost(event)"><div id="jobPostCompanyGate" class="job-empty" style="margin-bottom:10px"></div>
     <div class="jobs-form-head">
       <div>
         <div style="font-size:9px;font-weight:900;letter-spacing:1.5px;color:#66758b">EMPLOYER / RECRUITER</div>
@@ -18894,7 +18894,18 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   const shown=filter==="all"?all:all.filter(j=>j.status===filter);
   box.innerHTML=shown.length?shown.map(j=>'<article class="career-admin-job"><h4>'+escapeHtml(j.title)+'</h4><p>'+escapeHtml(j.company)+' • '+escapeHtml(j.location)+' • '+escapeHtml(j.category)+' • '+escapeHtml(j.job_type)+'<br>Submitted: '+escapeHtml((j.created_at||"").slice(0,10))+' • Status: <b>'+escapeHtml(j.status)+'</b></p><div class="career-admin-actions">'+(j.status!=="approved"?'<button type="button" onclick="setCareerJobStatus(\''+j.id+'\',\'approved\')">✓ Approve</button>':'')+(j.status!=="rejected"?'<button class="danger" type="button" onclick="setCareerJobStatus(\''+j.id+'\',\'rejected\')">× Reject</button>':'')+'<button type="button" onclick="deleteCareerJob(\''+j.id+'\')">Remove</button></div></article>').join(""):'<div class="job-empty"><strong>No jobs in this view</strong>There is nothing to moderate here.</div>';
  };
- window.setCareerJobStatus=async function(id,status){
+   window.renderCareerCompanies=async function(){
+    var box=document.getElementById("careerAdminCompanies");if(!box||!(await admin()))return;
+    var r=await supabaseClient.from("career_company_profiles").select("*").order("updated_at",{ascending:false}).limit(100);
+    if(r.error){box.innerHTML='<div class="job-empty"><strong>Company verification unavailable</strong>Run the latest SQL migration.</div>';return}
+    box.innerHTML=(r.data||[]).map(function(c){return '<article class="career-admin-job"><h4>'+escapeHtml(c.company_name)+'</h4><p>'+escapeHtml(c.industry||"")+' • '+escapeHtml(c.city||"")+' • '+escapeHtml(c.contact_email||"")+'<br>Status: <b>'+escapeHtml(c.verification_status)+'</b></p><div class="career-admin-actions"><button onclick="setCompanyVerification(\''+c.owner_id+'\',\'verified\')">✓ Verify</button><button class="danger" onclick="setCompanyVerification(\''+c.owner_id+'\',\'suspended\')">Suspend</button><button onclick="setCompanyVerification(\''+c.owner_id+'\',\'pending\')">Pending</button></div></article>'}).join("")||'<div class="job-empty"><strong>No company profiles</strong></div>';
+  };
+  window.setCompanyVerification=async function(owner,status){
+    if(!(await admin()))return;
+    var r=await supabaseClient.from("career_company_profiles").update({verification_status:status,verified_at:status==="verified"?new Date().toISOString():null}).eq("owner_id",owner);
+    if(r.error){alert("Could not update verification.");return}renderCareerCompanies();
+  };
+  window.setCareerJobStatus=async function(id,status){
   if(!(await admin()))return;
   const {error}=await supabaseClient.from("career_jobs").update({status:status,reviewed_at:new Date().toISOString()}).eq("id",id);
   if(error){alert("Update failed: "+error.message);return} renderCareerControlCenter();renderJobListings();renderMyCloudSubmissions();
@@ -19097,13 +19108,20 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
       return '<article class="job-item"><div class="job-top"><div><h4 class="job-title">'+escapeHtml(j.title)+'</h4><p class="job-company">'+escapeHtml(j.company)+'</p></div><span class="job-badge">VERIFIED</span></div><div class="job-meta"><span>📍 '+escapeHtml(j.location)+'</span><span>🕐 '+escapeHtml(j.type)+'</span><span>🏷️ '+escapeHtml(j.category)+'</span><span>💰 '+escapeHtml(j.salary)+'</span></div><p class="job-desc">'+escapeHtml(j.description)+'</p><div class="job-actions">'+apply+'<button class="job-btn" type="button" onclick="shareJobPost(\''+encodeURIComponent(j.title+" — "+j.company+" | "+j.location+" | "+j.type)+'\')">↗ Share</button></div></article>';
     }).join("");
   };
+    window.checkEmployerVerification=async function(){
+    var u=await currentUser(); if(!u)return false;
+    var r=await supabaseClient.from("career_company_profiles").select("company_name,verification_status").eq("owner_id",u.id).maybeSingle();
+    var n=document.getElementById("jobPostCompanyGate");
+    if(n)n.innerHTML=r.data?(r.data.verification_status==="verified"?"✓ "+escapeHtml(r.data.company_name)+" is verified.":"Company verification required. Status: "+escapeHtml(r.data.verification_status)):"Create a Company Profile first. Expert Sync verifies employers before job publishing.";
+    return !!r.data&&r.data.verification_status==="verified";
+  };
   window.submitJobPost=async function(e){
     e.preventDefault();
     if(!cloudReady()){alert("Career service is not connected.");return}
     const user=await currentUser();
-    if(!user){alert("Please log in to submit a job.");return}
+    if(!user){alert("Please log in to submit a job.");return} if(!(await checkEmployerVerification())){alert("Your company must be verified by Expert Sync before you can post a job.");return}
     const get=id=>document.getElementById(id)?.value.trim()||"";
-    const payload={title:get("postJobTitle"),company:get("postJobCompany"),location:get("postJobLocation"),job_type:get("postJobType"),category:get("postJobCategory"),salary:get("postJobSalary")||"Not specified",apply_to:get("postJobApply"),description:get("postJobDescription"),submitted_by:user.id,submitter_email:user.email||null,status:"pending"};
+    const payload={title:get("postJobTitle"),company:get("postJobCompany"),location:get("postJobLocation"),job_type:get("postJobType"),category:get("postJobCategory"),salary:get("postJobSalary")||"Not specified",apply_to:get("postJobApply"),description:get("postJobDescription"),submitted_by:user.id,submitter_email:user.email||null,status:"pending",company_owner_id:user.id};
     const {error}=await supabaseClient.from(table).insert(payload);
     if(error){alert("Job could not be submitted: "+error.message);return}
     document.getElementById("jobPostForm").reset();closeJobPostForm();alert("Job submitted successfully. It is now pending Expert Sync review.");renderMyCloudSubmissions();
