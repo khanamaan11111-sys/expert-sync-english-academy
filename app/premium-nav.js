@@ -62,6 +62,7 @@ document.body.appendChild(n);
 var sheet=document.createElement("div");
 sheet.id="es-more-sheet";
 sheet.innerHTML='<div class="es-sheet-backdrop"></div><section class="es-sheet" role="dialog" aria-modal="true" aria-label="More learning areas"><div class="es-sheet-head"><div><div class="es-kicker">EXPERT SYNC</div><h2>More Learning Areas</h2></div><button type="button" class="es-sheet-close" aria-label="Close menu">×</button></div><div class="es-sheet-grid">'+[
+["🤖","AI Teacher","ai-teacher.html"],
 ["📖","Dictionary","dictionary.html"],
 ["📚","Vocabulary","vocabulary-achievement-center.html"],
 ["📈","Progress","goal-progress.html"],
