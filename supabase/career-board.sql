@@ -81,3 +81,45 @@ with check (
       and j.submitted_by = auth.uid()
   )
 );
+
+
+-- ================= TRUST, VERIFICATION & EXPIRY =================
+alter table public.career_jobs add column if not exists expires_at timestamptz;
+alter table public.career_jobs add column if not exists employer_verified boolean not null default false;
+alter table public.career_jobs add column if not exists is_suspended boolean not null default false;
+alter table public.career_jobs add column if not exists reports_count integer not null default 0;
+alter table public.career_jobs add column if not exists moderation_note text;
+
+create index if not exists career_jobs_expiry_idx on public.career_jobs(expires_at);
+
+create table if not exists public.career_job_reports (
+ id uuid primary key default gen_random_uuid(),
+ job_id uuid not null references public.career_jobs(id) on delete cascade,
+ reporter_id uuid references auth.users(id) on delete set null,
+ reason text not null,
+ created_at timestamptz not null default now(),
+ resolved_at timestamptz
+);
+create index if not exists career_job_reports_job_idx on public.career_job_reports(job_id);
+alter table public.career_job_reports enable row level security;
+
+drop policy if exists career_reports_insert on public.career_job_reports;
+create policy career_reports_insert on public.career_job_reports
+for insert to authenticated with check (reporter_id = auth.uid());
+
+drop policy if exists career_reports_read on public.career_job_reports;
+create policy career_reports_read on public.career_job_reports
+for select to authenticated using (public.is_career_admin());
+
+drop policy if exists career_reports_update on public.career_job_reports;
+create policy career_reports_update on public.career_job_reports
+for update to authenticated using (public.is_career_admin()) with check (public.is_career_admin());
+
+-- Publicly visible means approved, not suspended, and not expired.
+drop policy if exists career_public_read on public.career_jobs;
+create policy career_public_read on public.career_jobs for select to anon,authenticated
+using (
+  (status='approved' and is_suspended=false and (expires_at is null or expires_at > now()))
+  or submitted_by=auth.uid()
+  or public.is_career_admin()
+);
