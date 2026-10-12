@@ -5345,11 +5345,33 @@ body {
     <div id="myJobSubmissions" class="jobs-list"></div>
   </div>
 
+  <div class="jobs-search-card" style="margin-top:0">
+    <div class="jobs-search-title">
+      <h3>📨 My Applications</h3>
+      <span class="jobs-count" id="myApplicationCount">0</span>
+    </div>
+    <div id="myApplications" class="jobs-list"></div>
+  </div>
+
   <div class="job-safety">
     <h3>⚠️ Job Safety</h3>
     <p>Never pay money to get a job. Independently verify the employer and vacancy. Never share OTPs, UPI PINs, ATM PINs, passwords or sensitive financial information with recruiters.</p>
   </div>
 
+</div>
+
+<div id="jobApplyModal" class="jobs-modal" aria-hidden="true">
+  <form class="jobs-form" id="jobApplyForm" onsubmit="submitCareerApplication(event)">
+    <div class="jobs-form-head">
+      <div><div style="font-size:9px;font-weight:900;letter-spacing:1.5px;color:#66758b">JOB APPLICATION</div><h3 id="jobApplyTitle">Apply for Job</h3></div>
+      <button class="jobs-close" type="button" onclick="closeCareerApplication()">×</button>
+    </div>
+    <input id="applyJobId" type="hidden">
+    <div class="jobs-field full"><label>YOUR MESSAGE *</label><textarea id="applyMessage" required placeholder="Introduce yourself and briefly explain why you are a good fit."></textarea></div>
+    <div class="jobs-field full"><label>RESUME / CV LINK (OPTIONAL)</label><input id="applyResumeLink" type="url" placeholder="https://..."></div>
+    <button class="jobs-submit" type="submit">📨 Submit Application</button>
+    <p class="jobs-note">Your application is shared with the job poster and Expert Sync moderation system. Never include passwords, OTPs or financial information.</p>
+  </form>
 </div>
 
 <div id="jobPostModal" class="jobs-modal" aria-hidden="true">
@@ -18721,6 +18743,36 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   else {renderJobListings();renderJobAdmin();}
 })();
 </script>
+<script id="es-career-application-controller">
+(function(){
+  async function user(){return (await supabaseClient.auth.getUser()).data?.user||null}
+  window.openCareerApplication=async function(id,title){
+    const u=await user();if(!u){alert("Please log in to apply for a job.");return}
+    document.getElementById("applyJobId").value=id;
+    document.getElementById("jobApplyTitle").textContent="Apply: "+decodeURIComponent(title);
+    const m=document.getElementById("jobApplyModal");m.classList.add("open");m.setAttribute("aria-hidden","false");
+  };
+  window.closeCareerApplication=function(){const m=document.getElementById("jobApplyModal");if(m){m.classList.remove("open");m.setAttribute("aria-hidden","true")}};
+  window.submitCareerApplication=async function(e){
+    e.preventDefault();
+    const u=await user();if(!u){alert("Please log in first.");return}
+    const payload={job_id:document.getElementById("applyJobId").value,applicant_id:u.id,applicant_name:u.user_metadata?.full_name||"Student",applicant_email:u.email||null,message:document.getElementById("applyMessage").value.trim(),resume_link:document.getElementById("applyResumeLink").value.trim()||null};
+    const {error}=await supabaseClient.from("career_applications").insert(payload);
+    if(error){alert(error.code==="23505"?"You have already applied for this job.":("Application could not be submitted: "+error.message));return}
+    document.getElementById("jobApplyForm").reset();closeCareerApplication();renderMyApplications();alert("Application submitted successfully.");
+  };
+  window.renderMyApplications=async function(){
+    const box=document.getElementById("myApplications"),count=document.getElementById("myApplicationCount");if(!box)return;
+    const u=await user();if(!u){box.innerHTML='<div class="job-empty"><strong>Log in to track applications</strong>Your applications will appear here.</div>';if(count)count.textContent="0";return}
+    const {data,error}=await supabaseClient.from("career_applications").select("*,career_jobs(title,company,location)").eq("applicant_id",u.id).order("created_at",{ascending:false});
+    if(error){box.innerHTML='<div class="job-empty"><strong>Applications unavailable</strong>Run the career application database migration first.</div>';return}
+    if(count)count.textContent=(data||[]).length;
+    box.innerHTML=(data||[]).length?(data||[]).map(a=>'<article class="job-item"><div class="job-top"><div><h4 class="job-title">'+escapeHtml(a.career_jobs?.title||"Job")+'</h4><p class="job-company">'+escapeHtml(a.career_jobs?.company||"")+'</p></div><span class="job-status pending">'+escapeHtml((a.status||"submitted").toUpperCase())+'</span></div><div class="job-meta"><span>📍 '+escapeHtml(a.career_jobs?.location||"")+'</span><span>📅 '+escapeHtml((a.created_at||"").slice(0,10))+'</span></div><p class="job-desc">'+escapeHtml(a.message)+'</p></article>').join(""):'<div class="job-empty"><strong>No applications yet</strong>When you apply, your application status will appear here.</div>';
+  };
+  document.addEventListener("click",e=>{if(e.target.id==="jobApplyModal")closeCareerApplication()});
+  window.addEventListener("load",renderMyApplications);
+})();
+</script>
 <script id="es-career-cloud-sync">
 (function(){
   const table="career_jobs";
@@ -18738,7 +18790,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     if(!jobs.length){list.innerHTML='<div class="job-empty"><strong>No matching jobs found</strong>Try another keyword, location or filter.</div>';return}
     list.innerHTML=jobs.map(j=>{
       let apply='<button class="job-btn apply" type="button" onclick="alert(\'Application contact is not available. Please verify the employer before applying.\')">Apply / Contact</button>';
-      if(/^https?:\/\//i.test(j.apply||""))apply='<a class="job-btn apply" href="'+escapeHtml(j.apply)+'" target="_blank" rel="noopener noreferrer">Apply Now ↗</a>';
+      apply='<button class="job-btn apply" type="button" onclick="openCareerApplication(\''+j.id+'\',\''+encodeURIComponent(j.title)+'\')">Apply on Expert Sync</button>'; if(/^https?:\/\//i.test(j.apply||""))apply+='<a class="job-btn" href="'+escapeHtml(j.apply)+'" target="_blank" rel="noopener noreferrer">Employer ↗</a>';
       else if(j.apply)apply='<a class="job-btn apply" href="mailto:'+encodeURIComponent(j.apply)+'">Apply by Email</a>';
       return '<article class="job-item"><div class="job-top"><div><h4 class="job-title">'+escapeHtml(j.title)+'</h4><p class="job-company">'+escapeHtml(j.company)+'</p></div><span class="job-badge">VERIFIED</span></div><div class="job-meta"><span>📍 '+escapeHtml(j.location)+'</span><span>🕐 '+escapeHtml(j.type)+'</span><span>🏷️ '+escapeHtml(j.category)+'</span><span>💰 '+escapeHtml(j.salary)+'</span></div><p class="job-desc">'+escapeHtml(j.description)+'</p><div class="job-actions">'+apply+'<button class="job-btn" type="button" onclick="shareJobPost(\''+encodeURIComponent(j.title+" — "+j.company+" | "+j.location+" | "+j.type)+'\')">↗ Share</button></div></article>';
     }).join("");
