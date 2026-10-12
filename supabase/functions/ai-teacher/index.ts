@@ -51,12 +51,36 @@ Deno.serve(async (req) => {
     const learnerProfile = body.learner_profile && typeof body.learner_profile === "object" ? body.learner_profile : {};
     if (!message) throw new Error("Message is required.");
 
+    // Retrieve the most relevant Expert Sync teaching knowledge before generating the answer.
+    // The knowledge base is intentionally small and curated; this keeps retrieval predictable.
+    let knowledgeContext = "";
+    try {
+      const kbUrl = supabaseUrl + "/rest/v1/ai_teacher_knowledge?select=title,category,content,tags,level&limit=100";
+      const kbRes = await fetch(kbUrl, {
+        headers: { apikey: supabaseAnon, Authorization: `Bearer ${jwt}` }
+      });
+      if (kbRes.ok) {
+        const rows = await kbRes.json();
+        const terms = message.toLowerCase().split(/[^a-z0-9]+/).filter((x: string) => x.length >= 4);
+        const ranked = rows.map((r: any) => {
+          const hay = [r.title, r.category, r.content, ...(r.tags || []), r.level].join(" ").toLowerCase();
+          return { r, score: terms.reduce((n: number, t: string) => n + (hay.includes(t) ? 1 : 0), 0) };
+        }).sort((a: any, b: any) => b.score - a.score).slice(0, 4).filter((x: any) => x.score > 0);
+        knowledgeContext = ranked.map((x: any) => `[Expert Sync ${x.r.category}] ${x.r.title}: ${String(x.r.content).slice(0, 1800)}`).join("\n");
+      }
+    } catch (_) {
+      knowledgeContext = "";
+    }
+
     const apiKey = Deno.env.get("OPENAI_API_KEY");
     if (!apiKey) throw new Error("AI Teacher backend is not configured. Add OPENAI_API_KEY to Supabase secrets.");
 
     const modeInstruction = `Current teaching mode: ${mode}. Stay focused on this mode unless the learner asks to change it. Learner profile: ${JSON.stringify(learnerProfile).slice(0,5000)}
 Adaptive lesson rule: When the learner asks for a lesson, design it from their level, goal, recent mistakes, and recent conversation. Prefer one learning objective at a time. Teach briefly, then require the learner to produce an answer. Give corrective feedback before moving forward. End with a short mastery check and a concrete next step.
-Do not dump a long worksheet in one message; run the lesson interactively, one meaningful task at a time.`;
+Do not dump a long worksheet in one message; run the lesson interactively, one meaningful task at a time.
+When Expert Sync knowledge is supplied below, treat it as academy-specific guidance and use it when relevant. Do not invent academy policies or facts beyond the supplied knowledge.
+Expert Sync knowledge:
+${knowledgeContext || "No specific academy knowledge matched this request."}`;
     const input = [
       { role: "developer", content: system + "\n" + modeInstruction },
       ...history.map((x: any) => ({ role: x.role === "assistant" ? "assistant" : "user", content: String(x.content || "").slice(0, 6000) })),
