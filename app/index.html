@@ -2637,7 +2637,9 @@ body {
 @media print{body>*{display:none!important}#careerResumePrintRoot{display:block!important}.career-resume-paper{border:0!important;border-radius:0!important;box-shadow:none!important}}
 </style><style id="es-career-match-css">
 .career-match-card .job-match-score{font-size:10px;font-weight:900;color:#063b91;background:#edf4fd;border-radius:999px;padding:6px 9px}.match-good{color:#146b3a!important;background:#eaf7ef!important}.match-mid{color:#765900!important;background:#fff5d6!important}.match-low{color:#8a3a3a!important;background:#fff0f0!important}.career-match-points{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}.career-match-points span{font-size:9px;padding:5px 7px;border:1px solid #dbe5f2;border-radius:8px;color:#536176;background:#fff}.career-match-tip{font-size:10px;color:#66758b;line-height:1.45;margin:7px 0 0}
-</style><style id="es-company-profile-css">.company-verified{color:#146b3a!important;background:#eaf7ef!important}.company-pending{color:#765900!important;background:#fff5d6!important}.company-suspended{color:#a32626!important;background:#fff0f0!important}</style></head>
+</style><style id="es-company-profile-css">.company-verified{color:#146b3a!important;background:#eaf7ef!important}.company-pending{color:#765900!important;background:#fff5d6!important}.company-suspended{color:#a32626!important;background:#fff0f0!important}</style><style id="es-public-company-css">
+.company-directory-item{cursor:pointer}.company-directory-item:hover{border-color:#b9cbe2}.company-public-hero{border:1px solid #dbe5f2;border-radius:14px;padding:14px;background:#f8fbff}.company-public-hero h4{margin:0;color:#063b91;font-size:18px}.company-public-hero p{margin:5px 0;color:#66758b;font-size:10px;line-height:1.5}.company-public-badge{display:inline-block;margin-top:7px;padding:5px 8px;border-radius:999px;background:#eaf7ef;color:#146b3a;font-size:9px;font-weight:900}.company-public-jobs{margin-top:12px}
+</style></head>
 
 <body class="es-premium"> 
   <!-- ================= STUDENT ACCOUNT GATE ================= -->
@@ -5403,6 +5405,18 @@ body {
       <button class="jobs-submit" type="submit">💾 Save Career Profile</button>
       <p class="jobs-note">Only you and authorized Expert Sync administrators can access your profile through the database policies.</p>
     </form>
+  </div>
+
+  <div class="jobs-search-card" style="margin-top:0">
+    <div class="jobs-search-title"><h3>🏢 Verified Companies</h3><span class="jobs-count" id="careerCompanyCount">0</span></div>
+    <p style="margin:0;color:#66758b;font-size:11px">Explore verified employers and their active opportunities.</p>
+    <div id="careerCompanyDirectory" class="jobs-list"></div>
+  </div>
+  <div id="careerCompanyPublicModal" class="jobs-modal" aria-hidden="true">
+    <div class="jobs-form" style="max-width:760px">
+      <div class="jobs-form-head"><div><div style="font-size:9px;font-weight:900;letter-spacing:1.5px;color:#66758b">VERIFIED EMPLOYER</div><h3 id="careerCompanyPublicName">Company</h3></div><button class="jobs-close" type="button" onclick="closePublicCompany()">×</button></div>
+      <div id="careerCompanyPublicBody"></div>
+    </div>
   </div>
 
   <div class="jobs-search-card" style="margin-top:0"><div class="jobs-search-title"><h3>🏢 Company Profile</h3><span class="jobs-count" id="companyVerificationBadge">UNVERIFIED</span></div><p style="margin:0;color:#66758b;font-size:11px">Create your employer identity and request Expert Sync verification.</p><button class="jobs-submit" type="button" onclick="openCompanyProfile()">Create / Edit Company Profile</button><div id="companyProfilePreview" class="career-profile-preview"></div></div>
@@ -19002,6 +19016,30 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   };
   document.addEventListener("click",e=>{if(e.target.id==="jobApplyModal")closeCareerApplication()});
   window.addEventListener("load",renderMyApplications);
+})();
+</script>
+<script id="es-public-company-controller">
+(function(){
+ function esc(x){return String(x||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]})}
+ window.renderPublicCompanies=async function(){
+  var box=document.getElementById("careerCompanyDirectory"),count=document.getElementById("careerCompanyCount");if(!box)return;
+  var r=await supabaseClient.from("career_company_profiles").select("*").eq("verification_status","verified").order("company_name",{ascending:true});
+  if(r.error){box.innerHTML='<div class="job-empty"><strong>Companies unavailable</strong>Please try again later.</div>';return}
+  if(count)count.textContent=(r.data||[]).length;
+  box.innerHTML=(r.data||[]).length?(r.data||[]).map(function(c){return '<article class="job-item company-directory-item" onclick="openPublicCompany(\''+c.owner_id+'\')"><div class="job-top"><div><h4 class="job-title">'+esc(c.company_name)+'</h4><p class="job-company">'+esc(c.industry||"Industry not provided")+' • '+esc(c.city||"Location not provided")+'</p></div><span class="company-public-badge">✓ VERIFIED</span></div><p class="job-desc">'+esc(c.description||"Verified Expert Sync employer.")+'</p></article>'}).join(""):'<div class="job-empty"><strong>No verified companies yet</strong>Verified employers will appear here.</div>';
+ };
+ window.openPublicCompany=async function(owner){
+  var m=document.getElementById("careerCompanyPublicModal"),body=document.getElementById("careerCompanyPublicBody"),name=document.getElementById("careerCompanyPublicName");if(!m)return;
+  var r=await supabaseClient.from("career_company_profiles").select("*").eq("owner_id",owner).eq("verification_status","verified").maybeSingle();if(r.error||!r.data){alert("Company profile is unavailable.");return}
+  var c=r.data;if(name)name.textContent=c.company_name;
+  var j=await supabaseClient.from("career_jobs").select("*").eq("company_owner_id",owner).eq("status","approved").eq("is_suspended",false).order("created_at",{ascending:false});
+  var jobs=(j.data||[]).filter(function(x){return !x.expires_at||new Date(x.expires_at)>new Date()});
+  body.innerHTML='<div class="company-public-hero"><h4>'+esc(c.company_name)+'</h4><p>'+esc(c.industry||"")+' • '+esc(c.city||"")+'</p><span class="company-public-badge">✓ VERIFIED EMPLOYER</span><p>'+esc(c.description||"")+'</p>'+(c.website?'<p>🌐 <a href="'+esc(c.website)+'" target="_blank" rel="noopener noreferrer">Company Website ↗</a></p>':'')+'</div><div class="company-public-jobs"><h4 style="color:#063b91">Active Opportunities ('+jobs.length+')</h4>'+(jobs.length?jobs.map(function(x){return '<article class="job-item"><h4 class="job-title">'+esc(x.title)+'</h4><p class="job-company">'+esc(x.location)+' • '+esc(x.job_type)+' • '+esc(x.category)+'</p><button class="job-btn apply" onclick="openCareerApplication(\''+x.id+'\',\''+encodeURIComponent(x.title)+'\')">Apply on Expert Sync</button></article>'}).join(""):'<div class="job-empty"><strong>No active vacancies</strong>This verified company has no published opportunities right now.</div>')+'</div>';
+  m.classList.add("open");m.setAttribute("aria-hidden","false");
+ };
+ window.closePublicCompany=function(){var m=document.getElementById("careerCompanyPublicModal");if(m)m.classList.remove("open")};
+ document.addEventListener("click",function(e){if(e.target.id==="careerCompanyPublicModal")closePublicCompany()});
+ window.addEventListener("load",renderPublicCompanies);
 })();
 </script>
 <script id="es-career-match-controller">
