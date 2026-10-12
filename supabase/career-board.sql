@@ -353,3 +353,30 @@ drop policy if exists career_interviews_update on public.career_interviews;
 create policy career_interviews_update on public.career_interviews for update to authenticated
 using (candidate_id=auth.uid() or organizer_id=auth.uid() or public.is_career_admin())
 with check (candidate_id=auth.uid() or organizer_id=auth.uid() or public.is_career_admin());
+
+
+-- ================= APPLICATION STATUS HISTORY =================
+create table if not exists public.career_application_events (
+  id uuid primary key default gen_random_uuid(),
+  application_id uuid not null references public.career_applications(id) on delete cascade,
+  actor_id uuid not null references auth.users(id) on delete cascade,
+  from_status text,
+  to_status text not null,
+  note text,
+  created_at timestamptz not null default now()
+);
+create index if not exists career_application_events_app_idx on public.career_application_events(application_id,created_at);
+alter table public.career_application_events enable row level security;
+drop policy if exists career_application_events_read on public.career_application_events;
+create policy career_application_events_read on public.career_application_events for select to authenticated
+using (
+ actor_id=auth.uid() or
+ exists (select 1 from public.career_applications a join public.career_jobs j on j.id=a.job_id where a.id=career_application_events.application_id and (a.applicant_id=auth.uid() or j.submitted_by=auth.uid()))
+ or public.is_career_admin()
+);
+drop policy if exists career_application_events_insert on public.career_application_events;
+create policy career_application_events_insert on public.career_application_events for insert to authenticated
+with check (
+ actor_id=auth.uid() and
+ exists (select 1 from public.career_applications a join public.career_jobs j on j.id=a.job_id where a.id=career_application_events.application_id and (a.applicant_id=auth.uid() or j.submitted_by=auth.uid()))
+);
