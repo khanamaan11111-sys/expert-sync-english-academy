@@ -5337,6 +5337,36 @@ body {
     <div id="jobListings" class="jobs-list"></div>
   </div>
 
+  <div class="jobs-search-card" style="margin-top:0;border-color:#cfdcf0">
+    <div class="jobs-search-title">
+      <h3>🛡️ Expert Sync Admin Control</h3>
+      <span class="jobs-count" id="careerAdminSummary">ADMIN</span>
+    </div>
+    <p style="margin:0;color:#66758b;font-size:11px;line-height:1.5">Moderate vacancies, review applications, and keep the career board trustworthy.</p>
+    <button class="jobs-submit" type="button" style="margin-top:11px" onclick="openCareerControlCenter()">Open Career Control Center</button>
+  </div>
+
+  <div id="careerControlCenter" class="jobs-modal" aria-hidden="true">
+    <div class="jobs-form" style="max-width:900px">
+      <div class="jobs-form-head">
+        <div><div style="font-size:9px;font-weight:900;letter-spacing:1.5px;color:#66758b">EXPERT SYNC ADMIN</div><h3>Career Control Center</h3></div>
+        <button class="jobs-close" type="button" onclick="closeCareerControlCenter()">×</button>
+      </div>
+      <div id="careerAdminStats" class="career-admin-stats"></div>
+      <div class="jobs-filters" style="margin-bottom:10px">
+        <select id="careerAdminFilter" onchange="renderCareerControlCenter()">
+          <option value="pending">Pending Jobs</option><option value="approved">Approved Jobs</option><option value="rejected">Rejected Jobs</option><option value="all">All Jobs</option>
+        </select>
+        <select id="careerAdminAppFilter" onchange="renderCareerApplicationsAdmin()">
+          <option value="all">All Applications</option><option value="submitted">Submitted</option><option value="shortlisted">Shortlisted</option><option value="hired">Hired</option><option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div id="careerAdminJobs" class="jobs-list"></div>
+      <h3 style="margin:18px 0 6px;color:#063b91;font-size:17px">📨 Recruitment Activity</h3>
+      <div id="careerAdminApplications" class="jobs-list"></div>
+    </div>
+  </div>
+
   <div class="jobs-search-card" style="margin-top:0">
     <div class="jobs-search-title">
       <h3>📋 My Job Submissions</h3>
@@ -18760,6 +18790,48 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeJobPostForm();closeJobAdmin();}});
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){renderJobListings();renderJobAdmin();});
   else {renderJobListings();renderJobAdmin();}
+})();
+</script>
+<script id="es-career-control-center">
+(function(){
+ async function admin(){try{const u=(await supabaseClient.auth.getUser()).data?.user;return !!u&&u.app_metadata?.role==="admin"}catch(e){return false}}
+ window.openCareerControlCenter=async function(){
+  if(!(await admin())){alert("Admin access required.");return}
+  const p=document.getElementById("careerControlCenter");if(p){p.classList.add("open");p.setAttribute("aria-hidden","false");renderCareerControlCenter();renderCareerApplicationsAdmin()}
+ };
+ window.closeCareerControlCenter=function(){const p=document.getElementById("careerControlCenter");if(p)p.classList.remove("open")};
+ window.renderCareerControlCenter=async function(){
+  if(!(await admin()))return;
+  const filter=document.getElementById("careerAdminFilter")?.value||"pending",box=document.getElementById("careerAdminJobs"),stats=document.getElementById("careerAdminStats");if(!box)return;
+  const {data:jobs,error}=await supabaseClient.from("career_jobs").select("*").order("created_at",{ascending:false});
+  if(error){box.innerHTML='<div class="job-empty"><strong>Could not load jobs</strong>'+escapeHtml(error.message)+'</div>';return}
+  const all=jobs||[],pending=all.filter(j=>j.status==="pending").length,approved=all.filter(j=>j.status==="approved").length,rejected=all.filter(j=>j.status==="rejected").length;
+  if(stats)stats.innerHTML='<div class="career-admin-stat"><b>'+all.length+'</b><span>Total</span></div><div class="career-admin-stat"><b>'+pending+'</b><span>Pending</span></div><div class="career-admin-stat"><b>'+approved+'</b><span>Live</span></div><div class="career-admin-stat"><b>'+rejected+'</b><span>Rejected</span></div>';
+  const shown=filter==="all"?all:all.filter(j=>j.status===filter);
+  box.innerHTML=shown.length?shown.map(j=>'<article class="career-admin-job"><h4>'+escapeHtml(j.title)+'</h4><p>'+escapeHtml(j.company)+' • '+escapeHtml(j.location)+' • '+escapeHtml(j.category)+' • '+escapeHtml(j.job_type)+'<br>Submitted: '+escapeHtml((j.created_at||"").slice(0,10))+' • Status: <b>'+escapeHtml(j.status)+'</b></p><div class="career-admin-actions">'+(j.status!=="approved"?'<button type="button" onclick="setCareerJobStatus(\''+j.id+'\',\'approved\')">✓ Approve</button>':'')+(j.status!=="rejected"?'<button class="danger" type="button" onclick="setCareerJobStatus(\''+j.id+'\',\'rejected\')">× Reject</button>':'')+'<button type="button" onclick="deleteCareerJob(\''+j.id+'\')">Remove</button></div></article>').join(""):'<div class="job-empty"><strong>No jobs in this view</strong>There is nothing to moderate here.</div>';
+ };
+ window.setCareerJobStatus=async function(id,status){
+  if(!(await admin()))return;
+  const {error}=await supabaseClient.from("career_jobs").update({status:status,reviewed_at:new Date().toISOString()}).eq("id",id);
+  if(error){alert("Update failed: "+error.message);return} renderCareerControlCenter();renderJobListings();renderMyCloudSubmissions();
+ };
+ window.deleteCareerJob=async function(id){
+  if(!(await admin()))return;if(!confirm("Remove this vacancy and its applications?"))return;
+  const {error}=await supabaseClient.from("career_jobs").delete().eq("id",id);
+  if(error){alert("Remove failed: "+error.message);return}renderCareerControlCenter();renderCareerApplicationsAdmin();renderJobListings();
+ };
+ window.renderCareerApplicationsAdmin=async function(){
+  const box=document.getElementById("careerAdminApplications");if(!box||!(await admin()))return;
+  const filter=document.getElementById("careerAdminAppFilter")?.value||"all";
+  const {data,error}=await supabaseClient.from("career_applications").select("*,career_jobs(title,company)").order("created_at",{ascending:false}).limit(100);
+  if(error){box.innerHTML='<div class="job-empty"><strong>Applications unavailable</strong>Run the application database migration first.</div>';return}
+  const apps=(data||[]).filter(a=>filter==="all"||a.status===filter);
+  box.innerHTML=apps.length?apps.map(a=>'<article class="career-app"><b>'+escapeHtml(a.career_jobs?.title||"Job")+' — '+escapeHtml(a.applicant_name||"Applicant")+'</b><small>'+escapeHtml(a.career_jobs?.company||"")+' • '+escapeHtml(a.applicant_email||"No email")+' • '+escapeHtml((a.created_at||"").slice(0,10))+'</small><small>'+escapeHtml(a.message)+'</small>'+(a.resume_link?'<a class="job-btn apply" style="margin-top:7px" href="'+escapeHtml(a.resume_link)+'" target="_blank" rel="noopener noreferrer">📄 View CV</a>':'')+'<select onchange="adminSetApplicationStatus(\''+a.id+'\',this.value)"><option value="submitted" '+(a.status==="submitted"?"selected":"")+'>Submitted</option><option value="shortlisted" '+(a.status==="shortlisted"?"selected":"")+'>Shortlisted</option><option value="rejected" '+(a.status==="rejected"?"selected":"")+'>Rejected</option><option value="hired" '+(a.status==="hired"?"selected":"")+'>Hired</option></select></article>').join(""):'<div class="job-empty"><strong>No applications</strong>No recruitment activity matches this filter.</div>';
+ };
+ window.adminSetApplicationStatus=async function(id,status){
+  if(!(await admin()))return;const {error}=await supabaseClient.from("career_applications").update({status:status,updated_at:new Date().toISOString()}).eq("id",id);if(error){alert("Update failed: "+error.message);return}renderCareerApplicationsAdmin();renderMyApplications();
+ };
+ document.addEventListener("click",e=>{if(e.target.id==="careerControlCenter")closeCareerControlCenter()});
 })();
 </script>
 <script id="es-employer-dashboard-controller">
