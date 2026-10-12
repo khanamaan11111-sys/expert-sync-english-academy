@@ -318,6 +318,28 @@ margin:0!important;
 #stageHint{top:21%!important}#nextAction{top:28%!important}
 #toast{left:50%!important;right:auto!important;bottom:73px!important;transform:translateX(-50%)!important;max-width:88vw!important;text-align:center!important;z-index:220!important}
 }
+</style><style id="es-flight-emergency-mobile-v6">
+@media(max-width:700px){
+#es-emergency-sheet{position:fixed;inset:0;z-index:10020;display:none}
+#es-emergency-sheet.open{display:block}
+.es-em-back{position:absolute;inset:0;background:#06131caa;backdrop-filter:blur(4px)}
+.es-em-card{position:absolute;left:10px;right:10px;bottom:76px;background:#091b25;border:1px solid #4a6873;border-radius:22px;padding:18px;color:#eaf7fa;box-shadow:0 20px 60px #000b}
+.es-em-card h2{margin:0 0 5px;font-size:19px;color:#fff}
+.es-em-card p{margin:0 0 13px;font-size:11px;line-height:1.5;color:#b9d0d7}
+.es-em-grid{display:grid;grid-template-columns:1fr;gap:9px}
+.es-em-action{min-height:56px;border-radius:14px;border:1px solid #744d55;background:#1b2027;color:#fff;font-weight:900;font-size:11px;text-align:left;padding:10px 12px}
+.es-em-action span{display:block;font-size:17px;margin-bottom:2px}
+.es-em-action small{display:block;font-size:8px;color:#b9d0d7;font-weight:600}
+.es-em-close{width:100%;margin-top:10px;min-height:46px;border:1px solid #42616b;border-radius:13px;background:#102a35;color:#dff5f8;font-weight:900}
+#es-em-confirm{position:fixed;inset:0;z-index:10030;display:none;place-items:center;padding:20px}
+#es-em-confirm.open{display:grid}
+.es-confirm-card{width:min(430px,100%);background:#fff;color:#172033;border-radius:22px;padding:20px;box-shadow:0 25px 70px #0008}
+.es-confirm-card h3{margin:0 0 7px;color:#063b91}
+.es-confirm-card p{font-size:12px;line-height:1.5;color:#66758b}
+.es-confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.es-confirm-actions button{min-height:48px;border-radius:13px;font-weight:900;border:1px solid #dbe5f2}
+.es-confirm-yes{background:#063b91;color:#fff}.es-confirm-no{background:#f4f8ff;color:#063b91}
+}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
@@ -2019,6 +2041,26 @@ if(t){t.addEventListener("pointerup",function(){t.releasePointerCapture?.(event.
 document.querySelectorAll("#cockpit .switch,#cockpit button").forEach(function(el){el.addEventListener("pointerdown",function(){if(navigator.vibrate)navigator.vibrate(8)},{passive:true});});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ready);else ready();
+})();
+</script><script id="es-flight-emergency-controller">
+(function(){
+function setup(){
+if(window.innerWidth>700)return;
+var more=document.querySelector("#es-more-sheet .es-sheet-grid");
+if(!more||document.getElementById("es-emergency-open"))return;
+var b=document.createElement("button");b.type="button";b.id="es-emergency-open";b.className="es-sheet-item";b.innerHTML="<span>🚨</span><b>Emergency Training</b>";more.appendChild(b);
+var sheet=document.createElement("div");sheet.id="es-emergency-sheet";sheet.innerHTML='<div class="es-em-back"></div><section class="es-em-card" role="dialog" aria-modal="true" aria-label="Emergency training"><h2>🚨 Emergency Training</h2><p>These drills change the aircraft training state. Choose deliberately so an accidental tap cannot trigger an emergency scenario.</p><div class="es-em-grid"><button class="es-em-action" data-em="failure"><span>🛑 Engine Failure</span><small>Simulated engine-out response drill</small></button><button class="es-em-action" data-em="stall"><span>⚠️ Stall Drill</span><small>Practice stall recognition and recovery</small></button><button class="es-em-action" data-em="go"><span>↩️ Go-Around</span><small>Practice an immediate go-around procedure</small></button></div><button class="es-em-close">Close</button></section>';
+document.body.appendChild(sheet);
+var confirm=document.createElement("div");confirm.id="es-em-confirm";confirm.innerHTML='<div class="es-backdrop es-em-back"></div><section class="es-confirm-card" role="dialog" aria-modal="true" aria-label="Confirm emergency drill"><h3 id="es-confirm-title">Confirm training drill</h3><p id="es-confirm-text">Start this simulated training event?</p><div class="es-confirm-actions"><button class="es-confirm-no">Cancel</button><button class="es-confirm-yes">Start Drill</button></div></section>';document.body.appendChild(confirm);
+var pending=null;
+function close(){sheet.classList.remove("open");confirm.classList.remove("open");pending=null}
+b.addEventListener("click",function(){document.getElementById("es-more-sheet").classList.remove("open");sheet.classList.add("open")});
+sheet.querySelector(".es-em-back").addEventListener("click",close);sheet.querySelector(".es-em-close").addEventListener("click",close);
+sheet.querySelectorAll(".es-em-action").forEach(function(x){x.addEventListener("click",function(){pending=x.dataset.em;document.getElementById("es-confirm-title").textContent="Confirm "+x.textContent.trim();document.getElementById("es-confirm-text").textContent="This will start a simulated training event. Continue?";confirm.classList.add("open")})});
+confirm.querySelector(".es-confirm-no").addEventListener("click",close);confirm.querySelector(".es-em-back").addEventListener("click",close);
+confirm.querySelector(".es-confirm-yes").addEventListener("click",function(){var map={failure:"failureBtn",stall:"stallBtn",go:"goAroundBtn"};var target=document.getElementById(map[pending]);close();if(target)target.click()});
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup);else setup();
 })();
 </script></body>
 </html>
