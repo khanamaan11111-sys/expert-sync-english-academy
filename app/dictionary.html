@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head><link rel="stylesheet" href="design-system.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#031b3f">
@@ -20,8 +20,8 @@ input,select{width:100%;padding:13px;border:1px solid #cbd8e8;border-radius:12px
 footer{text-align:center;color:#64748b;font-size:11px;padding:25px 10px 40px}
 @media(max-width:600px){.filters,.grid{grid-template-columns:1fr}.title{font-size:24px}}@media print{header{border-radius:0;box-shadow:none}.toolbar,.notice,.actions,footer{display:none}.wrap{max-width:none;padding:0}.card{break-inside:avoid;box-shadow:none}}
 </style>
-<script src="app-shell.js"></script><script src="learning-context.js"></script></head>
-<body>
+<script src="app-shell.js"></script><script src="learning-context.js"></script><style>.es-premium .card,.es-premium .word-card,.es-premium .result,.es-premium .search-box{border-radius:22px;box-shadow:0 16px 42px rgba(6,27,61,.09)}.es-premium button,.es-premium input,.es-premium select{border-radius:14px;min-height:48px}.es-premium .hero{box-shadow:0 18px 45px rgba(6,27,61,.16)}</style></head>
+<body class="es-premium">
 <header><div class="brand">EXPERT SYNC ENGLISH ACADEMY</div><div class="logo">📖</div><h1 class="title">Dictionary Pro</h1><div class="sub">English-first learning with simple explanations, Roman Hinglish, pronunciation, useful examples, collocations and career communication.</div></header><div style="max-width:940px;margin:10px auto;padding:0 16px"><a href="index.html" style="display:block;text-align:center;background:#d6a900;color:#111;padding:11px;border-radius:11px;font-weight:bold;text-decoration:none">← Back to Student App</a></div>
 <main class="wrap">
 <div class="toolbar"><div class="filters"><input id="q" type="search" placeholder="Search word, meaning, Hinglish or example…" oninput="render()"><select id="level" onchange="render()"><option value="">All levels</option><option>A2</option><option>B1</option><option>B2</option></select></div><div class="btns"><button class="btn primary" onclick="showRandom()">🎯 Word of the moment</button><button class="btn gold" onclick="window.print()">📥 Save as PDF</button><button class="btn light" onclick="location.href='vocabulary-trainer.html'">🎯 Vocabulary Trainer</button><button class="btn light" onclick="location.href='vocabulary-progress.html'">📊 My Progress</button><button class="btn light" onclick="location.href='index.html'">← Student App</button></div></div>
