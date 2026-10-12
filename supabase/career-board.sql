@@ -267,3 +267,46 @@ create policy company_profile_admin_update on public.career_company_profiles
 for update to authenticated
 using (owner_id=auth.uid() or public.is_career_admin())
 with check (owner_id=auth.uid() or public.is_career_admin());
+
+
+-- ================= CANDIDATE / EMPLOYER MESSAGING =================
+create table if not exists public.career_messages (
+  id uuid primary key default gen_random_uuid(),
+  application_id uuid not null references public.career_applications(id) on delete cascade,
+  sender_id uuid not null references auth.users(id) on delete cascade,
+  recipient_id uuid not null references auth.users(id) on delete cascade,
+  message text not null check (char_length(message) between 1 and 4000),
+  created_at timestamptz not null default now(),
+  read_at timestamptz
+);
+create index if not exists career_messages_application_idx on public.career_messages(application_id,created_at);
+create index if not exists career_messages_recipient_idx on public.career_messages(recipient_id,created_at desc);
+alter table public.career_messages enable row level security;
+
+drop policy if exists career_messages_read on public.career_messages;
+create policy career_messages_read on public.career_messages for select to authenticated
+using (
+ sender_id=auth.uid() or recipient_id=auth.uid() or public.is_career_admin()
+);
+
+drop policy if exists career_messages_insert on public.career_messages;
+create policy career_messages_insert on public.career_messages for insert to authenticated
+with check (
+ sender_id=auth.uid()
+ and (
+   recipient_id=auth.uid()
+   or exists (
+     select 1 from public.career_applications a
+     where a.id=career_messages.application_id
+       and (a.applicant_id=auth.uid() or exists (
+         select 1 from public.career_jobs j
+         where j.id=a.job_id and j.submitted_by=auth.uid()
+       ))
+   )
+ )
+);
+
+drop policy if exists career_messages_update on public.career_messages;
+create policy career_messages_update on public.career_messages for update to authenticated
+using (recipient_id=auth.uid() or public.is_career_admin())
+with check (recipient_id=auth.uid() or public.is_career_admin());
