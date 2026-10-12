@@ -18312,5 +18312,10 @@ if (studentLogoutButton) {
 }
 </script>
 
-<div style="position:fixed;right:14px;bottom:14px;z-index:9999"><a href="launch-hub.html" style="display:block;background:#d6a900;color:#111;text-decoration:none;font-weight:900;padding:12px 16px;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.18)">🚀 Open Student Launch Hub</a></div><script src="premium-nav.js"></script></body>
+<a class="mobile-launch-fab" href="launch-hub.html" aria-label="Open Student Launch Hub" title="Open Student Launch Hub">🚀</a>
+<style id="es-mobile-launch-fab">
+.mobile-launch-fab{position:fixed;right:12px;bottom:12px;z-index:9999;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#d6a900;color:#111;text-decoration:none;font-size:21px;line-height:1;box-shadow:0 7px 18px rgba(0,0,0,.2);border:2px solid rgba(255,255,255,.85);-webkit-tap-highlight-color:transparent;transition:transform .15s ease}
+.mobile-launch-fab:active{transform:scale(.92)}
+@media(min-width:701px){.mobile-launch-fab{width:auto;height:auto;border-radius:14px;padding:12px 16px;font-size:14px}.mobile-launch-fab:after{content:" Open Student Launch Hub";font-size:14px;font-weight:900}}
+</style><script src="premium-nav.js"></script></body>
 </html>
