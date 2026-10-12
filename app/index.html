@@ -2430,6 +2430,26 @@ body {
 @media(max-width:700px){
   .mobile-launch-fab{width:50px;height:50px}
 }
+</style><style id="es-login-mobile-clean-v17">
+@media(max-width:600px){
+  body.es-login-gate-open{overflow:hidden!important;padding-bottom:0!important}
+  body.es-login-gate-open .bottom-nav,
+  body.es-login-gate-open .mobile-launch-fab{display:none!important}
+  body.es-login-gate-open .student-account-gate{padding:10px 10px!important}
+  body.es-login-gate-open .account-terminal{max-height:calc(100vh - 20px)!important;overflow-y:auto!important;margin:0 auto!important;border-radius:18px!important}
+  body.es-login-gate-open .account-airline-strip{padding:11px 14px!important;font-size:9px!important}
+  body.es-login-gate-open .account-logo{width:58px!important;height:58px!important;margin:18px auto 8px!important;font-size:25px!important}
+  body.es-login-gate-open .account-eyebrow{font-size:9px!important;margin-bottom:5px!important}
+  body.es-login-gate-open .account-terminal>h1{font-size:20px!important;padding:0 14px!important}
+  body.es-login-gate-open .account-subtitle{font-size:12px!important;padding:6px 18px 14px!important}
+  body.es-login-gate-open .account-tabs{margin:0 14px!important}
+  body.es-login-gate-open .account-panel{padding:17px 14px 7px!important}
+  body.es-login-gate-open .account-panel h2{font-size:18px!important}
+  body.es-login-gate-open .account-help{font-size:11px!important;margin-bottom:13px!important}
+  body.es-login-gate-open .account-panel label{margin:10px 0 5px!important;font-size:11px!important}
+  body.es-login-gate-open .account-panel input{height:46px!important;font-size:14px!important}
+  body.es-login-gate-open .account-primary-button{min-height:50px!important;margin-top:16px!important}
+}
 </style></head>
 
 <body class="es-premium"> 
@@ -18361,6 +18381,20 @@ function init(){
  fab.addEventListener("pointerup",end);fab.addEventListener("pointercancel",end);
  fab.addEventListener("click",function(e){if(fab.dataset.justDragged==="1"){e.preventDefault();e.stopImmediatePropagation();}});
  window.addEventListener("resize",function(){if(window.innerWidth<=700){var p=pos();var q=clamp(p.left,p.top);fab.style.left=q.left+"px";fab.style.top=q.top+"px";fab.style.right="auto";fab.style.bottom="auto";}else{fab.style.left="";fab.style.top="";fab.style.right="";fab.style.bottom="";}});
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script><script id="es-login-mobile-clean-controller">
+(function(){
+function sync(){
+ var gate=document.getElementById("studentAccountGate");if(!gate)return;
+ var hidden=getComputedStyle(gate).display==="none"||gate.hidden;
+ document.body.classList.toggle("es-login-gate-open",!hidden);
+}
+function init(){
+ sync();
+ var gate=document.getElementById("studentAccountGate");
+ if(gate)new MutationObserver(sync).observe(gate,{attributes:true,attributeFilter:["style","class","hidden"]});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
