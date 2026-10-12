@@ -75,12 +75,39 @@ Deno.serve(async (req) => {
     const apiKey = Deno.env.get("OPENAI_API_KEY");
     if (!apiKey) throw new Error("AI Teacher backend is not configured. Add OPENAI_API_KEY to Supabase secrets.");
 
+    // Build a data-driven next-step curriculum from the learner's recent evaluations.
+    let curriculum: any = null;
+    try {
+      const { data: evalRows } = await sb.from("ai_teacher_evaluations")
+        .select("grammar,vocabulary,fluency,naturalness,relevance,professional,overall,level_estimate,priorities,created_at")
+        .eq("user_id", user.id).order("created_at", { ascending: false }).limit(20);
+      const rows = evalRows || [];
+      const fields = ["grammar","vocabulary","fluency","naturalness","relevance","professional"];
+      const avg = (k: string) => rows.length ? Math.round(rows.reduce((n: number,r: any)=>n+(Number(r[k])||0),0)/rows.length) : 0;
+      const scores: Record<string,number> = Object.fromEntries(fields.map(k=>[k,avg(k)]));
+      const labels: Record<string,string> = {grammar:"Grammar",vocabulary:"Vocabulary",fluency:"Fluency",naturalness:"Naturalness",relevance:"Relevance",professional:"Professional communication"};
+      const ranked = fields.map(k=>({key:k,label:labels[k],score:scores[k]})).sort((a,b)=>a.score-b.score);
+      const focus = ranked[0], secondary = ranked[1];
+      const overall = rows.length ? Math.round(rows.reduce((n:number,r:any)=>n+(Number(r.overall)||0),0)/rows.length) : 0;
+      const plan = {
+        objective: focus.score ? `Improve ${focus.label.toLowerCase()} from ${focus.score}/100` : "Establish a baseline through guided practice",
+        next_lesson: `10-minute ${focus.label.toLowerCase()} lesson`,
+        practice: [focus.label, secondary.label],
+        rule: focus.score < 60 ? "Intensive practice" : focus.score < 75 ? "Targeted practice" : "Maintenance + stretch",
+        mastery_check: "Reassess the focus skill after 3 meaningful practice responses"
+      };
+      curriculum = { level: learnerProfile.english_level || "auto", goal: learnerProfile.goal || "Speaking confidence", current_focus: focus.label, secondary_focus: secondary.label, mastery_score: overall, plan };
+      await sb.from("ai_teacher_curriculum").upsert({user_id:user.id,level:String(curriculum.level),goal:String(curriculum.goal),current_focus:focus.label,secondary_focus:secondary.label,mastery_score:overall,plan,updated_at:new Date().toISOString()});
+    } catch (_) {}
+ 
     const modeInstruction = `Current teaching mode: ${mode}. Stay focused on this mode unless the learner asks to change it. Learner profile: ${JSON.stringify(learnerProfile).slice(0,5000)}
 Adaptive lesson rule: When the learner asks for a lesson, design it from their level, goal, recent mistakes, and recent conversation. Prefer one learning objective at a time. Teach briefly, then require the learner to produce an answer. Give corrective feedback before moving forward. End with a short mastery check and a concrete next step.
 Do not dump a long worksheet in one message; run the lesson interactively, one meaningful task at a time.
 When Expert Sync knowledge is supplied below, treat it as academy-specific guidance and use it when relevant. Do not invent academy policies or facts beyond the supplied knowledge.
 Expert Sync knowledge:
-${knowledgeContext || "No specific academy knowledge matched this request."}`;
+${knowledgeContext || "No specific academy knowledge matched this request."}
+Adaptive curriculum:
+${curriculum ? JSON.stringify(curriculum) : "No evaluation history yet; use the learner profile and current response to establish a baseline."}`;
     const input = [
       { role: "developer", content: system + "\n" + modeInstruction },
       ...history.map((x: any) => ({ role: x.role === "assistant" ? "assistant" : "user", content: String(x.content || "").slice(0, 6000) })),
@@ -134,7 +161,7 @@ Scores are 0-100. Use professional only when relevant; otherwise score it neutra
       }
     } catch (_) {}
 
-    return new Response(JSON.stringify({ answer, evaluation }), {
+    return new Response(JSON.stringify({ answer, evaluation, curriculum }), {
       headers: { ...cors, "Content-Type": "application/json" }
     });
   } catch (e) {
