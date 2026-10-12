@@ -54,7 +54,9 @@ Deno.serve(async (req) => {
     const apiKey = Deno.env.get("OPENAI_API_KEY");
     if (!apiKey) throw new Error("AI Teacher backend is not configured. Add OPENAI_API_KEY to Supabase secrets.");
 
-    const modeInstruction = `Current teaching mode: ${mode}. Stay focused on this mode unless the learner asks to change it. Learner profile: ${JSON.stringify(learnerProfile).slice(0,5000)}`;
+    const modeInstruction = `Current teaching mode: ${mode}. Stay focused on this mode unless the learner asks to change it. Learner profile: ${JSON.stringify(learnerProfile).slice(0,5000)}
+Adaptive lesson rule: When the learner asks for a lesson, design it from their level, goal, recent mistakes, and recent conversation. Prefer one learning objective at a time. Teach briefly, then require the learner to produce an answer. Give corrective feedback before moving forward. End with a short mastery check and a concrete next step.
+Do not dump a long worksheet in one message; run the lesson interactively, one meaningful task at a time.`;
     const input = [
       { role: "developer", content: system + "\n" + modeInstruction },
       ...history.map((x: any) => ({ role: x.role === "assistant" ? "assistant" : "user", content: String(x.content || "").slice(0, 6000) })),
