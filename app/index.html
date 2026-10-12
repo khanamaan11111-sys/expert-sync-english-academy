@@ -2641,7 +2641,9 @@ body {
 .company-directory-item{cursor:pointer}.company-directory-item:hover{border-color:#b9cbe2}.company-public-hero{border:1px solid #dbe5f2;border-radius:14px;padding:14px;background:#f8fbff}.company-public-hero h4{margin:0;color:#063b91;font-size:18px}.company-public-hero p{margin:5px 0;color:#66758b;font-size:10px;line-height:1.5}.company-public-badge{display:inline-block;margin-top:7px;padding:5px 8px;border-radius:999px;background:#eaf7ef;color:#146b3a;font-size:9px;font-weight:900}.company-public-jobs{margin-top:12px}
 </style><style id="es-career-messaging-css">
 .career-message{padding:9px 11px;border-radius:12px;margin:6px 0;max-width:90%;font-size:10px;line-height:1.5}.career-message.mine{margin-left:auto;background:#eaf2fc;color:#17385f}.career-message.theirs{margin-right:auto;background:#f3f6fa;color:#35445a}.career-message small{display:block;margin-top:3px;opacity:.65;font-size:8px}.career-thread{border:1px solid #dbe5f2;border-radius:13px;padding:11px;background:#f8fbff;cursor:pointer}.career-thread b{display:block;color:#063b91;font-size:11px}.career-thread small{display:block;color:#66758b;font-size:9px;margin-top:3px}
-</style><style id="es-interview-css">.interview-item{border:1px solid #dbe5f2;border-radius:14px;padding:12px;background:#f8fbff}.interview-item h4{margin:0;color:#063b91;font-size:13px}.interview-item p{margin:5px 0;color:#66758b;font-size:10px;line-height:1.5}.interview-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.interview-actions button,.interview-actions a{border:1px solid #d4dfed;border-radius:9px;background:#fff;color:#063b91;padding:8px 10px;font-size:9px;font-weight:900;text-decoration:none;cursor:pointer}</style></head>
+</style><style id="es-interview-css">.interview-item{border:1px solid #dbe5f2;border-radius:14px;padding:12px;background:#f8fbff}.interview-item h4{margin:0;color:#063b91;font-size:13px}.interview-item p{margin:5px 0;color:#66758b;font-size:10px;line-height:1.5}.interview-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.interview-actions button,.interview-actions a{border:1px solid #d4dfed;border-radius:9px;background:#fff;color:#063b91;padding:8px 10px;font-size:9px;font-weight:900;text-decoration:none;cursor:pointer}</style><style id="es-career-analytics-css">
+.career-analytics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}.career-stat{border:1px solid #dbe5f2;border-radius:12px;padding:10px;background:#f8fbff;text-align:center}.career-stat b{display:block;color:#063b91;font-size:18px}.career-stat span{display:block;color:#66758b;font-size:8px;font-weight:800;margin-top:3px}.career-funnel{margin-top:9px;border:1px solid #dbe5f2;border-radius:12px;padding:10px}.career-funnel div{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #edf1f6;font-size:9px;color:#66758b}.career-funnel div:last-child{border-bottom:0}.career-funnel b{color:#063b91}@media(max-width:600px){.career-analytics-grid{grid-template-columns:repeat(2,1fr)}}
+</style></head>
 
 <body class="es-premium"> 
   <!-- ================= STUDENT ACCOUNT GATE ================= -->
@@ -5428,6 +5430,19 @@ body {
     <div id="careerInterviews" class="jobs-list"></div>
   </div>
   <div id="careerInterviewModal" class="jobs-modal" aria-hidden="true"><form class="jobs-form" onsubmit="scheduleCareerInterview(event)"><div class="jobs-form-head"><div><div style="font-size:9px;font-weight:900;letter-spacing:1.5px;color:#66758b">INTERVIEW</div><h3>Schedule Interview</h3></div><button class="jobs-close" type="button" onclick="closeInterviewModal()">×</button></div><input id="interviewApplicationId" type="hidden"><input id="interviewCandidateId" type="hidden"><div class="jobs-form-grid"><div class="jobs-field"><label>DATE & TIME *</label><input id="interviewDateTime" type="datetime-local" required></div><div class="jobs-field"><label>DURATION</label><select id="interviewDuration"><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select></div><div class="jobs-field"><label>MODE</label><select id="interviewMode"><option value="online">Online</option><option value="phone">Phone</option><option value="in_person">In person</option></select></div><div class="jobs-field"><label>MEETING LINK</label><input id="interviewLink" type="url" placeholder="https://..."></div><div class="jobs-field full"><label>LOCATION</label><input id="interviewLocation" placeholder="Office / meeting location"></div><div class="jobs-field full"><label>NOTES</label><textarea id="interviewNotes" maxlength="2000" placeholder="Interview details or instructions"></textarea></div></div><button class="jobs-submit" type="submit">📅 Send Interview Proposal</button></form></div>
+
+  <div class="jobs-search-card" id="careerAnalyticsCard" style="margin-top:0">
+    <div class="jobs-search-title"><h3>📊 Recruitment Analytics</h3><span class="jobs-count" id="careerAnalyticsPeriod">LIVE</span></div>
+    <p style="margin:0;color:#66758b;font-size:11px">A clear view of recruitment activity, candidate pipeline and hiring outcomes.</p>
+    <div class="career-analytics-grid">
+      <div class="career-stat"><b id="caApplications">0</b><span>Applications</span></div>
+      <div class="career-stat"><b id="caShortlisted">0</b><span>Shortlisted</span></div>
+      <div class="career-stat"><b id="caInterviews">0</b><span>Interviews</span></div>
+      <div class="career-stat"><b id="caHired">0</b><span>Hired</span></div>
+    </div>
+    <div class="career-funnel"><div><span>Application → Shortlist</span><b id="caShortlistRate">0%</b></div><div><span>Application → Interview</span><b id="caInterviewRate">0%</b></div><div><span>Application → Hire</span><b id="caHireRate">0%</b></div></div>
+    <div id="careerAnalyticsNote" class="job-empty" style="margin-top:10px"></div>
+  </div>
 
   <div class="jobs-search-card" style="margin-top:0">
     <div class="jobs-search-title"><h3>🏢 Verified Companies</h3><span class="jobs-count" id="careerCompanyCount">0</span></div>
@@ -19062,6 +19077,25 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
  window.closePublicCompany=function(){var m=document.getElementById("careerCompanyPublicModal");if(m)m.classList.remove("open")};
  document.addEventListener("click",function(e){if(e.target.id==="careerCompanyPublicModal")closePublicCompany()});
  window.addEventListener("load",renderPublicCompanies);
+})();
+</script>
+<script id="es-career-analytics-controller">
+(function(){
+ async function cu(){return (await supabaseClient.auth.getUser()).data?.user||null}
+ window.renderCareerAnalytics=async function(){
+  var card=document.getElementById("careerAnalyticsCard");if(!card)return;var u=await cu();if(!u){card.style.display="none";return}card.style.display="";
+  var role=u.app_metadata?.role||u.user_metadata?.role;
+  var appQuery=supabaseClient.from("career_applications").select("id,status,job_id,career_jobs!inner(submitted_by)");
+  if(role!=="admin")appQuery=appQuery.eq("career_jobs.submitted_by",u.id);
+  var ar=await appQuery;if(ar.error){document.getElementById("careerAnalyticsNote").innerHTML="<strong>Analytics unavailable</strong>Run the latest career-board database migration if needed.";return}
+  var apps=ar.data||[], total=apps.length,shortlisted=apps.filter(x=>["shortlisted","interview","hired"].includes(String(x.status||"").toLowerCase())).length,hired=apps.filter(x=>String(x.status||"").toLowerCase()==="hired").length;
+  var ids=apps.map(x=>x.id);var interviews=0;if(ids.length){var ir=await supabaseClient.from("career_interviews").select("id,application_id").in("application_id",ids);interviews=(ir.data||[]).length}
+  function pct(x){return total?Math.round(x/total*100):0}
+  document.getElementById("caApplications").textContent=total;document.getElementById("caShortlisted").textContent=shortlisted;document.getElementById("caInterviews").textContent=interviews;document.getElementById("caHired").textContent=hired;
+  document.getElementById("caShortlistRate").textContent=pct(shortlisted)+"%";document.getElementById("caInterviewRate").textContent=pct(interviews)+"%";document.getElementById("caHireRate").textContent=pct(hired)+"%";
+  document.getElementById("careerAnalyticsNote").innerHTML=role==="admin"?"<strong>Admin view</strong>Showing recruitment activity across the career platform.":"<strong>Employer view</strong>Showing recruitment activity for your job postings.";
+ };
+ window.addEventListener("load",renderCareerAnalytics);
 })();
 </script>
 <script id="es-interview-controller">
