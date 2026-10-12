@@ -21,3 +21,63 @@ drop policy if exists career_admin_update on public.career_jobs;
 create policy career_admin_update on public.career_jobs for update to authenticated using (public.is_career_admin()) with check (public.is_career_admin());
 drop policy if exists career_admin_delete on public.career_jobs;
 create policy career_admin_delete on public.career_jobs for delete to authenticated using (public.is_career_admin());
+
+
+-- ================= APPLICATIONS =================
+create table if not exists public.career_applications (
+  id uuid primary key default gen_random_uuid(),
+  job_id uuid not null references public.career_jobs(id) on delete cascade,
+  applicant_id uuid not null references auth.users(id) on delete cascade,
+  applicant_name text,
+  applicant_email text,
+  message text not null,
+  resume_link text,
+  status text not null default 'submitted'
+    check (status in ('submitted','shortlisted','rejected','hired')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(job_id, applicant_id)
+);
+
+create index if not exists career_applications_job_idx on public.career_applications(job_id);
+create index if not exists career_applications_applicant_idx on public.career_applications(applicant_id);
+
+alter table public.career_applications enable row level security;
+
+drop policy if exists career_apps_read on public.career_applications;
+create policy career_apps_read on public.career_applications
+for select to authenticated
+using (
+  applicant_id = auth.uid()
+  or public.is_career_admin()
+  or exists (
+    select 1 from public.career_jobs j
+    where j.id = career_applications.job_id
+      and j.submitted_by = auth.uid()
+  )
+);
+
+drop policy if exists career_apps_insert on public.career_applications;
+create policy career_apps_insert on public.career_applications
+for insert to authenticated
+with check (applicant_id = auth.uid());
+
+drop policy if exists career_apps_update on public.career_applications;
+create policy career_apps_update on public.career_applications
+for update to authenticated
+using (
+  public.is_career_admin()
+  or exists (
+    select 1 from public.career_jobs j
+    where j.id = career_applications.job_id
+      and j.submitted_by = auth.uid()
+  )
+)
+with check (
+  public.is_career_admin()
+  or exists (
+    select 1 from public.career_jobs j
+    where j.id = career_applications.job_id
+      and j.submitted_by = auth.uid()
+  )
+);
