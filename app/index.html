@@ -18983,8 +18983,19 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   box.innerHTML=apps.length?apps.map(a=>'<article class="career-app"><b>'+escapeHtml(a.career_jobs?.title||"Job")+' — '+escapeHtml(a.applicant_name||"Applicant")+'</b><small>'+escapeHtml(a.career_jobs?.company||"")+' • '+escapeHtml(a.applicant_email||"No email")+' • '+escapeHtml((a.created_at||"").slice(0,10))+'</small><small>'+escapeHtml(a.message)+'</small>'+(a.resume_link?'<a class="job-btn apply" style="margin-top:7px" href="'+escapeHtml(a.resume_link)+'" target="_blank" rel="noopener noreferrer">📄 View CV</a>':'')+'<select onchange="adminSetApplicationStatus(\''+a.id+'\',this.value)"><option value="submitted" '+(a.status==="submitted"?"selected":"")+'>Submitted</option><option value="shortlisted" '+(a.status==="shortlisted"?"selected":"")+'>Shortlisted</option><option value="rejected" '+(a.status==="rejected"?"selected":"")+'>Rejected</option><option value="hired" '+(a.status==="hired"?"selected":"")+'>Hired</option></select></article>').join(""):'<div class="job-empty"><strong>No applications</strong>No recruitment activity matches this filter.</div>';
  };
  window.adminSetApplicationStatus=async function(id,status){
-  if(!(await admin()))return;const {error}=await supabaseClient.from("career_applications").update({status:status,updated_at:new Date().toISOString()}).eq("id",id);if(error){alert("Update failed: "+error.message);return}renderCareerApplicationsAdmin();renderMyApplications();
+  if(!(await admin()))return;
+  const {data:current,error:readErr}=await supabaseClient.from("career_applications").select("status").eq("id",id).single();
+  if(readErr){alert("Could not read application status.");return}
+  const note=prompt("Optional note for the candidate (leave blank if none):")||null;
+  const {error}=await supabaseClient.from("career_applications").update({status:status,updated_at:new Date().toISOString()}).eq("id",id);
+  if(error){alert("Update failed: "+error.message);return}
+  const ev=await supabaseClient.from("career_application_events").insert({application_id:id,actor_id:(await supabaseClient.auth.getUser()).data.user.id,from_status:current.status,to_status:status,note:note});
+  if(ev.error){alert("Status changed, but the activity timeline could not be recorded.");}
+  renderCareerApplicationsAdmin();renderMyApplications();renderCareerApplicationTracker();
  };
+ window.careerStatusEvent=true;
+ /*
+  if(!(await admin()))return;const {error}=await supabaseClient.from("career_applications").update({status:status,updated_at:new Date().toISOString()}).eq("id",id);if(error){alert("Update failed: "+error.message);return}*/
  document.addEventListener("click",e=>{if(e.target.id==="careerControlCenter")closeCareerControlCenter()});
 })();
 </script>
