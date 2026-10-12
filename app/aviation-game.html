@@ -187,7 +187,60 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #academyConnect{position:fixed;left:12px;top:50px;z-index:120;background:#0b2b43dd;border:1px solid #54e6a6;color:#dfffee;border-radius:6px;padding:6px 9px;font-size:8px;font-weight:800;display:none}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
+<style id="es-flight-mobile-v2">
+@media(max-width:700px){
+html,body,#game{width:100%;height:100%;overflow:hidden}
+#academyBack{left:10px;top:10px;font-size:10px;padding:8px 10px;max-width:128px;white-space:nowrap}
+#studentIdentity{right:10px;top:10px;max-width:155px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#academyConnect{left:10px;top:52px;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#brand{left:10px;top:90px;right:10px;width:auto;padding:8px 10px;text-align:center}
+#brand .brand{font-size:15px}
+#brand .sub{font-size:8px}
+#phasebar{top:12px;left:50%;transform:translateX(-50%) scale(.8);transform-origin:top center;gap:3px}
+#phasebar .phase{min-width:48px}
+#views{right:10px;top:92px;left:10px;justify-content:center;overflow-x:auto;white-space:nowrap}
+#views .view{font-size:9px;padding:7px 8px}
+#inputStatus{position:fixed!important;top:132px!important;left:50%!important;transform:translateX(-50%);z-index:35!important;min-width:0!important;max-width:90vw!important}
+#mission,#atc,#checklistPanel,#adaptiveCoach,#scenarioObjective,#routePanel,#scenarioPanel,#weather,#checklistPanel,#status,#help,#lightsPanel,#emergencyStatus,#mission17Panel{
+display:none;
+position:fixed!important;
+left:10px!important;right:10px!important;top:auto!important;bottom:76px!important;
+width:auto!important;max-width:none!important;min-width:0!important;
+max-height:58vh!important;overflow:auto!important;
+z-index:95!important;
+margin:0!important;
+}
+#mission.mobile-panel-open,#atc.mobile-panel-open,#checklistPanel.mobile-panel-open,#adaptiveCoach.mobile-panel-open,#scenarioObjective.mobile-panel-open,#routePanel.mobile-panel-open,#scenarioPanel.mobile-panel-open,#weather.mobile-panel-open,#status.mobile-panel-open,#help.mobile-panel-open,#lightsPanel.mobile-panel-open,#emergencyStatus.mobile-panel-open,#mission17Panel.mobile-panel-open{display:block}
+#mission{top:145px!important;bottom:76px!important}
+#atc{top:145px!important;bottom:76px!important}
+#routePanel,#scenarioPanel{top:145px!important;bottom:76px!important}
+#status,#help{top:auto!important;bottom:76px!important}
+#cockpitLabel{bottom:51%;font-size:7px}
+#hud{left:8px;right:8px;bottom:76px;transform:none;grid-template-columns:repeat(3,1fr);gap:4px;z-index:40}
+#hud .read{padding:5px 3px}
+#hud .read strong{font-size:14px}
+#hud .read b{font-size:6px}
+#hud .read small{font-size:6px}
+#mobileFlightNav{position:fixed;left:8px;right:8px;bottom:8px;height:58px;z-index:110;display:grid;grid-template-columns:repeat(6,1fr);gap:4px;padding:5px;background:#06131cf2;border:1px solid #365563;border-radius:16px;box-shadow:0 12px 35px #000b;backdrop-filter:blur(10px)}
+#mobileFlightNav button{min-width:0;border:1px solid #294653;background:#0a202a;color:#dceff4;border-radius:11px;font-size:8px;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:3px;cursor:pointer}
+#mobileFlightNav button span{font-size:17px;line-height:1}
+#mobileFlightNav button.active{background:#147f9e;border-color:#6de2ff;color:#fff}
+#mobileFlightNav button.more{background:#176f59;border-color:#54e6a6}
+#mobileFlightClose{display:none}
+#panel{height:48%;left:1%;right:1%;bottom:0}
+#controlsRow{left:3%;right:3%;bottom:9px;height:40%;grid-template-columns:1fr 1fr 1fr;gap:5px}
+.controlBox{padding:5px}
+#yoke{transform:translate(-50%,-50%) scale(.78);top:48%}
+#throttle{right:4%;top:15px;transform:scale(.82);transform-origin:top right}
+}
+@media(max-width:390px){
+#mobileFlightNav button{font-size:7px}
+#mobileFlightNav button span{font-size:15px}
+#brand .brand{font-size:13px}
+#phasebar{transform:translateX(-50%) scale(.68)}
+}
+@media(min-width:701px){#mobileFlightNav{display:none!important}}
+</style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
 <div id="studentIdentity">STUDENT: <span id="studentIdentityName">STUDENT</span></div>
@@ -1832,5 +1885,39 @@ window.location.assign(target.href);
 connectAcademyStudent();
 </script>
 
-</body>
+<script id="es-flight-mobile-controller">
+(function(){
+var ids={
+mission:["mission","🎯","Mission"],
+routePanel:["routePanel","🗺️","Route"],
+scenarioPanel:["scenarioPanel","🎮","Scenario"],
+atc:["atc","📡","ATC"],
+weather:["weather","🌤️","Weather"],
+checklistPanel:["checklistPanel","✅","Checks"],
+adaptiveCoach:["adaptiveCoach","🧠","Coach"],
+lightsPanel:["lightsPanel","💡","Lights"],
+status:["status","📊","Status"]
+};
+function setup(){
+if(window.innerWidth>700||document.getElementById("mobileFlightNav"))return;
+var nav=document.createElement("nav");nav.id="mobileFlightNav";nav.setAttribute("aria-label","Mobile flight simulator controls");
+Object.keys(ids).forEach(function(id){
+var meta=ids[id],b=document.createElement("button");b.type="button";b.dataset.target=id;b.innerHTML="<span>"+meta[1]+"</span>"+meta[2];
+b.addEventListener("click",function(){
+document.querySelectorAll("#mobileFlightNav button").forEach(function(x){x.classList.remove("active")});
+var target=document.getElementById(id);
+document.querySelectorAll(".mobile-panel-open").forEach(function(x){if(x!==target)x.classList.remove("mobile-panel-open")});
+if(target){var open=!target.classList.contains("mobile-panel-open");target.classList.toggle("mobile-panel-open",open);b.classList.toggle("active",open);}
+});
+nav.appendChild(b);
+});
+var more=document.createElement("button");more.type="button";more.className="more";more.innerHTML="<span>☰</span>More";more.addEventListener("click",function(){
+var open=document.getElementById("flightHelp")||document.getElementById("help");
+if(open){document.querySelectorAll(".mobile-panel-open").forEach(function(x){x.classList.remove("mobile-panel-open")});open.classList.add("mobile-panel-open");}
+});nav.appendChild(more);document.body.appendChild(nav);
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup);else setup();
+window.addEventListener("resize",function(){if(window.innerWidth>700){var n=document.getElementById("mobileFlightNav");if(n)n.remove();document.querySelectorAll(".mobile-panel-open").forEach(function(x){x.classList.remove("mobile-panel-open")});}else setup();});
+})();
+</script></body>
 </html>
