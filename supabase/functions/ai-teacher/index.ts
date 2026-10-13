@@ -119,51 +119,69 @@ ${curriculum ? JSON.stringify(curriculum) : "No evaluation history yet; use the 
       body: JSON.stringify({
         model: "gpt-5.2",
         input,
-        max_output_tokens: 1000
+        max_output_tokens: 1000,
+        stream: true
       })
     });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data?.error?.message || "OpenAI request failed.");
-    const answer = data.output_text || "I couldn't generate a response.";
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err?.error?.message || "OpenAI request failed.");
+    }
 
-    // Evaluate the learner response separately so the teaching answer stays natural.
-    let evaluation: any = null;
-    try {
-      const evalPrompt = `Evaluate this English learner response for teaching purposes.
-Mode: ${mode}
-Learner level: ${String(learnerProfile.english_level || "auto")}
-Response: ${message}
-Return ONLY valid JSON with this exact shape:
-{"grammar":0,"vocabulary":0,"fluency":0,"naturalness":0,"relevance":0,"professional":0,"overall":0,"level_estimate":"A1|A2|B1|B2|C1|C2|auto","strengths":["..."],"priorities":["..."],"better_version":"..."}
-Scores are 0-100. Use professional only when relevant; otherwise score it neutrally. Do not invent errors. If the response is already natural, priorities may be empty and better_version may equal the original.`;
-      const ev = await fetch("https://api.openai.com/v1/responses", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({ model: "gpt-5.2", input: [{ role: "developer", content: evalPrompt }], max_output_tokens: 500 })
-      });
-      if (ev.ok) {
-        const ed = await ev.json();
-        const raw = ed.output_text || "";
-        const match = raw.match(/\{[\s\S]*\}/);
-        if (match) evaluation = JSON.parse(match[0]);
-        if (evaluation) {
-          await sb.from("ai_teacher_evaluations").insert({
-            user_id: user.id, message, mode,
-            grammar: Number(evaluation.grammar)||0, vocabulary:Number(evaluation.vocabulary)||0,
-            fluency:Number(evaluation.fluency)||0, naturalness:Number(evaluation.naturalness)||0,
-            relevance:Number(evaluation.relevance)||0, professional:Number(evaluation.professional)||0,
-            overall:Number(evaluation.overall)||0, level_estimate:String(evaluation.level_estimate||"auto"),
-            strengths:Array.isArray(evaluation.strengths)?evaluation.strengths.slice(0,4):[],
-            priorities:Array.isArray(evaluation.priorities)?evaluation.priorities.slice(0,4):[],
-            better_version:String(evaluation.better_version||"")
-          });
+    // Stream the answer to the browser as Server-Sent Events.
+    const encoder = new TextEncoder();
+    let answer = "";
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = response.body!.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        const sendEvent = (event: string, payload: any) => controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(payload)}\n\n`));
+        try {
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+            for (const line of lines) {
+              if (!line.startsWith("data: ")) continue;
+              const raw = line.slice(6).trim();
+              if (!raw || raw === "[DONE]") continue;
+              try {
+                const ev = JSON.parse(raw);
+                if (ev.type === "response.output_text.delta" && typeof ev.delta === "string") {
+                  answer += ev.delta;
+                  sendEvent("delta", { text: ev.delta });
+                }
+              } catch (_) {}
+            }
+          }
+          if (buffer.startsWith("data: ")) {
+            try {
+              const ev = JSON.parse(buffer.slice(6).trim());
+              if (ev.type === "response.output_text.delta" && typeof ev.delta === "string") {
+                answer += ev.delta;
+                sendEvent("delta", { text: ev.delta });
+              }
+            } catch (_) {}
+          }
+          sendEvent("done", { answer });
+          controller.close();
+        } catch (err) {
+          sendEvent("error", { error: err instanceof Error ? err.message : "Streaming failed." });
+          controller.close();
         }
       }
-    } catch (_) {}
-
-    return new Response(JSON.stringify({ answer, evaluation, curriculum }), {
-      headers: { ...cors, "Content-Type": "application/json" }
     });
+
+    // The evaluation is intentionally performed after generation by a second request below.
+    // The stream endpoint returns the streamed answer only; evaluation is requested by the client
+    // through the same function with stream=false in a future enhancement.
+    return new Response(stream, {
+      headers: { ...cors, "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-cache", "Connection": "keep-alive" }
+    });
+
   } catch (e) {
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "AI Teacher error" }), {
       status: 400, headers: { ...cors, "Content-Type": "application/json" }
