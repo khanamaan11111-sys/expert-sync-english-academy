@@ -166,6 +166,29 @@ ${curriculum ? JSON.stringify(curriculum) : "No evaluation history yet; use the 
               }
             } catch (_) {}
           }
+          let evaluation: any = null;
+          try {
+            const evalPrompt = `Evaluate this English learner response for teaching purposes.
+Mode: ${mode}
+Learner level: ${String(learnerProfile.english_level || "auto")}
+Response: ${message}
+Return ONLY valid JSON:
+{"grammar":0,"vocabulary":0,"fluency":0,"naturalness":0,"relevance":0,"professional":0,"overall":0,"level_estimate":"A1|A2|B1|B2|C1|C2|auto","strengths":["..."],"priorities":["..."],"better_version":"..."}`;
+            const ev = await fetch("https://api.openai.com/v1/responses", {method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${apiKey}`},body:JSON.stringify({model:"gpt-5.2",input:[{role:"developer",content:evalPrompt}],max_output_tokens:500})});
+            if(ev.ok){
+              const ed=await ev.json(); const raw=ed.output_text||""; const match=raw.match(/\{[\s\S]*\}/);
+              if(match) evaluation=JSON.parse(match[0]);
+              if(evaluation) await sb.from("ai_teacher_evaluations").insert({
+                user_id:user.id,message,mode,grammar:Number(evaluation.grammar)||0,vocabulary:Number(evaluation.vocabulary)||0,
+                fluency:Number(evaluation.fluency)||0,naturalness:Number(evaluation.naturalness)||0,relevance:Number(evaluation.relevance)||0,
+                professional:Number(evaluation.professional)||0,overall:Number(evaluation.overall)||0,level_estimate:String(evaluation.level_estimate||"auto"),
+                strengths:Array.isArray(evaluation.strengths)?evaluation.strengths.slice(0,4):[],
+                priorities:Array.isArray(evaluation.priorities)?evaluation.priorities.slice(0,4):[],
+                better_version:String(evaluation.better_version||"")
+              });
+            }
+          } catch (_) {}
+          sendEvent("evaluation", { evaluation, curriculum });
           sendEvent("done", { answer });
           controller.close();
         } catch (err) {
