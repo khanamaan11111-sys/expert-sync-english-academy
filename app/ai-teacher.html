@@ -50,6 +50,7 @@ body{display:flex;flex-direction:column;overflow:hidden}.app{width:min(980px,100
 const SUPABASE_URL="https://bhxmbbkgkaxikisugrcs.supabase.co";
 const SUPABASE_KEY="sb_publishable_RvYvEhsMIFM0mW6M9SHiVw_d2NSlhnz";
 const ENDPOINT=SUPABASE_URL+"/functions/v1/ai-teacher";
+const VOICE_ENDPOINT=SUPABASE_URL+"/functions/v1/ai-teacher-voice";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const chat=document.getElementById("chat"), input=document.getElementById("input"), send=document.getElementById("send"), composer=document.getElementById("composer");
 let mode="teacher", history=[];
@@ -90,14 +91,14 @@ aiMsg.querySelector(".bubble").insertAdjacentHTML("beforeend",evaluationHtml(eva
 if(/\b(is|are|was|were|has|have|did|do|does|a|an|the|to|for|in|on)\b/i.test(text)&&text.length<260){profile.mistakes=(profile.mistakes||[]).concat([text]).slice(-8);localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));const type=mode==="vocabulary"?"Vocabulary":mode==="interview"?"Interview":mode==="conversation"?"Fluency":"Grammar / Naturalness";mistakeData.items.push({text,type,at:new Date().toISOString()});mistakeData.items=mistakeData.items.slice(-50);const key=type.toLowerCase().startsWith("vocab")?"vocabulary":type.toLowerCase().startsWith("interview")?"interview":type.toLowerCase().startsWith("fluency")?"fluency":"grammar";mistakeData.counts[key]=(mistakeData.counts[key]||0)+1;saveMistakes();}
 }catch(e){document.getElementById("typing")?.remove();add("ai","I’m ready, but the AI Teacher service is not connected yet. Please deploy the Expert Sync Supabase AI Teacher function and add the OPENAI_API_KEY secret.");console.error(e)}finally{send.disabled=false;input.focus()}}
 const audioPanel=document.getElementById("audioPanel"),audioState=document.getElementById("audioState"),audioStop=document.getElementById("audioStop"),audioCancel=document.getElementById("audioCancel");
-let mediaRecorder=null,audioChunks=[],audioStream=null;
+let mediaRecorder=null,audioChunks=[],audioStream=null,recordingStartedAt=0;
 async function startPronunciationRecording(){
  if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){audioState.textContent="Audio recording is not supported in this browser.";audioPanel.classList.add("show");return}
  try{
   audioStream=await navigator.mediaDevices.getUserMedia({audio:true});audioChunks=[];mediaRecorder=new MediaRecorder(audioStream);
   mediaRecorder.ondataavailable=e=>{if(e.data.size)audioChunks.push(e.data)};
-  mediaRecorder.onstop=async()=>{audioStream?.getTracks().forEach(t=>t.stop());const blob=new Blob(audioChunks,{type:mediaRecorder.mimeType||"audio/webm"});audioState.textContent="Audio captured. Transcript-based scoring remains separate; pronunciation analysis will use this recording when the audio-analysis service is connected.";audioPanel.classList.add("show");window.__lastPronunciationAudio=blob};
-  mediaRecorder.start();audioPanel.classList.add("show");audioState.textContent="Recording… speak clearly for 10–30 seconds.";setVoiceState(true,"Recording voice…");
+  mediaRecorder.onstop=async()=>{audioStream?.getTracks().forEach(t=>t.stop());const blob=new Blob(audioChunks,{type:mediaRecorder.mimeType||"audio/webm"});window.__lastPronunciationAudio=blob;audioState.textContent="Analyzing your recording…";try{const session=(await supabaseClient.auth.getSession()).data.session;if(!session)throw new Error("Please sign in.");const form=new FormData();form.append("audio",blob,"speech.webm");form.append("duration_seconds",String(recordingStartedAt?((Date.now()-recordingStartedAt)/1000):0));const r=await fetch(VOICE_ENDPOINT,{method:"POST",headers:{Authorization:"Bearer "+session.access_token,apikey:SUPABASE_KEY},body:form});const d=await r.json();if(!r.ok)throw new Error(d.error||"Voice analysis failed.");audioState.innerHTML="<b>Transcript:</b> "+esc(d.transcript)+"<br><b>Delivery:</b> "+d.delivery_score+"/100 · "+d.words_per_minute+" WPM · "+d.filler_count+" fillers<br><b>Pronunciation:</b> Not directly scored yet. "+esc(d.feedback?.note||"");}catch(e){audioState.textContent=e.message||"Voice analysis failed."}audioPanel.classList.add("show")};
+  mediaRecorder.start();recordingStartedAt=Date.now();audioPanel.classList.add("show");audioState.textContent="Recording… speak clearly for 10–30 seconds.";setVoiceState(true,"Recording voice…");
  }catch(e){audioPanel.classList.add("show");audioState.textContent="Microphone permission is required to record audio.";setVoiceState(false,"")}
 }
 audioStop.onclick=()=>{if(mediaRecorder?.state==="recording")mediaRecorder.stop();setVoiceState(false,"")};
