@@ -598,12 +598,18 @@ body.es-3d #flightModelBadge{display:block}
 #weatherControl select{margin-left:5px;background:#0b2029;color:#fff;border:1px solid #42616a;border-radius:6px;padding:4px;font-size:8px}
 body.es-3d #weatherControl{display:block}
 @media(max-width:700px){#weatherControl{top:48px;right:8px;padding:5px;font-size:7px}}
+</style><style id="es-wind-v43">
+#windOverlay{position:fixed;left:10px;top:10px;z-index:80;display:none;padding:6px 8px;border:1px solid #355b67;border-radius:9px;background:#02070bdd;color:#bfefff;font:800 8px Arial}
+#windOverlay b{color:#54e6a6}
+#windArrow{display:inline-block;margin-left:5px}
+@media(max-width:700px){#windOverlay{left:8px;top:92px;font-size:7px;padding:5px 7px}}
+body.es-3d #windOverlay{display:block}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
 <div id="studentIdentity">STUDENT: <span id="studentIdentityName">STUDENT</span></div>
 <div id="academyConnect">✓ CONNECTED TO EXPERT SYNC ACADEMY</div>
-<div id="game"><div id="weatherControl">WEATHER <select id="weatherSelect"><option value="clear">CLEAR</option><option value="haze">HAZE</option><option value="rain">RAIN</option><option value="night">NIGHT</option></select></div><div id="flightModelBadge">REALISTIC AERODYNAMIC MODEL • ASSIST OPTIONAL</div><div id="es3d" aria-label="Expert Sync 3D flight simulator"></div><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
+<div id="game"><div id="windOverlay">WIND <b id="windValue">120° / 8 KT</b><span id="windArrow">↗</span></div><div id="weatherControl">WEATHER <select id="weatherSelect"><option value="clear">CLEAR</option><option value="haze">HAZE</option><option value="rain">RAIN</option><option value="night">NIGHT</option></select></div><div id="flightModelBadge">REALISTIC AERODYNAMIC MODEL • ASSIST OPTIONAL</div><div id="es3d" aria-label="Expert Sync 3D flight simulator"></div><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
 <canvas id="scene"></canvas><div id="aircraftLabel">AIRCRAFT ES-01 • EXTERNAL VIEW</div><div id="keyFeedback"></div>
 <div id="brand" class="ui panel"><div class="brand">✈ EXPERT SYNC — FLIGHT TRAINING</div><div class="sub">HANDS-ON SINGLE-ENGINE SIMULATOR • N-ES01</div></div>
 <div id="phasebar" class="ui"></div>
@@ -1149,6 +1155,7 @@ if(performance.now()-s.assistLastToast>6500){
  s.assistLastToast=performance.now();
 }
 }
+function updateWindOverlay(){const e=document.getElementById('windValue'),a=document.getElementById('windArrow');if(!e)return;const rel=diff(s.windDir,s.heading),cross=Math.round(Math.abs(Math.sin(rel*Math.PI/180)*s.windKt));const head=Math.round(Math.cos(rel*Math.PI/180)*s.windKt);e.textContent=String(Math.round(s.windDir)).padStart(3,'0')+'° / '+Math.round(s.windKt)+' KT'+(s.gust>0.03?' GUST':'');a.textContent=rel>8?'↗':rel<-8?'↖':'↑';a.title='Crosswind '+cross+' kt • headwind '+head+' kt';}
 function controls(dt){
 const steer=(keys.a||keys.arrowleft||mobilePadState.left?1:0)-(keys.d||keys.arrowright||mobilePadState.right?1:0);
 const pitchInput=(keys.arrowup||mobilePadState.up?1:0)-(keys.arrowdown||mobilePadState.down?1:0);
@@ -1294,6 +1301,7 @@ if(s.onGround){
   }
 }
 }
+updateWindOverlay();
 function evaluate(dt){
 let g=0;
 navigationMonitor(dt);weatherMonitor(dt);emergencyMonitor(dt);instructorMonitor(dt);scenarioMonitor(dt);mission17Monitor();
