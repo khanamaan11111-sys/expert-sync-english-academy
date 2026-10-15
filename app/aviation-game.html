@@ -204,6 +204,18 @@ html,body,#game{width:100%;height:100%;min-height:100%;overflow:hidden}
 #qaGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:12px}.qaItem{border:1px solid #294653;border-radius:6px;padding:8px;background:#091820;font-size:8px;color:#c6d7dc}.qaItem strong{float:right}.qaPass{color:#54e6a6}.qaFail{color:#ff8080}.qaWarn{color:#ffd27a}
 #qaActions{display:flex;gap:6px;margin-top:12px}#qaActions button{background:#0a202a;border:1px solid #3c6978;border-radius:4px;padding:7px 10px;font-size:8px;font-weight:900;color:#fff;cursor:pointer}
 @media(max-width:700px){#qaGrid{grid-template-columns:1fr}}
+@media(max-width:600px){
+#cockpit{inset:82px 0 0;z-index:2}
+#scene{touch-action:none}
+#cockpit .glass{background:linear-gradient(180deg,#79c8df 0%,#b9e5eb 48%,#769b86 100%);box-shadow:inset 0 0 0 2px #9ce8f2,inset 0 -35px 55px #142d34aa}
+#cockpit .glass:before,#cockpit .glass:after{content:"";position:absolute;pointer-events:none}
+#cockpit .glass:before{left:0;right:0;bottom:0;height:22%;background:linear-gradient(180deg,transparent,#15252acc)}
+#cockpit .glass:after{left:50%;top:0;width:1px;height:100%;background:#d8fbff33}
+#yoke{z-index:7;box-shadow:0 7px 20px #00131a88}
+#throttle{z-index:7;box-shadow:0 7px 20px #00131a88}
+#panel{z-index:8;box-shadow:0 -8px 25px #00131a99}
+#hud{z-index:9}
+}
 </style>
 <style>
 #academyBack{position:fixed;left:12px;top:12px;z-index:120;background:#063b91;border:1px solid #ffd978;color:#fff;border-radius:6px;padding:7px 10px;font-size:9px;font-weight:900;cursor:pointer}
@@ -1758,6 +1770,25 @@ function drawAerialWorld(){
   sun.addColorStop(0,'#fff9d855');sun.addColorStop(1,'transparent');
   x.fillStyle=sun;x.fillRect(0,0,W,H);
 }
+function drawCockpitOverlay(){
+  if(s.view!=='COCKPIT') return;
+  // Subtle first-person cockpit framing: glareshield, windscreen posts and HUD flight path cue.
+  x.save();
+  const horizon=H*.48-s.pitch*H*.018;
+  x.fillStyle='#101b20cc';
+  x.beginPath();x.moveTo(0,H*.61);x.lineTo(W*.08,H*.57);x.lineTo(W*.20,H*.55);x.lineTo(W*.80,H*.55);x.lineTo(W*.92,H*.57);x.lineTo(W,H*.61);x.lineTo(W,H);x.lineTo(0,H);x.closePath();x.fill();
+  x.fillStyle='#26383e';x.fillRect(0,H*.57,W,H*.045);
+  // Windscreen center mullion
+  x.fillStyle='#17262b99';x.fillRect(W*.495,0,W*.01,H*.58);
+  // Flight-path / attitude cue
+  x.strokeStyle='#e9ffff99';x.lineWidth=1.5;
+  x.beginPath();x.moveTo(W*.47,horizon);x.lineTo(W*.53,horizon);x.stroke();
+  x.beginPath();x.arc(W*.5,horizon,5,0,Math.PI*2);x.stroke();
+  // Heading tick strip
+  x.fillStyle='#eaffffcc';x.font='700 9px Arial';x.textAlign='center';
+  for(let d=-30;d<=30;d+=10){let xx=W*.5+d*W*.012;x.fillRect(xx,H*.055,1,5);x.fillText(String((Math.round((s.heading+d+360)%360))).padStart(3,'0'),xx,H*.045);}
+  x.restore();
+}
 function draw(){x.clearRect(0,0,W,H);let sky=x.createLinearGradient(0,0,0,H*.62);sky.addColorStop(0,'#49a7d5');sky.addColorStop(.7,'#a6dce8');sky.addColorStop(1,'#7da66f');x.fillStyle=sky;x.fillRect(0,0,W,H*.64);if(s.view==='EXTERNAL'&&!s.onGround&&s.alt>250){drawAerialWorld();const al=document.getElementById('aircraftLabel');if(al)al.style.display='block';drawPlane(W*.5,H*.68,2.25,s.heading,s.bank);return;}
 let horizon=H*.48 - s.pitch*H*.018;x.save();x.translate(W*.5,horizon);x.rotate(s.bank*Math.PI/180);x.translate(-W*.5,-horizon);x.fillStyle='#526e6b';x.beginPath();x.moveTo(0,horizon+25);for(let i=0;i<=W;i+=35)x.lineTo(i,horizon+5-Math.sin(i*.008)*32-Math.sin(i*.018)*15);x.lineTo(W,horizon+25);x.fill();x.fillStyle='#4d7448';x.fillRect(-W,horizon+25,W*3,H);x.restore();for(let i=0;i<18;i++){x.fillStyle=i%2?'#52794d':'#4a7046';x.fillRect(i*W/18,horizon+25,W/18+1,H)}let cx=W*.58,top=horizon+H*.10,bottom=H*1.05;x.fillStyle='#252c2f';x.beginPath();x.moveTo(cx-W*.20,top);x.lineTo(cx+W*.20,top);x.lineTo(cx+W*.48,bottom);x.lineTo(cx-W*.48,bottom);x.closePath();x.fill();x.strokeStyle='#d8bf45';x.lineWidth=3;x.stroke();x.strokeStyle='#fff';x.lineWidth=4;x.setLineDash([28,24]);x.beginPath();x.moveTo(cx,top);x.lineTo(cx,bottom);x.stroke();x.setLineDash([]);x.fillStyle='#fff';x.font='900 35px Arial';x.fillText('09',cx+W*.08,top+H*.06);if(s.phase===1&&s.xp>64){
 x.strokeStyle='#54e6a6';x.lineWidth=5;x.setLineDash([18,12]);x.beginPath();x.moveTo(cx-W*.12,top+H*.105);x.lineTo(cx+W*.12,top+H*.105);x.stroke();x.setLineDash([]);
@@ -1844,7 +1875,7 @@ function drawPlane(px,py,sc,hdg,bank){
 }
 function tick(t){let dt=Math.min(.05,Math.max(.001,(t-s.last)/1000));s.last=t;if(s.started&&!s.paused){controls(dt);updateAutopilot(dt);engine(dt);flight(dt);evaluate(dt);hud();updateAudio();updateFDR(t)}
 if(s.replayPlaying&&s.fdr.length){s.replayIndex=Math.min(s.replayIndex+1,s.fdr.length-1);if(s.replayIndex>=s.fdr.length-1){s.replayPlaying=false;document.getElementById('replayBtn').textContent='PLAY REPLAY';}updateReplayUI();}
-draw();requestAnimationFrame(tick)}
+drawCockpitOverlay();draw();requestAnimationFrame(tick)}
 document.getElementById('game').addEventListener('click',()=>{initAudio();document.body.focus();});
 document.getElementById('scene').setAttribute('tabindex','0');
 document.getElementById('scene').style.outline='none';
