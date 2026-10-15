@@ -2724,7 +2724,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.m
 
 (function(){
  let renderer,scene,camera,aircraft,cockpit3d,runway,lights=[],interactive=[];let raycaster,pointer=new THREE.Vector2(),drag=null;
- let ready=false,raf=0;
+ let ready=false,raf=0,weatherMode='clear';
  const root=document.getElementById('es3d');
  function mat(c,rough=.7,metal=0){return new THREE.MeshStandardMaterial({color:c,roughness:rough,metalness:metal});}
  function box(w,h,d,m){return new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);}
@@ -2780,7 +2780,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.m
    const windowMat=mat(0xffd77a,.22,.05);for(let i=0;i<55;i++){const w=box(.35,.35,.04,windowMat);w.position.set(70+(i%11)*11,2+(i%3)*2,-182-Math.floor(i/11)*4);scene.add(w);}
    aircraft=buildAircraft();aircraft.position.set(0,1.8,0);aircraft.rotation.y=Math.PI;aircraft.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});scene.add(aircraft);
    cockpit3d=build3DCockpit();cockpit3d.position.set(0,0,0);scene.add(cockpit3d);
-   ready=true;bindControls();resize();animate();
+   ready=true;bindControls();applyWeather();resize();animate();
  }
  function updatePointer(e){const r=renderer.domElement.getBoundingClientRect();pointer.x=((e.clientX-r.left)/r.width)*2-1;pointer.y=-((e.clientY-r.top)/r.height)*2+1;}
  function pick(e){updatePointer(e);raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(interactive,true);return hits.length?hits[0].object:null;}
@@ -2800,10 +2800,10 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.m
      if(o.userData.control==='flaps'){s.flaps=(s.flaps+1)%3;toast('FLAPS '+s.flaps);logEvent('FLAPS SET '+s.flaps,'INFO');}
    });
  }
- function resize(){if(!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);}
+ function applyWeather(){const mode=window.esWeatherMode||weatherMode;weatherMode=mode;scene.fog.density=mode==='rain'?.009:mode==='haze'?.007:mode==='night'?.006:.0045;scene.fog.color=mode==='night'?0x020811:mode==='rain'?0x52636a:0x07121a;}\n function resize(){if(!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);}
  function animate(){
    raf=requestAnimationFrame(animate); if(!ready)return;
-   const s=window.esFlightState||{}; const airborne=!s.onGround && s.alt>20;
+   const s=window.esFlightState||{};applyWeather(); const airborne=!s.onGround && s.alt>20;
    const altitude=Math.max(2,(s.alt||0)*.006+2);
    const forward=airborne?Math.min(850,(s.speed||0)*2.7):0;
    aircraft.position.x=THREE.MathUtils.lerp(aircraft.position.x,((s.xp||0)-50)*1.8,.08);
@@ -2841,5 +2841,8 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.m
  });
  if(window.esFlightState?.view==='REALITY')setTimeout(()=>window.dispatchEvent(new Event('es-view-change')),0);
 })();
+</script><script>
+window.esWeatherMode='clear';
+document.getElementById('weatherSelect').addEventListener('change',e=>{window.esWeatherMode=e.target.value;});
 </script></body>
 </html>
