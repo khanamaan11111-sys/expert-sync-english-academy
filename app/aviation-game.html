@@ -690,7 +690,7 @@ body.es-3d #atcBridge{display:block}.atcBridgeBtn{margin-left:6px;border:1px sol
 #atcLoop{position:fixed;right:12px;top:55px;z-index:124;display:none;width:310px;padding:9px;background:#041016ed;border:1px solid #376575;border-radius:11px;box-shadow:0 8px 30px #0009}
 body.es-3d #atcLoop{display:block}.atcLoopH{color:#54e6a6;font:900 8px Arial;letter-spacing:.7px}.atcLoopM{margin-top:4px;color:#eaf5f8;font:700 8px/1.45 Arial}.atcLoopS{margin-top:3px;color:#9bb5be;font:600 7px Arial}.atcLoopBtn{margin-top:7px;width:100%;padding:6px;border:1px solid #54e6a6;border-radius:7px;background:#176f59;color:#fff;font:900 7px Arial}
 @media(max-width:700px){#atcLoop{right:8px;top:145px;width:205px}}
-</style></head>
+</style><style id="es-traffic-dynamic-v70">#trafficEvents{position:fixed;right:12px;bottom:85px;z-index:125;display:none;width:300px;padding:9px;background:#041016ed;border:1px solid #376575;border-radius:10px;color:#eaf5f8;font:700 8px/1.45 Arial}body.es-3d #trafficEvents{display:block}#trafficEvents b{color:#54e6a6}@media(max-width:700px){#trafficEvents{right:8px;bottom:95px;width:205px;font-size:7px}}</style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
 <div id="studentIdentity">STUDENT: <span id="studentIdentityName">STUDENT</span></div>
@@ -3289,5 +3289,20 @@ async function autoATCStateFeedback(){
  }finally{setTimeout(()=>{esATCAutoBusy=false},3500);}
 }
 setInterval(autoATCStateFeedback,1000);
+</script><script id="es-traffic-dynamic-v70">
+let esTrafficLive=null,esTrafficLast=0;
+function readTrafficScenario(){try{return JSON.parse(localStorage.getItem('expert_sync_atc_traffic_v69')||'null')}catch(_){return null}}
+function updateDynamicTraffic(){
+ const q=readTrafficScenario();if(!q||!q.traffic?.length)return;
+ const now=Date.now();if(!esTrafficLive){esTrafficLive=q.traffic.map((t,i)=>({...t,bearing:i%2?90:270,closing:i%2?-1:1,rangeNm:2+i}));}
+ esTrafficLive.forEach((t,i)=>{t.rangeNm=Math.max(.2,t.rangeNm-t.closing*.002);t.altitude+=((i%2?1:-1)*3);});
+ let conflict=null;
+ for(const t of esTrafficLive){const altSep=Math.abs((s.alt||0)-t.altitude);if(t.rangeNm<1.2&&altSep<700)conflict=t;}
+ const box=document.getElementById('trafficEvents'),txt=document.getElementById('trafficEventText');if(!box||!txt)return;
+ if(conflict){txt.textContent='⚠️ '+conflict.callsign+' • '+conflict.rangeNm.toFixed(1)+' NM • '+Math.round(conflict.altitude)+' FT. Training conflict developing — maintain awareness and follow ATC instructions.';if(now-esTrafficLast>12000){esTrafficLast=now;if(typeof logEvent==='function')logEvent('TRAFFIC CONFLICT DEVELOPING: '+conflict.callsign,'WARN');if(typeof speakFlight==='function')speakFlight('Traffic conflict developing. Monitor the traffic and follow ATC instructions.');}}
+ else txt.textContent='Traffic active • '+esTrafficLive.length+' aircraft • No training conflict detected.';
+}
+setInterval(updateDynamicTraffic,1000);
+window.updateDynamicTraffic=updateDynamicTraffic;
 </script></body>
 </html>
