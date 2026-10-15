@@ -216,7 +216,7 @@ html,body,#game{width:100%;height:100%;min-height:100%;overflow:hidden}
 #panel{z-index:8;box-shadow:0 -8px 25px #00131a99}
 #hud{z-index:9}
 }
-</style>
+.mobileFlightPad{display:none}@media(max-width:600px){.mobileFlightPad{position:absolute;left:10px;right:10px;bottom:10px;z-index:30;display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:7px;border:1px solid #4b6873;border-radius:14px;background:#06131be8;backdrop-filter:blur(8px);box-shadow:0 8px 25px #0009;touch-action:none}.mobileFlightPad button{min-height:40px;border:1px solid #315360;border-radius:10px;background:#0b2430;color:#eaf7fa;font-size:8px;font-weight:900;letter-spacing:.4px;touch-action:none;user-select:none;-webkit-user-select:none}.mobileFlightPad button:active,.mobileFlightPad button.hold{background:#176f59;border-color:#54e6a6}.mobileFlightPad .padTitle{grid-column:1/-1;text-align:center;color:#8ed8e8;font-size:7px;font-weight:900;letter-spacing:1px;padding:1px}}</style>
 <style>
 #academyBack{position:fixed;left:12px;top:12px;z-index:120;background:#063b91;border:1px solid #ffd978;color:#fff;border-radius:6px;padding:7px 10px;font-size:9px;font-weight:900;cursor:pointer}
 #studentIdentity{position:fixed;right:12px;top:12px;z-index:120;background:#061b32dd;border:1px solid #3c6978;color:#dceaff;border-radius:6px;padding:7px 10px;font-size:9px;font-weight:800;display:none}
@@ -579,7 +579,7 @@ body.es-immersive #es-mobile-guidance{top:68px}
 <div class="prefooter"><div id="premsg" class="procedure">1 MASTER ON → 2 AVIONICS ON → 3 FUEL PUMP ON → 4 MIXTURE RICH → 5 STARTER</div><button id="starter" class="primary" disabled>START ENGINE</button></div>
 </div></div>
 </div>
-<div id="flightHelp"><b>FLIGHT CONTROLS</b> W/S throttle • ↑/↓ pitch • A/D bank • B brake • F flaps • G gear • R ATC • C view • X shutdown</div>
+<div class="mobileFlightPad" id="mobileFlightPad"><div class="padTitle">✈ FLIGHT CONTROL — HOLD TO FLY</div><button data-flight="left">◀ BANK</button><button data-flight="up">▲ PULL</button><button data-flight="down">▼ PUSH</button><button data-flight="right">BANK ▶</button><button data-flight="throttleDown">− POWER</button><button data-flight="throttleUp">+ POWER</button><button data-flight="trimUp">TRIM ▲</button><button data-flight="trimDown">TRIM ▼</button></div><div id="flightHelp"><b>FLIGHT CONTROLS</b> W/S throttle • ↑/↓ pitch • A/D bank • B brake • F flaps • G gear • R ATC • C view • X shutdown</div>
 <script>
 (()=>{const c=document.getElementById('scene'),x=c.getContext('2d');let W=innerWidth,H=innerHeight,D=Math.min(devicePixelRatio||1,2);
 function resize(){W=innerWidth;H=innerHeight;c.width=W*D;c.height=H*D;c.style.width=W+'px';c.style.height=H+'px';x.setTransform(D,0,0,D,0,0)}addEventListener('resize',resize);resize();
@@ -1055,11 +1055,11 @@ if(s.apAltitude){
 }
 }
 function controls(dt){
-const steer=(keys.a||keys.arrowleft?1:0)-(keys.d||keys.arrowright?1:0);
-const pitchInput=(keys.arrowup?1:0)-(keys.arrowdown?1:0);
+const steer=(keys.a||keys.arrowleft||mobilePadState.left?1:0)-(keys.d||keys.arrowright||mobilePadState.right?1:0);
+const pitchInput=(keys.arrowup||mobilePadState.up?1:0)-(keys.arrowdown||mobilePadState.down?1:0);
 
-if(keys.w)s.throttle+=28*dt;
-if(keys.s)s.throttle-=38*dt;
+if(keys.w||mobilePadState.throttleUp)s.throttle+=28*dt;
+if(keys.s||mobilePadState.throttleDown)s.throttle-=38*dt;
 s.throttle=clamp(s.throttle,0,100);
 
 if(keys.m)s.mixture=clamp(s.mixture+45*dt,0,100);
@@ -1079,8 +1079,8 @@ if(s.yoke){
   if(!s.onGround)s.bank+=steer*42*dt;
 }
 if(pitchInput)s.pitch+=pitchInput*10*dt;
-if(keys.t)s.trim=clamp(s.trim+18*dt,-100,100);
-if(keys.y)s.trim=clamp(s.trim-18*dt,-100,100);
+if(keys.t||mobilePadState.trimUp)s.trim=clamp(s.trim+18*dt,-100,100);
+if(keys.y||mobilePadState.trimDown)s.trim=clamp(s.trim-18*dt,-100,100);
 
 if(!pitchInput&&!s.yoke)s.pitch+=(s.trim/100*3.0-s.pitch)*Math.min(1,dt*.45);
 if(s.onGround)s.bank*=Math.pow(.10,dt);else s.bank*=Math.pow(.997,dt);
@@ -1876,6 +1876,8 @@ function drawPlane(px,py,sc,hdg,bank){
 function tick(t){let dt=Math.min(.05,Math.max(.001,(t-s.last)/1000));s.last=t;if(s.started&&!s.paused){controls(dt);updateAutopilot(dt);engine(dt);flight(dt);evaluate(dt);hud();updateAudio();updateFDR(t)}
 if(s.replayPlaying&&s.fdr.length){s.replayIndex=Math.min(s.replayIndex+1,s.fdr.length-1);if(s.replayIndex>=s.fdr.length-1){s.replayPlaying=false;document.getElementById('replayBtn').textContent='PLAY REPLAY';}updateReplayUI();}
 draw();drawCockpitOverlay();requestAnimationFrame(tick)}
+const mobilePadState={left:false,right:false,up:false,down:false,throttleUp:false,throttleDown:false,trimUp:false,trimDown:false};
+document.querySelectorAll('#mobileFlightPad [data-flight]').forEach(btn=>{const k=btn.dataset.flight;const start=e=>{e.preventDefault();mobilePadState[k]=true;btn.classList.add('hold');try{btn.setPointerCapture(e.pointerId)}catch(_){} };const end=e=>{e.preventDefault();mobilePadState[k]=false;btn.classList.remove('hold')};btn.addEventListener('pointerdown',start);btn.addEventListener('pointerup',end);btn.addEventListener('pointercancel',end);});
 document.getElementById('game').addEventListener('click',()=>{initAudio();document.body.focus();});
 document.getElementById('scene').setAttribute('tabindex','0');
 document.getElementById('scene').style.outline='none';
