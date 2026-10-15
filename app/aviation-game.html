@@ -690,7 +690,7 @@ body.es-3d #atcBridge{display:block}.atcBridgeBtn{margin-left:6px;border:1px sol
 #atcLoop{position:fixed;right:12px;top:55px;z-index:124;display:none;width:310px;padding:9px;background:#041016ed;border:1px solid #376575;border-radius:11px;box-shadow:0 8px 30px #0009}
 body.es-3d #atcLoop{display:block}.atcLoopH{color:#54e6a6;font:900 8px Arial;letter-spacing:.7px}.atcLoopM{margin-top:4px;color:#eaf5f8;font:700 8px/1.45 Arial}.atcLoopS{margin-top:3px;color:#9bb5be;font:600 7px Arial}.atcLoopBtn{margin-top:7px;width:100%;padding:6px;border:1px solid #54e6a6;border-radius:7px;background:#176f59;color:#fff;font:900 7px Arial}
 @media(max-width:700px){#atcLoop{right:8px;top:145px;width:205px}}
-</style><style id="es-traffic-dynamic-v70">#trafficEvents{position:fixed;right:12px;bottom:85px;z-index:125;display:none;width:300px;padding:9px;background:#041016ed;border:1px solid #376575;border-radius:10px;color:#eaf5f8;font:700 8px/1.45 Arial}body.es-3d #trafficEvents{display:block}#trafficEvents b{color:#54e6a6}@media(max-width:700px){#trafficEvents{right:8px;bottom:95px;width:205px;font-size:7px}}</style></head>
+</style><style id="es-traffic-dynamic-v70">#trafficEvents{position:fixed;right:12px;bottom:85px;z-index:125;display:none;width:300px;padding:9px;background:#041016ed;border:1px solid #376575;border-radius:10px;color:#eaf5f8;font:700 8px/1.45 Arial}body.es-3d #trafficEvents{display:block}#trafficEvents b{color:#54e6a6}@media(max-width:700px){#trafficEvents{right:8px;bottom:95px;width:205px;font-size:7px}}</style><style id="es-atc-controller-v71">#atcController{position:fixed;left:12px;top:300px;z-index:126;display:none;width:290px;padding:9px;background:#041016ed;border:1px solid #376575;border-radius:10px;color:#eaf5f8;font:700 8px/1.45 Arial}body.es-3d #atcController{display:block}#atcController b{color:#54e6a6}@media(max-width:700px){#atcController{left:8px;top:330px;width:205px;font-size:7px}}</style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
 <div id="studentIdentity">STUDENT: <span id="studentIdentityName">STUDENT</span></div>
@@ -3304,5 +3304,19 @@ function updateDynamicTraffic(){
 }
 setInterval(updateDynamicTraffic,1000);
 window.updateDynamicTraffic=updateDynamicTraffic;
+</script><script id="es-atc-controller-v71">
+let esATCControllerLast=0,esATCControllerSig='';
+function issueDynamicATCInstruction(){
+ if(!atcLive||typeof sendMessage!=='function')return;
+ const q=readTrafficScenario();if(!q)return;
+ const conflict=esTrafficLive?.find(t=>t.rangeNm<1.2&&Math.abs((s.alt||0)-t.altitude)<700);
+ const sig=conflict?conflict.callsign+'|CONFLICT':'NORMAL';
+ if(sig===esATCControllerSig&&Date.now()-esATCControllerLast<15000)return;
+ esATCControllerSig=sig;esATCControllerLast=Date.now();
+ const state={phase:s.phase,speed:Math.round(s.speed),altitude:Math.round(s.alt),heading:Math.round(s.heading),verticalSpeed:Math.round(s.vs),traffic:esTrafficLive||[],conflict:conflict||null};
+ sendMessage('You are the AI training controller. Manage the active multi-aircraft training scenario. Based only on the supplied state, issue exactly ONE concise ATC transmission that improves sequencing, spacing, heading, altitude, or conflict management. Address the student aircraft clearly. Do not invent real-world clearances or data. If no action is needed, say NO NEW TRANSMISSION. LIVE STATE: '+JSON.stringify(state));
+ const el=document.getElementById('atcControllerMsg');if(el)el.textContent=conflict?'⚠️ Controller managing '+conflict.callsign:'Controller monitoring traffic.';
+}
+setInterval(()=>{if(atcLive&&esTrafficLive)issueDynamicATCInstruction()},3000);
 </script></body>
 </html>
