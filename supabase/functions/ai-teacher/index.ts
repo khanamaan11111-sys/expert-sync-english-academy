@@ -235,6 +235,23 @@ Return ONLY valid JSON:
               });
             } catch (_) {}
           }
+          let lesson: any = null;
+          try {
+            const focus = curriculum?.current_focus || "English communication";
+            const level = String(evaluation?.level_estimate || learnerProfile.english_level || "auto");
+            const lessonPrompt = `Create one short interactive English lesson for an Expert Sync learner.
+Focus: ${focus}
+Level: ${level}
+Recent priorities: ${JSON.stringify(evaluation?.priorities || []).slice(0,1200)}
+Return ONLY JSON:
+{"title":"...","objective":"...","steps":[{"type":"teach|practice|feedback|mastery","instruction":"..."}],"mastery_question":"...","advance_if":"...","remediate_if":"..."}
+Use 3-5 steps. Each step must require learner participation except teach. Keep it practical and concise. Do not include answers to the mastery question.`;
+            const lr = await fetch("https://api.openai.com/v1/responses", {method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${apiKey}`},body:JSON.stringify({model:"gpt-5.2",input:[{role:"developer",content:lessonPrompt}],max_output_tokens:700})});
+            if(lr.ok){ const ld=await lr.json(); const raw=ld.output_text||""; const m=raw.match(/\{[\s\S]*\}/); if(m) lesson=JSON.parse(m[0]); }
+          } catch (_) {}
+          if (lesson) {
+            curriculum = { ...(curriculum || {}), lesson };
+          }
           sendEvent("evaluation", { evaluation, curriculum });
           sendEvent("done", { answer });
           controller.close();
