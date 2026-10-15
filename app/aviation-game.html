@@ -32,6 +32,30 @@ button{font:inherit;color:inherit}#game{position:relative;width:100vw;height:100
 #yoke{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);width:175px;height:105px;cursor:grab}.wheel{position:absolute;left:20px;top:2px;width:135px;height:62px;border:9px solid #202a2f;border-radius:50% 50% 30% 30%;box-shadow:0 4px 8px #000}.stem{position:absolute;left:81px;top:40px;width:10px;height:62px;background:#697980;border-radius:4px}.bar{position:absolute;left:31px;top:27px;width:69px;height:5px;background:#2c373c}
 #throttle{position:absolute;right:8%;top:30px;width:75px;height:135px;border:1px solid #3b535d;border-radius:6px;background:#071219;cursor:ns-resize}.rail{position:absolute;left:34px;top:17px;bottom:17px;width:6px;background:#2b414a}.lever{position:absolute;left:25px;bottom:25px;width:24px;height:25px;background:#c1c9cb;border-radius:4px}.tl{position:absolute;top:6px;left:0;right:0;text-align:center;font-size:7px;color:#86dfff}
 #brake{position:absolute;left:5%;bottom:28px;padding:8px 10px;border:1px solid #50636a;background:#202d31;border-radius:5px;font-size:8px;font-weight:900;cursor:pointer}.brakeOn{background:#6c272b!important;border-color:#ff6b70!important}
+@media(max-width:600px){
+html,body,#game{width:100%;height:100%;min-height:100%;overflow:hidden}
+#brand{left:8px;top:8px;padding:6px 8px;font-size:9px}
+#views{left:8px;right:8px;top:48px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.view{padding:7px 3px;text-align:center;font-size:8px}
+#mission,#atc,#help,#status,#checklistPanel,#abnormal,#lightsPanel,#replayPanel,#fdrPanel,#eventPanel,#trafficPanel,#approachPanel,#mission17Panel,#mapPanel,#navPanel,#apPanel,#scenarioPanel,#weather,#controlGuide{display:none!important}
+#cockpit{inset:82px 0 0}
+.glass{left:2%;right:2%;top:1%;height:48%;border-width:4px;border-radius:3px 3px 28% 28%}
+#panel{left:0;right:0;bottom:0;height:50%;border-width:2px;border-radius:12px 12px 0 0}
+.sixpack{left:2%;right:2%;top:7px;grid-template-columns:repeat(3,1fr);gap:4px}
+.gauge{aspect-ratio:1.18;border-width:2px}
+.gauge .label{top:13%;font-size:6px}.gauge .value{top:39%;font-size:14px}.gauge .unit{bottom:10%;font-size:5px}
+#controlsRow{left:2%;right:2%;bottom:7px;height:42%;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.controlBox{padding:5px;min-width:0}.ct{font-size:6px}.switches{margin-top:6px}.switch{transform:scale(.82);transform-origin:top center}
+#yoke{width:120px;height:75px;top:49%}.wheel{left:13px;width:94px;height:45px;border-width:7px}.stem{left:55px;top:30px;width:8px;height:45px}.bar{left:22px;top:21px;width:50px}
+#throttle{right:3%;top:8px;width:52px;height:95px}.rail{left:23px}.lever{left:17px;width:18px;height:20px}
+#brake{left:3%;bottom:8px;padding:6px 8px;font-size:7px}
+#cockpitLabel{bottom:52%;font-size:7px;padding:4px 7px}
+#hud{left:2%;right:2%;bottom:5px;grid-template-columns:repeat(3,1fr);gap:3px;width:auto}.read{padding:4px}.read strong{font-size:13px}
+#warning{top:16%;font-size:8px;padding:7px 10px}
+#toast{top:18%;font-size:8px}
+#preflight .card{width:94vw;max-height:88vh;overflow:auto;padding:12px}.card h1{font-size:16px}.preitem{grid-template-columns:55px 1fr;padding:7px}
+#testbar{left:6px;right:6px;bottom:6px;justify-content:center}.primary{padding:8px 12px;font-size:9px}
+}
 @media(max-width:850px){#mission,#atc,#help,#status{display:none}#phasebar{display:none}#hud{grid-template-columns:repeat(3,90px);bottom:5px}.sixpack{gap:4px}.card{padding:15px}.pregrid{grid-template-columns:1fr}.gauge .value{font-size:12px}.controlBox{padding:4px}}
 
 #testbar{right:14px;bottom:14px;padding:6px;display:flex;gap:6px;align-items:center;z-index:30}
