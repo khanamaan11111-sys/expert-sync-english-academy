@@ -197,6 +197,44 @@ Return ONLY valid JSON:
               });
             }
           } catch (_) {}
+          // Update long-term learner memory from verified evaluation data.
+          if (evaluation) {
+            try {
+              const { data: existing } = await sb.from("ai_teacher_memory")
+                .select("profile,progress,mistakes").eq("user_id", user.id).maybeSingle();
+              const profile = existing?.profile && typeof existing.profile === "object" ? existing.profile : {};
+              const progress = existing?.progress && typeof existing.progress === "object" ? existing.progress : {};
+              const mistakes = existing?.mistakes && typeof existing.mistakes === "object" ? existing.mistakes : {};
+              const priorities = Array.isArray(evaluation.priorities) ? evaluation.priorities.slice(0, 5) : [];
+              const strengths = Array.isArray(evaluation.strengths) ? evaluation.strengths.slice(0, 5) : [];
+              const oldPriority = Array.isArray(mistakes.priorities) ? mistakes.priorities : [];
+              const mergedPriorities = [...new Set([...priorities, ...oldPriority])].slice(0, 10);
+              const oldStrengths = Array.isArray(progress.strengths) ? progress.strengths : [];
+              progress.strengths = [...new Set([...strengths, ...oldStrengths])].slice(0, 10);
+              progress.last_evaluation = {
+                overall: Number(evaluation.overall) || 0,
+                level_estimate: String(evaluation.level_estimate || "auto"),
+                grammar: Number(evaluation.grammar) || 0,
+                vocabulary: Number(evaluation.vocabulary) || 0,
+                fluency: Number(evaluation.fluency) || 0,
+                naturalness: Number(evaluation.naturalness) || 0,
+                relevance: Number(evaluation.relevance) || 0,
+                professional: Number(evaluation.professional) || 0
+              };
+              mistakes.priorities = mergedPriorities;
+              mistakes.last_response = message.slice(0, 1000);
+              profile.last_mode = mode;
+              if (evaluation.level_estimate && evaluation.level_estimate !== "auto") profile.estimated_level = evaluation.level_estimate;
+              await sb.from("ai_teacher_memory").upsert({
+                user_id: user.id,
+                profile,
+                progress,
+                mistakes,
+                last_seen: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              });
+            } catch (_) {}
+          }
           sendEvent("evaluation", { evaluation, curriculum });
           sendEvent("done", { answer });
           controller.close();
