@@ -2745,6 +2745,22 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.m
    scene.add(new THREE.HemisphereLight(0x9fd9ee,0x14231d,1.7));
    const sun=new THREE.DirectionalLight(0xfff0cf,2.2);sun.position.set(-120,180,80);sun.castShadow=true;scene.add(sun);
    const ground=box(1200,.2,1200,mat(0x31563e));ground.position.y=-1;ground.receiveShadow=true;scene.add(ground);
+   // Airport environment: apron, taxiway network, terminal, hangars and approach lighting.
+   const taxi=box(18,.12,720,mat(0x22282b,.96));taxi.position.set(48,-.84,0);scene.add(taxi);
+   const apron=box(180,.1,130,mat(0x303638,.92));apron.position.set(115,-.82,-160);scene.add(apron);
+   const terminal=box(115,12,28,mat(0x647277,.55,.2));terminal.position.set(125,5,-175);terminal.castShadow=true;scene.add(terminal);
+   const roof=box(120,1.2,34,mat(0x263238,.45,.35));roof.position.set(125,11.5,-175);scene.add(roof);
+   for(let i=0;i<8;i++){const gate=box(2.4,3,16,mat(0x9bb5ba,.35,.15));gate.position.set(75+i*14,1.5,-145);scene.add(gate);}
+   for(let i=0;i<5;i++){const hang=box(28,10,34,mat(0x4a565b,.65,.2));hang.position.set(-120+i*34,4,-205);scene.add(hang);}
+   // Taxiway centerline
+   for(let z=-350;z<350;z+=18){const c=box(.28,.06,7,mat(0xf1d24c,.4));c.position.set(48,-.76,z);scene.add(c);}
+   // Airport perimeter fence
+   const fenceMat=mat(0x657278,.75,.05);for(let z=-430;z<=430;z+=22){const p=box(.08,2,.08,fenceMat);p.position.set(225,0,z);scene.add(p);}
+   // Approach light arrays beyond threshold
+   const appMat=mat(0xffffff,.25);for(let i=1;i<18;i++){const l=box(.35,.25,2,appMat);l.position.set(0,.05,-455-i*7);scene.add(l);}
+   // Control tower
+   const tower=box(12,42,12,mat(0x68777b,.5,.25));tower.position.set(45,20,-190);scene.add(tower);
+   const cab=box(17,7,17,mat(0x17303b,.18,.5));cab.position.set(45,42,-190);scene.add(cab);
    runway=box(38,.16,900,mat(0x171c20,.95));runway.position.set(0,-.88,0);runway.receiveShadow=true;scene.add(runway);
    const edgeMat=mat(0xdde8e8,.35,0);
    for(let z=-430;z<430;z+=28){for(const xx of [-17,17]){const b=box(.28,.15,1.5,edgeMat);b.position.set(xx,-.76,z);scene.add(b);}}
@@ -2755,6 +2771,8 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.m
      for(const xx of [-15.8,15.8]){const l=new THREE.Mesh(new THREE.SphereGeometry(.18,8,8),z>-70?white:red);l.position.set(xx,-.65,z);scene.add(l);lights.push(l);}
    }
    for(let i=0;i<70;i++){const h=1+Math.random()*7,b=box(2+h*.25,h,2+h*.25,mat(i%3?0x28363b:0x405157));b.position.set((i%2?-1:1)*(70+Math.random()*180),h/2-1,(Math.random()-.5)*900);scene.add(b);}
+   // City windows / airport service lighting
+   const windowMat=mat(0xffd77a,.22,.05);for(let i=0;i<55;i++){const w=box(.35,.35,.04,windowMat);w.position.set(70+(i%11)*11,2+(i%3)*2,-182-Math.floor(i/11)*4);scene.add(w);}
    aircraft=buildAircraft();aircraft.position.set(0,1.8,0);aircraft.rotation.y=Math.PI;aircraft.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});scene.add(aircraft);
    cockpit3d=build3DCockpit();cockpit3d.position.set(0,0,0);scene.add(cockpit3d);
    ready=true;bindControls();resize();animate();
