@@ -249,6 +249,36 @@ Use 3-5 steps. Each step must require learner participation except teach. Keep i
             const lr = await fetch("https://api.openai.com/v1/responses", {method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${apiKey}`},body:JSON.stringify({model:"gpt-5.2",input:[{role:"developer",content:lessonPrompt}],max_output_tokens:700})});
             if(lr.ok){ const ld=await lr.json(); const raw=ld.output_text||""; const m=raw.match(/\{[\s\S]*\}/); if(m) lesson=JSON.parse(m[0]); }
           } catch (_) {}
+          // Verify milestone mastery using the skills relevant to the current goal.
+          let milestoneMastery: any = null;
+          try {
+            const goal = String(learnerProfile.goal || curriculum?.goal || "General English");
+            const score = Number(evaluation?.overall) || 0;
+            const skillScores = {
+              grammar:Number(evaluation?.grammar)||0, vocabulary:Number(evaluation?.vocabulary)||0,
+              fluency:Number(evaluation?.fluency)||0, naturalness:Number(evaluation?.naturalness)||0,
+              relevance:Number(evaluation?.relevance)||0, professional:Number(evaluation?.professional)||0
+            };
+            const focusSkills:any = {
+              "Interview English":["professional","fluency","relevance"],
+              "Aviation English":["professional","relevance","fluency"],
+              "Customer Service English":["professional","naturalness","relevance"],
+              "IELTS English":["grammar","vocabulary","fluency"],
+              "Business English":["professional","vocabulary","naturalness"],
+              "Spoken English":["fluency","naturalness","vocabulary"],
+              "General English":["grammar","vocabulary","fluency"]
+            };
+            const required=focusSkills[goal]||focusSkills["General English"];
+            const qualified=score>=80 && required.every((k:string)=>skillScores[k as keyof typeof skillScores]>=75);
+            const {data:cur}=await sb.from("ai_teacher_curriculum").select("lesson_number,mastery_score,current_focus,goal").eq("user_id",user.id).maybeSingle();
+            const index=Math.max(0,Math.min(4,Math.floor(score/20)));
+            const milestone=String(cur?.current_focus||"Core English communication");
+            const {data:existing}=await sb.from("ai_teacher_milestone_mastery").select("*").eq("user_id",user.id).eq("goal",goal).eq("milestone_index",index).maybeSingle();
+            const attempts=(existing?.attempts||0)+1;
+            const status=qualified?"mastered":score<60?"remediate":"practice";
+            await sb.from("ai_teacher_milestone_mastery").upsert({user_id:user.id,goal,milestone_index:index,milestone,status,attempts,best_score:Math.max(Number(existing?.best_score)||0,score),evidence:{overall:score,required,skillScores},updated_at:new Date().toISOString()},{onConflict:"user_id,goal,milestone_index"});
+            milestoneMastery={goal,milestone_index:index,milestone,status,attempts,best_score:Math.max(Number(existing?.best_score)||0,score),required_skills:required,qualified};
+          } catch (_) {}
           let masteryDecision: any = null;
           if (lesson && evaluation) {
             try {
@@ -265,7 +295,7 @@ Use 3-5 steps. Each step must require learner participation except teach. Keep i
             } catch (_) {}
           }
           if (lesson) {
-            curriculum = { ...(curriculum || {}), lesson, mastery: masteryDecision };
+            curriculum = { ...(curriculum || {}), lesson, mastery: masteryDecision, milestone_mastery: milestoneMastery };
           }
           sendEvent("evaluation", { evaluation, curriculum });
           sendEvent("done", { answer });
