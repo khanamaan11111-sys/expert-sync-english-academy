@@ -634,12 +634,16 @@ body.es-3d #aiFlightCoach{display:block}
 #aiAutoDebrief .ah{color:#54e6a6;font:900 11px Arial;letter-spacing:1px}#aiAutoDebrief .as{color:#8fe8f7;font:700 8px Arial;margin-top:3px}
 #aiDebriefBody{margin-top:12px;color:#eaf5f8;font:600 10px/1.55 Arial;white-space:pre-wrap}
 #aiDebriefClose{margin-top:12px;width:100%;padding:8px;border:1px solid #54e6a6;border-radius:8px;background:#176f59;color:#fff;font-weight:900}
+</style><style id="es-adaptive-coach-v49">
+#aiAdaptiveAlert{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:115;display:none;width:min(460px,90vw);padding:9px 11px;border:1px solid #e2b84f;border-radius:10px;background:#160f04f2;box-shadow:0 8px 30px #0009}
+#aiAdaptiveAlert .t{color:#f4d35e;font:900 9px Arial;letter-spacing:.8px}#aiAdaptiveAlert .m{margin-top:4px;color:#fff;font:700 10px/1.4 Arial}#aiAdaptiveAlert .a{margin-top:3px;color:#c6d7dc;font:600 8px/1.4 Arial}
+@media(max-width:700px){#aiAdaptiveAlert{top:88px;width:calc(100vw - 30px);padding:7px 9px}.aiAdaptiveAlert .m{font-size:9px}}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
 <div id="studentIdentity">STUDENT: <span id="studentIdentityName">STUDENT</span></div>
 <div id="academyConnect">✓ CONNECTED TO EXPERT SYNC ACADEMY</div>
-<div id="game"><div id="aiAutoDebrief"><div class="ah">EXPERT SYNC • AI POST-FLIGHT DEBRIEF</div><div class="as" id="aiDebriefStatus">Preparing instructor analysis...</div><div id="aiDebriefBody">Analyzing your flight...</div><button id="aiDebriefClose">CLOSE</button></div><div id="aiFlightMemory"><div class="memHead">EXPERT SYNC • PERSONAL FLIGHT MEMORY</div><div id="memSummary" class="memText">Loading your training profile...</div><div id="memGrid" class="memGrid"></div><div id="memAdvice" class="memText"></div><button class="memClose" id="memClose">CLOSE</button></div><div id="aiFlightChat"><div id="aiChatHead"><span>EXPERT SYNC • AI FLIGHT TEACHER</span><span>CHAT</span></div><div id="aiChatMessages"><div class="aiMsg ai">I am your flight instructor. Ask me about the aircraft, controls, approach, crosswind, or your current flight.</div></div><form id="aiChatForm"><input id="aiChatInput" autocomplete="off" placeholder="Ask your AI instructor..."><button id="aiChatSend">SEND</button></form></div><div id="aiFlightCoach"><div class="head"><span>EXPERT SYNC • AI FLIGHT INSTRUCTOR</span><span class="live">LIVE</span></div><div id="aiCoachMsg">Instructor ready. Fly the aircraft and I will coach your next action.</div><div id="aiCoachAction">Monitoring speed, altitude, heading, configuration and stability.</div><div id="aiCoachMetrics"><span>HDG<b id="aiHdg">000</b></span><span>IAS<b id="aiIas">0</b></span><span>ALT<b id="aiAlt">0</b></span><span>VS<b id="aiVs">0</b></span></div></div><div id="crosswindBrief">CROSSWIND TRAINING • <b id="crosswindValue">—</b><span class="hint" id="crosswindHint">Use smooth heading corrections and keep the runway centreline.</span></div><div id="windOverlay">WIND <b id="windValue">120° / 8 KT</b><span id="windArrow">↗</span></div><div id="weatherControl">WEATHER <select id="weatherSelect"><option value="clear">CLEAR</option><option value="haze">HAZE</option><option value="rain">RAIN</option><option value="night">NIGHT</option></select></div><div id="flightModelBadge">REALISTIC AERODYNAMIC MODEL • ASSIST OPTIONAL</div><div id="es3d" aria-label="Expert Sync 3D flight simulator"></div><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
+<div id="game"><div id="aiAdaptiveAlert"><div class="t">AI FLIGHT INSTRUCTOR • REAL-TIME COACHING</div><div class="m" id="adaptiveMsg"></div><div class="a" id="adaptiveAction"></div></div><div id="aiAutoDebrief"><div class="ah">EXPERT SYNC • AI POST-FLIGHT DEBRIEF</div><div class="as" id="aiDebriefStatus">Preparing instructor analysis...</div><div id="aiDebriefBody">Analyzing your flight...</div><button id="aiDebriefClose">CLOSE</button></div><div id="aiFlightMemory"><div class="memHead">EXPERT SYNC • PERSONAL FLIGHT MEMORY</div><div id="memSummary" class="memText">Loading your training profile...</div><div id="memGrid" class="memGrid"></div><div id="memAdvice" class="memText"></div><button class="memClose" id="memClose">CLOSE</button></div><div id="aiFlightChat"><div id="aiChatHead"><span>EXPERT SYNC • AI FLIGHT TEACHER</span><span>CHAT</span></div><div id="aiChatMessages"><div class="aiMsg ai">I am your flight instructor. Ask me about the aircraft, controls, approach, crosswind, or your current flight.</div></div><form id="aiChatForm"><input id="aiChatInput" autocomplete="off" placeholder="Ask your AI instructor..."><button id="aiChatSend">SEND</button></form></div><div id="aiFlightCoach"><div class="head"><span>EXPERT SYNC • AI FLIGHT INSTRUCTOR</span><span class="live">LIVE</span></div><div id="aiCoachMsg">Instructor ready. Fly the aircraft and I will coach your next action.</div><div id="aiCoachAction">Monitoring speed, altitude, heading, configuration and stability.</div><div id="aiCoachMetrics"><span>HDG<b id="aiHdg">000</b></span><span>IAS<b id="aiIas">0</b></span><span>ALT<b id="aiAlt">0</b></span><span>VS<b id="aiVs">0</b></span></div></div><div id="crosswindBrief">CROSSWIND TRAINING • <b id="crosswindValue">—</b><span class="hint" id="crosswindHint">Use smooth heading corrections and keep the runway centreline.</span></div><div id="windOverlay">WIND <b id="windValue">120° / 8 KT</b><span id="windArrow">↗</span></div><div id="weatherControl">WEATHER <select id="weatherSelect"><option value="clear">CLEAR</option><option value="haze">HAZE</option><option value="rain">RAIN</option><option value="night">NIGHT</option></select></div><div id="flightModelBadge">REALISTIC AERODYNAMIC MODEL • ASSIST OPTIONAL</div><div id="es3d" aria-label="Expert Sync 3D flight simulator"></div><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
 <canvas id="scene"></canvas><div id="aircraftLabel">AIRCRAFT ES-01 • EXTERNAL VIEW</div><div id="keyFeedback"></div>
 <div id="brand" class="ui panel"><div class="brand">✈ EXPERT SYNC — FLIGHT TRAINING</div><div class="sub">HANDS-ON SINGLE-ENGINE SIMULATOR • N-ES01</div></div>
 <div id="phasebar" class="ui"></div>
@@ -1186,7 +1190,26 @@ if(performance.now()-s.assistLastToast>6500){
 }
 }
 let aiLastCoach='',aiLastCoachAt=0;
-function updateAIFlightInstructor(){
+let adaptiveLastKey='',adaptiveLastAt=0,adaptiveTimer=0;
+function updateAdaptiveRealTime(){
+ const now=performance.now(); if(now-adaptiveLastAt<1800)return;
+ const phase=s.phase, speed=s.speed, alt=s.alt, vs=s.vs, bank=Math.abs(s.bank), pitch=Math.abs(s.pitch);
+ let key='',msg='',action='';
+ if(s.stall){key='stall';msg='STALL RISK DETECTED';action='Reduce angle of attack first, then add power and stabilize the aircraft.';}
+ else if((phase===5||phase===6)&&speed>100){key='approach-speed';msg='APPROACH SPEED HIGH';action='Reduce power smoothly and maintain the target approach attitude.';}
+ else if((phase===5||phase===6)&&Math.abs(s.locError)>1.5){key='localizer';msg='RUNWAY CENTRELINE DEVIATION';action='Make a small heading correction toward the localizer; avoid abrupt bank inputs.';}
+ else if((phase===5||phase===6)&&Math.abs(s.gsError)>1.5){key='glideslope';msg='GLIDE PATH DEVIATION';action='Use small pitch and power changes to recover the glide path.';}
+ else if((phase===3||phase===4)&&Math.abs(vs)>1400){key='vertical';msg='VERTICAL SPEED UNSTABLE';action='Reduce control inputs and stabilize pitch before chasing altitude.';}
+ else if((phase===3||phase===4)&&bank>25){key='bank';msg='BANK ANGLE HIGH';action='Reduce bank smoothly and maintain coordinated flight.';}
+ else if((phase===2||phase===3)&&speed<58&&!s.onGround){key='low-speed';msg='LOW AIRSPEED';action='Lower pitch slightly and apply appropriate power to regain safe airspeed.';}
+ if(key&&key!==adaptiveLastKey){
+   adaptiveLastKey=key;adaptiveLastAt=now;
+   const el=document.getElementById('aiAdaptiveAlert');document.getElementById('adaptiveMsg').textContent=msg;document.getElementById('adaptiveAction').textContent=action;el.style.display='block';
+   clearTimeout(adaptiveTimer);adaptiveTimer=setTimeout(()=>{el.style.display='none';},7000);
+   if(typeof logEvent==='function')logEvent('AI COACH: '+msg,'INFO');
+ }
+ if(!key){adaptiveLastKey='';}
+}function updateAIFlightInstructor(){
  const msg=document.getElementById('aiCoachMsg'),act=document.getElementById('aiCoachAction');if(!msg)return;
  const now=performance.now(),phase=s.phase,hdg=Math.abs(diff(s.heading,90)),speed=s.speed,alt=s.alt,vs=s.vs;
  let m='',a='';
@@ -1358,7 +1381,7 @@ if(s.onGround){
   }
 }
 }
-updateWindOverlay();updateCrosswindTraining();updateAIFlightInstructor();
+updateWindOverlay();updateCrosswindTraining();updateAIFlightInstructor();updateAdaptiveRealTime();
 function evaluate(dt){
 let g=0;
 navigationMonitor(dt);weatherMonitor(dt);emergencyMonitor(dt);instructorMonitor(dt);scenarioMonitor(dt);mission17Monitor();
