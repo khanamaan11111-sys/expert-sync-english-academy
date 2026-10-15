@@ -604,12 +604,18 @@ body.es-3d #weatherControl{display:block}
 #windArrow{display:inline-block;margin-left:5px}
 @media(max-width:700px){#windOverlay{left:8px;top:92px;font-size:7px;padding:5px 7px}}
 body.es-3d #windOverlay{display:block}
+</style><style id="es-crosswind-v44">
+#crosswindBrief{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:82;display:none;min-width:220px;padding:7px 10px;border:1px solid #355b67;border-radius:10px;background:#02070be8;color:#dff8ff;font:700 8px Arial;text-align:center;box-shadow:0 6px 20px #0008}
+#crosswindBrief b{color:#54e6a6}
+#crosswindBrief .hint{display:block;margin-top:3px;color:#9bb5be;font-weight:600}
+body.es-3d #crosswindBrief{display:block}
+@media(max-width:700px){#crosswindBrief{top:115px;min-width:190px;font-size:7px}}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
 <div id="studentIdentity">STUDENT: <span id="studentIdentityName">STUDENT</span></div>
 <div id="academyConnect">✓ CONNECTED TO EXPERT SYNC ACADEMY</div>
-<div id="game"><div id="windOverlay">WIND <b id="windValue">120° / 8 KT</b><span id="windArrow">↗</span></div><div id="weatherControl">WEATHER <select id="weatherSelect"><option value="clear">CLEAR</option><option value="haze">HAZE</option><option value="rain">RAIN</option><option value="night">NIGHT</option></select></div><div id="flightModelBadge">REALISTIC AERODYNAMIC MODEL • ASSIST OPTIONAL</div><div id="es3d" aria-label="Expert Sync 3D flight simulator"></div><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
+<div id="game"><div id="crosswindBrief">CROSSWIND TRAINING • <b id="crosswindValue">—</b><span class="hint" id="crosswindHint">Use smooth heading corrections and keep the runway centreline.</span></div><div id="windOverlay">WIND <b id="windValue">120° / 8 KT</b><span id="windArrow">↗</span></div><div id="weatherControl">WEATHER <select id="weatherSelect"><option value="clear">CLEAR</option><option value="haze">HAZE</option><option value="rain">RAIN</option><option value="night">NIGHT</option></select></div><div id="flightModelBadge">REALISTIC AERODYNAMIC MODEL • ASSIST OPTIONAL</div><div id="es3d" aria-label="Expert Sync 3D flight simulator"></div><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
 <canvas id="scene"></canvas><div id="aircraftLabel">AIRCRAFT ES-01 • EXTERNAL VIEW</div><div id="keyFeedback"></div>
 <div id="brand" class="ui panel"><div class="brand">✈ EXPERT SYNC — FLIGHT TRAINING</div><div class="sub">HANDS-ON SINGLE-ENGINE SIMULATOR • N-ES01</div></div>
 <div id="phasebar" class="ui"></div>
@@ -1155,6 +1161,14 @@ if(performance.now()-s.assistLastToast>6500){
  s.assistLastToast=performance.now();
 }
 }
+function updateCrosswindTraining(){
+ const rel=diff(s.windDir,90), cross=Math.abs(Math.sin(rel*Math.PI/180)*s.windKt), head=Math.cos(rel*Math.PI/180)*s.windKt;
+ const e=document.getElementById('crosswindValue'),h=document.getElementById('crosswindHint');if(!e)return;
+ e.textContent=Math.round(cross)+' KT CROSSWIND • '+(head>=0?Math.round(head)+' KT HEADWIND':Math.round(Math.abs(head))+' KT TAILWIND');
+ if(s.phase===1||s.phase===2||s.phase===6){
+   h.textContent=cross>12?'Strong crosswind: make small corrections and avoid chasing the centreline.':cross>6?'Moderate crosswind: maintain runway alignment with gentle correction.':'Light crosswind: maintain centreline and monitor drift.';
+ }
+}
 function updateWindOverlay(){const e=document.getElementById('windValue'),a=document.getElementById('windArrow');if(!e)return;const rel=diff(s.windDir,s.heading),cross=Math.round(Math.abs(Math.sin(rel*Math.PI/180)*s.windKt));const head=Math.round(Math.cos(rel*Math.PI/180)*s.windKt);e.textContent=String(Math.round(s.windDir)).padStart(3,'0')+'° / '+Math.round(s.windKt)+' KT'+(s.gust>0.03?' GUST':'');a.textContent=rel>8?'↗':rel<-8?'↖':'↑';a.title='Crosswind '+cross+' kt • headwind '+head+' kt';}
 function controls(dt){
 const steer=(keys.a||keys.arrowleft||mobilePadState.left?1:0)-(keys.d||keys.arrowright||mobilePadState.right?1:0);
@@ -1301,7 +1315,7 @@ if(s.onGround){
   }
 }
 }
-updateWindOverlay();
+updateWindOverlay();updateCrosswindTraining();
 function evaluate(dt){
 let g=0;
 navigationMonitor(dt);weatherMonitor(dt);emergencyMonitor(dt);instructorMonitor(dt);scenarioMonitor(dt);mission17Monitor();
