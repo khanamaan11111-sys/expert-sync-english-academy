@@ -54,6 +54,7 @@ const VOICE_ENDPOINT=SUPABASE_URL+"/functions/v1/ai-teacher-voice";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const chat=document.getElementById("chat"), input=document.getElementById("input"), send=document.getElementById("send"), composer=document.getElementById("composer");
 let mode="teacher", history=[];
+let liveVoice=false;
 let currentChatId=null;
 async function currentUser(){const r=await supabaseClient.auth.getUser();return r.data?.user||null}
 async function loadChats(){const u=await currentUser();if(!u)return;const r=await supabaseClient.from("ai_teacher_chats").select("id,title,mode,updated_at").order("updated_at",{ascending:false}).limit(30);const list=document.getElementById("chatList");list.innerHTML=(r.data||[]).map(c=>'<button class="chatitem '+(c.id===currentChatId?"active":"")+'" data-chat="'+c.id+'">💬 <span>'+esc(c.title||"New chat")+'</span></button>').join("");list.querySelectorAll("[data-chat]").forEach(b=>b.onclick=()=>openChat(Number(b.dataset.chat)))}
@@ -87,7 +88,7 @@ document.getElementById("typing")?.remove();
 const aiMsg=add("ai","");const aiContent=aiMsg.querySelector(".md-content");let answer="",evaluation=null,curriculum=null,buffer="";
 const reader=res.body.getReader(),decoder=new TextDecoder();
 while(true){const part=await reader.read();if(part.done)break;buffer+=decoder.decode(part.value,{stream:true});const chunks=buffer.split("\n\n");buffer=chunks.pop()||"";for(const chunk of chunks){let ev="",dataLine="";chunk.split("\n").forEach(line=>{if(line.startsWith("event: "))ev=line.slice(7).trim();if(line.startsWith("data: "))dataLine+=line.slice(6)});if(!dataLine)continue;try{const d=JSON.parse(dataLine);if(ev==="delta"){answer+=d.text||"";aiContent.innerHTML=renderMarkdown(answer);chat.scrollTop=chat.scrollHeight}if(ev==="evaluation"){evaluation=d.evaluation;curriculum=d.curriculum}}catch(_){}}}
-aiMsg.querySelector(".bubble").insertAdjacentHTML("beforeend",evaluationHtml(evaluation)+curriculumHtml(curriculum));saveChatMessage("assistant",answer);document.querySelectorAll("[data-curriculum]").forEach(x=>x.onclick=()=>sendMessage("Start my recommended adaptive curriculum lesson now. Focus on the current priority skill and reassess me after three meaningful responses."));history.push({role:"assistant",content:answer});
+aiMsg.querySelector(".bubble").insertAdjacentHTML("beforeend",evaluationHtml(evaluation)+curriculumHtml(curriculum));saveChatMessage("assistant",answer);if(liveVoice&&answer&&"speechSynthesis" in window){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(answer);u.lang="en-IN";u.rate=.95;u.onend=()=>{if(liveVoice&&!send.disabled){try{recognition.start()}catch(_){}}};window.speechSynthesis.speak(u)}document.querySelectorAll("[data-curriculum]").forEach(x=>x.onclick=()=>sendMessage("Start my recommended adaptive curriculum lesson now. Focus on the current priority skill and reassess me after three meaningful responses."));history.push({role:"assistant",content:answer});
 if(/\b(is|are|was|were|has|have|did|do|does|a|an|the|to|for|in|on)\b/i.test(text)&&text.length<260){profile.mistakes=(profile.mistakes||[]).concat([text]).slice(-8);localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));const type=mode==="vocabulary"?"Vocabulary":mode==="interview"?"Interview":mode==="conversation"?"Fluency":"Grammar / Naturalness";mistakeData.items.push({text,type,at:new Date().toISOString()});mistakeData.items=mistakeData.items.slice(-50);const key=type.toLowerCase().startsWith("vocab")?"vocabulary":type.toLowerCase().startsWith("interview")?"interview":type.toLowerCase().startsWith("fluency")?"fluency":"grammar";mistakeData.counts[key]=(mistakeData.counts[key]||0)+1;saveMistakes();}
 }catch(e){document.getElementById("typing")?.remove();add("ai","I’m ready, but the AI Teacher service is not connected yet. Please deploy the Expert Sync Supabase AI Teacher function and add the OPENAI_API_KEY secret.");console.error(e)}finally{send.disabled=false;input.focus()}}
 const audioPanel=document.getElementById("audioPanel"),audioState=document.getElementById("audioState"),audioStop=document.getElementById("audioStop"),audioCancel=document.getElementById("audioCancel");
@@ -117,12 +118,13 @@ function speakingCard(text){
 }
 function speakAnswer(text){if(!("speechSynthesis" in window)||!text)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="en-IN";u.rate=.95;u.pitch=1;window.speechSynthesis.speak(u)}
 if(SpeechRecognition){
- recognition=new SpeechRecognition();recognition.lang="en-IN";recognition.interimResults=true;recognition.continuous=false;
- recognition.onstart=()=>setVoiceState(true,"Listening… speak naturally.");
- recognition.onresult=e=>{let finalText="";for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)finalText+=e.results[i][0].transcript}if(finalText){input.value=(input.value+" "+finalText).trim();input.dispatchEvent(new Event("input"));composer.requestSubmit()}};
- recognition.onerror=e=>setVoiceState(false,e.error==="not-allowed"?"Microphone permission was denied.":"Voice input unavailable.");
- recognition.onend=()=>setVoiceState(false,"");
- mic.onclick=()=>{if(voiceActive){recognition.stop();return}try{window.speechSynthesis?.cancel();recognition.start()}catch(_){}};
+ recognition=new SpeechRecognition();recognition.lang="en-IN";recognition.interimResults=true;recognition.continuous=true;
+ recognition.onstart=()=>setVoiceState(true,liveVoice?"Live conversation • listening…":"Listening… speak naturally.");
+ recognition.onresult=e=>{let finalText="";for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)finalText+=e.results[i][0].transcript}if(finalText){input.value=(input.value+" "+finalText).trim();input.dispatchEvent(new Event("input"));clearTimeout(window.__liveDebounce);window.__liveDebounce=setTimeout(()=>{if(input.value.trim()&&!send.disabled)composer.requestSubmit()},liveVoice?700:0)}};
+ recognition.onerror=e=>{if(e.error==="not-allowed")setVoiceState(false,"Microphone permission was denied.");};
+ recognition.onend=()=>{if(liveVoice&&!send.disabled){try{recognition.start()}catch(_){} }else if(!liveVoice)setVoiceState(false,"")};
+ mic.onclick=()=>{if(voiceActive){liveVoice=false;recognition.stop();window.speechSynthesis?.cancel();setVoiceState(false,"");return}try{window.speechSynthesis?.cancel();recognition.start()}catch(_){}};
+ document.getElementById("liveVoice").onclick=()=>{liveVoice=!liveVoice;const b=document.getElementById("liveVoice");b.classList.toggle("active",liveVoice);b.textContent=liveVoice?"Live ✓":"Live";if(liveVoice){try{recognition.start()}catch(_){}}else{recognition.stop();window.speechSynthesis?.cancel();setVoiceState(false,"")}};
 }else{mic.onclick=()=>setVoiceState(false,"Voice input is not supported in this browser.");mic.title="Voice input not supported"}
 const originalAdd=add;
 add=function(role,text,meta){const m=originalAdd(role,text,meta);if(role==="ai"&&text){const btn=document.createElement("button");btn.className="msg-action";btn.type="button";btn.textContent="🔊 Listen";btn.onclick=()=>speakAnswer(text);m.querySelector(".msg-actions")?.appendChild(btn)}return m};
