@@ -249,8 +249,23 @@ Use 3-5 steps. Each step must require learner participation except teach. Keep i
             const lr = await fetch("https://api.openai.com/v1/responses", {method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${apiKey}`},body:JSON.stringify({model:"gpt-5.2",input:[{role:"developer",content:lessonPrompt}],max_output_tokens:700})});
             if(lr.ok){ const ld=await lr.json(); const raw=ld.output_text||""; const m=raw.match(/\{[\s\S]*\}/); if(m) lesson=JSON.parse(m[0]); }
           } catch (_) {}
+          let masteryDecision: any = null;
+          if (lesson && evaluation) {
+            try {
+              const score = Number(evaluation.overall) || 0;
+              const priorities = Array.isArray(evaluation.priorities) ? evaluation.priorities : [];
+              const next = score >= 80 ? "advance" : score < 60 ? "remediate" : "reinforce";
+              masteryDecision = {
+                decision: next,
+                score,
+                reason: next === "advance" ? "The learner is demonstrating strong control of the target skill." : next === "remediate" ? "The learner needs focused remediation before progressing." : "The learner is close to mastery; reinforce the target skill with another short practice cycle.",
+                next_action: next === "advance" ? "Increase difficulty or introduce a connected skill." : next === "remediate" ? "Re-teach the core concept with simpler examples and guided practice." : "Give 2-3 additional targeted practice responses, then reassess.",
+                priorities: priorities.slice(0,3)
+              };
+            } catch (_) {}
+          }
           if (lesson) {
-            curriculum = { ...(curriculum || {}), lesson };
+            curriculum = { ...(curriculum || {}), lesson, mastery: masteryDecision };
           }
           sendEvent("evaluation", { evaluation, curriculum });
           sendEvent("done", { answer });
