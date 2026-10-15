@@ -682,6 +682,10 @@ body.es-3d #aiProgress{display:block}
 #aiStudentRecord{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:135;display:none;width:min(760px,94vw);max-height:84vh;overflow:auto;padding:16px;background:#041016f8;border:1px solid #376575;border-radius:14px;box-shadow:0 20px 80px #000d}
 #aiStudentRecord .rh{color:#54e6a6;font:900 11px Arial;letter-spacing:1px}.rsub{margin-top:3px;color:#9bb5be;font:700 8px Arial}.achievementGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0}.badge{padding:9px 6px;text-align:center;background:#091e26;border:1px solid #24424d;border-radius:9px;color:#9bb5be;font:700 7px Arial}.badge b{display:block;color:#fff;font-size:10px;margin:4px 0}.badge.locked{opacity:.42}.recordStats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.recordStats div{padding:7px;text-align:center;background:#091e26;border:1px solid #24424d;border-radius:8px;color:#9bb5be;font:700 7px Arial}.recordStats b{display:block;color:#54e6a6;font-size:12px;margin-top:2px}.recordHistory{margin-top:10px;color:#eaf5f8;font:600 8px/1.5 Arial}.recordClose{margin-top:11px;width:100%;padding:8px;border:1px solid #54e6a6;border-radius:8px;background:#176f59;color:#fff;font-weight:900}
 @media(max-width:700px){#aiStudentRecord{padding:11px}.achievementGrid{grid-template-columns:repeat(2,1fr)}.recordStats{grid-template-columns:repeat(2,1fr)}}
+</style><style id="es-atc-bridge-v63-ui">
+#atcBridge{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:123;display:none;width:min(420px,88vw);padding:7px 10px;background:#041016ed;border:1px solid #376575;border-radius:9px;color:#dff8ff;font:700 8px Arial;text-align:center}
+body.es-3d #atcBridge{display:block}.atcBridgeBtn{margin-left:6px;border:1px solid #54e6a6;border-radius:6px;background:#176f59;color:#fff;padding:4px 6px;font:900 7px Arial}
+@media(max-width:700px){#atcBridge{top:10px;font-size:7px}}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
@@ -3229,5 +3233,23 @@ function showStudentRecord(){
 }
 document.getElementById('recordClose').onclick=()=>document.getElementById('aiStudentRecord').style.display='none';
 window.showStudentRecord=showStudentRecord;
+</script><script id="es-atc-bridge-v63">
+const ES_ATC_BRIDGE='expert_sync_atc_bridge_v63';
+let esATCClearance=null;
+function readATCClearance(){try{return JSON.parse(localStorage.getItem(ES_ATC_BRIDGE)||'null')}catch(_){return null}}
+function showATCClearance(){
+ const c=readATCClearance(),el=document.getElementById('atcBridge'),t=document.getElementById('atcBridgeText');if(!el||!t)return;
+ if(!c){el.style.display='none';return}esATCClearance=c;
+ t.textContent=(c.heading!=null?'HDG '+String(c.heading).padStart(3,'0')+' • ':'')+(c.altitude!=null?'ALT '+c.altitude+' FT • ':'')+(c.speed!=null?'SPD '+c.speed+' KT • ':'')+(c.runway?'RWY '+c.runway:'');
+ el.style.display='block';
+}
+function applyATCClearance(){
+ const c=esATCClearance||readATCClearance();if(!c)return;
+ if(c.heading!=null)s.heading=c.heading;if(c.altitude!=null)s.alt=c.altitude;if(c.speed!=null)s.speed=c.speed;
+ if(typeof logEvent==='function')logEvent('ATC CLEARANCE APPLIED: '+JSON.stringify(c),'INFO');
+ if(typeof toast==='function')toast('ATC clearance applied to training scenario');
+}
+document.getElementById('atcBridgeApply').onclick=applyATCClearance;
+showATCClearance();
 </script></body>
 </html>
