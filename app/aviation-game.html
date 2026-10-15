@@ -686,6 +686,10 @@ body.es-3d #aiProgress{display:block}
 #atcBridge{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:123;display:none;width:min(420px,88vw);padding:7px 10px;background:#041016ed;border:1px solid #376575;border-radius:9px;color:#dff8ff;font:700 8px Arial;text-align:center}
 body.es-3d #atcBridge{display:block}.atcBridgeBtn{margin-left:6px;border:1px solid #54e6a6;border-radius:6px;background:#176f59;color:#fff;padding:4px 6px;font:900 7px Arial}
 @media(max-width:700px){#atcBridge{top:10px;font-size:7px}}
+</style><style id="es-atc-loop-v64">
+#atcLoop{position:fixed;right:12px;top:55px;z-index:124;display:none;width:310px;padding:9px;background:#041016ed;border:1px solid #376575;border-radius:11px;box-shadow:0 8px 30px #0009}
+body.es-3d #atcLoop{display:block}.atcLoopH{color:#54e6a6;font:900 8px Arial;letter-spacing:.7px}.atcLoopM{margin-top:4px;color:#eaf5f8;font:700 8px/1.45 Arial}.atcLoopS{margin-top:3px;color:#9bb5be;font:600 7px Arial}.atcLoopBtn{margin-top:7px;width:100%;padding:6px;border:1px solid #54e6a6;border-radius:7px;background:#176f59;color:#fff;font:900 7px Arial}
+@media(max-width:700px){#atcLoop{right:8px;top:145px;width:205px}}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
@@ -3251,5 +3255,21 @@ function applyATCClearance(){
 }
 document.getElementById('atcBridgeApply').onclick=applyATCClearance;
 showATCClearance();
+</script><script id="es-atc-loop-v64">
+const ES_ATC_STATE='expert_sync_atc_aircraft_state_v64';
+function publishAircraftStateToATC(){
+ const state={timestamp:Date.now(),phase:s.phase,speed:Math.round(s.speed),altitude:Math.round(s.alt),heading:Math.round(s.heading),verticalSpeed:Math.round(s.vs),pitch:+s.pitch.toFixed(1),bank:+s.bank.toFixed(1),gear:!!s.gear,flaps:s.flaps,stall:!!s.stall,windKt:Math.round(s.windKt),windDir:Math.round(s.windDir)};
+ localStorage.setItem(ES_ATC_STATE,JSON.stringify(state));
+ const e=document.getElementById('atcLoopState');if(e)e.textContent='LIVE STATE • ALT '+state.altitude+' FT • HDG '+String(state.heading).padStart(3,'0')+' • SPD '+state.speed+' KT';
+}
+function sendAircraftStateToATC(){
+ publishAircraftStateToATC();
+ if(typeof sendMessage==='function'){
+  const st=JSON.parse(localStorage.getItem(ES_ATC_STATE));
+  sendMessage('Continue the active ATC training session using my LIVE aircraft state. You are ATC. React to what I am actually doing. Give exactly one concise transmission. If I am off the assigned heading, altitude, speed, or approach profile, issue an appropriate corrective instruction. If I am stable, continue the next realistic clearance. Do not invent data; use only this aircraft state: '+JSON.stringify(st));
+ }
+}
+document.getElementById('atcLoopSend').onclick=sendAircraftStateToATC;
+setInterval(()=>{if(atcLive)publishAircraftStateToATC()},1000);
 </script></body>
 </html>
