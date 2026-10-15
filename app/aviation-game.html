@@ -3271,5 +3271,23 @@ function sendAircraftStateToATC(){
 }
 document.getElementById('atcLoopSend').onclick=sendAircraftStateToATC;
 setInterval(()=>{if(atcLive)publishAircraftStateToATC()},1000);
+</script><script id="es-atc-auto-v65">
+let esATCAutoLast=0,esATCAutoBusy=false,esATCLastSignature='';
+function getATCAutoSignature(){
+ return [Math.round(s.alt/100)*100,Math.round(s.speed/5)*5,Math.round(s.heading/5)*5,Math.round(s.vs/200)*200,Math.round(s.bank/5)*5,s.gear?1:0,s.flaps].join('|');
+}
+async function autoATCStateFeedback(){
+ if(!atcLive||esATCAutoBusy||typeof sendMessage!=='function')return;
+ const now=Date.now(),sig=getATCAutoSignature();
+ if(now-esATCAutoLast<9000||sig===esATCLastSignature)return;
+ const critical=s.stall||Math.abs(s.vs)>1200||Math.abs(s.bank)>25;
+ if(!critical && now-esATCAutoLast<15000)return;
+ esATCAutoLast=now;esATCLastSignature=sig;esATCAutoBusy=true;
+ const state={timestamp:now,phase:s.phase,speed:Math.round(s.speed),altitude:Math.round(s.alt),heading:Math.round(s.heading),verticalSpeed:Math.round(s.vs),pitch:+s.pitch.toFixed(1),bank:+s.bank.toFixed(1),gear:!!s.gear,flaps:s.flaps,stall:!!s.stall,windKt:Math.round(s.windKt),windDir:Math.round(s.windDir)};
+ try{
+  sendMessage('AUTOMATIC ATC STATE UPDATE. Continue the active ATC training role-play and react only if this state materially changes the situation. Give exactly one concise ATC transmission when action is needed; otherwise respond with NO NEW TRANSMISSION. Do not invent aircraft data. LIVE STATE: '+JSON.stringify(state));
+ }finally{setTimeout(()=>{esATCAutoBusy=false},3500);}
+}
+setInterval(autoATCStateFeedback,1000);
 </script></body>
 </html>
