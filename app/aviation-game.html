@@ -589,12 +589,16 @@ body.es-3d #game>canvas{display:none}
  body.es-3d #realityHint{top:58px!important}
  body.es-3d #mobileFlightPad{bottom:5px!important}
 }
+</style><style id="es-flight-model-v40">
+#flightModelBadge{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:36;display:none;padding:4px 8px;border:1px solid #315d6b;border-radius:8px;background:#02070bd9;color:#8fe8f7;font:900 7px Arial;letter-spacing:.6px;pointer-events:none}
+body.es-3d #flightModelBadge{display:block}
+@media(max-width:700px){#flightModelBadge{top:55px}}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
 <div id="studentIdentity">STUDENT: <span id="studentIdentityName">STUDENT</span></div>
 <div id="academyConnect">✓ CONNECTED TO EXPERT SYNC ACADEMY</div>
-<div id="game"><div id="es3d" aria-label="Expert Sync 3D flight simulator"></div><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
+<div id="game"><div id="flightModelBadge">REALISTIC AERODYNAMIC MODEL • ASSIST OPTIONAL</div><div id="es3d" aria-label="Expert Sync 3D flight simulator"></div><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
 <canvas id="scene"></canvas><div id="aircraftLabel">AIRCRAFT ES-01 • EXTERNAL VIEW</div><div id="keyFeedback"></div>
 <div id="brand" class="ui panel"><div class="brand">✈ EXPERT SYNC — FLIGHT TRAINING</div><div class="sub">HANDS-ON SINGLE-ENGINE SIMULATOR • N-ES01</div></div>
 <div id="phasebar" class="ui"></div>
@@ -670,7 +674,7 @@ traffic:[
 {id:'ES-T01',x:18,y:14,alt:3100,hdg:270,speed:95},
 {id:'ES-T02',x:58,y:-8,alt:2850,hdg:90,speed:85},
 {id:'ES-T03',x:86,y:24,alt:3300,hdg:180,speed:100}
-],oilTemp:75,oilPressure:0,navLights:false,beacon:false,strobe:false,landingLight:false,taxiDistance:0,speed:0,alt:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,gear:true,flaps:0,onGround:true,parkingBrake:true,brake:true,stall:false,battery:false,avionics:false,pump:false,mixture:0,starter:false,engine:false,engineStarted:false,starterAt:0,yx:0,yy:0,yoke:false,radio:false,radioFrequency:'GROUND',readbackQuality:0,atcAttempts:0,atcCorrect:0,frequencyChanges:0,xp:0,yp:0,last:performance.now()};
+],oilTemp:75,oilPressure:0,navLights:false,beacon:false,strobe:false,landingLight:false,taxiDistance:0,speed:0,alt:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,gear:true,flaps:0,onGround:true,parkingBrake:true,brake:true,stall:false,aoa:0,loadFactor:1,weightKg:1150,wingAreaM2:16.2,battery:false,avionics:false,pump:false,mixture:0,starter:false,engine:false,engineStarted:false,starterAt:0,yx:0,yy:0,yoke:false,radio:false,radioFrequency:'GROUND',readbackQuality:0,atcAttempts:0,atcCorrect:0,frequencyChanges:0,xp:0,yp:0,last:performance.now()};
 window.esFlightState=s;
 const keys={};let toastT=0;
 let audioCtx=null,engineOsc=null,engineGain=null,warningOsc=null,warningGain=null;
@@ -1234,30 +1238,40 @@ if(s.onGround){
     s.bank+=gustCross*2.4*dt;
     s.vs+=gustWave*120*dt;
   }
-  const weightFactor=1.0;
+  // Scaled aerodynamic model: dynamic pressure -> lift/drag -> load factor -> vertical response.
+  const rho=1.225*Math.exp(-s.alt/28000);
+  const v=s.speed*.514444;
+  const q=.5*rho*v*v;
+  const flapAoa=[0,2.5,5][s.flaps]||0;
+  const effectiveAoa=s.pitch+1.5+flapAoa-(s.vs/1200);
+  s.aoa=effectiveAoa;
+  const stallAoa=15;
+  const cl=clamp(.25+.075*effectiveAoa,-.15,1.42);
+  const cd0=.032+(s.flaps===1?.018:s.flaps===2?.055:0)+(s.gear&&!s.onGround?.018:0);
+  const induced=(cl*cl)/(Math.PI*7.4*.78);
+  const lift=q*s.wingAreaM2*cl;
+  const drag=q*s.wingAreaM2*(cd0+induced);
+  const weight=s.weightKg*9.81;
+  const bankCos=Math.max(.55,Math.cos(s.bank*r));
+  s.loadFactor=lift/Math.max(1,weight);
+  const liftVertical=lift*bankCos;
+  const thrust=(s.rpm>0?clamp((s.rpm-720)/1930,0,1):0)*1450;
+  const netVertical=(liftVertical-weight)/s.weightKg;
+  const pitchEnergy=(s.pitch-3.5)*2.8;
+  const thrustEnergy=(thrust-drag)/s.weightKg*42;
+  const flareAssist=(s.alt<35&&s.gear&&s.flaps>=1)?Math.max(0,(3-s.pitch))*18:0;
+  let targetVS=netVertical*95+pitchEnergy+thrustEnergy+flareAssist;
   const stallIAS=48+s.flaps*4;
-  const speedRatio=clamp(s.speed/stallIAS,0,2.2);
-  const aoa=clamp((s.pitch+1.5)/13, -0.3,1.25);
-  const liftCoeff=clamp(0.12+0.92*aoa,0,1.08);
-  const lift=0.42*speedRatio*speedRatio*liftCoeff;
-  const bankLoad=1/Math.max(.72,Math.cos(s.bank*r));
-  const groundEffect=s.alt<30?1.12:1;
-  const liftAccel=(lift*groundEffect/bankLoad-0.72)*1150;
-  const powerEffect=(s.throttle-48)*5.2;
-  const trimEffect=(s.trim/100)*85;
-  let targetVS=liftAccel+powerEffect+trimEffect;
-
-  s.stall=s.speed<stallIAS||(aoa>.95&&s.speed<65);
-  if(s.stall)targetVS-=850;
-
-  s.vs+=(targetVS-s.vs)*Math.min(1,dt*1.35);
-  s.vs=clamp(s.vs,-2200,2400);
+  s.stall=s.speed<stallIAS||(effectiveAoa>stallAoa&&s.speed<70);
+  if(s.stall){targetVS-=950;s.loadFactor=Math.min(s.loadFactor,0.65);}
+  s.vs+=(targetVS-s.vs)*Math.min(1,dt*1.45);
+  s.vs=clamp(s.vs,-2600,2600);
   s.alt=Math.max(0,s.alt+s.vs*dt/60);
 
-  // Bank changes heading; pitch controls energy/flight path, with natural damping.
+  // Coordinated turn model: bank produces heading change; adverse yaw is lightly damped.
   const turnRate=(s.speed/105)*Math.sin(s.bank*r)*29;
   s.heading=norm(s.heading+turnRate*dt);
-  s.pitch+=(s.trim/100*2.8-s.pitch)*Math.min(1,dt*.22);
+  s.pitch+=(s.trim/100*2.8-s.pitch)*Math.min(1,dt*.18);
 
   const trackX=Math.sin(s.heading*r)*s.speed+windX;
   const trackY=Math.cos(s.heading*r)*s.speed+windY;
