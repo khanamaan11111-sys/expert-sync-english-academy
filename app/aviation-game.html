@@ -520,7 +520,49 @@ body.es-immersive #es-mobile-guidance{top:68px}
 @media(max-width:390px){#es-mobile-guidance{top:232px;padding:7px 9px}.mg-action{font-size:7px!important}}
 }
 @media(min-width:701px){#es-mobile-guidance{display:none}}
-</style></head>
+</style><style id="es-mobile-real-flight-v35">
+@media(max-width:700px){
+  #game{background:#071217}
+  /* Keep the flight scene visible; move all secondary UI behind a compact control surface. */
+  #brand{left:8px!important;top:7px!important;padding:6px 9px!important;max-width:180px!important;border-radius:10px!important}
+  #brand .brand{font-size:9px!important;letter-spacing:.7px!important}
+  #brand .sub{font-size:6px!important}
+  #views{left:194px!important;right:8px!important;top:7px!important;display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:3px!important}
+  #views .view{min-height:38px!important;padding:5px 2px!important;font-size:7px!important}
+  #phasebar{left:8px!important;right:8px!important;top:49px!important;font-size:7px!important;text-align:center!important}
+  #academyConnect{top:88px!important;left:50%!important;transform:translateX(-50%)!important;font-size:7px!important;padding:5px 8px!important}
+  #studentIdentity{display:none!important}
+  #cockpit{inset:0!important;z-index:3!important}
+  #cockpit .glass{left:0!important;right:0!important;top:0!important;height:62%!important;border-width:3px!important;border-radius:0 0 24% 24%!important}
+  #cockpit .glass:before{display:none!important}
+  #panel{left:7px!important;right:7px!important;bottom:74px!important;height:29%!important;border:1px solid #365563!important;border-radius:15px!important;background:#07141bf2!important;box-shadow:0 -8px 28px #000a!important}
+  #sixpack{left:6px!important;right:6px!important;top:6px!important}
+  #cockpit #controlsRow{display:none!important}
+  #cockpit .sixpack{grid-template-columns:repeat(3,1fr)!important;gap:4px!important}
+  #cockpit .gauge{min-height:52px!important}
+  #cockpit .gauge .label{font-size:6px!important}
+  #cockpit .gauge .value{font-size:14px!important}
+  #cockpit .gauge .unit{font-size:5px!important}
+  #hud{left:8px!important;right:8px!important;top:101px!important;bottom:auto!important;z-index:20!important;gap:3px!important;padding:4px!important;background:#06131cb8!important}
+  #hud .read{min-height:35px!important}
+  #hud .read strong{font-size:12px!important}
+  #hud .read b{font-size:5px!important}
+  #hud .read small{font-size:4px!important}
+  #aircraftLabel{display:none!important}
+  #es-mobile-guidance{top:143px!important;left:8px!important;right:8px!important;padding:6px 8px!important}
+  #toast{bottom:320px!important;top:auto!important}
+  #warning{top:145px!important}
+  #testbar{display:none!important}
+  #flightHelp{display:none!important}
+  #mobileFlightPad{left:7px!important;right:7px!important;bottom:7px!important;grid-template-columns:repeat(4,1fr)!important;padding:5px!important;border-radius:14px!important;gap:4px!important}
+  #mobileFlightPad button{min-height:34px!important;font-size:7px!important}
+  #mobileFlightPad .padTitle{font-size:6px!important}
+  #es-cockpit-dock{bottom:7px!important;display:none!important}
+  body.es-immersive #academyBack{opacity:.65!important}
+  /* hide non-flight cards, but they remain available through their desktop/drawer controls */
+  #mission,#atc,#checklistPanel,#adaptiveCoach,#scenarioObjective,#routePanel,#scenarioPanel,#weather,#status,#help,#lightsPanel,#emergencyStatus,#mission17Panel,#navPanel,#apPanel,#controlGuide{display:none!important}
+}
+</style><style>@media(max-width:700px){#mobileQuickStart{position:fixed;right:9px;top:55px;z-index:10001;min-height:31px;padding:5px 8px;border-radius:9px;border:1px solid #54e6a6;background:#176f59;color:#fff;font-size:7px;font-weight:900;box-shadow:0 5px 15px #0008}#mobileQuickStart.active{background:#123746;border-color:#4dd9ff}}</style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
 <div id="studentIdentity">STUDENT: <span id="studentIdentityName">STUDENT</span></div>
@@ -1902,6 +1944,13 @@ b.classList.toggle('on',s.flightAssist);
 if(s.flightAssist){s.selectedHeading=s.heading;s.assistLastToast=0;toast('FLIGHT ASSIST ON — gentle heading and pitch support.');logEvent('FLIGHT ASSIST ENABLED','INFO');}
 else{toast('FLIGHT ASSIST OFF — full manual control.');logEvent('FLIGHT ASSIST DISABLED','INFO');}
 };
+document.body.insertAdjacentHTML('afterbegin',"<button id=\"mobileQuickStart\" type=\"button\">⚡ QUICK START</button>");
+document.getElementById('mobileQuickStart').addEventListener('click',()=>{
+ initAudio();s.battery=true;s.avionics=true;s.pump=true;s.mixture=100;s.parkingBrake=true;s.brake=true;
+ updatePre();setView('COCKPIT');
+ if(!s.engineStarted){s.starter=true;s.starterAt=performance.now();document.getElementById('preflight').style.display='none';s.started=true;document.getElementById('startBtn').disabled=true;document.getElementById('testState').textContent='FLIGHT READY';document.getElementById('inputStatus').textContent='Mobile flight controls active';toast('QUICK START — engine starting. Release PARKING BRAKE, add power and fly.');}
+ this.textContent='✓ FLIGHT READY';this.classList.add('active');
+});
 document.getElementById('game').addEventListener('click',()=>{initAudio();document.body.focus();});
 document.getElementById('scene').setAttribute('tabindex','0');
 document.getElementById('scene').style.outline='none';
