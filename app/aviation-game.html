@@ -573,12 +573,22 @@ body.es-immersive #es-mobile-guidance{top:68px}
  body.es-reality #realityHint{display:block!important}
 }
 #realityHint{display:none;position:fixed;left:50%;top:72px;transform:translateX(-50%);z-index:31;padding:5px 9px;border:1px solid #315d6b;border-radius:9px;background:#02070bd9;color:#8fe8f7;font-size:7px;font-weight:900;letter-spacing:.7px;pointer-events:none}
+</style><style id="es-true3d-v37">
+#es3d{position:absolute;inset:0;z-index:1;display:none;background:#02070b}
+#es3d canvas{position:absolute;inset:0;width:100%;height:100%}
+body.es-3d #es3d{display:block}
+body.es-3d #game>canvas{display:none}
+@media(max-width:700px){
+ body.es-3d #hud{z-index:30!important;top:8px!important;bottom:auto!important;transform:translateX(-50%) scale(.82);transform-origin:top center}
+ body.es-3d #mobileFlightPad{z-index:40!important}
+ body.es-3d #realityHint{display:block!important;z-index:35!important}
+}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
 <div id="studentIdentity">STUDENT: <span id="studentIdentityName">STUDENT</span></div>
 <div id="academyConnect">✓ CONNECTED TO EXPERT SYNC ACADEMY</div>
-<div id="game"><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
+<div id="game"><div id="es3d" aria-label="Expert Sync 3D flight simulator"></div><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
 <canvas id="scene"></canvas><div id="aircraftLabel">AIRCRAFT ES-01 • EXTERNAL VIEW</div><div id="keyFeedback"></div>
 <div id="brand" class="ui panel"><div class="brand">✈ EXPERT SYNC — FLIGHT TRAINING</div><div class="sub">HANDS-ON SINGLE-ENGINE SIMULATOR • N-ES01</div></div>
 <div id="phasebar" class="ui"></div>
@@ -655,6 +665,7 @@ traffic:[
 {id:'ES-T02',x:58,y:-8,alt:2850,hdg:90,speed:85},
 {id:'ES-T03',x:86,y:24,alt:3300,hdg:180,speed:100}
 ],oilTemp:75,oilPressure:0,navLights:false,beacon:false,strobe:false,landingLight:false,taxiDistance:0,speed:0,alt:0,heading:90,pitch:0,bank:0,vs:0,throttle:0,rpm:0,fuel:100,gear:true,flaps:0,onGround:true,parkingBrake:true,brake:true,stall:false,battery:false,avionics:false,pump:false,mixture:0,starter:false,engine:false,engineStarted:false,starterAt:0,yx:0,yy:0,yoke:false,radio:false,radioFrequency:'GROUND',readbackQuality:0,atcAttempts:0,atcCorrect:0,frequencyChanges:0,xp:0,yp:0,last:performance.now()};
+window.esFlightState=s;
 const keys={};let toastT=0;
 let audioCtx=null,engineOsc=null,engineGain=null,warningOsc=null,warningGain=null;
 function initAudio(){
@@ -964,7 +975,7 @@ else if(text.includes('strobe'))toggleLight('strobe');
 else if(text.includes('landing'))toggleLight('landing');
 });
 document.getElementById('brake').onclick=()=>{if(!s.onGround)return;s.parkingBrake=!s.parkingBrake;s.brake=s.parkingBrake;document.getElementById('brake').textContent='PARKING BRAKE: '+(s.parkingBrake?'ON':'OFF');document.getElementById('brake').classList.toggle('brakeOn',s.parkingBrake)};
-document.querySelectorAll('.view').forEach(b=>b.onclick=()=>setView(b.dataset.v));function setView(v){s.view=v;document.body.classList.toggle('es-reality',v==='REALITY');document.querySelectorAll('.view').forEach(q=>q.classList.toggle('active',q.dataset.v===v));document.getElementById('cockpit').style.display=v==='COCKPIT'?'block':'none';document.getElementById('cockpitLabel').style.display=v==='COCKPIT'?'block':'none'}
+document.querySelectorAll('.view').forEach(b=>b.onclick=()=>setView(b.dataset.v));function setView(v){s.view=v;window.dispatchEvent(new Event('es-view-change'));document.body.classList.toggle('es-reality',v==='REALITY');document.querySelectorAll('.view').forEach(q=>q.classList.toggle('active',q.dataset.v===v));document.getElementById('cockpit').style.display=v==='COCKPIT'?'block':'none';document.getElementById('cockpitLabel').style.display=v==='COCKPIT'?'block':'none'}
 document.getElementById('yoke').addEventListener('pointerdown',e=>{s.yoke=true;document.getElementById('yoke').setPointerCapture(e.pointerId);moveY(e)});document.getElementById('yoke').addEventListener('pointermove',e=>{if(s.yoke)moveY(e)});document.getElementById('yoke').addEventListener('pointerup',()=>{s.yoke=false;s.yx*=.35;s.yy*=.35});function moveY(e){let r=document.getElementById('yoke').getBoundingClientRect();s.yx=clamp((e.clientX-r.left-r.width/2)/(r.width*.42),-1,1);s.yy=clamp((e.clientY-r.top-r.height/2)/(r.height*.42),-1,1)}
 document.getElementById('throttle').onpointerdown=e=>{document.getElementById('throttle').setPointerCapture(e.pointerId);moveT(e)};document.getElementById('throttle').onpointermove=e=>{if(e.buttons)moveT(e)};function moveT(e){let r=document.getElementById('throttle').getBoundingClientRect();s.throttle=clamp((r.bottom-e.clientY)/r.height*100,0,100)}
 document.getElementById('pauseBtn').onclick=()=>{
@@ -2643,6 +2654,79 @@ function init(){
  if(phase)new MutationObserver(update).observe(phase,{childList:true,subtree:true,characterData:true});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script><script type="module" id="es-true3d-v37-engine">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+
+(function(){
+ let renderer,scene,camera,aircraft,runway,lights=[];
+ let ready=false,raf=0;
+ const root=document.getElementById('es3d');
+ function mat(c,rough=.7,metal=0){return new THREE.MeshStandardMaterial({color:c,roughness:rough,metalness:metal});}
+ function box(w,h,d,m){return new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);}
+ function buildAircraft(){
+   const g=new THREE.Group(), white=mat(0xe8eef0,.42,.18), dark=mat(0x17232a,.45,.35), glass=mat(0x19506a,.16,.55), accent=mat(0x36b9d4,.3,.3);
+   const fus=box(1.15,.9,7.5,white);g.add(fus);
+   const nose=new THREE.Mesh(new THREE.CapsuleGeometry(.56,1.4,8,16),white);nose.rotation.x=Math.PI/2;nose.position.z=-4.1;g.add(nose);
+   const wing=new THREE.Mesh(new THREE.BoxGeometry(11,.16,1.25,1,1,1),white);wing.position.y=-.05;g.add(wing);
+   const tail=new THREE.Mesh(new THREE.BoxGeometry(4.2,.13,.9),white);tail.position.set(0,.15,3.0);g.add(tail);
+   const fin=box(.16,2.1,1.3,white);fin.position.set(0,1.0,3.0);fin.rotation.x=-.08;g.add(fin);
+   const canopy=new THREE.Mesh(new THREE.SphereGeometry(.72,24,12,0,Math.PI*2,0,Math.PI*.48),glass);canopy.scale.set(1,.7,1.8);canopy.position.set(0,.52,-1.05);g.add(canopy);
+   const engine=new THREE.Mesh(new THREE.CylinderGeometry(.32,.4,.28,24),dark);engine.rotation.x=Math.PI/2;engine.position.set(0,-.15,-4.7);g.add(engine);
+   const prop=new THREE.Mesh(new THREE.BoxGeometry(3.8,.035,.12),accent);prop.position.z=-4.86;g.add(prop);
+   return g;
+ }
+ function build(){
+   scene=new THREE.Scene();
+   scene.fog=new THREE.FogExp2(0x07121a,.0045);
+   camera=new THREE.PerspectiveCamera(64,innerWidth/innerHeight,.05,5000);
+   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
+   renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;
+   root.innerHTML='';root.appendChild(renderer.domElement);
+   scene.add(new THREE.HemisphereLight(0x9fd9ee,0x14231d,1.7));
+   const sun=new THREE.DirectionalLight(0xfff0cf,2.2);sun.position.set(-120,180,80);sun.castShadow=true;scene.add(sun);
+   const ground=box(1200,.2,1200,mat(0x31563e));ground.position.y=-1;ground.receiveShadow=true;scene.add(ground);
+   runway=box(38,.16,900,mat(0x171c20,.95));runway.position.set(0,-.88,0);runway.receiveShadow=true;scene.add(runway);
+   const edgeMat=mat(0xdde8e8,.35,0);
+   for(let z=-430;z<430;z+=28){for(const xx of [-17,17]){const b=box(.28,.15,1.5,edgeMat);b.position.set(xx,-.76,z);scene.add(b);}}
+   const centerMat=mat(0xf7f3d7,.35,0);
+   for(let z=-430;z<430;z+=36){const b=box(.45,.13,10,centerMat);b.position.set(0,-.75,z);scene.add(b);}
+   const red=mat(0xff3d35,.2,0),white=mat(0xffffff,.2,0);
+   for(let z=-420;z<421;z+=14){
+     for(const xx of [-15.8,15.8]){const l=new THREE.Mesh(new THREE.SphereGeometry(.18,8,8),z>-70?white:red);l.position.set(xx,-.65,z);scene.add(l);lights.push(l);}
+   }
+   for(let i=0;i<70;i++){const h=1+Math.random()*7,b=box(2+h*.25,h,2+h*.25,mat(i%3?0x28363b:0x405157));b.position.set((i%2?-1:1)*(70+Math.random()*180),h/2-1,(Math.random()-.5)*900);scene.add(b);}
+   aircraft=buildAircraft();aircraft.position.set(0,1.8,0);aircraft.rotation.y=Math.PI;aircraft.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});scene.add(aircraft);
+   ready=true;resize();animate();
+ }
+ function resize(){if(!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);}
+ function animate(){
+   raf=requestAnimationFrame(animate); if(!ready)return;
+   const s=window.esFlightState||{}; const airborne=!s.onGround && s.alt>20;
+   const altitude=Math.max(2,(s.alt||0)*.006+2);
+   const forward=airborne?Math.min(850,(s.speed||0)*2.7):0;
+   aircraft.position.x=THREE.MathUtils.lerp(aircraft.position.x,((s.xp||0)-50)*1.8,.08);
+   aircraft.position.y=THREE.MathUtils.lerp(aircraft.position.y,altitude,.08);
+   aircraft.position.z=THREE.MathUtils.lerp(aircraft.position.z,-forward,.08);
+   aircraft.rotation.z=THREE.MathUtils.lerp(aircraft.rotation.z,-(s.bank||0)*Math.PI/180,.12);
+   aircraft.rotation.x=THREE.MathUtils.lerp(aircraft.rotation.x,(s.pitch||0)*Math.PI/180,.12);
+   aircraft.rotation.y=THREE.MathUtils.lerp(aircraft.rotation.y,-(s.heading||90)*Math.PI/180,.06);
+   const target=new THREE.Vector3(aircraft.position.x,aircraft.position.y+.5,aircraft.position.z);
+   camera.position.x=aircraft.position.x;
+   camera.position.y=aircraft.position.y+2.4;
+   camera.position.z=aircraft.position.z+9;
+   camera.lookAt(target);
+   runway.position.z=aircraft.position.z;
+   for(let i=0;i<lights.length;i++){const q=lights[i];q.position.z=aircraft.position.z+((i%62)*14-430);}
+   renderer.render(scene,camera);
+ }
+ window.addEventListener('resize',resize);
+ window.addEventListener('es-view-change',()=>{
+   const on=window.esFlightState?.view==='REALITY';
+   document.body.classList.toggle('es-3d',on);
+   if(on&&!ready){try{build()}catch(e){console.warn('3D mode unavailable',e);document.body.classList.remove('es-3d');}}
+ });
+ if(window.esFlightState?.view==='REALITY')setTimeout(()=>window.dispatchEvent(new Event('es-view-change')),0);
 })();
 </script></body>
 </html>
