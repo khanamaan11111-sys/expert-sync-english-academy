@@ -648,12 +648,17 @@ body.es-3d #aiVoiceBar{display:flex}
 </style><style id="es-conversation-v51">
 #aiChatContext{padding:5px 9px;border-bottom:1px solid #294a55;color:#9bb5be;font:700 7px Arial}
 #aiChatContext b{color:#54e6a6}
+</style><style id="es-adaptive-level-v52">
+#aiSkillBadge{position:fixed;left:12px;top:58px;z-index:117;display:none;padding:6px 8px;border:1px solid #376575;border-radius:8px;background:#041016e8;color:#9bb5be;font:800 7px Arial}
+#aiSkillBadge b{color:#54e6a6}
+body.es-3d #aiSkillBadge{display:block}
+@media(max-width:700px){#aiSkillBadge{left:8px;top:112px;font-size:6px}}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
 <div id="studentIdentity">STUDENT: <span id="studentIdentityName">STUDENT</span></div>
 <div id="academyConnect">✓ CONNECTED TO EXPERT SYNC ACADEMY</div>
-<div id="game"><div id="aiVoiceBar"><button id="aiVoiceSpeak" class="on">🔊 VOICE ON</button><button id="aiVoiceMic">🎙 TALK</button><span id="aiVoiceStatus">READY</span></div><div id="aiAdaptiveAlert"><div class="t">AI FLIGHT INSTRUCTOR • REAL-TIME COACHING</div><div class="m" id="adaptiveMsg"></div><div class="a" id="adaptiveAction"></div></div><div id="aiAutoDebrief"><div class="ah">EXPERT SYNC • AI POST-FLIGHT DEBRIEF</div><div class="as" id="aiDebriefStatus">Preparing instructor analysis...</div><div id="aiDebriefBody">Analyzing your flight...</div><button id="aiDebriefClose">CLOSE</button></div><div id="aiFlightMemory"><div class="memHead">EXPERT SYNC • PERSONAL FLIGHT MEMORY</div><div id="memSummary" class="memText">Loading your training profile...</div><div id="memGrid" class="memGrid"></div><div id="memAdvice" class="memText"></div><button class="memClose" id="memClose">CLOSE</button></div><div id="aiFlightChat"><div id="aiChatHead"><span>EXPERT SYNC • AI FLIGHT TEACHER</span><span>CHAT</span></div><div id="aiChatMessages"><div id="aiChatContext">CONTEXT <b>LIVE FLIGHT</b> • CONVERSATION MEMORY ON</div><div class="aiMsg ai">I am your flight instructor. Ask me about the aircraft, controls, approach, crosswind, or your current flight.</div></div><form id="aiChatForm"><input id="aiChatInput" autocomplete="off" placeholder="Ask your AI instructor..."><button id="aiChatSend">SEND</button></form></div><div id="aiFlightCoach"><div class="head"><span>EXPERT SYNC • AI FLIGHT INSTRUCTOR</span><span class="live">LIVE</span></div><div id="aiCoachMsg">Instructor ready. Fly the aircraft and I will coach your next action.</div><div id="aiCoachAction">Monitoring speed, altitude, heading, configuration and stability.</div><div id="aiCoachMetrics"><span>HDG<b id="aiHdg">000</b></span><span>IAS<b id="aiIas">0</b></span><span>ALT<b id="aiAlt">0</b></span><span>VS<b id="aiVs">0</b></span></div></div><div id="crosswindBrief">CROSSWIND TRAINING • <b id="crosswindValue">—</b><span class="hint" id="crosswindHint">Use smooth heading corrections and keep the runway centreline.</span></div><div id="windOverlay">WIND <b id="windValue">120° / 8 KT</b><span id="windArrow">↗</span></div><div id="weatherControl">WEATHER <select id="weatherSelect"><option value="clear">CLEAR</option><option value="haze">HAZE</option><option value="rain">RAIN</option><option value="night">NIGHT</option></select></div><div id="flightModelBadge">REALISTIC AERODYNAMIC MODEL • ASSIST OPTIONAL</div><div id="es3d" aria-label="Expert Sync 3D flight simulator"></div><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
+<div id="game"><div id="aiSkillBadge">AI LEVEL <b id="aiSkillLevel">ADAPTIVE</b> • <span id="aiSkillReason">Personalized coaching</span></div><div id="aiVoiceBar"><button id="aiVoiceSpeak" class="on">🔊 VOICE ON</button><button id="aiVoiceMic">🎙 TALK</button><span id="aiVoiceStatus">READY</span></div><div id="aiAdaptiveAlert"><div class="t">AI FLIGHT INSTRUCTOR • REAL-TIME COACHING</div><div class="m" id="adaptiveMsg"></div><div class="a" id="adaptiveAction"></div></div><div id="aiAutoDebrief"><div class="ah">EXPERT SYNC • AI POST-FLIGHT DEBRIEF</div><div class="as" id="aiDebriefStatus">Preparing instructor analysis...</div><div id="aiDebriefBody">Analyzing your flight...</div><button id="aiDebriefClose">CLOSE</button></div><div id="aiFlightMemory"><div class="memHead">EXPERT SYNC • PERSONAL FLIGHT MEMORY</div><div id="memSummary" class="memText">Loading your training profile...</div><div id="memGrid" class="memGrid"></div><div id="memAdvice" class="memText"></div><button class="memClose" id="memClose">CLOSE</button></div><div id="aiFlightChat"><div id="aiChatHead"><span>EXPERT SYNC • AI FLIGHT TEACHER</span><span>CHAT</span></div><div id="aiChatMessages"><div id="aiChatContext">CONTEXT <b>LIVE FLIGHT</b> • CONVERSATION MEMORY ON</div><div class="aiMsg ai">I am your flight instructor. Ask me about the aircraft, controls, approach, crosswind, or your current flight.</div></div><form id="aiChatForm"><input id="aiChatInput" autocomplete="off" placeholder="Ask your AI instructor..."><button id="aiChatSend">SEND</button></form></div><div id="aiFlightCoach"><div class="head"><span>EXPERT SYNC • AI FLIGHT INSTRUCTOR</span><span class="live">LIVE</span></div><div id="aiCoachMsg">Instructor ready. Fly the aircraft and I will coach your next action.</div><div id="aiCoachAction">Monitoring speed, altitude, heading, configuration and stability.</div><div id="aiCoachMetrics"><span>HDG<b id="aiHdg">000</b></span><span>IAS<b id="aiIas">0</b></span><span>ALT<b id="aiAlt">0</b></span><span>VS<b id="aiVs">0</b></span></div></div><div id="crosswindBrief">CROSSWIND TRAINING • <b id="crosswindValue">—</b><span class="hint" id="crosswindHint">Use smooth heading corrections and keep the runway centreline.</span></div><div id="windOverlay">WIND <b id="windValue">120° / 8 KT</b><span id="windArrow">↗</span></div><div id="weatherControl">WEATHER <select id="weatherSelect"><option value="clear">CLEAR</option><option value="haze">HAZE</option><option value="rain">RAIN</option><option value="night">NIGHT</option></select></div><div id="flightModelBadge">REALISTIC AERODYNAMIC MODEL • ASSIST OPTIONAL</div><div id="es3d" aria-label="Expert Sync 3D flight simulator"></div><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
 <canvas id="scene"></canvas><div id="aircraftLabel">AIRCRAFT ES-01 • EXTERNAL VIEW</div><div id="keyFeedback"></div>
 <div id="brand" class="ui panel"><div class="brand">✈ EXPERT SYNC — FLIGHT TRAINING</div><div class="sub">HANDS-ON SINGLE-ENGINE SIMULATOR • N-ES01</div></div>
 <div id="phasebar" class="ui"></div>
@@ -2952,7 +2957,7 @@ async function askAIFlightTeacher(message){
  const flight={phase:s.phase,speed:Math.round(s.speed),altitude:Math.round(s.alt),heading:Math.round(s.heading),vertical_speed:Math.round(s.vs),pitch:Number(s.pitch.toFixed(1)),bank:Number(s.bank.toFixed(1)),throttle:Math.round(s.throttle),flaps:s.flaps,gear:s.gear,stall:s.stall,wind_direction:Math.round(s.windDir),wind_kt:Math.round(s.windKt)};
  try{
   const ses=(await window.supabaseClient.auth.getSession()).data.session; if(!ses)throw new Error('Please sign in to use the AI Flight Teacher.');
-  const res=await fetch('https://bhxmbbkgkaxikisugrcs.supabase.co/functions/v1/ai-teacher',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+ses.access_token},body:JSON.stringify({message:message,mode:'aviation',history:aiFlightConversation,learner_profile:{goal:'Aviation English and flight training',flight_state:flight}})});
+  const res=await fetch('https://bhxmbbkgkaxikisugrcs.supabase.co/functions/v1/ai-teacher',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+ses.access_token},body:JSON.stringify({message:message,mode:'aviation',history:aiFlightConversation,learner_profile:{goal:'Aviation English and flight training',flight_state:flight,adaptive_profile:adaptiveLearnerProfile()}})});
   if(!res.ok)throw new Error((await res.text()).slice(0,300));
   const reader=res.body&&res.body.getReader(); const dec=new TextDecoder(); let buf='',answer='';
   if(reader){while(true){const q=await reader.read();if(q.done)break;buf+=dec.decode(q.value,{stream:true});const parts=buf.split('\n');buf=parts.pop()||'';for(const line of parts){if(line.indexOf('data: ')===0){try{const ev=JSON.parse(line.slice(6));if(ev.type==='delta')answer+=ev.text||'';}catch(_){}}}}}
@@ -2993,7 +2998,7 @@ async function generateAIPostFlightDebrief(){
  try{
   const ses=(await window.supabaseClient.auth.getSession()).data.session;if(!ses)throw new Error('Please sign in to generate the AI debrief.');
   const prompt='Generate a concise post-flight instructor debrief for this student. Use the supplied flight data and memory. Explain what went well, the 3 highest-priority improvements, why each matters, one concrete drill for the next flight, and 3 aviation-English terms with simple explanations. Do not invent measurements. Flight data: '+JSON.stringify(flight)+' Memory: '+JSON.stringify(m.flights.slice(0,5));
-  const res=await fetch('https://bhxmbbkgkaxikisugrcs.supabase.co/functions/v1/ai-teacher',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+ses.access_token},body:JSON.stringify({message:prompt,mode:'aviation',history:[],learner_profile:{goal:'Aviation English and flight training',flight_state:flight}})});
+  const res=await fetch('https://bhxmbbkgkaxikisugrcs.supabase.co/functions/v1/ai-teacher',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+ses.access_token},body:JSON.stringify({message:prompt,mode:'aviation',history:[],learner_profile:{goal:'Aviation English and flight training',flight_state:flight,adaptive_profile:adaptiveLearnerProfile()}})});
   if(!res.ok)throw new Error((await res.text()).slice(0,300));
   const reader=res.body&&res.body.getReader(),dec=new TextDecoder();let buf='',ans='';
   if(reader){while(true){const q=await reader.read();if(q.done)break;buf+=dec.decode(q.value,{stream:true});const parts=buf.split('\n');buf=parts.pop()||'';for(const line of parts){if(line.indexOf('data: ')===0){try{const ev=JSON.parse(line.slice(6));if(ev.type==='delta')ans+=ev.text||'';}catch(_){}}}}}
@@ -3022,5 +3027,25 @@ function setupVoiceTeacher(){
  mic.onclick=()=>{try{esRecognition.start();}catch(_){}};
 }
 setupVoiceTeacher();
+</script><script id="es-adaptive-level-v52">
+function getAdaptiveSkill(){
+ const m=typeof readFlightMemory==='function'?readFlightMemory():{flights:[],weaknesses:{}};
+ if(!m.flights.length)return {level:'BEGINNER',instruction:'Explain concepts simply, step by step. Define aviation terms when first used.',challenge:'basic'};
+ const latest=m.flights[0]; const scores=latest.dimensions||{}; const vals=Object.values(scores).map(Number).filter(Number.isFinite);
+ const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
+ const flights=m.flights.length;
+ if(flights>=5&&avg>=85)return {level:'ADVANCED',instruction:'Use concise professional aviation terminology, challenge assumptions, and focus on precision.',challenge:'advanced'};
+ if(flights>=3&&avg>=70)return {level:'INTERMEDIATE',instruction:'Use concise explanations with standard aviation terminology and practical examples.',challenge:'intermediate'};
+ return {level:'BEGINNER',instruction:'Explain concepts simply and step by step. Define aviation terms when first used.',challenge:'basic'};
+}
+function adaptiveLearnerProfile(){
+ const a=getAdaptiveSkill(),m=readFlightMemory(),focus=Object.entries(m.weaknesses||{}).map(([k,v])=>[k,(v||[]).reduce((x,y)=>x+Number(y),0)/(v?.length||1)]).sort((x,y)=>x[1]-y[1])[0];
+ return {skill_level:a.level,instruction_style:a.instruction,challenge:a.challenge,training_focus:focus?focus[0]:'general flight skills',completed_flights:m.flights?.length||0};
+}
+function updateAdaptiveSkillBadge(){
+ const a=getAdaptiveSkill(),e=document.getElementById('aiSkillLevel'),r=document.getElementById('aiSkillReason');if(!e)return;e.textContent=a.level;
+ const m=readFlightMemory();r.textContent=(m.flights?.length||0)+' flight'+((m.flights?.length||0)===1?'':'s')+' remembered';
+}
+updateAdaptiveSkillBadge();
 </script></body>
 </html>
