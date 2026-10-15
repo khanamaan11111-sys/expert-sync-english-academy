@@ -621,12 +621,20 @@ body.es-3d #aiFlightCoach{display:block}
 #aiCoachMetrics span{padding:5px 3px;background:#091e26;border:1px solid #24424d;border-radius:6px;text-align:center;color:#9bb5be;font:700 6px Arial}
 #aiCoachMetrics b{display:block;color:#fff;font-size:9px;margin-top:2px}
 @media(max-width:700px){#aiFlightCoach{left:8px;right:8px;bottom:145px;width:auto;padding:7px}#aiCoachMsg{font-size:9px;min-height:27px}#aiCoachAction{font-size:7px}#aiCoachMetrics{margin-top:5px}}
-</style><style id="es-ai-chat-v46">#aiFlightChat{position:fixed;left:12px;bottom:12px;width:340px;height:390px;z-index:90;display:none;flex-direction:column;background:#041016f2;border:1px solid #376575;border-radius:14px;box-shadow:0 12px 40px #000b;backdrop-filter:blur(10px);overflow:hidden}body.es-3d #aiFlightChat{display:flex}#aiChatHead{padding:9px 11px;border-bottom:1px solid #294a55;display:flex;justify-content:space-between;color:#54e6a6;font:900 9px Arial;letter-spacing:.7px}#aiChatMessages{flex:1;overflow:auto;padding:9px;display:flex;flex-direction:column;gap:7px}.aiMsg{max-width:88%;padding:7px 9px;border-radius:9px;font:600 9px/1.45 Arial;white-space:pre-wrap}.aiMsg.ai{align-self:flex-start;background:#0b2530;color:#e8f7fa;border:1px solid #254d5b}.aiMsg.user{align-self:flex-end;background:#176f59;color:#fff}#aiChatForm{display:flex;gap:5px;padding:7px;border-top:1px solid #294a55}#aiChatInput{flex:1;min-width:0;background:#081b22;border:1px solid #315563;border-radius:8px;padding:8px;color:#fff;font-size:9px;outline:none}#aiChatSend{width:54px;border:1px solid #54e6a6;border-radius:8px;background:#176f59;color:#fff;font-size:8px;font-weight:900}@media(max-width:700px){#aiFlightChat{left:8px;right:8px;bottom:145px;width:auto;height:285px}#aiFlightCoach{bottom:435px!important}#aiChatInput{font-size:10px}}</style></head>
+</style><style id="es-ai-chat-v46">#aiFlightChat{position:fixed;left:12px;bottom:12px;width:340px;height:390px;z-index:90;display:none;flex-direction:column;background:#041016f2;border:1px solid #376575;border-radius:14px;box-shadow:0 12px 40px #000b;backdrop-filter:blur(10px);overflow:hidden}body.es-3d #aiFlightChat{display:flex}#aiChatHead{padding:9px 11px;border-bottom:1px solid #294a55;display:flex;justify-content:space-between;color:#54e6a6;font:900 9px Arial;letter-spacing:.7px}#aiChatMessages{flex:1;overflow:auto;padding:9px;display:flex;flex-direction:column;gap:7px}.aiMsg{max-width:88%;padding:7px 9px;border-radius:9px;font:600 9px/1.45 Arial;white-space:pre-wrap}.aiMsg.ai{align-self:flex-start;background:#0b2530;color:#e8f7fa;border:1px solid #254d5b}.aiMsg.user{align-self:flex-end;background:#176f59;color:#fff}#aiChatForm{display:flex;gap:5px;padding:7px;border-top:1px solid #294a55}#aiChatInput{flex:1;min-width:0;background:#081b22;border:1px solid #315563;border-radius:8px;padding:8px;color:#fff;font-size:9px;outline:none}#aiChatSend{width:54px;border:1px solid #54e6a6;border-radius:8px;background:#176f59;color:#fff;font-size:8px;font-weight:900}@media(max-width:700px){#aiFlightChat{left:8px;right:8px;bottom:145px;width:auto;height:285px}#aiFlightCoach{bottom:435px!important}#aiChatInput{font-size:10px}}</style><style id="es-flight-memory-v47">
+#aiFlightMemory{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:120;width:min(620px,92vw);max-height:78vh;overflow:auto;display:none;padding:16px;background:#041016f7;border:1px solid #376575;border-radius:14px;box-shadow:0 20px 70px #000c}
+#aiFlightMemory .memHead{color:#54e6a6;font:900 11px Arial;letter-spacing:1px}
+#aiFlightMemory .memGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
+#aiFlightMemory .memCard{padding:8px;background:#091e26;border:1px solid #24424d;border-radius:8px;text-align:center;font:700 7px Arial;color:#9bb5be}
+#aiFlightMemory .memCard b{display:block;color:#fff;font-size:13px;margin-top:3px}
+#aiFlightMemory .memText{color:#eaf5f8;font:600 9px/1.5 Arial;white-space:pre-wrap}
+#aiFlightMemory .memClose{width:100%;margin-top:10px;padding:8px;border:1px solid #54e6a6;border-radius:8px;background:#176f59;color:#fff;font-weight:900}
+</style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
 <div id="studentIdentity">STUDENT: <span id="studentIdentityName">STUDENT</span></div>
 <div id="academyConnect">✓ CONNECTED TO EXPERT SYNC ACADEMY</div>
-<div id="game"><div id="aiFlightChat"><div id="aiChatHead"><span>EXPERT SYNC • AI FLIGHT TEACHER</span><span>CHAT</span></div><div id="aiChatMessages"><div class="aiMsg ai">I am your flight instructor. Ask me about the aircraft, controls, approach, crosswind, or your current flight.</div></div><form id="aiChatForm"><input id="aiChatInput" autocomplete="off" placeholder="Ask your AI instructor..."><button id="aiChatSend">SEND</button></form></div><div id="aiFlightCoach"><div class="head"><span>EXPERT SYNC • AI FLIGHT INSTRUCTOR</span><span class="live">LIVE</span></div><div id="aiCoachMsg">Instructor ready. Fly the aircraft and I will coach your next action.</div><div id="aiCoachAction">Monitoring speed, altitude, heading, configuration and stability.</div><div id="aiCoachMetrics"><span>HDG<b id="aiHdg">000</b></span><span>IAS<b id="aiIas">0</b></span><span>ALT<b id="aiAlt">0</b></span><span>VS<b id="aiVs">0</b></span></div></div><div id="crosswindBrief">CROSSWIND TRAINING • <b id="crosswindValue">—</b><span class="hint" id="crosswindHint">Use smooth heading corrections and keep the runway centreline.</span></div><div id="windOverlay">WIND <b id="windValue">120° / 8 KT</b><span id="windArrow">↗</span></div><div id="weatherControl">WEATHER <select id="weatherSelect"><option value="clear">CLEAR</option><option value="haze">HAZE</option><option value="rain">RAIN</option><option value="night">NIGHT</option></select></div><div id="flightModelBadge">REALISTIC AERODYNAMIC MODEL • ASSIST OPTIONAL</div><div id="es3d" aria-label="Expert Sync 3D flight simulator"></div><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
+<div id="game"><div id="aiFlightMemory"><div class="memHead">EXPERT SYNC • PERSONAL FLIGHT MEMORY</div><div id="memSummary" class="memText">Loading your training profile...</div><div id="memGrid" class="memGrid"></div><div id="memAdvice" class="memText"></div><button class="memClose" id="memClose">CLOSE</button></div><div id="aiFlightChat"><div id="aiChatHead"><span>EXPERT SYNC • AI FLIGHT TEACHER</span><span>CHAT</span></div><div id="aiChatMessages"><div class="aiMsg ai">I am your flight instructor. Ask me about the aircraft, controls, approach, crosswind, or your current flight.</div></div><form id="aiChatForm"><input id="aiChatInput" autocomplete="off" placeholder="Ask your AI instructor..."><button id="aiChatSend">SEND</button></form></div><div id="aiFlightCoach"><div class="head"><span>EXPERT SYNC • AI FLIGHT INSTRUCTOR</span><span class="live">LIVE</span></div><div id="aiCoachMsg">Instructor ready. Fly the aircraft and I will coach your next action.</div><div id="aiCoachAction">Monitoring speed, altitude, heading, configuration and stability.</div><div id="aiCoachMetrics"><span>HDG<b id="aiHdg">000</b></span><span>IAS<b id="aiIas">0</b></span><span>ALT<b id="aiAlt">0</b></span><span>VS<b id="aiVs">0</b></span></div></div><div id="crosswindBrief">CROSSWIND TRAINING • <b id="crosswindValue">—</b><span class="hint" id="crosswindHint">Use smooth heading corrections and keep the runway centreline.</span></div><div id="windOverlay">WIND <b id="windValue">120° / 8 KT</b><span id="windArrow">↗</span></div><div id="weatherControl">WEATHER <select id="weatherSelect"><option value="clear">CLEAR</option><option value="haze">HAZE</option><option value="rain">RAIN</option><option value="night">NIGHT</option></select></div><div id="flightModelBadge">REALISTIC AERODYNAMIC MODEL • ASSIST OPTIONAL</div><div id="es3d" aria-label="Expert Sync 3D flight simulator"></div><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
 <canvas id="scene"></canvas><div id="aircraftLabel">AIRCRAFT ES-01 • EXTERNAL VIEW</div><div id="keyFeedback"></div>
 <div id="brand" class="ui panel"><div class="brand">✈ EXPERT SYNC — FLIGHT TRAINING</div><div class="sub">HANDS-ON SINGLE-ENGINE SIMULATOR • N-ES01</div></div>
 <div id="phasebar" class="ui"></div>
@@ -1478,6 +1486,7 @@ function finishMission(){
 if(document.getElementById('complete'))return;
 const score=Math.round(s.score);
 const A=assessmentSummary();
+saveFlightMemory();
 const grade=A.overall>=90?'EXCELLENT':A.overall>=75?'GOOD':A.overall>=60?'SATISFACTORY':'NEEDS PRACTICE';
 writeTrainingRecord(score,A.overall,grade);
 updateAdaptiveCoach();
@@ -1490,9 +1499,9 @@ e.innerHTML='<div style="color:#54e6a6;font-size:11px;font-weight:900;letter-spa
 '<div style="margin:16px 0 8px;font-size:28px;font-weight:900">SCENARIO: '+s.scenario.toUpperCase()+'</div><div style="font-size:28px;font-weight:900">'+score+' <span style="font-size:12px;color:#9bb5be">POINTS</span></div>'+
 '<div style="font-size:14px;color:#54e6a6;font-weight:900;letter-spacing:1px">'+grade+'</div>'+
 '<div style="margin:14px 0;color:#9bb5be;font-size:11px;line-height:1.7">ATC discipline • aircraft control • configuration • speed/altitude management • runway handling</div><div style="font-size:9px;color:#6f8e99">Flight data and replay timeline available above.</div>'+
-'<button id="copyDebrief" class="atcBtn" style="width:100%;margin-bottom:6px">COPY FLIGHT DEBRIEF</button><button id="openDebrief" class="atcBtn" style="width:100%;margin-bottom:6px">OPEN POST-FLIGHT DEBRIEF</button><button id="openRecordFromComplete" class="atcBtn" style="width:100%;margin-bottom:6px">OPEN TRAINING RECORD</button><button id="replay" class="atcBtn" style="width:100%">RESTART TRAINING</button>';
+'<button id="copyDebrief" class="atcBtn" style="width:100%;margin-bottom:6px">COPY FLIGHT DEBRIEF</button><button id="openDebrief" class="atcBtn" style="width:100%;margin-bottom:6px">OPEN POST-FLIGHT DEBRIEF</button><button id="openFlightMemory" class="atcBtn" style="width:100%;margin-bottom:6px">OPEN PERSONAL FLIGHT MEMORY</button><button id="openRecordFromComplete" class="atcBtn" style="width:100%;margin-bottom:6px">OPEN TRAINING RECORD</button><button id="replay" class="atcBtn" style="width:100%">RESTART TRAINING</button>';
 document.getElementById('game').appendChild(e);
-document.getElementById('openDebrief').onclick=showDebrief;document.getElementById('openRecordFromComplete').onclick=showTrainingRecord;
+document.getElementById('openDebrief').onclick=showDebrief;document.getElementById('openRecordFromComplete').onclick=showTrainingRecord;document.getElementById('openFlightMemory').onclick=showFlightMemory;
 document.getElementById('copyDebrief').onclick=async()=>{
 const report='EXPERT SYNC FLIGHT 01 DEBRIEF\nScenario: '+s.scenario+'\nFDR samples: '+s.fdr.length+'\nScore: '+score+'\nGrade: '+grade+'\n'+s.events.slice().reverse().map(e=>e.t+' '+e.msg).join('\n');
 try{await navigator.clipboard.writeText(report);toast('FLIGHT DEBRIEF COPIED.')}catch(e){toast('Copy unavailable — review the event log.')}
@@ -2911,5 +2920,29 @@ document.getElementById('weatherSelect').addEventListener('change',e=>{window.es
  }catch(e){add('AI Teacher connection error: '+e.message,'ai');}
  input.disabled=false;document.getElementById('aiChatSend').disabled=false;input.focus();
 }
-document.getElementById('aiChatForm').addEventListener('submit',e=>{e.preventDefault();const v=document.getElementById('aiChatInput').value.trim();if(v){document.getElementById('aiChatInput').value='';askAIFlightTeacher(v);}});</script></body>
+document.getElementById('aiChatForm').addEventListener('submit',e=>{e.preventDefault();const v=document.getElementById('aiChatInput').value.trim();if(v){document.getElementById('aiChatInput').value='';askAIFlightTeacher(v);}});</script><script id="es-flight-memory-v47">
+const ES_FLIGHT_MEMORY_KEY='expert_sync_flight_memory_v47';
+function readFlightMemory(){try{return JSON.parse(localStorage.getItem(ES_FLIGHT_MEMORY_KEY)||'{"flights":[],"weaknesses":{},"best":0}')}catch(_){return {flights:[],weaknesses:{},best:0};}}
+function saveFlightMemory(){
+ const m=readFlightMemory(), A=assessmentSummary(), rec={date:new Date().toISOString(),scenario:s.scenario,score:Math.round(s.score),overall:A.overall,dimensions:{handling:Math.round(A.handling),procedures:Math.round(A.procedures),atc:Math.round(A.atc),configuration:Math.round(A.configuration),stability:Math.round(A.stability),safety:Math.round(A.safety)},events:s.events.slice(0,12)};
+ m.flights.unshift(rec);m.flights=m.flights.slice(0,20);m.best=Math.max(m.best||0,A.overall);
+ Object.entries(rec.dimensions).forEach(([k,v])=>{m.weaknesses[k]=(m.weaknesses[k]||[]).concat(v).slice(-8);});
+ try{localStorage.setItem(ES_FLIGHT_MEMORY_KEY,JSON.stringify(m));}catch(_){}
+ return m;
+}
+function showFlightMemory(){
+ const m=readFlightMemory(), box=document.getElementById('aiFlightMemory'),sum=document.getElementById('memSummary'),grid=document.getElementById('memGrid'),ad=document.getElementById('memAdvice');if(!box)return;
+ if(!m.flights.length){sum.textContent='No completed flights are stored yet.';grid.innerHTML='';ad.textContent='Complete your first flight assessment to begin personalized coaching.';box.style.display='block';return;}
+ const latest=m.flights[0], names={handling:'Aircraft handling',procedures:'Procedures',atc:'ATC discipline',configuration:'Configuration',stability:'Flight stability',safety:'Safety discipline'};
+ const avg={};Object.keys(names).forEach(k=>avg[k]=Math.round((m.weaknesses[k]||[0]).reduce((a,b)=>a+b,0)/(m.weaknesses[k]?.length||1)));
+ const weak=Object.entries(avg).sort((a,b)=>a[1]-b[1])[0];
+ sum.textContent='Flights remembered: '+m.flights.length+' • Best overall: '+m.best+'% • Latest: '+latest.overall+'%';
+ grid.innerHTML=Object.entries(latest.dimensions).map(([k,v])=>'<div class="memCard">'+names[k]+'<b>'+v+'%</b></div>').join('');
+ ad.textContent='Personal coaching focus: '+names[weak[0]]+' ('+weak[1]+'% average). '+(weak[1]<70?'Repeat targeted practice before increasing difficulty.':'Keep this skill strong and add a stretch exercise.');
+ box.style.display='block';
+}
+document.getElementById('memClose').onclick=()=>document.getElementById('aiFlightMemory').style.display='none';
+window.showFlightMemory=showFlightMemory;
+window.saveFlightMemory=saveFlightMemory;
+</script></body>
 </html>
