@@ -1875,7 +1875,7 @@ function drawPlane(px,py,sc,hdg,bank){
 }
 function tick(t){let dt=Math.min(.05,Math.max(.001,(t-s.last)/1000));s.last=t;if(s.started&&!s.paused){controls(dt);updateAutopilot(dt);engine(dt);flight(dt);evaluate(dt);hud();updateAudio();updateFDR(t)}
 if(s.replayPlaying&&s.fdr.length){s.replayIndex=Math.min(s.replayIndex+1,s.fdr.length-1);if(s.replayIndex>=s.fdr.length-1){s.replayPlaying=false;document.getElementById('replayBtn').textContent='PLAY REPLAY';}updateReplayUI();}
-drawCockpitOverlay();draw();requestAnimationFrame(tick)}
+draw();drawCockpitOverlay();requestAnimationFrame(tick)}
 document.getElementById('game').addEventListener('click',()=>{initAudio();document.body.focus();});
 document.getElementById('scene').setAttribute('tabindex','0');
 document.getElementById('scene').style.outline='none';
