@@ -2562,10 +2562,14 @@ function build3DCockpit(){
   const pedestal=box(4.8,1.1,3.5,panelMat);pedestal.position.set(0,-3.1,-2.7);g.add(pedestal);
   // Yoke/stick
   const stem=box(.18,1.5,.18,dark);stem.position.set(0,-2.0,-2.0);stem.rotation.x=-.25;g.add(stem);
-  const yoke=box(1.55,.16,.22,dark);yoke.position.set(0,-1.35,-2.35);g.add(yoke);
-  for(const px of [-.62,.62]){const h=box(.16,.65,.28,dark);h.position.set(px,-1.55,-2.35);h.rotation.z=px>0?.35:-.35;g.add(h);}
+  const yoke=box(1.55,.16,.22,dark);yoke.position.set(0,-1.35,-2.35);yoke.userData.control='yoke';g.add(yoke);interactive.push(yoke);
+  for(const px of [-.62,.62]){const h=box(.16,.65,.28,dark);h.position.set(px,-1.55,-2.35);h.rotation.z=px>0?.35:-.35;h.userData.control='yoke';g.add(h);interactive.push(h);}
+  const throttleRail=box(.75,.1,1.1,dark);throttleRail.position.set(1.9,-2.25,-2.7);g.add(throttleRail);
+  const throttle=box(.24,.62,.22,green);throttle.position.set(1.9,-1.95,-2.7);throttle.userData.control='throttle';g.add(throttle);interactive.push(throttle);
+  const gearSwitch=box(.28,.5,.18,white);gearSwitch.position.set(-1.65,-2.35,-3.0);gearSwitch.userData.control='gear';g.add(gearSwitch);interactive.push(gearSwitch);
+  const flapSwitch=box(.28,.42,.18,cyan);flapSwitch.position.set(-1.15,-2.35,-3.0);flapSwitch.userData.control='flaps';g.add(flapSwitch);interactive.push(flapSwitch);
   // Throttle quadrant
-  for(let i=0;i<3;i++){const rail=box(.08,.95,.08,white);rail.position.set(1.25+i*.42,-2.35,-2.7);g.add(rail);const lever=box(.2,.55,.16,green);lever.position.set(1.25+i*.42,-2.05,-2.7);g.add(lever);}
+  for(let i=0;i<3;i++){const rail=box(.08,.95,.08,white);rail.position.set(1.25+i*.42,-2.35,-2.7);g.add(rail);}
   // Side window frames / floor
   const floor=box(16,.18,8,dark);floor.position.set(0,-4.0,-1.5);g.add(floor);
   return g;
@@ -2700,7 +2704,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 
 (function(){
- let renderer,scene,camera,aircraft,cockpit3d,runway,lights=[];
+ let renderer,scene,camera,aircraft,cockpit3d,runway,lights=[],interactive=[];let raycaster,pointer=new THREE.Vector2(),drag=null;
  let ready=false,raf=0;
  const root=document.getElementById('es3d');
  function mat(c,rough=.7,metal=0){return new THREE.MeshStandardMaterial({color:c,roughness:rough,metalness:metal});}
@@ -2739,7 +2743,25 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.m
    for(let i=0;i<70;i++){const h=1+Math.random()*7,b=box(2+h*.25,h,2+h*.25,mat(i%3?0x28363b:0x405157));b.position.set((i%2?-1:1)*(70+Math.random()*180),h/2-1,(Math.random()-.5)*900);scene.add(b);}
    aircraft=buildAircraft();aircraft.position.set(0,1.8,0);aircraft.rotation.y=Math.PI;aircraft.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});scene.add(aircraft);
    cockpit3d=build3DCockpit();cockpit3d.position.set(0,0,0);scene.add(cockpit3d);
-   ready=true;resize();animate();
+   ready=true;bindControls();resize();animate();
+ }
+ function updatePointer(e){const r=renderer.domElement.getBoundingClientRect();pointer.x=((e.clientX-r.left)/r.width)*2-1;pointer.y=-((e.clientY-r.top)/r.height)*2+1;}
+ function pick(e){updatePointer(e);raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(interactive,true);return hits.length?hits[0].object:null;}
+ function bindControls(){
+   raycaster=new THREE.Raycaster();
+   renderer.domElement.style.touchAction='none';
+   renderer.domElement.addEventListener('pointerdown',e=>{const o=pick(e);if(!o)return;drag={control:o.userData.control,id:e.pointerId,lastY:e.clientY,lastX:e.clientX};renderer.domElement.setPointerCapture(e.pointerId);e.preventDefault();});
+   renderer.domElement.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;e.preventDefault();const dx=e.clientX-(drag.lastX??e.clientX),dy=e.clientY-(drag.lastY??e.clientY);
+     if(drag.control==='yoke'){s.yoke=true;s.yx=clamp((s.yx||0)+dx*.012,-1,1);s.yy=clamp((s.yy||0)+dy*.012,-1,1);}
+     if(drag.control==='throttle'){s.throttle=clamp(s.throttle-dy*.35,0,100);}
+     drag.lastX=e.clientX;drag.lastY=e.clientY;
+   });
+   const end=e=>{if(drag&&drag.id===e.pointerId){if(drag.control==='yoke'){s.yoke=false;s.yx=0;s.yy=0;}drag=null;}};
+   renderer.domElement.addEventListener('pointerup',end);renderer.domElement.addEventListener('pointercancel',end);
+   renderer.domElement.addEventListener('click',e=>{const o=pick(e);if(!o)return;
+     if(o.userData.control==='gear'){s.gear=!s.gear;toast(s.gear?'GEAR DOWN':'GEAR UP');logEvent('GEAR '+(s.gear?'DOWN':'UP'),'INFO');}
+     if(o.userData.control==='flaps'){s.flaps=(s.flaps+1)%3;toast('FLAPS '+s.flaps);logEvent('FLAPS SET '+s.flaps,'INFO');}
+   });
  }
  function resize(){if(!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);}
  function animate(){
