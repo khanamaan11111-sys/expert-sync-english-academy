@@ -593,12 +593,17 @@ body.es-3d #game>canvas{display:none}
 #flightModelBadge{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:36;display:none;padding:4px 8px;border:1px solid #315d6b;border-radius:8px;background:#02070bd9;color:#8fe8f7;font:900 7px Arial;letter-spacing:.6px;pointer-events:none}
 body.es-3d #flightModelBadge{display:block}
 @media(max-width:700px){#flightModelBadge{top:55px}}
+</style><style id="es-weather-v42">
+#weatherControl{position:fixed;right:10px;top:10px;z-index:80;display:none;padding:7px;border:1px solid #355b67;border-radius:10px;background:#02070bdd;color:#eaf7fa;font:700 8px Arial}
+#weatherControl select{margin-left:5px;background:#0b2029;color:#fff;border:1px solid #42616a;border-radius:6px;padding:4px;font-size:8px}
+body.es-3d #weatherControl{display:block}
+@media(max-width:700px){#weatherControl{top:48px;right:8px;padding:5px;font-size:7px}}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
 <div id="studentIdentity">STUDENT: <span id="studentIdentityName">STUDENT</span></div>
 <div id="academyConnect">✓ CONNECTED TO EXPERT SYNC ACADEMY</div>
-<div id="game"><div id="flightModelBadge">REALISTIC AERODYNAMIC MODEL • ASSIST OPTIONAL</div><div id="es3d" aria-label="Expert Sync 3D flight simulator"></div><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
+<div id="game"><div id="weatherControl">WEATHER <select id="weatherSelect"><option value="clear">CLEAR</option><option value="haze">HAZE</option><option value="rain">RAIN</option><option value="night">NIGHT</option></select></div><div id="flightModelBadge">REALISTIC AERODYNAMIC MODEL • ASSIST OPTIONAL</div><div id="es3d" aria-label="Expert Sync 3D flight simulator"></div><div id="realityHint">REALITY FLIGHT • FORWARD FLIGHT DECK VIEW</div>
 <canvas id="scene"></canvas><div id="aircraftLabel">AIRCRAFT ES-01 • EXTERNAL VIEW</div><div id="keyFeedback"></div>
 <div id="brand" class="ui panel"><div class="brand">✈ EXPERT SYNC — FLIGHT TRAINING</div><div class="sub">HANDS-ON SINGLE-ENGINE SIMULATOR • N-ES01</div></div>
 <div id="phasebar" class="ui"></div>
