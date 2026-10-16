@@ -3464,8 +3464,13 @@ async function syncATCSessionToCloud(){
  const status=document.getElementById('atcCloudStatus');
  if(status)status.textContent='SYNCING TRAINING RECORD…';
  try{
-  const row=atcCloudPayload();
-  const {error}=await window.supabaseClient.from('atc_training_sessions').upsert(row,{onConflict:'user_id,session_key'});
+  const row={...atcCloudPayload(),user_id:ses.user.id};
+  const {data:existing,error:findError}=await window.supabaseClient.from('atc_training_sessions').select('id').eq('user_id',ses.user.id).eq('session_key',row.session_key).maybeSingle();
+  if(findError)throw findError;
+  const op=existing?.id
+    ? await window.supabaseClient.from('atc_training_sessions').update(row).eq('id',existing.id).eq('user_id',ses.user.id)
+    : await window.supabaseClient.from('atc_training_sessions').insert(row);
+  if(op.error)throw op.error;
   if(error)throw error;
   localStorage.setItem(ES_ATC_CLOUD_STATUS,JSON.stringify({lastSync:new Date().toISOString(),sessionKey:row.session_key}));
   if(status)status.textContent='CLOUD RECORD • SYNCED';
