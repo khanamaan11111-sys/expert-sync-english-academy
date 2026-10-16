@@ -4526,5 +4526,10 @@ evaluateAIScenario=function(){
 const __oldLoadDynamicV105=loadDynamicATCTrafficV103;
 loadDynamicATCTrafficV103=function(){const t=__oldLoadDynamicV105();const q=window.esGeneratedScenario||{};q.traffic=t;window.esGeneratedScenario=q;return t;};
 window.assessATCConflictResolutionV105=assessATCConflictResolutionV105;
+</script><script id="es-atc-resolution-bridge-v105">
+const __oldLoadAIScenarioV105Bridge=loadAIScenario;
+loadAIScenario=function(){
+ const q=window.esGeneratedScenario||{};const r=__oldLoadAIScenarioV105Bridge();if(window.esScenarioLive){window.esScenarioLive.traffic=q.traffic||window.esScenarioLive.traffic||[];window.esScenarioLive.conflicts=q.conflicts||window.esScenarioLive.conflicts||[];window.esScenarioLive.dynamicInteraction=!!q.dynamicInteraction;}return r;
+};
 </script></body>
 </html>
