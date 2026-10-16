@@ -738,12 +738,29 @@ body.es-3d #atcLoop{display:block}.atcLoopH{color:#54e6a6;font:900 8px Arial;let
 .esInstructorKpis{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:10px}.esIKpi{padding:7px;text-align:center;background:#091e26;border:1px solid #24424d;border-radius:7px;color:#9bb5be;font:700 6px Arial}.esIKpi b{display:block;color:#fff;font-size:12px;margin-top:2px}
 .esInstructorTools{display:flex;gap:5px;margin-top:8px}.esInstructorTools input,.esInstructorTools select,.esInstructorTools button{flex:1;padding:6px;background:#07141b;border:1px solid #376575;border-radius:6px;color:#fff;font:700 7px Arial}.esInstructorTools button{cursor:pointer}.esInstructorList{margin-top:8px}.esStudentRow{display:grid;grid-template-columns:1.4fr .7fr .7fr .7fr 1fr .8fr;gap:5px;align-items:center;padding:8px;border-bottom:1px solid #1d353e;color:#cfe1e6;font:700 7px Arial}.esStudentRow small{display:block;color:#718a94;font-size:6px;margin-top:2px}.esRisk{color:#ff7b7f}.esWatch{color:#ffd45a}.esGood{color:#54e6a6}.esInstructorDetail{margin-top:9px;padding:8px;background:#091820;border:1px solid #24424d;border-radius:7px;color:#9bb5be;font:700 7px/1.5 Arial}
 @media(max-width:700px){.esInstructorKpis{grid-template-columns:repeat(2,1fr)}.esStudentRow{grid-template-columns:1fr 1fr 1fr}.esStudentRow>*:nth-child(n+4){grid-column:span 1}.esInstructorTools{flex-wrap:wrap}.esInstructorTools>*{min-width:42%}}
+</style><style id="es-atc-intervention-v88">
+#atcInterventionCenter{position:fixed;inset:0;z-index:180;display:none;background:#02080cf7;align-items:center;justify-content:center;padding:12px}
+.esInterventionCard{width:min(940px,96vw);max-height:92vh;overflow:auto;padding:14px;background:#06151c;border:1px solid #ffd45a;border-radius:12px;box-shadow:0 25px 100px #000d}
+.esInterventionHead{display:flex;justify-content:space-between;gap:8px;align-items:center}.esIVTitle{color:#54e6a6;font:900 11px Arial;letter-spacing:1px}.esIVSub{color:#9bb5be;font:700 7px Arial}
+.esIVProfile{margin-top:9px;padding:9px;background:#091e26;border:1px solid #24424d;border-radius:8px}.esIVName{color:#fff;font:900 12px Arial}.esIVMeta{margin-top:3px;color:#9bb5be;font:700 7px Arial}
+.esIVKpis{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:7px}.esIVKpi{padding:6px;text-align:center;background:#07141b;border:1px solid #1f3943;border-radius:6px;color:#9bb5be;font:700 6px Arial}.esIVKpi b{display:block;color:#fff;font-size:11px;margin-top:2px}
+.esIVGrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:7px}.esIVBox{padding:8px;background:#091820;border:1px solid #24424d;border-radius:7px}.esIVBox h4{margin:0;color:#54e6a6;font:900 7px Arial;letter-spacing:.6px}.esIVList{margin-top:6px;color:#cfe1e6;font:700 7px/1.5 Arial}.esIVItem{padding:5px 0;border-bottom:1px solid #1d353e}.esIVRisk{color:#ff7b7f}.esIVWarn{color:#ffd45a}.esIVGood{color:#54e6a6}
+.esIVPlan{margin-top:7px;padding:9px;background:#07141b;border:1px solid #376575;border-radius:7px;color:#cfe1e6;font:700 8px/1.5 Arial}.esIVPlan strong{color:#54e6a6}
+.esIVActions{display:flex;gap:5px;margin-top:8px}.esIVActions button{flex:1;padding:7px;background:#0a202a;border:1px solid #3c6978;border-radius:6px;color:#fff;font:900 7px Arial;cursor:pointer}
+@media(max-width:700px){.esIVKpis{grid-template-columns:repeat(2,1fr)}.esIVGrid{grid-template-columns:1fr}.esInterventionCard{padding:10px}}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
 <div id="studentIdentity">STUDENT: <span id="studentIdentityName">STUDENT</span></div>
 <div id="academyConnect">✓ CONNECTED TO EXPERT SYNC ACADEMY</div>
-<div id="game"><div id="atcInstructorCenter"><div class="esInstructorCard">
+<div id="game"><div id="atcInterventionCenter"><div class="esInterventionCard">
+<div class="esInterventionHead"><div><div class="esIVTitle">STUDENT DETAIL • INTERVENTION CENTER</div><div class="esIVSub">Instructor-only competency review</div></div><div id="ivStatus" class="esIVSub">NO STUDENT SELECTED</div></div>
+<div class="esIVProfile"><div class="esIVName" id="ivName">Select a student from the instructor roster</div><div class="esIVMeta" id="ivMeta">—</div></div>
+<div class="esIVKpis"><div class="esIVKpi">SESSIONS<b id="ivSessions">0</b></div><div class="esIVKpi">AVERAGE<b id="ivAverage">0%</b></div><div class="esIVKpi">PASS RATE<b id="ivPass">0%</b></div><div class="esIVKpi">MASTERY<b id="ivMastery">1</b></div><div class="esIVKpi">CERT<b id="ivCert">NO</b></div><div class="esIVKpi">STREAK<b id="ivStreak">0</b></div></div>
+<div class="esIVGrid"><div class="esIVBox"><h4>COMPETENCY AREAS</h4><div class="esIVList" id="ivAreas">—</div></div><div class="esIVBox"><h4>RECENT TRAINING</h4><div class="esIVList" id="ivSessionsList">—</div></div></div>
+<div class="esIVPlan" id="ivPlan"><strong>INTERVENTION PLAN</strong><br>Select a student to generate targeted instructor guidance.</div>
+<div class="esIVActions"><button id="ivOpenTranscript">OPEN STUDENT TRANSCRIPT</button><button id="ivClose">CLOSE</button></div>
+</div></div><div id="atcInstructorCenter"><div class="esInstructorCard">
 <div class="esInstructorHead"><div><div class="esInstructorTitle">EXPERT SYNC • INSTRUCTOR COMMAND CENTER</div><div class="esInstructorRole">Authorized instructor/admin view • student data remains protected by Supabase RLS</div></div><div id="instructorCloudStatus" class="esInstructorRole">CHECKING ACCESS…</div></div>
 <div class="esInstructorKpis"><div class="esIKpi">STUDENTS<b id="insStudents">0</b></div><div class="esIKpi">ACTIVE<b id="insActive">0</b></div><div class="esIKpi">NEEDS HELP<b id="insRisk">0</b></div><div class="esIKpi">CERT READY<b id="insCert">0</b></div><div class="esIKpi">AVG SCORE<b id="insAvg">0%</b></div></div>
 <div class="esInstructorTools"><input id="insSearch" placeholder="Search student email / ID"><select id="insFilter"><option value="all">ALL STUDENTS</option><option value="risk">NEEDS INTERVENTION</option><option value="cert">CERTIFICATION READY</option><option value="active">ACTIVE TRAINING</option></select><button id="insRefresh">REFRESH</button></div>
@@ -3904,5 +3921,41 @@ async function openInstructorCenter(){document.getElementById('atcInstructorCent
 document.getElementById('atcInstructorBtn').onclick=openInstructorCenter;document.getElementById('insRefresh').onclick=loadInstructorRoster;document.getElementById('insSearch').oninput=renderInstructorRoster;document.getElementById('insFilter').onchange=renderInstructorRoster;document.getElementById('insClose').onclick=()=>document.getElementById('atcInstructorCenter').style.display='none';
 (async()=>{if(window.supabaseClient){try{const s=(await window.supabaseClient.auth.getSession()).data.session;if(s){const g=await window.supabaseClient.rpc('is_atc_instructor');if(!g.error&&g.data===true)document.getElementById('atcInstructorBtn').style.display='block';}}catch(_){}}})();
 window.openInstructorCenter=openInstructorCenter;
+</script><script id="es-atc-intervention-v88">
+let esIVSelected=null;
+function renderIVProfile(p,rows,assess){
+ const scores=rows.map(x=>Number(x.overall)||0),avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):Number(p?.average_score||0);
+ document.getElementById('ivName').textContent=p?.email||'Student';document.getElementById('ivMeta').textContent=(p?.user_id||'')+' • Last training: '+(p?.last_training?new Date(p.last_training).toLocaleString():'none');
+ document.getElementById('ivSessions').textContent=rows.length;document.getElementById('ivAverage').textContent=avg+'%';document.getElementById('ivPass').textContent=Math.round(rows.filter(x=>x.passed).length/Math.max(1,rows.length)*100)+'%';document.getElementById('ivMastery').textContent=p?.mastery_level||1;document.getElementById('ivCert').textContent=p?.certification_ready?'READY':'NO';
+ const dates=rows.map(x=>new Date(x.created_at).getTime()).sort((a,b)=>b-a);let streak=0,prev=null;for(const d of dates){if(prev===null||prev-d<=3*864e5){streak++;prev=d}else break}document.getElementById('ivStreak').textContent=streak;
+ const area={};rows.forEach(x=>{const k=x.instruction_type||'general';if(!area[k])area[k]=[];area[k].push(Number(x.overall)||0);});
+ const areaHtml=Object.entries(area).map(([k,v])=>{const s=Math.round(v.reduce((a,b)=>a+b,0)/v.length);return '<div class="'+(s<75?'esIVRisk':s<85?'esIVWarn':'esIVGood')+'">'+k.toUpperCase()+' • '+s+'% • '+v.length+' sessions</div>';}).join('');
+ document.getElementById('ivAreas').innerHTML=areaHtml||'No training data.';
+ document.getElementById('ivSessionsList').innerHTML=rows.slice(0,8).map(x=>'<div class="esIVItem">'+new Date(x.created_at).toLocaleDateString()+' • '+(x.instruction_type||'general').toUpperCase()+' • '+Number(x.overall||0)+'% • '+(x.passed?'PASS':'NOT PASS')+'</div>').join('')||'No sessions.';
+ const weakest=Object.entries(area).sort((a,b)=>a[1].reduce((x,y)=>x+y,0)/a[1].length-b[1].reduce((x,y)=>x+y,0)/b[1].length)[0]?.[0]||p?.weakest_area||'general';
+ const need=avg<75||Number(p?.pass_rate||0)<50, focus={heading:'heading intercepts and readbacks',altitude:'altitude changes and readbacks',speed:'speed-control clearances',runway:'runway sequencing and readbacks',general:'routine ATC communication'}[weakest]||'targeted ATC communication';
+ document.getElementById('ivPlan').innerHTML='<strong>INTERVENTION PLAN</strong><br>'+(need?'Priority intervention: ':'Development plan: ')+'focus on <b>'+focus+'</b>. '+(need?'Keep scenario complexity stable until the student demonstrates consistent ≥80% performance.':'Increase workload gradually and introduce multi-part clearances when performance remains ≥85%.')+(p?.certification_ready?' Certification pathway is currently eligible.':'');
+ document.getElementById('ivStatus').textContent='CLOUD PROFILE • '+rows.length+' SESSIONS';
+}
+async function openStudentIntervention(userId){
+ document.getElementById('atcInterventionCenter').style.display='flex';document.getElementById('ivStatus').textContent='LOADING…';
+ try{
+  const [s,m,a]=await Promise.all([
+   toolsIV('atc_training_sessions','user_id,scenario,target,complexity,traffic_count,overall,passed,instruction_type,created_at',userId),
+   toolsIV('atc_mastery_profiles','user_id,mastery_level,mastery_name,total_sessions,passed_sessions,average_score,streak,weakest_area,area_scores,certification_ready,updated_at',userId),
+   toolsIV('atc_certification_assessments','assessment_key,completed_scenarios,average_score,pass_rate,final_grade,status,certificate_eligible,created_at',userId)
+  ]);
+  esIVSelected={userId,profile:m?.[0]||{},assessments:a||[]};renderIVProfile({...(esInstructorRoster.find(x=>x.user_id===userId)||{}),...(m?.[0]||{}),email:esInstructorRoster.find(x=>x.user_id===userId)?.email,user_id:userId},s||[],a||[]);
+ }catch(e){document.getElementById('ivStatus').textContent='DATA ERROR';}
+}
+async function toolsIV(table,select,userId){
+ const {data,error}=await window.supabaseClient.from(table).select(select).eq('user_id',userId).order('created_at',{ascending:false}).limit(100);if(error)throw error;return data||[];
+}
+document.querySelectorAll('.esStudentRow').forEach(el=>{});
+const __oldRenderInstructorRosterV88=renderInstructorRoster;
+renderInstructorRoster=function(){__oldRenderInstructorRosterV88();document.querySelectorAll('.esStudentRow').forEach(el=>el.ondblclick=()=>openStudentIntervention(el.dataset.user));};
+document.getElementById('ivClose').onclick=()=>document.getElementById('atcInterventionCenter').style.display='none';
+document.getElementById('ivOpenTranscript').onclick=()=>{if(esIVSelected?.userId){document.getElementById('atcInterventionCenter').style.display='none';if(typeof toast==='function')toast('Student transcript review selected • instructor view active');}};
+window.openStudentIntervention=openStudentIntervention;
 </script></body>
 </html>
