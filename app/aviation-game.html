@@ -748,6 +748,8 @@ body.es-3d #atcLoop{display:block}.atcLoopH{color:#54e6a6;font:900 8px Arial;let
 .esIVPlan{margin-top:7px;padding:9px;background:#07141b;border:1px solid #376575;border-radius:7px;color:#cfe1e6;font:700 8px/1.5 Arial}.esIVPlan strong{color:#54e6a6}
 .esIVActions{display:flex;gap:5px;margin-top:8px}.esIVActions button{flex:1;padding:7px;background:#0a202a;border:1px solid #3c6978;border-radius:6px;color:#fff;font:900 7px Arial;cursor:pointer}
 @media(max-width:700px){.esIVKpis{grid-template-columns:repeat(2,1fr)}.esIVGrid{grid-template-columns:1fr}.esInterventionCard{padding:10px}}
+</style><style id="es-atc-assignment-v89">
+#atcAssignmentPanel{margin-top:8px;padding:8px;background:#091820;border:1px solid #ffd45a;border-radius:7px}.esAssignTitle{color:#54e6a6;font:900 7px Arial;letter-spacing:.7px}.esAssignMeta{margin-top:4px;color:#9bb5be;font:700 6px Arial}.esAssignBox{margin-top:5px;color:#cfe1e6;font:700 7px/1.4 Arial}.esAssignBox b{color:#ffd45a}.esAssignActions{display:flex;gap:5px;margin-top:6px}.esAssignActions button{flex:1;padding:6px;background:#0a202a;border:1px solid #3c6978;border-radius:6px;color:#fff;font:900 7px Arial}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
@@ -758,7 +760,7 @@ body.es-3d #atcLoop{display:block}.atcLoopH{color:#54e6a6;font:900 8px Arial;let
 <div class="esIVProfile"><div class="esIVName" id="ivName">Select a student from the instructor roster</div><div class="esIVMeta" id="ivMeta">—</div></div>
 <div class="esIVKpis"><div class="esIVKpi">SESSIONS<b id="ivSessions">0</b></div><div class="esIVKpi">AVERAGE<b id="ivAverage">0%</b></div><div class="esIVKpi">PASS RATE<b id="ivPass">0%</b></div><div class="esIVKpi">MASTERY<b id="ivMastery">1</b></div><div class="esIVKpi">CERT<b id="ivCert">NO</b></div><div class="esIVKpi">STREAK<b id="ivStreak">0</b></div></div>
 <div class="esIVGrid"><div class="esIVBox"><h4>COMPETENCY AREAS</h4><div class="esIVList" id="ivAreas">—</div></div><div class="esIVBox"><h4>RECENT TRAINING</h4><div class="esIVList" id="ivSessionsList">—</div></div></div>
-<div class="esIVPlan" id="ivPlan"><strong>INTERVENTION PLAN</strong><br>Select a student to generate targeted instructor guidance.</div>
+<div class="esIVPlan" id="ivPlan"><strong>INTERVENTION PLAN</strong><br>Select a student to generate targeted instructor guidance.</div><div id="atcAssignmentPanel" style="display:none"><div class="esAssignTitle">INSTRUCTOR ASSIGNMENT</div><div class="esAssignMeta" id="assignMeta">No assignment</div><div class="esAssignBox" id="assignBox">—</div><div class="esAssignActions"><button id="assignMission">ASSIGN TARGETED MISSION</button><button id="assignCancel">CLOSE</button></div></div>
 <div class="esIVActions"><button id="ivOpenTranscript">OPEN STUDENT TRANSCRIPT</button><button id="ivClose">CLOSE</button></div>
 </div></div><div id="atcInstructorCenter"><div class="esInstructorCard">
 <div class="esInstructorHead"><div><div class="esInstructorTitle">EXPERT SYNC • INSTRUCTOR COMMAND CENTER</div><div class="esInstructorRole">Authorized instructor/admin view • student data remains protected by Supabase RLS</div></div><div id="instructorCloudStatus" class="esInstructorRole">CHECKING ACCESS…</div></div>
@@ -3957,5 +3959,35 @@ renderInstructorRoster=function(){__oldRenderInstructorRosterV88();document.quer
 document.getElementById('ivClose').onclick=()=>document.getElementById('atcInterventionCenter').style.display='none';
 document.getElementById('ivOpenTranscript').onclick=()=>{if(esIVSelected?.userId){document.getElementById('atcInterventionCenter').style.display='none';if(typeof toast==='function')toast('Student transcript review selected • instructor view active');}};
 window.openStudentIntervention=openStudentIntervention;
+</script><script id="es-atc-assignment-v89">
+let esIVAssignment=null;
+async function loadStudentAssignment(userId){
+ if(!window.supabaseClient)return;
+ const {data,error}=await window.supabaseClient.from('atc_training_assignments').select('id,focus,target,priority,complexity,instructions,status,due_at,created_at').eq('user_id',userId).eq('status','assigned').order('created_at',{ascending:false}).limit(1);
+ if(error)return;
+ const a=data?.[0];esIVAssignment=a||null;
+ document.getElementById('assignMeta').textContent=a?('ACTIVE • '+String(a.priority).toUpperCase()+' • '+String(a.complexity).toUpperCase()):'NO ACTIVE ASSIGNMENT';
+ document.getElementById('assignBox').innerHTML=a?'<b>'+String(a.focus).toUpperCase()+'</b> • '+String(a.target)+'<br>'+String(a.instructions||'Targeted instructor mission.'):'No assigned remediation mission.';
+}
+async function assignTargetedATCMission(){
+ if(!esIVSelected?.userId||!window.supabaseClient)return;
+ const p=esInstructorRoster.find(x=>x.user_id===esIVSelected.userId)||{};
+ const focus=p.weakest_area||'general',targetMap={heading:'heading intercepts and readbacks',altitude:'altitude changes and readbacks',speed:'speed-control clearances',runway:'runway sequencing and readbacks',general:'routine ATC communication'};
+ const target=targetMap[focus]||targetMap.general,priority=instructorRisk(p)?'high':'normal',complexity=Number(p.mastery_level||1)>=5?'moderate':'basic';
+ try{
+  const ses=(await window.supabaseClient.auth.getSession()).data.session;if(!ses)return;
+  const {data,error}=await window.supabaseClient.from('atc_training_assignments').insert({user_id:esIVSelected.userId,assigned_by:ses.user.id,focus,target,priority,complexity,instructions:'Instructor-assigned remediation: complete a targeted ATC scenario focused on '+target+'. Demonstrate consistent, accurate readbacks before workload is increased.',status:'assigned'});
+  if(error)throw error;await loadStudentAssignment(esIVSelected.userId);if(typeof toast==='function')toast('Targeted ATC mission assigned');
+ }catch(e){if(typeof toast==='function')toast('Assignment failed • '+String(e.message||e).slice(0,70));}
+}
+document.getElementById('assignMission').onclick=assignTargetedATCMission;
+document.getElementById('assignCancel').onclick=()=>document.getElementById('atcAssignmentPanel').style.display='none';
+const __oldOpenStudentInterventionV89=openStudentIntervention;
+openStudentIntervention=async function(userId){await __oldOpenStudentInterventionV89(userId);document.getElementById('atcAssignmentPanel').style.display='block';await loadStudentAssignment(userId);};
+async function loadMyATCAssignment(){
+ if(!window.supabaseClient)return null;const ses=(await window.supabaseClient.auth.getSession()).data.session;if(!ses)return null;
+ const {data}=await window.supabaseClient.from('atc_training_assignments').select('id,focus,target,priority,complexity,instructions,status,due_at').eq('user_id',ses.user.id).eq('status','assigned').order('created_at',{ascending:false}).limit(1);return data?.[0]||null;
+}
+window.loadMyATCAssignment=loadMyATCAssignment;
 </script></body>
 </html>
