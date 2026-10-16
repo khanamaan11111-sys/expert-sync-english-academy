@@ -3471,7 +3471,6 @@ async function syncATCSessionToCloud(){
     ? await window.supabaseClient.from('atc_training_sessions').update(row).eq('id',existing.id).eq('user_id',ses.user.id)
     : await window.supabaseClient.from('atc_training_sessions').insert(row);
   if(op.error)throw op.error;
-  if(error)throw error;
   localStorage.setItem(ES_ATC_CLOUD_STATUS,JSON.stringify({lastSync:new Date().toISOString(),sessionKey:row.session_key}));
   if(status)status.textContent='CLOUD RECORD • SYNCED';
  }catch(e){
