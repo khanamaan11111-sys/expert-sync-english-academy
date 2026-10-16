@@ -3418,5 +3418,97 @@ function applyPersonalTrafficConfiguration(){
 const __oldActivate=activatePersonalATCPlan;
 activatePersonalATCPlan=function(){__oldActivate();applyPersonalTrafficConfiguration();};
 window.applyPersonalTrafficConfiguration=applyPersonalTrafficConfiguration;
+<script id="es-atc-cloud-v80">
+const ES_ATC_CLOUD_STATUS='expert_sync_atc_cloud_v80';
+let esATCCloudBusy=false;
+function atcCloudPayload(){
+ const q=window.esScenarioLive||{};
+ const r=typeof evaluateAIScenario==='function'?evaluateAIScenario():null;
+ const i=esATCInstructions?.[0]||null;
+ const p=esATCExecPlan||{};
+ const metrics={
+  scenario_score:Number(q.score)||0,
+  overall:Number(r?.overall)||0,
+  safety:Number(r?.scores?.safety)||0,
+  stability:Number(r?.scores?.stability)||0,
+  configuration:Number(r?.scores?.configuration)||0,
+  handling:Number(r?.scores?.handling)||0,
+  instruction_status:i?.status||null,
+  aircraft:{altitude:Math.round(s.alt||0),speed:Math.round(s.speed||0),heading:Math.round(s.heading||0),vertical_speed:Math.round(s.vs||0),bank:+Number(s.bank||0).toFixed(1),pitch:+Number(s.pitch||0).toFixed(1),stall:!!s.stall},
+  traffic_count:Array.isArray(esTrafficLive)?esTrafficLive.length:Number(p.trafficCount)||1
+ };
+ return {
+  session_key:String(q.startedAt||Date.now()),
+  scenario:String(q.title||q.scenario||'AI ATC Scenario'),
+  focus:String(q.atcFocus||q.focus||p.focus||'general'),
+  target:String(q.atcTarget||q.objective||p.target||'routine ATC communication'),
+  mastery_level:Number(p.mastery)||1,
+  complexity:String(q.atcComplexity||p.complexity||'basic'),
+  traffic_count:Number(p.trafficCount||metrics.traffic_count||1),
+  score:Number(q.score)||0,
+  overall:Number(r?.overall)||0,
+  passed:!!r?.pass,
+  compliance_status:i?.status||null,
+  instruction_type:typeof classifyATCInstruction==='function'?classifyATCInstruction(i):'general',
+  metrics,
+  debrief:{status:'scenario-report',generated_at:new Date().toISOString()},
+  started_at:new Date(Number(q.startedAt||Date.now())).toISOString(),
+  ended_at:new Date().toISOString()
+ };
+}
+async function syncATCSessionToCloud(){
+ if(esATCCloudBusy||!window.supabaseClient||!window.esScenarioLive)return;
+ const ses=(await window.supabaseClient.auth.getSession()).data.session;
+ if(!ses)return;
+ esATCCloudBusy=true;
+ const status=document.getElementById('atcCloudStatus');
+ if(status)status.textContent='SYNCING TRAINING RECORD…';
+ try{
+  const row=atcCloudPayload();
+  const {error}=await window.supabaseClient.from('atc_training_sessions').upsert(row,{onConflict:'user_id,session_key'});
+  if(error)throw error;
+  localStorage.setItem(ES_ATC_CLOUD_STATUS,JSON.stringify({lastSync:new Date().toISOString(),sessionKey:row.session_key}));
+  if(status)status.textContent='CLOUD RECORD • SYNCED';
+ }catch(e){
+  if(status)status.textContent='CLOUD RECORD • RETRY AVAILABLE';
+  if(typeof logEvent==='function')logEvent('ATC CLOUD SYNC ERROR: '+String(e.message||e).slice(0,120),'WARN');
+ }finally{esATCCloudBusy=false;}
+}
+async function loadATCCloudHistory(){
+ if(!window.supabaseClient)return;
+ try{
+  const ses=(await window.supabaseClient.auth.getSession()).data.session;if(!ses)return;
+  const {data,error}=await window.supabaseClient.from('atc_training_sessions').select('session_key,scenario,focus,target,mastery_level,complexity,traffic_count,score,overall,passed,compliance_status,instruction_type,metrics,created_at').order('created_at',{ascending:false}).limit(20);
+  if(error||!Array.isArray(data))return;
+  const m=readATCPerformanceMemory();
+  const cloudHistory=data.map(x=>({date:x.created_at,score:Number(x.overall)||0,type:x.instruction_type||'general',compliance:x.compliance_status||'UNKNOWN',cloud:true,scenario:x.scenario}));
+  const localKeys=new Set((m.history||[]).filter(x=>!x.cloud).map(x=>[x.date,x.score,x.type].join('|')));
+  const merged=[...(m.history||[]).filter(x=>!x.cloud),...cloudHistory].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  m.history=merged.slice(0,50);
+  m.sessions=Math.max(Number(m.sessions)||0,data.length);
+  const counts={};
+  data.forEach(x=>{const type=x.instruction_type||'general';counts[type]=(counts[type]||0)+1;});
+  m.instructionTypes=Object.fromEntries(Object.entries(counts).map(([k,v])=>[k,{count:v,total:data.filter(x=>(x.instruction_type||'general')===k).reduce((a,x)=>a+(Number(x.overall)||0),0)}]));
+  m.weaknesses={};
+  data.forEach(x=>{if(['WARN','FAIL'].includes(String(x.compliance_status||'')))m.weaknesses[x.instruction_type||'general']=(m.weaknesses[x.instruction_type||'general']||0)+1;});
+  localStorage.setItem('expert_sync_atc_performance_v74',JSON.stringify(m));
+  updateATCPerformanceMemoryUI();updatePersonalATCPlan();renderNextATCScenario();renderATCSessionPlan();
+  const status=document.getElementById('atcCloudStatus');if(status)status.textContent='CLOUD RECORD • '+data.length+' SESSIONS';
+ }catch(_){}
+}
+function ensureATCCloudStatus(){
+ if(document.getElementById('atcCloudStatus'))return;
+ const e=document.createElement('div');e.id='atcCloudStatus';e.style.cssText='position:fixed;left:14px;bottom:14px;z-index:95;padding:6px 9px;background:#07151df0;border:1px solid #294653;border-radius:5px;color:#54e6a6;font:900 8px Arial;letter-spacing:.6px;pointer-events:none';
+ e.textContent='CLOUD RECORD • READY';document.body.appendChild(e);
+}
+const __oldShowAIScenarioReportV80=showAIScenarioReport;
+showAIScenarioReport=function(){
+ __oldShowAIScenarioReportV80();
+ setTimeout(syncATCSessionToCloud,50);
+};
+ensureATCCloudStatus();
+setTimeout(loadATCCloudHistory,1200);
+window.syncATCSessionToCloud=syncATCSessionToCloud;
+window.loadATCCloudHistory=loadATCCloudHistory;
 </script></body>
 </html>
