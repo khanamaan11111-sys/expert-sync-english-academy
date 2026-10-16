@@ -3141,6 +3141,8 @@ window.generateTrainingScenario=showGeneratedScenario;
 let esScenarioLive=null;
 function loadAIScenario(){
  const q=window.esGeneratedScenario||generateTrainingScenario();
+ const personalPlan=typeof createATCSessionPlan==='function'?createATCSessionPlan():null;
+ if(personalPlan){activatePersonalATCPlan();q.atcFocus=personalPlan.focus;q.atcTarget=personalPlan.target;q.atcTrafficCount=personalPlan.trafficCount;q.atcComplexity=personalPlan.complexity;}
  esScenarioLive={...q,startedAt:Date.now(),score:100,completed:false};
  window.esScenarioLive=esScenarioLive;
  if(Number.isFinite(q.windKt))s.windKt=q.windKt;
@@ -3148,10 +3150,10 @@ function loadAIScenario(){
  if(q.visibility==='moderate')window.esWeatherMode='haze'; else if(q.visibility==='good')window.esWeatherMode='clear';
  const t=document.getElementById('execObjective'),st=document.getElementById('execStatus'),b=document.getElementById('execLoadBtn');
  t.textContent=q.title+' — '+q.objective;
- st.textContent='LIVE • '+q.windDir+'° / '+q.windKt+' KT • '+q.visibility.toUpperCase()+' VISIBILITY';
+ st.textContent='LIVE • '+q.windDir+'° / '+q.windKt+' KT • '+q.visibility.toUpperCase()+' VISIBILITY'+(q.atcTarget?' • ATC FOCUS: '+q.atcTarget.toUpperCase():'');
  b.textContent='SCENARIO ACTIVE';
  if(typeof logEvent==='function')logEvent('AI SCENARIO LOADED: '+q.title,'INFO');
- if(typeof toast==='function')toast('AI scenario active: '+q.title);
+ if(typeof toast==='function')toast('AI scenario active: '+q.title+(q.atcTarget?' • '+q.atcTarget:''));
 }
 function updateAIScenarioExecution(){
  if(!esScenarioLive)return;
@@ -3401,5 +3403,20 @@ function activatePersonalATCPlan(){
 }
 function deactivatePersonalATCPlan(){if(esATCExecPlan)esATCExecPlan.active=false;localStorage.removeItem('expert_sync_atc_active_plan_v78');}
 window.activatePersonalATCPlan=activatePersonalATCPlan;
+</script><script id="es-atc-exec-v79">
+function applyPersonalTrafficConfiguration(){
+ const p=esATCExecPlan||(()=>{try{return JSON.parse(localStorage.getItem('expert_sync_atc_active_plan_v78')||'null')}catch(_){return null}})();
+ if(!p)return;
+ let q=readTrafficScenario();
+ if(!q||!Array.isArray(q.traffic))return;
+ const count=Math.max(1,Math.min(q.traffic.length,p.trafficCount||1));
+ q.traffic=q.traffic.slice(0,count);q.difficulty=p.mastery;q.personalFocus=p.focus;q.complexity=p.complexity;
+ localStorage.setItem('expert_sync_atc_traffic_v69',JSON.stringify(q));
+ esTrafficLive=null;
+ if(typeof updateDynamicTraffic==='function')updateDynamicTraffic();
+}
+const __oldActivate=activatePersonalATCPlan;
+activatePersonalATCPlan=function(){__oldActivate();applyPersonalTrafficConfiguration();};
+window.applyPersonalTrafficConfiguration=applyPersonalTrafficConfiguration;
 </script></body>
 </html>
