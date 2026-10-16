@@ -757,6 +757,8 @@ body.es-3d #atcLoop{display:block}.atcLoopH{color:#54e6a6;font:900 8px Arial;let
 </style><style id="es-atc-progress-v92">
 .esIVTimeline{margin-top:7px;padding:8px;background:#07141b;border:1px solid #24424d;border-radius:7px}.esIVTimeline h4{margin:0;color:#54e6a6;font:900 7px Arial;letter-spacing:.6px}.esIVTimelineList{margin-top:6px}.esIVTItem{display:grid;grid-template-columns:70px 1fr 45px;gap:6px;padding:6px 0;border-bottom:1px solid #1d353e;color:#cfe1e6;font:700 7px Arial}.esIVTItem small{display:block;color:#718a94;font-size:6px;margin-top:2px}.esIVTGood{color:#54e6a6}.esIVTBad{color:#ff7b7f}.esIVTWarn{color:#ffd45a}.esIVTrend{margin-top:6px;color:#9bb5be;font:700 7px/1.5 Arial}.esIVTrend b{color:#54e6a6}
 @media(max-width:700px){.esIVTItem{grid-template-columns:58px 1fr 42px}}
+</style><style id="es-atc-decision-v93">
+.esIVDecision{margin-top:7px;padding:9px;background:#07141b;border:1px solid #54e6a6;border-radius:7px}.esIVDecision h4{margin:0;color:#54e6a6;font:900 7px Arial;letter-spacing:.7px}.esDecisionMain{margin-top:6px;color:#fff;font:900 10px Arial}.esDecisionMain b{color:#ffd45a}.esDecisionWhy{margin-top:4px;color:#9bb5be;font:700 7px/1.5 Arial}.esDecisionActions{display:flex;gap:5px;margin-top:6px}.esDecisionActions button{flex:1;padding:6px;background:#0a202a;border:1px solid #3c6978;border-radius:6px;color:#fff;font:900 7px Arial;cursor:pointer}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
@@ -767,7 +769,7 @@ body.es-3d #atcLoop{display:block}.atcLoopH{color:#54e6a6;font:900 8px Arial;let
 <div class="esIVProfile"><div class="esIVName" id="ivName">Select a student from the instructor roster</div><div class="esIVMeta" id="ivMeta">—</div></div>
 <div class="esIVKpis"><div class="esIVKpi">SESSIONS<b id="ivSessions">0</b></div><div class="esIVKpi">AVERAGE<b id="ivAverage">0%</b></div><div class="esIVKpi">PASS RATE<b id="ivPass">0%</b></div><div class="esIVKpi">MASTERY<b id="ivMastery">1</b></div><div class="esIVKpi">CERT<b id="ivCert">NO</b></div><div class="esIVKpi">STREAK<b id="ivStreak">0</b></div></div>
 <div class="esIVGrid"><div class="esIVBox"><h4>COMPETENCY AREAS</h4><div class="esIVList" id="ivAreas">—</div></div><div class="esIVBox"><h4>RECENT TRAINING</h4><div class="esIVList" id="ivSessionsList">—</div></div></div>
-<div class="esIVPlan" id="ivPlan"><strong>INTERVENTION PLAN</strong><br>Select a student to generate targeted instructor guidance.</div><div id="atcFollowupPanel"><div class="esFUHead">INTERVENTION FOLLOW-UP</div><div class="esIVTimeline"><h4>INTERVENTION TIMELINE</h4><div class="esIVTimelineList" id="ivTimeline">Loading intervention history…</div><div class="esIVTrend" id="ivTrend">Progress analysis pending.</div></div><div class="esFUList" id="fuList">No follow-up actions loaded.</div><div class="esFUActions"><button id="fuRemediate">ASSIGN REMEDIATION</button><button id="fuClose">CLOSE</button></div></div><div id="atcAssignmentPanel" style="display:none"><div class="esAssignTitle">INSTRUCTOR ASSIGNMENT</div><div class="esAssignMeta" id="assignMeta">No assignment</div><div class="esAssignBox" id="assignBox">—</div><div class="esAssignActions"><button id="assignMission">ASSIGN TARGETED MISSION</button><button id="assignCancel">CLOSE</button></div></div>
+<div class="esIVPlan" id="ivPlan"><strong>INTERVENTION PLAN</strong><br>Select a student to generate targeted instructor guidance.</div><div id="atcFollowupPanel"><div class="esFUHead">INTERVENTION FOLLOW-UP</div><div class="esIVDecision"><h4>ADAPTIVE INSTRUCTOR DECISION</h4><div class="esDecisionMain" id="ivDecision">ANALYZING…</div><div class="esDecisionWhy" id="ivDecisionWhy">The engine evaluates recent assignment performance and remediation trend.</div><div class="esDecisionActions"><button id="ivApplyDecision">APPLY RECOMMENDATION</button></div></div><div class="esIVTimeline"><h4>INTERVENTION TIMELINE</h4><div class="esIVTimelineList" id="ivTimeline">Loading intervention history…</div><div class="esIVTrend" id="ivTrend">Progress analysis pending.</div></div><div class="esFUList" id="fuList">No follow-up actions loaded.</div><div class="esFUActions"><button id="fuRemediate">ASSIGN REMEDIATION</button><button id="fuClose">CLOSE</button></div></div><div id="atcAssignmentPanel" style="display:none"><div class="esAssignTitle">INSTRUCTOR ASSIGNMENT</div><div class="esAssignMeta" id="assignMeta">No assignment</div><div class="esAssignBox" id="assignBox">—</div><div class="esAssignActions"><button id="assignMission">ASSIGN TARGETED MISSION</button><button id="assignCancel">CLOSE</button></div></div>
 <div class="esIVActions"><button id="ivOpenTranscript">OPEN STUDENT TRANSCRIPT</button><button id="ivClose">CLOSE</button></div>
 </div></div><div id="atcInstructorCenter"><div class="esInstructorCard">
 <div class="esInstructorHead"><div><div class="esInstructorTitle">EXPERT SYNC • INSTRUCTOR COMMAND CENTER</div><div class="esInstructorRole">Authorized instructor/admin view • student data remains protected by Supabase RLS</div></div><div id="instructorCloudStatus" class="esInstructorRole">CHECKING ACCESS…</div></div>
@@ -4095,5 +4097,47 @@ async function loadInterventionProgress(userId){
 const __oldOpenStudentInterventionV92=openStudentIntervention;
 openStudentIntervention=async function(userId){await __oldOpenStudentInterventionV92(userId);await loadInterventionProgress(userId);};
 window.loadInterventionProgress=loadInterventionProgress;
+</script><script id="es-atc-decision-v93">
+let esIVDecisionData=null;
+function calculateATCAdaptiveDecision(rows,profile){
+ const completed=(rows||[]).filter(x=>x.result_score!=null).map(x=>Number(x.result_score)||0),recent=completed.slice(0,3),older=completed.slice(3,6);
+ const ra=recent.length?recent.reduce((a,b)=>a+b,0)/recent.length:0,oa=older.length?older.reduce((a,b)=>a+b,0)/older.length:0;
+ const passRecent=recent.length?rows.slice(0,3).filter(x=>x.result_passed).length/recent.length:0;
+ const focus=profile?.weakest_area||'general';
+ let decision='CONTINUE',complexity=profile?.mastery_level>=5?'moderate':'basic',confidence=.55,rationale='Continue the current adaptive training path.';
+ if(completed.length<3){decision='CONTINUE';confidence=.5;rationale='Insufficient completed assigned missions for a stronger intervention decision.';}
+ else if(ra<70||passRecent<.34){decision='ESCALATE TO INSTRUCTOR REVIEW';complexity='basic';confidence=.93;rationale='Recent assigned performance is below the intervention threshold. Instructor review is recommended before increasing workload.';}
+ else if(recent.length&&older.length&&ra<oa-5){decision='REPEAT REMEDIATION';complexity='basic';confidence=.88;rationale='Recent performance is declining versus the previous assignment set. Repeat targeted remediation before progression.';}
+ else if(ra>=88&&passRecent>=.67){decision='INCREASE DIFFICULTY';complexity=profile?.mastery_level>=6?'high':'moderate';confidence=.9;rationale='Recent assigned performance is consistently strong. Increase workload while maintaining the identified focus area.';}
+ else {decision='CONTINUE';confidence=.78;rationale='Performance is stable. Continue targeted training and reassess after the next assignment.';}
+ return {decision,rationale,focus,complexity,confidence};
+}
+async function generateATCAdaptiveDecision(userId){
+ if(!window.supabaseClient)return null;
+ try{
+  const [a,m]=await Promise.all([
+   window.supabaseClient.from('atc_training_assignments').select('id,focus,complexity,status,result_score,result_passed,created_at,completed_at').eq('user_id',userId).order('created_at',{ascending:false}).limit(20),
+   window.supabaseClient.from('atc_mastery_profiles').select('mastery_level,mastery_name,weakest_area,average_score,pass_rate').eq('user_id',userId).limit(1)
+  ]);
+  if(a.error)throw a.error;if(m.error)throw m.error;
+  const d=calculateATCAdaptiveDecision(a.data||[],m.data?.[0]||{});esIVDecisionData=d;
+  document.getElementById('ivDecision').innerHTML='<b>'+d.decision+'</b> • '+d.complexity.toUpperCase()+' COMPLEXITY';
+  document.getElementById('ivDecisionWhy').textContent=d.rationale+' Focus: '+d.focus+' • Confidence '+Math.round(d.confidence*100)+'%.';
+  return d;
+ }catch(_){document.getElementById('ivDecision').textContent='DECISION UNAVAILABLE';return null;}
+}
+async function applyATCAdaptiveDecision(){
+ if(!esIVSelected?.userId||!esIVDecisionData||!window.supabaseClient)return;
+ try{
+  const ses=(await window.supabaseClient.auth.getSession()).data.session;if(!ses)return;
+  const {data,error}=await window.supabaseClient.from('atc_adaptive_decisions').insert({user_id:esIVSelected.userId,created_by:ses.user.id,decision:esIVDecisionData.decision,rationale:esIVDecisionData.rationale,recommended_focus:esIVDecisionData.focus,recommended_complexity:esIVDecisionData.complexity,confidence:esIVDecisionData.confidence,status:'recommended'});
+  if(error&&String(error.message||'').includes('created_by')){const r=await window.supabaseClient.from('atc_adaptive_decisions').insert({user_id:esIVSelected.userId,decision:esIVDecisionData.decision,rationale:esIVDecisionData.rationale,recommended_focus:esIVDecisionData.focus,recommended_complexity:esIVDecisionData.complexity,confidence:esIVDecisionData.confidence,status:'recommended'});if(r.error)throw r.error;}else if(error)throw error;
+  if(typeof toast==='function')toast('Adaptive instructor recommendation saved');
+ }catch(e){if(typeof toast==='function')toast('Decision save failed');}
+}
+const __oldOpenStudentInterventionV93=openStudentIntervention;
+openStudentIntervention=async function(userId){await __oldOpenStudentInterventionV93(userId);await generateATCAdaptiveDecision(userId);};
+document.getElementById('ivApplyDecision').onclick=applyATCAdaptiveDecision;
+window.calculateATCAdaptiveDecision=calculateATCAdaptiveDecision;window.generateATCAdaptiveDecision=generateATCAdaptiveDecision;
 </script></body>
 </html>
