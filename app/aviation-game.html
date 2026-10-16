@@ -696,12 +696,30 @@ body.es-3d #atcLoop{display:block}.atcLoopH{color:#54e6a6;font:900 8px Arial;let
 .atcDashStats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}.atcDashStat{padding:6px;text-align:center;background:#091e26;border:1px solid #24424d;border-radius:7px;color:#9bb5be;font:700 6px Arial}.atcDashStat b{display:block;color:#fff;font-size:13px;margin-top:2px}
 .atcDashGrid{display:grid;grid-template-columns:1.1fr .9fr;gap:7px;margin-top:7px}.atcDashBox{padding:8px;background:#091820;border:1px solid #24424d;border-radius:7px}.atcDashBox h4{margin:0;color:#cfe1e6;font:900 7px Arial;letter-spacing:.6px}.atcBars{margin-top:7px}.atcBarRow{display:grid;grid-template-columns:72px 1fr 27px;gap:5px;align-items:center;margin-top:5px;color:#9bb5be;font:700 6px Arial}.atcBarTrack{height:7px;background:#102a33;border-radius:6px;overflow:hidden}.atcBarFill{height:100%;background:#54e6a6;border-radius:6px}.atcWeak{margin-top:6px;color:#ffd45a;font:900 8px Arial}.atcMission{margin-top:7px;color:#eaf5f8;font:700 8px/1.4 Arial}.atcMission span{color:#54e6a6}.atcTrend{margin-top:7px;display:flex;align-items:flex-end;gap:3px;height:54px}.atcTrend i{display:block;flex:1;min-width:4px;background:#3c8798;border-radius:2px 2px 0 0;opacity:.9}.atcTrend small{display:block;flex:1;text-align:center;color:#718a94;font:600 5px Arial}.atcDashActions{display:flex;gap:5px;margin-top:7px}.atcDashActions button{flex:1;padding:6px;background:#0a202a;border:1px solid #3c6978;border-radius:6px;color:#fff;font:900 7px Arial;cursor:pointer}.atcDashActions button.primary{background:#176f59;border-color:#54e6a6}
 @media(max-width:700px){#atcPerformanceDashboard{padding:8px}.atcDashStats{grid-template-columns:repeat(2,1fr)}.atcDashGrid{grid-template-columns:1fr}.atcBarRow{grid-template-columns:64px 1fr 25px}}
+</style><style id="es-atc-mastery-v82">
+#atcMasteryCard{margin-top:8px;padding:10px;background:#071820;border:1px solid #294653;border-radius:9px}
+.atcMasteryTop{display:flex;justify-content:space-between;align-items:center;gap:7px}.atcMasteryLabel{color:#54e6a6;font:900 8px Arial;letter-spacing:.8px}.atcMasteryLevel{color:#fff;font:900 9px Arial}
+.atcMasteryTrack{height:8px;margin-top:7px;background:#102a33;border:1px solid #24424d;border-radius:6px;overflow:hidden}.atcMasteryTrack i{display:block;height:100%;width:0;background:#54e6a6}
+.atcMasteryMeta{margin-top:5px;color:#9bb5be;font:700 7px Arial}.atcMasteryGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:7px}.atcMasteryCell{padding:6px;text-align:center;background:#091e26;border:1px solid #24424d;border-radius:7px;color:#9bb5be;font:700 6px Arial}.atcMasteryCell b{display:block;color:#fff;font-size:10px;margin-top:2px}.atcMasteryCell.focus b{color:#ffd45a}
+.atcMasteryStatus{margin-top:7px;padding:6px;border-radius:6px;background:#091e26;color:#cfe1e6;font:700 7px/1.4 Arial}.atcMasteryStatus strong{color:#54e6a6}.atcCert{margin-top:6px;color:#ffd45a;font:900 7px Arial}
+@media(max-width:700px){#atcMasteryCard{padding:8px}.atcMasteryGrid{grid-template-columns:repeat(2,1fr)}}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
 <div id="studentIdentity">STUDENT: <span id="studentIdentityName">STUDENT</span></div>
 <div id="academyConnect">✓ CONNECTED TO EXPERT SYNC ACADEMY</div>
-<div id="game"><div id="aiStudentRecord"><div class="rh">EXPERT SYNC • STUDENT TRAINING RECORD</div><div class="rsub" id="recordSubtitle">Competency, achievements and training history</div><div class="recordStats" id="recordStats"></div><div class="achievementGrid" id="achievementGrid"></div><div class="recordHistory" id="recordHistory"></div><div id="atcPerformanceDashboard">
+<div id="game"><div id="aiStudentRecord"><div class="rh">EXPERT SYNC • STUDENT TRAINING RECORD</div><div class="rsub" id="recordSubtitle">Competency, achievements and training history</div><div class="recordStats" id="recordStats"></div><div class="achievementGrid" id="achievementGrid"></div><div class="recordHistory" id="recordHistory"></div><div id="atcMasteryCard">
+ <div class="atcMasteryTop"><div class="atcMasteryLabel">ATC MASTERY ENGINE</div><div class="atcMasteryLevel" id="atcMasteryLevel">LEVEL 1 • FOUNDATION</div></div>
+ <div class="atcMasteryTrack"><i id="atcMasteryBar"></i></div>
+ <div class="atcMasteryMeta" id="atcMasteryMeta">Building your ATC competency baseline.</div>
+ <div class="atcMasteryGrid">
+  <div class="atcMasteryCell">SESSIONS<b id="atcMasterySessions">0</b></div>
+  <div class="atcMasteryCell">PASS RATE<b id="atcMasteryPass">0%</b></div>
+  <div class="atcMasteryCell focus">WEAK AREA<b id="atcMasteryWeak">GENERAL</b></div>
+ </div>
+ <div class="atcMasteryStatus" id="atcMasteryStatus">Complete training sessions to unlock adaptive ATC complexity.</div>
+ <div class="atcCert" id="atcMasteryCert"></div>
+</div><div id="atcPerformanceDashboard">
  <div class="atcDashHead"><div class="atcDashTitle">ATC PERFORMANCE • CLOUD ANALYTICS</div><div class="atcDashCloud" id="atcDashCloud">LOADING…</div></div>
  <div class="atcDashStats">
   <div class="atcDashStat">SESSIONS<b id="atcDashSessions">0</b></div>
@@ -3593,5 +3611,76 @@ document.getElementById('atcDashStart').onclick=()=>{
 };
 setTimeout(loadATCPerformanceDashboard,1500);
 window.loadATCPerformanceDashboard=loadATCPerformanceDashboard;
+</script><script id="es-atc-mastery-v82">
+const ES_ATC_MASTERY_V82='expert_sync_atc_mastery_v82';
+const ES_ATC_LEVELS=['Foundation','Core Control','Flight Procedures','Approach Skills','Aviation Communication','Operational Skills','Decision Making','Advanced Handling','Scenario Mastery','Expert'];
+function calculateATCMasteryFromRows(rows){
+ const valid=(rows||[]).map(x=>({...x,overall:Number(x.overall)||0})).filter(x=>Number.isFinite(x.overall));
+ const avg=valid.length?Math.round(valid.reduce((a,x)=>a+x.overall,0)/valid.length):0;
+ const passed=valid.filter(x=>x.passed).length;
+ const area={};
+ valid.forEach(x=>{const k=x.instruction_type||'general';if(!area[k])area[k]={n:0,total:0,passes:0};area[k].n++;area[k].total+=x.overall;if(x.passed)area[k].passes++;});
+ const ranked=Object.entries(area).sort((a,b)=>(a[1].total/a[1].n)-(b[1].total/b[1].n));
+ const weak=ranked[0]?.[0]||'general';
+ // Mastery is deliberately conservative: consistent scores and successful sessions both matter.
+ let level=1;
+ if(valid.length>=2&&avg>=72)level=2;
+ if(valid.length>=4&&avg>=76&&passed/valid.length>=.5)level=3;
+ if(valid.length>=6&&avg>=80&&passed/valid.length>=.6)level=4;
+ if(valid.length>=8&&avg>=83&&passed/valid.length>=.65)level=5;
+ if(valid.length>=10&&avg>=86&&passed/valid.length>=.7)level=6;
+ if(valid.length>=12&&avg>=88&&passed/valid.length>=.75)level=7;
+ if(valid.length>=15&&avg>=90&&passed/valid.length>=.8)level=8;
+ if(valid.length>=18&&avg>=92&&passed/valid.length>=.85)level=9;
+ if(valid.length>=22&&avg>=94&&passed/valid.length>=.9)level=10;
+ const certificationReady=level>=8&&avg>=90&&passed/Math.max(1,valid.length)>=.8;
+ return {level,name:ES_ATC_LEVELS[level-1],sessions:valid.length,passed,avg,passRate:Math.round(passed/Math.max(1,valid.length)*100),weak,area,certificationReady};
+}
+function getATCMastery(){
+ try{return JSON.parse(localStorage.getItem(ES_ATC_MASTERY_V82)||'null')||{level:1,name:'Foundation'};}catch(_){return {level:1,name:'Foundation'};}
+}
+async function syncATCMasteryProfile(rows){
+ const mastery=calculateATCMasteryFromRows(rows);
+ localStorage.setItem(ES_ATC_MASTERY_V82,JSON.stringify(mastery));
+ const e=document.getElementById('atcMasteryLevel');if(e)e.textContent='LEVEL '+mastery.level+' • '+mastery.name.toUpperCase();
+ const bar=document.getElementById('atcMasteryBar');if(bar)bar.style.width=((mastery.level-1)/9*100)+'%';
+ const meta=document.getElementById('atcMasteryMeta');if(meta)meta.textContent=mastery.sessions+' sessions • '+mastery.avg+'% average • '+mastery.passRate+'% pass rate';
+ const se=document.getElementById('atcMasterySessions');if(se)se.textContent=mastery.sessions;
+ const pa=document.getElementById('atcMasteryPass');if(pa)pa.textContent=mastery.passRate+'%';
+ const we=document.getElementById('atcMasteryWeak');if(we)we.textContent=(mastery.weak||'general').replace(/\+/g,' / ').toUpperCase();
+ const st=document.getElementById('atcMasteryStatus');if(st)st.innerHTML=mastery.certificationReady?'<strong>CERTIFICATION PATH • READY</strong> — Maintain this standard through advanced scenarios.':'Next complexity: <strong>'+ (mastery.level>=6?'high workload':mastery.level>=3?'moderate workload':'basic workload')+'</strong> • Focus on '+(mastery.weak||'general')+'.';
+ const ce=document.getElementById('atcMasteryCert');if(ce)ce.textContent=mastery.certificationReady?'★ ATC PROFICIENCY CERTIFICATION ELIGIBILITY UNLOCKED':'';
+ if(window.supabaseClient){
+  try{
+   const ses=(await window.supabaseClient.auth.getSession()).data.session;
+   if(ses)await window.supabaseClient.from('atc_mastery_profiles').upsert({
+    user_id:ses.user.id,mastery_level:mastery.level,mastery_name:mastery.name,total_sessions:mastery.sessions,
+    passed_sessions:mastery.passed,average_score:mastery.avg,weakest_area:mastery.weak,
+    area_scores:Object.fromEntries(Object.entries(mastery.area).map(([k,v])=>[k,Math.round(v.total/v.n)])),
+    certification_ready:mastery.certificationReady,updated_at:new Date().toISOString()
+   },{onConflict:'user_id'});
+  }catch(_){}
+ }
+ return mastery;
+}
+async function refreshATCMastery(){
+ if(!window.supabaseClient)return getATCMastery();
+ try{
+  const ses=(await window.supabaseClient.auth.getSession()).data.session;if(!ses)return getATCMastery();
+  const {data,error}=await window.supabaseClient.from('atc_training_sessions').select('overall,passed,instruction_type,created_at').order('created_at',{ascending:false}).limit(100);
+  if(error)throw error;
+  return await syncATCMasteryProfile(data||[]);
+ }catch(_){return getATCMastery();}
+}
+setTimeout(refreshATCMastery,1700);
+const __oldBuildNextATCScenarioV82=buildNextATCScenario;
+buildNextATCScenario=function(){
+ const p=getPersonalATCPlan(),m=getATCMastery();
+ const focusMap={heading:'heading intercepts and readbacks',altitude:'altitude changes and readbacks',speed:'speed-control clearances',runway:'runway sequencing and readbacks','heading+altitude':'combined heading/altitude clearances','heading+speed':'combined heading/speed clearances','altitude+speed':'combined altitude/speed clearances','heading+altitude+speed':'multi-part clearance readbacks',general:'routine ATC communication'};
+ return {focus:p.focus,target:focusMap[p.focus]||focusMap.general,mastery:m.level,masteryName:m.name,average:p.average,sessions:p.sessions};
+};
+window.calculateATCMasteryFromRows=calculateATCMasteryFromRows;
+window.refreshATCMastery=refreshATCMastery;
+window.getATCMastery=getATCMastery;
 </script></body>
 </html>
