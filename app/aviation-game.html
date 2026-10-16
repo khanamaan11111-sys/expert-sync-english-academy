@@ -715,6 +715,15 @@ body.es-3d #atcLoop{display:block}.atcLoopH{color:#54e6a6;font:900 8px Arial;let
 .esCertCard{width:min(720px,94vw);max-height:92vh;overflow:auto;padding:14px;background:#06151c;border:1px solid #54e6a6;border-radius:12px;box-shadow:0 25px 100px #000e}
 .esCertPaper{padding:18px;text-align:center;background:#071d26;border:1px solid #376575;border-radius:9px}.esCertKicker{color:#54e6a6;font:900 8px Arial;letter-spacing:1.5px}.esCertTitle{margin-top:8px;color:#fff;font:900 22px Georgia,serif}.esCertHolder{margin-top:13px;color:#eaf5f8;font:700 10px Arial}.esCertLevel{margin-top:7px;color:#54e6a6;font:900 13px Arial;letter-spacing:1px}.esCertMeta{margin-top:12px;color:#9bb5be;font:700 7px/1.6 Arial}.esCertId{margin-top:12px;padding:7px;background:#041016;border:1px solid #24424d;border-radius:6px;color:#dff8ff;font:900 8px monospace}.esVerify{margin-top:10px;padding:9px;background:#091820;border:1px solid #24424d;border-radius:8px}.esVerify h4{margin:0;color:#54e6a6;font:900 8px Arial}.esVerifyRow{display:flex;gap:5px;margin-top:7px}.esVerifyRow input{flex:1;min-width:0;padding:7px;background:#041016;border:1px solid #376575;border-radius:6px;color:#fff;font:700 8px Arial}.esVerifyRow button{padding:7px 10px;background:#176f59;border:1px solid #54e6a6;border-radius:6px;color:#fff;font:900 7px Arial}.esVerifyResult{margin-top:7px;color:#9bb5be;font:700 7px/1.5 Arial}.esCertActions{display:flex;gap:6px;margin-top:9px}.esCertActions button{flex:1;padding:7px;background:#0a202a;border:1px solid #3c6978;border-radius:6px;color:#fff;font:900 7px Arial}
 @media(max-width:700px){.esCertPaper{padding:13px}.esCertTitle{font-size:18px}.esVerifyRow{flex-direction:column}}
+</style><style id="es-atc-cert-wallet-v85">
+@media print{
+ body>*:not(#game),#game>*:not(#atcCertificateCenter),#atcCertificateCenter .esVerify,#atcCertificateCenter .esCertActions{display:none!important}
+ #atcCertificateCenter{display:flex!important;position:static!important;background:#fff!important;padding:0!important}
+ .esCertCard{width:100%!important;max-height:none!important;box-shadow:none!important;border:0!important;background:#fff!important}
+ .esCertPaper{min-height:520px;background:#fff!important;border:3px solid #111!important;padding:55px!important}
+ .esCertKicker,.esCertTitle,.esCertHolder,.esCertLevel,.esCertMeta,.esCertId{color:#111!important}
+}
+.esCertWallet{margin-top:10px;padding:9px;background:#091820;border:1px solid #24424d;border-radius:8px}.esCertWallet h4{margin:0;color:#54e6a6;font:900 8px Arial;letter-spacing:.7px}.esCertWalletRow{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}.esCertWalletItem{padding:6px;background:#07141b;border:1px solid #1f3943;border-radius:6px;color:#9bb5be;font:700 6px Arial}.esCertWalletItem b{display:block;color:#fff;font-size:8px;margin-top:2px}.esCertWalletActions{display:flex;gap:5px;margin-top:7px}.esCertWalletActions button{flex:1;padding:6px;background:#0a202a;border:1px solid #3c6978;border-radius:6px;color:#fff;font:900 7px Arial}.esCertWalletActions .primary{background:#176f59;border-color:#54e6a6}
 </style></head>
 <body>
 <button id="academyBack" type="button">← STUDENT APP</button>
@@ -722,7 +731,7 @@ body.es-3d #atcLoop{display:block}.atcLoopH{color:#54e6a6;font:900 8px Arial;let
 <div id="academyConnect">✓ CONNECTED TO EXPERT SYNC ACADEMY</div>
 <div id="game"><div id="atcCertificateCenter"><div class="esCertCard">
  <div class="esCertPaper"><div class="esCertKicker">EXPERT SYNC ENGLISH ACADEMY</div><div class="esCertTitle">ATC PROFICIENCY CERTIFICATE</div><div class="esCertHolder" id="certHolder">Certificate holder</div><div class="esCertLevel" id="certLevel">NOT YET ISSUED</div><div class="esCertMeta" id="certMeta">Complete the required assessment standard to unlock certification.</div><div class="esCertId" id="certId">CERTIFICATE ID • —</div></div>
- <div class="esVerify"><h4>PUBLIC VERIFICATION</h4><div class="esVerifyRow"><input id="certVerifyInput" placeholder="Enter verification code" autocomplete="off"><button id="certVerifyBtn">VERIFY</button></div><div class="esVerifyResult" id="certVerifyResult">Verification checks the official certificate record.</div></div>
+ <div class="esCertWallet" id="esCertWallet"><h4>CERTIFICATION WALLET</h4><div class="esCertWalletRow"><div class="esCertWalletItem">STATUS<b id="walletStatus">NOT ISSUED</b></div><div class="esCertWalletItem">CERTIFICATE ID<b id="walletId">—</b></div><div class="esCertWalletItem">LEVEL<b id="walletLevel">—</b></div><div class="esCertWalletItem">ISSUED<b id="walletDate">—</b></div></div><div class="esCertWalletActions"><button class="primary" id="walletPrint">PRINT / SAVE PDF</button><button id="walletCopy">COPY VERIFICATION CODE</button></div></div><div class="esVerify"><h4>PUBLIC VERIFICATION</h4><div class="esVerifyRow"><input id="certVerifyInput" placeholder="Enter verification code" autocomplete="off"><button id="certVerifyBtn">VERIFY</button></div><div class="esVerifyResult" id="certVerifyResult">Verification checks the official certificate record.</div></div>
  <div class="esCertActions"><button id="certIssueBtn">ISSUE CERTIFICATE</button><button id="certCenterClose">CLOSE</button></div>
 </div></div><div id="atcAssessmentCenter">
  <div class="atcAssessmentCard">
@@ -3799,5 +3808,26 @@ document.getElementById('certIssueBtn').onclick=issueATCCertificate;
 document.getElementById('certVerifyBtn').onclick=verifyATCCertificate;
 document.getElementById('certCenterClose').onclick=()=>document.getElementById('atcCertificateCenter').style.display='none';
 window.openATCCertificate=openATCCertificate;window.issueATCCertificate=issueATCCertificate;window.verifyATCCertificate=verifyATCCertificate;
+</script><script id="es-atc-cert-wallet-v85">
+function renderATCCertWallet(){
+ const c=esATCCertificate||readATCCertificate(),ok=c?.status==='issued';
+ document.getElementById('walletStatus').textContent=ok?'ISSUED':'NOT ISSUED';
+ document.getElementById('walletId').textContent=ok?c.certificateId:'—';
+ document.getElementById('walletLevel').textContent=ok?c.competencyLevel:'—';
+ document.getElementById('walletDate').textContent=ok?new Date(c.issuedAt).toLocaleDateString():'—';
+ document.getElementById('walletPrint').disabled=!ok;document.getElementById('walletCopy').disabled=!ok;
+}
+const __oldRenderCertV85=renderATCCertificate;
+renderATCCertificate=function(){__oldRenderCertV85();renderATCCertWallet();};
+document.getElementById('walletPrint').onclick=()=>{
+ const c=esATCCertificate||readATCCertificate();if(!c||c.status!=='issued'){if(typeof toast==='function')toast('Official certificate is not issued yet');return;}
+ window.print();
+};
+document.getElementById('walletCopy').onclick=async()=>{
+ const c=esATCCertificate||readATCCertificate();if(!c?.verificationCode)return;
+ try{await navigator.clipboard.writeText(c.verificationCode);if(typeof toast==='function')toast('Verification code copied');}
+ catch(_){if(typeof toast==='function')toast('Verification code: '+c.verificationCode);}
+};
+setTimeout(renderATCCertWallet,800);
 </script></body>
 </html>
