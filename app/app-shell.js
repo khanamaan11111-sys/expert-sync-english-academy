@@ -6,6 +6,7 @@
   if(document.getElementById("esa-app-shell")) return;
   const links=[
     ["📱","Student App","index.html"],
+    ["📊","My Dashboard","vocabulary-dashboard.html"],
     ["🧭","Mobile Hub","mobile-hub.html"],
     ["🎤","Interview","interview-hub.html"],
     ["📖","Dictionary","dictionary.html"],
@@ -27,6 +28,7 @@
     const a=document.createElement("a");
     a.href=item[2]; a.addEventListener("click",function(){saveNav(item[1].toLowerCase().replace(/\\s+/g,"-"))}); a.innerHTML=item[0]+" "+item[1];
     if(path===item[2]) a.className="active";
+    if(item[2]==="vocabulary-dashboard.html") a.setAttribute("aria-label","Open your personalised learner progress dashboard");
     nav.appendChild(a);
   });
 })();
