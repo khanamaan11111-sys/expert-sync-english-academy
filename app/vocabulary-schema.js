@@ -1,4 +1,4 @@
-/* Stage 32 — canonical rich vocabulary-entry schema. Keep legacy vocabulary-bank.js compatible. */
+/* Stage 35 — editorially enriched canonical vocabulary schema. English-first, Roman Hinglish, learner-safe usage notes. */
 window.ESAVocabularyEntries=[
   {
     "id": "esa-0001",
