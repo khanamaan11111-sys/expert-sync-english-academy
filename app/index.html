@@ -2674,7 +2674,7 @@ body {
 @media(max-width:900px){.es-smart-home-grid{grid-template-columns:1fr 1fr}.es-smart-card.es-smart-focus{grid-column:1/-1}}
 @media(max-width:600px){#es-smart-home{margin:14px 0;padding:14px;border-radius:18px}.es-smart-home-head{align-items:flex-start}.es-smart-home-head h2{font-size:18px}.es-smart-dashboard-btn{flex:none}.es-smart-home-grid{grid-template-columns:1fr 1fr}.es-smart-card{padding:12px}.es-smart-card.es-smart-focus{grid-column:1/-1}.es-smart-action,.es-smart-link{width:100%}}
 @media(max-width:380px){.es-smart-home-grid{grid-template-columns:1fr}.es-smart-card.es-smart-focus{grid-column:auto}}
-</style></head>
+</style><script src="unified-learning-intelligence.js"></script></head>
 
 <body class="es-premium"> 
   <!-- ================= STUDENT ACCOUNT GATE ================= -->
@@ -19349,7 +19349,7 @@ document.addEventListener("click",function(e){if(e.target&&e.target.id==="es-cou
   function today(){return new Date().toISOString().slice(0,10)}
   function init(){
     const name=(document.getElementById("boardingStudentName")?.textContent||"STUDENT").trim();
-    const p=get(P,{}),d=get(D,null),plans=get(DS,{}),plan=plans[today()]||{};
+    const p=get(P,{}),d=get(D,null),plans=get(DS,{}),plan=plans[today()]||{},unified=window.ESAUnifiedLearning?ESAUnifiedLearning.snapshot():null,smartNext=unified?ESAUnifiedLearning.nextAction(unified):null;
     const stats=window.ESAProgression&&ESAProgression.stats?ESAProgression.stats():{known:0,accuracy:0,words:[]};
     const xp=window.ESAProgression&&ESAProgression.xp?ESAProgression.xp(stats):0;
     const lv=window.ESAProgression&&ESAProgression.level?ESAProgression.level(xp):{name:"Starter",percent:0,nextXp:0,toNext:0};
@@ -19371,7 +19371,7 @@ document.addEventListener("click",function(e){if(e.target&&e.target.id==="es-cou
     if(!d){title.textContent="Take your Diagnostic";txt.textContent="Find your starting level and let the Academy personalise your learning path.";btn.textContent="Take Diagnostic →";btn.onclick=function(){location.href="vocabulary-diagnostic.html"}}
     else if(done<5){title.textContent="Continue Today's Plan";txt.textContent=done+"/5 steps complete. Finish today's plan to keep your momentum.";btn.textContent="Continue Plan →";btn.onclick=function(){location.href="vocabulary-daily.html"}}
     else if((stats.accuracy||0)<80){title.textContent="Strengthen Your Recall";txt.textContent="Your accuracy suggests Smart Review is the highest-value next step.";btn.textContent="Open Smart Review →";btn.onclick=function(){location.href="vocabulary-review.html"}}
-    else{title.textContent="Advance Your "+path;txt.textContent="Your core progress is on track. Continue the recommended path and challenge yourself.";btn.textContent="Continue Path →";btn.onclick=function(){location.href="vocabulary-paths.html"}}
+    else{title.textContent=smartNext?smartNext.title:"Advance Your "+path;txt.textContent=smartNext?smartNext.text:"Your core progress is on track. Continue the recommended path and challenge yourself.";btn.textContent="Continue →";btn.onclick=function(){location.href=smartNext?smartNext.href:"vocabulary-paths.html"}}
   }
   window.addEventListener("load",function(){setTimeout(init,80)});
 })();
