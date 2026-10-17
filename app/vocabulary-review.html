@@ -1,22 +1,85 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#031b3f"><title>Expert Sync Smart Review</title><style>*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f8ff;color:#172033}.hero{background:linear-gradient(135deg,#031b3f,#063b91,#0b63ce);color:#fff;padding:28px 18px;border-radius:0 0 26px 26px;text-align:center}.eyebrow{color:#ffd978;font-size:11px;font-weight:800;letter-spacing:2px}.hero h1{margin:8px 0;font-size:27px}.hero p{max-width:680px;margin:auto;color:#dce9f7;font-size:13px;line-height:1.55}.wrap{max-width:780px;margin:auto;padding:15px}.card{background:#fff;border:1px solid #dbe5f2;border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 5px 16px rgba(3,27,63,.06)}.word{font-size:34px;font-weight:900;color:#063b91}.meta{font-size:11px;color:#68768b;margin-top:5px}.meaning{font-size:14px;line-height:1.6;margin-top:15px}.label{font-size:9px;color:#b88600;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-top:14px}.btn{border:0;border-radius:11px;padding:11px 14px;font-weight:800;cursor:pointer;background:#063b91;color:#fff}.gold{background:#d4af37;color:#172033}.green{background:#168a45}.light{background:#edf4fd;color:#063b91;border:1px solid #cbdced}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.hidden{display:none}.score{font-size:24px;font-weight:900;color:#063b91}.bar{height:10px;background:#e4eaf3;border-radius:99px;overflow:hidden;margin-top:9px}.fill{height:100%;background:linear-gradient(90deg,#063b91,#d4af37)}.choice{font-size:15px;line-height:1.5;padding:13px;border:1px solid #dbe5f2;border-radius:12px;background:#f8fbff;margin:8px 0;cursor:pointer}.choice.correct{border-color:#168a45;background:#eef8f1}.choice.wrong{border-color:#c62828;background:#fff1f1}.notice{padding:11px;border-radius:11px;background:#fff8df;border:1px solid #eadca7;font-size:12px;line-height:1.5}@media(max-width:600px){.row .btn{flex:1;min-width:130px}}</style></head><body>
-<header class="hero"><div class="eyebrow">STAGE 20 • EXPERT SYNC ENGLISH ACADEMY</div><h1>🧠 Smart Vocabulary Review</h1><p>A lightweight spaced-review engine that brings back words you marked for practice and strengthens them through quick recall.</p></header>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#031b3f">
+<title>Expert Sync Adaptive Review</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f8ff;color:#172033}.hero{background:linear-gradient(135deg,#031b3f,#063b91,#0b63ce);color:#fff;padding:28px 18px;border-radius:0 0 26px 26px;text-align:center}.eyebrow{color:#ffd978;font-size:11px;font-weight:900;letter-spacing:2px}.hero h1{margin:8px 0}.hero p{max-width:700px;margin:auto;color:#dce9f7;font-size:13px;line-height:1.55}.wrap{max-width:820px;margin:auto;padding:15px}.card{background:#fff;border:1px solid #dbe5f2;border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 5px 16px rgba(3,27,63,.06)}.label{font-size:9px;color:#b88600;font-weight:900;letter-spacing:1px;text-transform:uppercase}.word{font-size:36px;font-weight:900;color:#063b91;margin-top:6px}.meta{font-size:11px;color:#68768b;margin-top:5px}.score{font-size:24px;font-weight:900;color:#063b91}.bar{height:10px;background:#e4eaf3;border-radius:99px;overflow:hidden;margin-top:9px}.fill{height:100%;background:linear-gradient(90deg,#063b91,#d4af37);width:0}.choice{font-size:14px;line-height:1.5;padding:13px;border:1px solid #dbe5f2;border-radius:12px;background:#f8fbff;margin:8px 0;cursor:pointer}.choice.correct{border-color:#168a45;background:#eef8f1}.choice.wrong{border-color:#c62828;background:#fff1f1}.notice{padding:12px;border-radius:12px;background:#fff8df;border:1px solid #eadca7;font-size:12px;line-height:1.5}.btn{border:0;border-radius:11px;padding:11px 14px;font-weight:800;cursor:pointer;background:#063b91;color:#fff}.gold{background:#d4af37;color:#172033}.light{background:#edf4fd;color:#063b91;border:1px solid #cbdced}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#061d3f;color:#fff;border-radius:12px;padding:11px;text-align:center}.stat strong{display:block;color:#ffd54a;font-size:19px}.stat span{font-size:9px;color:#dceaff}@media(max-width:600px){.statgrid{grid-template-columns:1fr 1fr}.word{font-size:31px}.row .btn{flex:1;min-width:135px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="eyebrow">STAGE 36 • EXPERT SYNC ENGLISH ACADEMY</div><h1>🧠 Adaptive Smart Review</h1><p>Your review queue now uses the full Dictionary Pro vocabulary bank, learning history, accuracy and review intervals to choose what needs attention next.</p></header>
 <main class="wrap">
-<div class="card"><div class="label">Today's review</div><div class="score"><span id="done">0</span> / <span id="total">0</span></div><div class="bar"><div class="fill" id="fill" style="width:0%"></div></div><div class="meta" id="summary">Loading your review set…</div></div>
+<section class="card"><div class="statgrid"><div class="stat"><strong id="due">0</strong><span>Due now</span></div><div class="stat"><strong id="practice">0</strong><span>Need practice</span></div><div class="stat"><strong id="mastered">0</strong><span>Known</span></div><div class="stat"><strong id="accuracy">0%</strong><span>Accuracy</span></div></div></section>
+<section class="card"><div class="label">Today's adaptive session</div><div class="score"><span id="done">0</span> / <span id="total">0</span></div><div class="bar"><div class="fill" id="fill"></div></div><div class="meta" id="summary">Preparing your personalised review…</div></section>
 <section id="review"></section>
-<div class="card"><div class="row"><button class="btn light" onclick="location.href='vocabulary-trainer.html'">📚 Trainer</button><button class="btn light" onclick="location.href='vocabulary-spaced-review.html'">🗓️ Review Planner</button><button class="btn light" onclick="location.href='vocabulary-progress.html'">📊 My Progress</button><button class="btn gold" onclick="location.href='vocabulary-mastery.html'">🏆 Mastery</button><button class="btn light" onclick="location.href='vocabulary-sync.html'">☁ Sync & Backup</button><button class="btn gold" onclick="resetToday()">Reset Today</button></div></div>
+<section class="card"><div class="row"><button class="btn light" onclick="location.href='vocabulary-trainer.html'">📚 Trainer</button><button class="btn light" onclick="location.href='vocabulary-spaced-review.html'">🗓️ Planner</button><button class="btn light" onclick="location.href='vocabulary-progress.html'">📊 Progress</button><button class="btn gold" onclick="location.href='vocabulary-mastery.html'">🏆 Mastery</button><button class="btn light" onclick="location.href='dictionary-pro.html'">📖 Dictionary Pro</button><button class="btn light" onclick="resetToday()">↻ Reset Today</button></div></section>
 </main>
+<script src="vocabulary-schema.js"></script>
 <script>
-const KEY="esaVocabularyProgressV1",DAY="esaVocabularyReviewV1";
-const words={assist:["Help someone to do something.","Kisi ki help karna."],confirm:["Check and say that something is correct.","Kisi cheez ko check karke sure karna."],complaint:["A customer statement about a problem.","Customer ki problem ya dissatisfaction ki statement."],courteous:["Polite and respectful.","Respectful aur polite."],efficient:["Working well without unnecessary waste.","Kam time aur resources mein achhe se kaam karna."],escalate:["Send a serious issue to someone with more authority.","Serious problem ko higher level par bhejna."],fluent:["Able to communicate smoothly.","Language ko smoothly bol pana."],genuine:["Real and sincere.","Asli aur sincere."],handle:["Deal with something successfully.","Kisi situation ya person ko manage karna."],maintain:["Keep something working or continuing well.","Kisi cheez ko achhi condition ya level par rakhna."],negotiate:["Discuss to find an agreement.","Baat-cheet karke agreement tak pahunchna."],priority:["Something that must be dealt with first.","Jo kaam sabse important ho aur pehle karna ho."],punctual:["Arriving or happening at the expected time.","Time par hona."],respond:["Reply or react to something.","Kisi baat ka reply ya reaction dena."],responsible:["Reliable and trusted with a duty.","Kisi duty ki responsibility lena aur reliable rehna."],schedule:["A planned timetable.","Planned timetable ya time plan."],solution:["A way to solve a problem.","Problem ka practical answer."],sufficient:["Enough for what is needed.","Jitna required ho, utna enough."],temporary:["Not permanent.","Sirf limited time ke liye."],verify:["Check carefully.","Carefully check karke sure karna."],attitude:["Your way of thinking or behaving toward something.","Kisi situation ya person ke towards aapka mindset ya behaviour."],cooperate:["Work together.","Milkar kaam karna."],courtesy:["Polite and respectful behaviour.","Respect dikhane wala polite behaviour."],departure:["The act or time of leaving.","Kisi jagah se nikalne ka act ya time."],destination:["The place you are going to.","Jahan aap travel karke jaana chahte hain."],emergency:["A serious situation needing quick action.","Achanak serious situation jismein turant action zaroori ho."],reliable:["Someone or something you can trust.","Jis par bharosa kiya ja sake."],professional:["Skilled and suitable for the workplace.","Workplace ke liye skilled aur proper behaviour wala."],confident:["Feeling sure of yourself.","Apni ability par bharosa hona."],resolve:["Solve a problem.","Problem ko solve karna."],feedback:["Information about what went well and what to improve.","Kya achha hua aur kya improve karna hai, uski comments."]};
-let queue=[],index=0,done=0,todayKey=new Date().toISOString().slice(0,10);
-function get(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return {}}}
-function state(){try{return JSON.parse(localStorage.getItem(DAY)||"{}")}catch(e){return {}}}
-function save(s){localStorage.setItem(DAY,JSON.stringify(s))}
-function build(){const p=get(),s=state();queue=Object.keys(p).filter(w=>p[w].status==="practice"&&words[w]&&(!p[w].nextReview||p[w].nextReview<=todayKey));queue.sort((a,b)=>(p[a].updatedAt||"").localeCompare(p[b].updatedAt||""));if(!s[todayKey])s[todayKey]={done:[],startedAt:new Date().toISOString()};queue=queue.filter(w=>!s[todayKey].done.includes(w));done=s[todayKey].done.length;index=0;render()}
-function render(){document.getElementById("done").textContent=done;document.getElementById("total").textContent=done+queue.length;const pct=(done+queue.length)?Math.round(done/(done+queue.length)*100):100;document.getElementById("fill").style.width=pct+"%";document.getElementById("summary").textContent=queue.length?queue.length+" word(s) are ready for review.":"No words are due. Mark words as “Need Practice” in Trainer to build your review queue.";if(!queue.length){document.getElementById("review").innerHTML='<div class="card"><div class="notice">🎉 Your review queue is clear for today. Keep practising consistently.</div></div>';return}const w=queue[index];const def=words[w];const choices=makeChoices(w);document.getElementById("review").innerHTML='<div class="card"><div class="label">Choose the best meaning</div><div class="word">'+esc(w)+'</div><div class="meta">Recall practice • '+(index+1)+' of '+queue.length+'</div>'+choices.map((c,i)=>'<div class="choice" onclick="answer('+i+')" id="c'+i+'">'+esc(c)+'</div>').join("")+'<div id="result" class="hidden"></div></div>'}
-function makeChoices(w){const correct=words[w][0],pool=Object.keys(words).filter(x=>x!==w).map(x=>words[x][0]);pool.sort(()=>Math.random()-.5);return [correct,pool[0],pool[1],pool[2]].sort(()=>Math.random()-.5)}
-function answer(i){const w=queue[index],correct=words[w][0],buttons=[...document.querySelectorAll(".choice")],picked=buttons[i].textContent;buttons.forEach(b=>b.onclick=null);const ok=picked===correct;if(ok)buttons[i].classList.add("correct");else{buttons[i].classList.add("wrong");buttons.find(b=>b.textContent===correct)?.classList.add("correct")}const p=get(),s=state();s[todayKey]=s[todayKey]||{done:[]};s[todayKey].done.push(w);save(s);if(p[w]){p[w].reviewCount=(p[w].reviewCount||0)+1;p[w].attempts=(p[w].attempts||0)+1;p[w].correct=(p[w].correct||0)+(ok?1:0);p[w].lastReviewed=new Date().toISOString();p[w].status=ok?"known":"practice";const days=ok?Math.min(14,Math.max(1,(p[w].intervalDays||1)*2)):1;p[w].intervalDays=days;const d=new Date();d.setDate(d.getDate()+days);p[w].nextReview=d.toISOString().slice(0,10);localStorage.setItem(KEY,JSON.stringify(p))}document.getElementById("result").className="notice";document.getElementById("result").style.marginTop="12px";document.getElementById("result").innerHTML=ok?"✅ Correct. Great recall!":"❌ Not quite. Correct meaning: <strong>"+esc(correct)+"</strong>";done++;setTimeout(()=>{queue.splice(index,1);render()},900)}
-function resetToday(){const s=state();delete s[todayKey];save(s);build()}
-function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+const KEY="esaVocabularyProgressV1",DAY="esaVocabularyAdaptiveReviewV1";
+const entries=window.ESAVocabularyEntries||[];
+let queue=[],index=0,done=0,today=new Date().toISOString().slice(0,10),answered=false;
+
+function get(k){try{return JSON.parse(localStorage.getItem(k)||"{}")}catch(e){return {}}}
+function put(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function normalise(p){return p&&typeof p==="object"?p:{}}
+function due(e,p){
+  const s=normalise(p[e.w]),status=s.status||"";
+  if(status==="practice") return !s.nextReview||s.nextReview<=today;
+  if(status==="known") return !s.nextReview||s.nextReview<=today;
+  return false;
+}
+function priority(e,p){
+  const s=normalise(p[e.w]),attempts=s.attempts||s.reviewCount||0,correct=s.correct||0;
+  const acc=attempts?correct/attempts:0;
+  const overdue=s.nextReview&&s.nextReview<today?3:0;
+  const practice=s.status==="practice"?4:0;
+  const weak=attempts?Math.round((1-acc)*5):0;
+  return practice+overdue+weak+(attempts===0?1:0);
+}
+function build(){
+  const p=get(KEY),d=get(DAY);d[today]=d[today]||{done:[],startedAt:new Date().toISOString()};
+  const completed=new Set(d[today].done||[]);
+  queue=entries.filter(e=>due(e,p)&&!completed.has(e.w)).sort((a,b)=>priority(b,p)-priority(a,p));
+  done=(d[today].done||[]).length;index=0;answered=false;updateStats(p);render();
+}
+function updateStats(p){
+  const vals=entries.map(e=>normalise(p[e.w]));const practice=vals.filter(x=>x.status==="practice").length,known=vals.filter(x=>x.status==="known").length;
+  const attempts=vals.reduce((n,x)=>n+(x.attempts||0),0),correct=vals.reduce((n,x)=>n+(x.correct||0),0);
+  document.getElementById("due").textContent=entries.filter(e=>due(e,p)).length;
+  document.getElementById("practice").textContent=practice;document.getElementById("mastered").textContent=known;
+  document.getElementById("accuracy").textContent=(attempts?Math.round(correct/attempts*100):0)+"%";
+}
+function render(){
+  document.getElementById("done").textContent=done;document.getElementById("total").textContent=done+queue.length;
+  const pct=done+queue.length?Math.round(done/(done+queue.length)*100):100;document.getElementById("fill").style.width=pct+"%";
+  document.getElementById("summary").textContent=queue.length?queue.length+" personalised word(s) are ready. Weak and overdue words are prioritised.":"Your adaptive queue is clear. Mark more words as “Need Practice” or wait for the next review date.";
+  const out=document.getElementById("review");
+  if(!queue.length){out.innerHTML='<div class="card"><div class="notice">🎉 Excellent. There are no words due right now. Your next session will be generated from your learning history.</div></div>';return}
+  const e=queue[index],choices=makeChoices(e);
+  out.innerHTML='<article class="card"><div class="label">Adaptive recall • '+(index+1)+' of '+queue.length+'</div><div class="word">'+esc(e.w)+'</div><div class="meta">'+esc(e.level||"")+' • '+esc(e.category||"")+' • Choose the best meaning</div><div style="margin-top:12px">'+choices.map((c,i)=>'<div class="choice" id="c'+i+'" onclick="answer('+i+')">'+esc(c.text)+'</div>').join("")+'</div><div id="result"></div></article>';
+}
+function makeChoices(e){
+  const correct={text:e.meaning,ok:true},pool=entries.filter(x=>x.w!==e.w).map(x=>({text:x.meaning,ok:false})).sort(()=>Math.random()-.5).slice(0,3);
+  return [correct,...pool].sort(()=>Math.random()-.5);
+}
+function answer(i){
+  if(answered)return;answered=true;
+  const e=queue[index],buttons=[...document.querySelectorAll(".choice")],picked=buttons[i].textContent;
+  const ok=picked===e.meaning;buttons[i].classList.add(ok?"correct":"wrong");if(!ok)buttons.find(b=>b.textContent===e.meaning)?.classList.add("correct");
+  const p=get(KEY);const s=normalise(p[e.w]);const attempts=(s.attempts||0)+1,correct=(s.correct||0)+(ok?1:0);
+  s.attempts=attempts;s.correct=correct;s.reviewCount=(s.reviewCount||0)+1;s.lastReviewed=new Date().toISOString();s.updatedAt=s.lastReviewed;
+  if(ok){s.status="known";s.intervalDays=Math.min(30,Math.max(1,(s.intervalDays||1)*2));}
+  else{s.status="practice";s.intervalDays=1;}
+  const next=new Date();next.setDate(next.getDate()+s.intervalDays);s.nextReview=next.toISOString().slice(0,10);p[e.w]=s;put(KEY,p);
+  const d=get(DAY);d[today]=d[today]||{done:[]};d[today].done.push(e.w);put(DAY,d);
+  document.getElementById("result").className="notice";document.getElementById("result").style.marginTop="12px";
+  document.getElementById("result").innerHTML=ok?"✅ Correct. Review interval increased to "+s.intervalDays+" day(s).":"❌ Keep practising. This word will return sooner.";
+  done++;setTimeout(()=>{queue.splice(index,1);answered=false;render();updateStats(get(KEY))},850);
+}
+function resetToday(){const d=get(DAY);delete d[today];put(DAY,d);build()}
+function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 build();
-</script></body></html>
+</script>
+</body></html>
