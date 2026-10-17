@@ -4775,5 +4775,26 @@ async function startStudentATCAssignmentV114(){
 document.getElementById('aeStart').onclick=startStudentATCAssignmentV114;
 setTimeout(loadStudentATCAssignmentV114,5100);
 window.loadStudentATCAssignmentV114=loadStudentATCAssignmentV114;
+</script><script id="es-atc-assignment-autograde-v115">
+async function finalizeStudentATCAssignmentV115(result){
+ const a=window.esStudentAssignment;if(!a||!window.supabaseClient||!result)return null;
+ try{
+  const passed=!!result.pass,score=Number(result.overall)||0,status=passed?'completed':'assigned';
+  const {error}=await window.supabaseClient.from('atc_training_assignments').update({status,result_score:score,result_passed:passed,completed_at:passed?new Date().toISOString():null,updated_at:new Date().toISOString()}).eq('id',a.id);
+  if(error)throw error;
+  a.status=status;a.result_score=score;a.result_passed=passed;
+  window.esStudentAssignment=a;
+  if(typeof loadStudentATCAssignmentV114==='function')loadStudentATCAssignmentV114();
+  if(typeof toast==='function')toast(passed?'Assignment completed • '+score+'%':'Assignment needs practice • '+score+'%');
+  return {status,score,passed};
+ }catch(_){if(typeof toast==='function')toast('Assignment result could not be saved');return null;}
+}
+const __oldShowAIScenarioReportV115=showAIScenarioReport;
+showAIScenarioReport=function(){
+ const r=evaluateAIScenario();const out=__oldShowAIScenarioReportV115();
+ if(r&&window.esStudentAssignment)setTimeout(()=>finalizeStudentATCAssignmentV115(r),220);
+ return out;
+};
+window.finalizeStudentATCAssignmentV115=finalizeStudentATCAssignmentV115;
 </script></body>
 </html>
