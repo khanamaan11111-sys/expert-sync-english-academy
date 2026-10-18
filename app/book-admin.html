@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#031b3f"><title>Expert Sync Book Admin</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script>
+<style>*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f8ff;color:#172033}.hero{background:linear-gradient(135deg,#031b3f,#063b91,#0b63ce);color:#fff;padding:30px 18px;border-radius:0 0 28px 28px}.wrap{max-width:900px;margin:auto;padding:16px}.card{background:#fff;border:1px solid #dbe5f2;border-radius:20px;padding:18px;margin:12px 0;box-shadow:0 5px 16px rgba(3,27,63,.07)}h1,h2{margin-top:0}.title{color:#063b91}.field{margin:12px 0}.field label{display:block;font-size:10px;font-weight:900;color:#526078;margin-bottom:5px}.field input,.field textarea{width:100%;padding:11px;border:1px solid #cbd7e7;border-radius:10px;font:inherit}.field textarea{min-height:100px;resize:vertical}.row{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:12px;padding:11px 15px;font-weight:800;cursor:pointer;background:#063b91;color:#fff}.gold{background:#d4af37;color:#172033}.light{background:#edf4fd;color:#063b91;border:1px solid #cbdced}.notice{padding:13px;border-radius:12px;background:#fff8df;border:1px solid #eadca7;font-size:12px;line-height:1.55}.success{background:#edf9f1;border-color:#bfe4cc}.danger{background:#fff0f0;border-color:#efc3c3}.preview{width:100%;height:65vh;border:1px solid #dbe5f2;border-radius:14px}.book-row{padding:12px;border:1px solid #dbe5f2;border-radius:12px;margin:8px 0;background:#f9fbff}.hidden{display:none}</style></head>
+<body><header class="hero"><div class="wrap"><div style="font-size:10px;font-weight:900;letter-spacing:2px;color:#ffd978">EXPERT SYNC • ADMIN</div><h1>📚 Book Upload & Publishing</h1><p style="color:#dce9f7;line-height:1.5;font-size:13px">Upload the authorised PDF directly from this app. The PDF is stored in a private Supabase bucket; customers can only obtain a signed access link after a paid order is verified.</p></div></header>
+<main class="wrap"><section id="gate" class="card">Checking administrator access…</section><section id="panel" class="card hidden">
+<h2 class="title">Upload New PDF</h2><div class="notice">Use this page whenever you have a new Expert Sync book. The PDF is not placed in the public GitHub repository. Upload creates a new versioned Storage object.</div>
+<div class="field"><label>BOOK TITLE *</label><input id="title" placeholder="Expert Sync English Academy — Book Title"></div>
+<div class="field"><label>DESCRIPTION</label><textarea id="description" placeholder="Short description for customers"></textarea></div>
+<div class="field"><label>PRICE</label><input value="₹400" disabled></div>
+<div class="field"><label>PAGE COUNT (OPTIONAL)</label><input id="pages" type="number" min="1" placeholder="e.g. 285"></div>
+<div class="field"><label>PDF FILE *</label><input id="file" type="file" accept="application/pdf,.pdf"></div>
+<div id="fileInfo" class="notice hidden"></div>
+<div class="row"><button class="btn gold" id="upload">⬆️ Upload & Publish Book</button><button class="btn light" onclick="location.href='book-store.html'">Open Book Store</button><button class="btn light" onclick="location.href='index.html'">← Student App</button></div>
+<div id="message" style="margin-top:10px"></div>
+</section>
+<section id="current" class="card hidden"><h2 class="title">Current Published Book</h2><div id="currentList"></div></section>
+<section id="previewCard" class="card hidden"><h2 class="title">Admin Preview</h2><div id="previewNote" class="notice"></div><iframe id="preview" class="preview" title="Admin PDF preview"></iframe></section>
+</main>
+<script>
+const sb=window.supabaseClient,cfg=window.ESASupabaseConfig;
+function esc(x){return String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+async function user(){return (await sb.auth.getUser()).data?.user||null}
+async function admin(){const u=await user();return !!u&&u.app_metadata?.role==="admin"}
+function msg(html,cls=""){const e=document.getElementById("message");e.className="notice "+cls;e.innerHTML=html}
+async function current(){
+ const r=await sb.from("digital_books").select("*").order("created_at",{ascending:false}).limit(10);if(r.error)throw r.error;
+ document.getElementById("current").classList.remove("hidden");
+ document.getElementById("currentList").innerHTML=(r.data||[]).map(b=>'<div class="book-row"><b>'+esc(b.title)+'</b><div style="font-size:11px;color:#68768b;margin-top:4px">'+(b.is_published?"🟢 Published":"⚪ Unpublished")+" • ₹"+b.price_inr+" • "+(b.page_count?b.page_count+" pages":"page count not set")+'</div></div>').join("")||'<div class="notice">No books uploaded yet.</div>';
+}
+document.getElementById("file").addEventListener("change",e=>{const f=e.target.files?.[0];const box=document.getElementById("fileInfo");if(!f){box.classList.add("hidden");return}box.classList.remove("hidden");box.innerHTML='<b>'+esc(f.name)+'</b><br><span style="font-size:11px">'+(f.size/1024/1024).toFixed(2)+' MB • PDF</span>';});
+document.getElementById("upload").onclick=async()=>{
+ try{
+  if(!(await admin())){msg("Administrator access is required.","danger");return}
+  const f=document.getElementById("file").files?.[0];const title=document.getElementById("title").value.trim();if(!f||!title){msg("Book title and PDF file are required.","danger");return}
+  if(f.type!=="application/pdf"&&!/\.pdf$/i.test(f.name)){msg("Please select a PDF file.","danger");return}
+  if(f.size>100*1024*1024){msg("This upload is limited to 100 MB in the app. For larger books, use a resumable upload flow.","danger");return}
+  const btn=document.getElementById("upload");btn.disabled=true;btn.textContent="Uploading…";
+  const old=await sb.from("digital_books").select("id").eq("is_published",true);if(old.data?.length)await sb.from("digital_books").update({is_published:false,updated_at:new Date().toISOString()}).in("id",old.data.map(x=>x.id));
+  const safe=f.name.toLowerCase().replace(/[^a-z0-9._-]+/g,"-").replace(/-+/g,"-").replace(/^-|-$/g,"")||"book.pdf";
+  const path="books/"+Date.now()+"-"+safe;
+  const up=await sb.storage.from(cfg.bucket).upload(path,f,{contentType:"application/pdf",cacheControl:"3600",upsert:false});
+  if(up.error)throw up.error;
+  const ins=await sb.from("digital_books").insert({title,description:document.getElementById("description").value.trim(),price_inr:400,storage_bucket:cfg.bucket,storage_path:path,original_filename:f.name,page_count:Number(document.getElementById("pages").value)||null,version:1,is_published:true,created_by:(await user()).id}).select().single();
+  if(ins.error){await sb.storage.from(cfg.bucket).remove([path]);throw ins.error}
+  msg("✓ PDF uploaded and published. Customers can see the book listing, but the PDF remains locked until their order is verified as paid.","success");
+  const s=await sb.storage.from(cfg.bucket).createSignedUrl(path,3600);if(!s.error){document.getElementById("previewCard").classList.remove("hidden");document.getElementById("preview").src=s.data.signedUrl;document.getElementById("previewNote").textContent="Admin preview. This signed link expires in 1 hour."}
+  await current();
+ }catch(e){console.error(e);msg(esc(e.message||e),"danger")}finally{const b=document.getElementById("upload");b.disabled=false;b.textContent="⬆️ Upload & Publish Book"}
+};
+(async()=>{try{if(await admin()){document.getElementById("gate").classList.add("hidden");document.getElementById("panel").classList.remove("hidden");await current()}else document.getElementById("gate").innerHTML='<div class="notice danger"><b>Administrator access required.</b><br>Log in with the Expert Sync administrator account to upload books.</div>'}catch(e){document.getElementById("gate").innerHTML='<div class="notice danger">'+esc(e.message||e)+'</div>'}})();
+</script></body></html>
