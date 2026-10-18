@@ -33,7 +33,7 @@ async function loadBook(){
  const r=await sb.from("digital_books").select("*").eq("is_published",true).order("created_at",{ascending:false}).limit(1).maybeSingle();
  if(r.error) throw r.error; book=r.data; return book;
 }
-function renderBook(){
+async function renderBook(){
  const e=document.getElementById("bookCard");
  if(!book){e.classList.remove("hidden");e.innerHTML='<h2 style="color:#063b91">📚 Book Coming Soon</h2><p class="muted">The next Expert Sync book will appear here after it is uploaded and published.</p>';return}
  e.classList.remove("hidden");
@@ -86,7 +86,7 @@ async function renderShare(){
 async function renderWallet(){
  const e=document.getElementById("walletCard");if(!user){e.classList.add("hidden");return}const r=await sb.from("book_wallets").select("coins").eq("user_id",user.id).maybeSingle();const coins=r.data?.coins||0;e.classList.remove("hidden");e.innerHTML='<h2 style="color:#063b91;margin-top:0">🪙 My Expert Sync Rewards</h2><div class="wallet"><div class="mini"><b>'+coins+'</b><span class="muted">Coins</span></div><div class="mini"><b>₹'+coins+'</b><span class="muted">Current value</span></div></div><p class="muted" style="margin-top:10px">100 coins = ₹100. Withdrawal processing will be handled through the Academy payment workflow.</p>'}
 async function renderReader(){
- if(!paidOrder?.status==="paid")return;
+ if(paidOrder?.status!=="paid")return;
  const p=document.getElementById("readerCard");p.classList.remove("hidden");
  const r=await sb.storage.from(cfg.bucket).createSignedUrl(book.storage_path,3600);
  if(r.error){document.getElementById("readerNote").textContent="The book could not be opened. Please contact support.";return}
@@ -98,7 +98,7 @@ async function init(){
  try{
   user=await currentUser();
   if(await isAdmin())document.getElementById("adminBtn").style.display="";
-  book=await loadBook();renderBook();await renderState();await renderShare();await renderWallet();
+  book=await loadBook();await renderBook();await renderState();await renderShare();await renderWallet();
   if(user)setStatus('<b>Signed in.</b> Your paid book access is protected by Supabase Auth + private Storage.');else setStatus('<b>Book store ready.</b> Please use the Student App login to purchase.');
  }catch(e){console.error(e);setStatus("<b>Book store error.</b><br>"+esc(e.message||e),"danger")}
 }
