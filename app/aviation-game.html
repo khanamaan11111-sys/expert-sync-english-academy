@@ -4870,5 +4870,12 @@ function markATCEvaluationStateV121(){setATCMissionStateV121("EVALUATION","Combi
 function completeATCMissionV121(passed){setATCMissionStateV121(passed?"COMPLETED":"REMEDIATION",passed?"Mission completed successfully.":"Mission requires targeted remediation.")}
 const __oldInitV121=initializeATCMissionV120;initializeATCMissionV120=runATCMissionLifecycleV121;document.getElementById("moStart").onclick=runATCMissionLifecycleV121;
 window.setATCMissionStateV121=setATCMissionStateV121;window.markATCConflictStateV121=markATCConflictStateV121;window.markATCResponseStateV121=markATCResponseStateV121;window.markATCEvaluationStateV121=markATCEvaluationStateV121;window.completeATCMissionV121=completeATCMissionV121;
+</script><script id="es-stage57-aviation" src="outcome-integrator.js"></script><script>
+(function(){
+ const oldRun=window.runATCMissionLifecycleV121;
+ if(typeof oldRun==="function")window.runATCMissionLifecycleV121=async function(){ESAOutcomeIntegrator.start({type:"aviation-mission",title:"Aviation ATC Mission"});return oldRun.apply(this,arguments)};
+ const oldComplete=window.completeATCMissionV121;
+ if(typeof oldComplete==="function")window.completeATCMissionV121=function(passed){const q=window.esGeneratedScenario||{},score=Number(window.esIntegratedATCPerformanceV108?.overall??window.esLastClearanceAssessmentV106?.score??(passed?80:55));ESAOutcomeIntegrator.sync({score,attempts:1,correct:passed?1:0});return oldComplete.apply(this,arguments)};
+})();
 </script></body>
 </html>
