@@ -2378,7 +2378,8 @@ body {
 }
 </style>
 
-<script>if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(console.error)); }</script>\n<script src="app-shell.js"></script><script src="learning-context.js"></script><style>
+<script>if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(console.error)); }</script>
+<script src="app-shell.js"></script><script src="learning-context.js"></script><style>
 .es-premium{scroll-behavior:smooth}
 .es-premium .container,.es-premium main{max-width:1180px}
 .es-premium header,.es-premium .hero{box-shadow:0 18px 45px rgba(6,27,61,.12)}
@@ -19410,5 +19411,25 @@ document.addEventListener("click",function(e){if(e.target&&e.target.id==="es-cou
   window.addEventListener("load",function(){setTimeout(init,80)});
 })();
 </script><script src="book-store-entry.js"></script>
-</body>
+<style id="esa-install-style">
+#esa-install-app{position:fixed;right:16px;bottom:88px;z-index:10001;display:none;border:0;border-radius:14px;padding:12px 16px;background:#d4af37;color:#172033;font-weight:900;box-shadow:0 8px 24px rgba(3,27,63,.25);cursor:pointer}
+@media(max-width:650px){#esa-install-app{right:14px;bottom:96px;padding:11px 14px;font-size:13px}}
+</style>
+<script id="esa-install-controller">
+(function(){
+ var deferred=null;
+ function ready(){
+  if(document.getElementById("esa-install-app"))return;
+  var b=document.createElement("button");b.id="esa-install-app";b.type="button";b.textContent="📲 Install App";
+  b.onclick=async function(){
+   if(deferred){deferred.prompt();await deferred.userChoice;deferred=null;b.style.display="none";return}
+   alert("To install Expert Sync: open this page in Chrome, tap ⋮, then choose 'Add to Home screen' or 'Install app'.");
+  };
+  document.body.appendChild(b);
+  window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferred=e;b.style.display="block"});
+  window.addEventListener("appinstalled",function(){b.style.display="none";deferred=null});
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ready);else ready();
+})();
+</script></body>
 </html>
