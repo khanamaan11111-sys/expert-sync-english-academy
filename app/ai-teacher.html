@@ -314,5 +314,7 @@ function loadTrafficScenario(){
  list.innerHTML=q.traffic.map(t=>'<div class="traffic-item"><b>'+t.callsign+'</b> • '+t.type+' • '+t.relative+' • '+t.altitude+' FT</div>').join('');
 }
 window.loadTrafficScenario=loadTrafficScenario;
+</script><script id="es-stage57-outcome" src="outcome-integrator.js"></script><script id="es-stage57-atc">
+(function(){const original=window.captureATCMessage;if(typeof original!=="function")return;window.captureATCMessage=function(role,text){if(role==="user")ESAOutcomeIntegrator.start({type:"aviation-atc",title:"AI ATC Communication Session"});return original.apply(this,arguments)};const originalMastery=window.recordATCMastery;if(typeof originalMastery==="function")window.recordATCMastery=function(){const r=calculateATCScore(),o=ESAOutcomeIntegrator.sync(r);const v=originalMastery.apply(this,arguments);return v};})();
 </script></body>
 </html>
