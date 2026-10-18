@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#063b91">
+<title>Expert Sync Book Store</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f8ff;color:#172033}.hero{background:linear-gradient(135deg,#031b3f,#063b91,#0b63ce);color:#fff;padding:30px 18px;border-radius:0 0 28px 28px}.heroIn{max-width:900px;margin:auto}.eyebrow{font-size:10px;font-weight:900;letter-spacing:2px;color:#ffd978}.hero h1{margin:8px 0;font-size:29px}.hero p{max-width:720px;color:#dce9f7;line-height:1.55;font-size:13px}.wrap{max-width:900px;margin:auto;padding:16px}.card{background:#fff;border:1px solid #dbe5f2;border-radius:20px;padding:18px;margin:12px 0;box-shadow:0 5px 16px rgba(3,27,63,.07)}.book{display:grid;grid-template-columns:170px 1fr;gap:18px}.cover{min-height:220px;border-radius:16px;background:linear-gradient(145deg,#063b91,#0b63ce);display:grid;place-items:center;color:#fff;text-align:center;padding:16px}.cover strong{font-size:24px}.price{font-size:28px;font-weight:900;color:#063b91}.muted{font-size:11px;color:#68768b;line-height:1.5}.btn{border:0;border-radius:12px;padding:11px 15px;font-weight:800;cursor:pointer;background:#063b91;color:#fff}.gold{background:#d4af37;color:#172033}.light{background:#edf4fd;color:#063b91;border:1px solid #cbdced}.row{display:flex;gap:8px;flex-wrap:wrap}.notice{padding:13px;border-radius:12px;background:#fff8df;border:1px solid #eadca7;font-size:12px;line-height:1.55}.success{background:#edf9f1;border-color:#bfe4cc}.danger{background:#fff0f0;border-color:#efc3c3}.field{margin:10px 0}.field label{display:block;font-size:10px;font-weight:900;color:#526078;margin-bottom:5px}.field input{width:100%;padding:11px;border:1px solid #cbd7e7;border-radius:10px;font:inherit}.qrbox{padding:15px;border:1px dashed #b7c8dc;border-radius:14px;background:#f8fbff}.wallet{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini{padding:12px;border-radius:12px;background:#f7faff;border:1px solid #dbe5f2}.mini b{display:block;font-size:19px;color:#063b91}.share{border:1px solid #d4af37;background:#fff9e6}.viewer{width:100%;height:75vh;border:1px solid #dbe5f2;border-radius:14px;margin-top:12px}.hidden{display:none}@media(max-width:650px){.book{grid-template-columns:1fr}.cover{min-height:150px}.wallet{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="heroIn"><div class="eyebrow">EXPERT SYNC ENGLISH ACADEMY • DIGITAL BOOK</div><h1>📚 Expert Sync Book Store</h1><p>Buy an authorised Expert Sync book for ₹400. Your paid purchase unlocks the private PDF securely inside the Academy.</p></div></header>
+<main class="wrap">
+<section id="status" class="card">Loading book store…</section>
+<section id="bookCard" class="card hidden"></section>
+<section id="paymentCard" class="card hidden"></section>
+<section id="shareCard" class="card hidden"></section>
+<section id="walletCard" class="card hidden"></section>
+<section id="readerCard" class="card hidden"><h2 style="color:#063b91;margin-top:0">📖 Your Book</h2><div id="readerNote" class="muted"></div><iframe id="viewer" class="viewer" title="Purchased book"></iframe><div class="row" style="margin-top:10px"><button class="btn gold" id="downloadBtn">⬇️ Download PDF</button><button class="btn light" onclick="document.getElementById('viewer').requestFullscreen?.()">⛶ Fullscreen</button></div></section>
+<div class="row"><button class="btn light" onclick="location.href='index.html'">← Student App</button><button class="btn light" id="adminBtn" onclick="location.href='book-admin.html'" style="display:none">⚙️ Book Admin</button></div>
+</main>
+<script>
+const cfg=window.ESASupabaseConfig, sb=window.supabaseClient;
+let user=null,book=null,refCode=new URLSearchParams(location.search).get("ref")||"";
+function esc(x){return String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function setStatus(html,cls=""){const e=document.getElementById("status");e.className="card "+cls;e.innerHTML=html}
+async function currentUser(){return (await sb.auth.getUser()).data?.user||null}
+async function isAdmin(){return !!user && user.app_metadata?.role==="admin"}
+async function loadBook(){
+ const r=await sb.from("digital_books").select("*").eq("is_published",true).order("created_at",{ascending:false}).limit(1).maybeSingle();
+ if(r.error) throw r.error; book=r.data; return book;
+}
+function renderBook(){
+ const e=document.getElementById("bookCard");
+ if(!book){e.classList.remove("hidden");e.innerHTML='<h2 style="color:#063b91">📚 Book Coming Soon</h2><p class="muted">The next Expert Sync book will appear here after it is uploaded and published.</p>';return}
+ e.classList.remove("hidden");
+ e.innerHTML='<div class="book"><div class="cover"><div><div style="font-size:42px">📘</div><strong>'+esc(book.title)+'</strong><div style="margin-top:10px;font-size:11px">Expert Sync English Academy</div></div></div><div><div class="eyebrow" style="color:#68768b">DIGITAL EDITION</div><h2 style="color:#063b91;margin:7px 0">'+esc(book.title)+'</h2><p class="muted">'+esc(book.description||"Professional English learning material from Expert Sync English Academy.")+'</p><div class="price">₹'+Number(book.price_inr||400)+'</div><div class="muted">'+(book.page_count?book.page_count+" pages • ":"")+"Private paid access</div><div class="row" style="margin-top:13px"><button class="btn gold" id="buyBtn">'+(awaitPaid()?"Open My Book":"🔐 Unlock for ₹400")+'</button></div><div id="bookState" class="muted" style="margin-top:10px"></div></div></div>';
+ document.getElementById("buyBtn").onclick=async()=>{if(await awaitPaid())return openBook();showPayment()};
+}
+let paidOrder=null;
+async function awaitPaid(){return !!paidOrder}
+async function findOrder(){if(!user||!book)return null;const r=await sb.from("book_orders").select("*").eq("book_id",book.id).eq("buyer_id",user.id).order("created_at",{ascending:false}).limit(1).maybeSingle();if(r.error)throw r.error;return r.data}
+async function renderState(){
+ const e=document.getElementById("bookState");
+ if(!user){e.textContent="Please log in to purchase and access your book.";return}
+ paidOrder=await findOrder();
+ if(paidOrder?.status==="paid"){e.innerHTML='<span style="color:#168a45;font-weight:800">✓ Payment verified — your book is unlocked.</span>';renderReader();}
+ else if(paidOrder?.status==="pending")e.textContent="Payment reference submitted. Access will appear after payment is verified.";
+ else if(paidOrder?.status==="refunded")e.textContent="This purchase was refunded. Contact Expert Sync support if you need help.";
+}
+async function showPayment(){
+ const p=document.getElementById("paymentCard");p.classList.remove("hidden");
+ p.innerHTML='<h2 style="color:#063b91;margin-top:0">💳 Pay ₹400 to Unlock</h2><div class="qrbox"><b>UPI ID</b><div style="font-size:20px;margin:7px 0;color:#063b91">9713177663@ybl</div><div class="muted">Use your UPI app to pay exactly ₹400. Then enter the transaction/UTR reference below. The book stays locked until the payment is verified.</div></div><div class="field"><label>UPI TRANSACTION / UTR REFERENCE *</label><input id="utr" placeholder="Enter the UTR / transaction ID"></div><button class="btn gold" id="submitPayment">Submit Payment Reference</button><div id="payMsg" class="muted" style="margin-top:8px"></div>';
+ document.getElementById("submitPayment").onclick=submitPayment;
+ p.scrollIntoView({behavior:"smooth",block:"center"});
+}
+async function submitPayment(){
+ if(!user){alert("Please log in first.");return}
+ const utr=document.getElementById("utr").value.trim();if(!utr){document.getElementById("payMsg").textContent="Please enter your transaction reference.";return}
+ const existing=await sb.from("book_orders").select("id").eq("book_id",book.id).eq("buyer_id",user.id).eq("status","pending").maybeSingle();
+ if(existing.data){document.getElementById("payMsg").textContent="A payment is already awaiting verification.";return}
+ const r=await sb.from("book_orders").insert({book_id:book.id,buyer_id:user.id,amount_inr:400,status:"pending",payment_method:"UPI",payment_reference:utr,referral_code:refCode||null}).select().single();
+ if(r.error){document.getElementById("payMsg").textContent=r.error.message;return}
+ document.getElementById("payMsg").innerHTML='<span style="color:#168a45;font-weight:800">✓ Payment reference saved. Your book will unlock after verification.</span>';
+ await renderState();
+}
+async function ensureReferral(){
+ if(!user||!book)return null;
+ const r=await sb.from("book_referrals").select("*").eq("book_id",book.id).eq("referrer_id",user.id).limit(1).maybeSingle();
+ if(r.data)return r.data;
+ const code=("ESA"+user.id.replace(/-/g,"").slice(0,10)+Math.random().toString(36).slice(2,7)).toUpperCase();
+ const n=await sb.from("book_referrals").insert({book_id:book.id,referrer_id:user.id,referral_code:code,reward_inr:100}).select().single();
+ if(n.error)throw n.error;return n.data;
+}
+async function renderShare(){
+ const e=document.getElementById("shareCard");if(!user||!book){e.classList.add("hidden");return}
+ const r=await ensureReferral();e.classList.remove("hidden");
+ const link=location.origin+location.pathname+"?ref="+encodeURIComponent(r.referral_code);
+ e.innerHTML='<h2 style="color:#063b91;margin-top:0">🤝 Share & Earn</h2><p class="muted">Share your personal book link. If a new customer purchases this book through your link and the ₹400 payment is verified, you receive <b>100 Expert Sync Coins = ₹100</b>.</p><div class="field"><input id="shareLink" readonly value="'+esc(link)+'"></div><div class="row"><button class="btn share" id="shareBtn">📤 Share Book & Earn ₹100</button><button class="btn light" id="copyBtn">Copy Link</button></div><div class="muted" style="margin-top:8px">Rewards are issued only after a genuine payment is verified; self-referrals are rejected.</div>';
+ document.getElementById("copyBtn").onclick=()=>navigator.clipboard?.writeText(link).then(()=>alert("Referral link copied."));
+ document.getElementById("shareBtn").onclick=async()=>{if(navigator.share)await navigator.share({title:book.title,text:"Check this Expert Sync book",url:link});else{await navigator.clipboard?.writeText(link);alert("Referral link copied. Share it with your contacts.");}};
+}
+async function renderWallet(){
+ const e=document.getElementById("walletCard");if(!user){e.classList.add("hidden");return}const r=await sb.from("book_wallets").select("coins").eq("user_id",user.id).maybeSingle();const coins=r.data?.coins||0;e.classList.remove("hidden");e.innerHTML='<h2 style="color:#063b91;margin-top:0">🪙 My Expert Sync Rewards</h2><div class="wallet"><div class="mini"><b>'+coins+'</b><span class="muted">Coins</span></div><div class="mini"><b>₹'+coins+'</b><span class="muted">Current value</span></div></div><p class="muted" style="margin-top:10px">100 coins = ₹100. Withdrawal processing will be handled through the Academy payment workflow.</p>'}
+async function renderReader(){
+ if(!paidOrder?.status==="paid")return;
+ const p=document.getElementById("readerCard");p.classList.remove("hidden");
+ const r=await sb.storage.from(cfg.bucket).createSignedUrl(book.storage_path,3600);
+ if(r.error){document.getElementById("readerNote").textContent="The book could not be opened. Please contact support.";return}
+ document.getElementById("viewer").src=r.data.signedUrl;
+ document.getElementById("readerNote").textContent="Secure access link valid for 1 hour. Reload the page to create a new secure link.";
+ document.getElementById("downloadBtn").onclick=async()=>{const d=await sb.storage.from(cfg.bucket).createSignedUrl(book.storage_path,300,{download:true});if(!d.error)location.href=d.data.signedUrl};
+}
+async function init(){
+ try{
+  user=await currentUser();
+  if(await isAdmin())document.getElementById("adminBtn").style.display="";
+  book=await loadBook();renderBook();await renderState();await renderShare();await renderWallet();
+  if(user)setStatus('<b>Signed in.</b> Your paid book access is protected by Supabase Auth + private Storage.');else setStatus('<b>Book store ready.</b> Please use the Student App login to purchase.');
+ }catch(e){console.error(e);setStatus("<b>Book store error.</b><br>"+esc(e.message||e),"danger")}
+}
+init();
+</script>
+</body></html>
