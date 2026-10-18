@@ -1,6 +1,6 @@
 /* Expert Sync Adaptive Session Generator — Stage 51 */
 (function(){
-const KEY="esaAdaptiveSessionV1";
+const KEY="esaAdaptiveSessionV1",HIST="esaAdaptiveSessionHistoryV1",XP="esaAdaptiveSessionXPV1";
 function read(k,f){try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(f))}catch(e){return f}}
 function build(){
  const plan=window.ESAAdaptiveLearning?.get?ESAAdaptiveLearning.get():{focus:"vocabulary",difficulty:"developing",activity:"Complete Smart Review and learn high-priority words."};
@@ -19,6 +19,6 @@ function build(){
  localStorage.setItem(KEY,JSON.stringify(session));return session;
 }
 function get(){const s=read(KEY,null);return s&&s.date===new Date().toISOString().slice(0,10)?s:build()}
-function complete(i){const s=get();if(s.activities[i])s.activities[i].completed=true;localStorage.setItem(KEY,JSON.stringify(s));return s}
-window.ESAAdaptiveSession={build,get,complete};
+function complete(i){const s=get();if(s.activities[i]){s.activities[i].completed=true;s.activities[i].completedAt=new Date().toISOString()}if(s.activities.every(a=>a.completed)&&!s.finishedAt){s.finishedAt=new Date().toISOString();s.score=100;s.xpAwarded=25+(s.difficulty==="advanced"?15:s.difficulty==="intermediate"?10:5);const h=read(HIST,[]);h.push(s);localStorage.setItem(HIST,JSON.stringify(h.slice(-30)));localStorage.setItem(XP,String(Number(localStorage.getItem(XP)||0)+s.xpAwarded))}localStorage.setItem(KEY,JSON.stringify(s));return s}
+function history(){return read(HIST,[])}\nfunction xp(){return Number(localStorage.getItem(XP)||0)}\nwindow.ESAAdaptiveSession={build,get,complete,history,xp};
 })();
