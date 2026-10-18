@@ -12,7 +12,7 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="heroIn"><div class="eyebrow">EXPERT SYNC ENGLISH ACADEMY • DIGITAL BOOK</div><h1>📚 Expert Sync Book Store</h1><p>Buy an authorised Expert Sync book for ₹400. Your paid purchase unlocks the private PDF securely inside the Academy.</p></div></header>
+<header class="hero"><div class="heroIn"><div class="eyebrow">EXPERT SYNC ENGLISH ACADEMY • DIGITAL BOOK</div><h1>📚 Expert Sync Book Store</h1><p>Buy an authorised Expert Sync book for ₹400. Your paid purchase unlocks the private PDF securely inside the Academy.</p><div class="row" style="margin-top:14px"><button class="btn light" id="installBtn" style="display:none">📲 Install App</button><button class="btn gold" id="adminUploadBtn" style="display:none">⬆️ Upload PDF</button></div></div></header>
 <main class="wrap">
 <section id="status" class="card">Loading book store…</section>
 <section id="bookCard" class="card hidden"></section>
@@ -28,7 +28,7 @@ let user=null,book=null,refCode=new URLSearchParams(location.search).get("ref")|
 function esc(x){return String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function setStatus(html,cls=""){const e=document.getElementById("status");e.className="card "+cls;e.innerHTML=html}
 async function currentUser(){return (await sb.auth.getUser()).data?.user||null}
-async function isAdmin(){return !!user && user.app_metadata?.role==="admin"}
+async function isAdmin(){return !!user && (user.app_metadata?.role==="admin" || user.user_metadata?.role==="admin")}
 async function loadBook(){
  const r=await sb.from("digital_books").select("*").eq("is_published",true).order("created_at",{ascending:false}).limit(1).maybeSingle();
  if(r.error) throw r.error; book=r.data; return book;
@@ -94,10 +94,16 @@ async function renderReader(){
  document.getElementById("readerNote").textContent="Secure access link valid for 1 hour. Reload the page to create a new secure link.";
  document.getElementById("downloadBtn").onclick=async()=>{const d=await sb.storage.from(cfg.bucket).createSignedUrl(book.storage_path,300,{download:true});if(!d.error)location.href=d.data.signedUrl};
 }
-async function init(){
+let deferredInstall=null;
+ window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferredInstall=e;const b=document.getElementById("installBtn");if(b)b.style.display="inline-block"});
+ async function installApp(){
+  if(deferredInstall){deferredInstall.prompt();await deferredInstall.userChoice;deferredInstall=null;document.getElementById("installBtn").style.display="none";return}
+  alert("To install Expert Sync: open this page in Chrome, tap ⋮, then choose 'Add to Home screen' or 'Install app'.");
+ }
+ async function init(){
  try{
   user=await currentUser();
-  if(await isAdmin())document.getElementById("adminBtn").style.display="";
+  if(await isAdmin()){document.getElementById("adminBtn").style.display="";document.getElementById("adminUploadBtn").style.display="inline-block";document.getElementById("adminUploadBtn").onclick=()=>location.href="book-admin.html"}document.getElementById("installBtn").onclick=installApp;
   book=await loadBook();await renderBook();await renderState();await renderShare();await renderWallet();
   if(user)setStatus('<b>Signed in.</b> Your paid book access is protected by Supabase Auth + private Storage.');else setStatus('<b>Book store ready.</b> Please use the Student App login to purchase.');
  }catch(e){console.error(e);setStatus("<b>Book store error.</b><br>"+esc(e.message||e),"danger")}
