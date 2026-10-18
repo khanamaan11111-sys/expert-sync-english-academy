@@ -20,7 +20,7 @@
 <section id="shareCard" class="card hidden"></section>
 <section id="walletCard" class="card hidden"></section>
 <section id="readerCard" class="card hidden"><h2 style="color:#063b91;margin-top:0">📖 Your Book</h2><div id="readerNote" class="muted"></div><iframe id="viewer" class="viewer" title="Purchased book"></iframe><div class="row" style="margin-top:10px"><button class="btn gold" id="downloadBtn">⬇️ Download PDF</button><button class="btn light" onclick="document.getElementById('viewer').requestFullscreen?.()">⛶ Fullscreen</button></div></section>
-<div class="row"><button class="btn light" onclick="location.href='index.html'">← Student App</button><button class="btn light" id="adminBtn" onclick="location.href='book-admin.html'" style="display:none">⚙️ Book Admin</button></div>
+<div class="row"><button class="btn light" onclick="location.href='index.html'">← Student App</button><button class="btn light" onclick="location.reload()">↻ Refresh Access</button><button class="btn light" id="adminBtn" onclick="location.href='book-admin.html'" style="display:none">⚙️ Book Admin</button></div>
 </main>
 <script>
 const cfg=window.ESASupabaseConfig, sb=window.supabaseClient;
@@ -45,7 +45,7 @@ async function awaitPaid(){return !!paidOrder}
 async function findOrder(){if(!user||!book)return null;const r=await sb.from("book_orders").select("*").eq("book_id",book.id).eq("buyer_id",user.id).order("created_at",{ascending:false}).limit(1).maybeSingle();if(r.error)throw r.error;return r.data}
 async function renderState(){
  const e=document.getElementById("bookState");
- if(!user){e.textContent="Please log in to purchase and access your book.";return}
+ if(!user){e.innerHTML='<span>Please log in to purchase and access your book.</span> <button class="btn light" style="padding:7px 10px;margin-left:6px" onclick="location.href=\'index.html\'">Open Student App Login</button>';return}
  paidOrder=await findOrder();
  if(paidOrder?.status==="paid"){e.innerHTML='<span style="color:#168a45;font-weight:800">✓ Payment verified — your book is unlocked.</span>';renderReader();}
  else if(paidOrder?.status==="pending")e.textContent="Payment reference submitted. Access will appear after payment is verified.";
@@ -102,6 +102,7 @@ let deferredInstall=null;
  }
  async function init(){
  try{
+  await sb.auth.getSession();
   user=await currentUser();
   if(await isAdmin()){document.getElementById("adminBtn").style.display="";document.getElementById("adminUploadBtn").style.display="inline-block";document.getElementById("adminUploadBtn").onclick=()=>location.href="book-admin.html"}document.getElementById("installBtn").onclick=installApp;
   book=await loadBook();await renderBook();await renderState();await renderShare();await renderWallet();
