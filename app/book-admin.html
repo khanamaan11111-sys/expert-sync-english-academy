@@ -14,7 +14,7 @@
 <div id="message" style="margin-top:10px"></div>
 </section>
 <section id="current" class="card hidden"><h2 class="title">Current Published Book</h2><div id="currentList"></div></section>
-<section id="previewCard" class="card hidden"><h2 class="title">Admin Preview</h2><div id="previewNote" class="notice"></div><iframe id="preview" class="preview" title="Admin PDF preview"></iframe></section>
+<section id="previewCard" class="card hidden"><h2 class="title">Admin Preview</h2><div id="previewNote" class="notice"></div><iframe id="preview" class="preview" title="Admin PDF preview"></iframe></section><section id="orders" class="card hidden"><h2 class="title">💳 Payment Verification</h2><div class="notice">Verify the UPI transaction/UTR before marking an order paid. Marking an order paid unlocks the private PDF and, when applicable, credits the referrer with 100 Expert Sync Coins.</div><div id="orderList"></div></section>
 </main>
 <script>
 const sb=window.supabaseClient,cfg=window.ESASupabaseConfig;
@@ -22,7 +22,7 @@ function esc(x){return String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&l
 async function user(){return (await sb.auth.getUser()).data?.user||null}
 async function admin(){const u=await user();return !!u&&u.app_metadata?.role==="admin"}
 function msg(html,cls=""){const e=document.getElementById("message");e.className="notice "+cls;e.innerHTML=html}
-async function current(){
+async function renderOrders(){const box=document.getElementById("orderList");const r=await sb.from("book_orders").select("id,book_id,buyer_id,amount_inr,status,payment_method,payment_reference,created_at,referral_code,digital_books(title)").order("created_at",{ascending:false}).limit(100);if(r.error){box.innerHTML="<div class=\"notice danger\">"+esc(r.error.message)+"</div>";return}document.getElementById("orders").classList.remove("hidden");box.innerHTML=(r.data||[]).map(o=>'<div class="book-row"><b>'+esc(o.digital_books?.title||"Book")+"</b><div style=\"font-size:11px;color:#68768b;margin:5px 0\">"+esc(o.status.toUpperCase())+" • ₹"+o.amount_inr+" • "+esc(o.payment_method||"")+" • "+esc(o.payment_reference||"No reference")+"</div><div style=\"font-size:10px;color:#8a96a8\">Order: "+esc(o.id)+"<br>Buyer: "+esc(o.buyer_id)+"</div>"+(o.status==="pending"?'<button class="btn gold" style="margin-top:9px" onclick="markPaid(\''+o.id+\'\')">✓ Verify & Mark Paid</button>':"")+"</div>").join("")||"<div class=\"notice\">No orders yet.</div>"}\nasync function markPaid(id){if(!await admin())return;if(!confirm("Confirm that the ₹400 payment has been received and verify this UTR before unlocking the book?"))return;const r=await sb.from("book_orders").update({status:"paid",paid_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",id);if(r.error){alert(r.error.message);return}alert("Order marked paid. The private PDF is now unlocked and any valid referral reward has been credited.");renderOrders()}\nasync function current(){
  const r=await sb.from("digital_books").select("*").order("created_at",{ascending:false}).limit(10);if(r.error)throw r.error;
  document.getElementById("current").classList.remove("hidden");
  document.getElementById("currentList").innerHTML=(r.data||[]).map(b=>'<div class="book-row"><b>'+esc(b.title)+'</b><div style="font-size:11px;color:#68768b;margin-top:4px">'+(b.is_published?"🟢 Published":"⚪ Unpublished")+" • ₹"+b.price_inr+" • "+(b.page_count?b.page_count+" pages":"page count not set")+'</div></div>').join("")||'<div class="notice">No books uploaded yet.</div>';
@@ -47,5 +47,5 @@ document.getElementById("upload").onclick=async()=>{
   await current();
  }catch(e){console.error(e);msg(esc(e.message||e),"danger")}finally{const b=document.getElementById("upload");b.disabled=false;b.textContent="⬆️ Upload & Publish Book"}
 };
-(async()=>{try{if(await admin()){document.getElementById("gate").classList.add("hidden");document.getElementById("panel").classList.remove("hidden");await current()}else document.getElementById("gate").innerHTML='<div class="notice danger"><b>Administrator access required.</b><br>Log in with the Expert Sync administrator account to upload books.</div>'}catch(e){document.getElementById("gate").innerHTML='<div class="notice danger">'+esc(e.message||e)+'</div>'}})();
+(async()=>{try{if(await admin()){document.getElementById("gate").classList.add("hidden");document.getElementById("panel").classList.remove("hidden");await current();await renderOrders()}else document.getElementById("gate").innerHTML='<div class="notice danger"><b>Administrator access required.</b><br>Log in with the Expert Sync administrator account to upload books.</div>'}catch(e){document.getElementById("gate").innerHTML='<div class="notice danger">'+esc(e.message||e)+'</div>'}})();
 </script></body></html>
