@@ -5,6 +5,7 @@ function read(k,f){try{return JSON.parse(localStorage.getItem(k)||JSON.stringify
 function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function clamp(n){return Math.max(0,Math.min(100,Number(n)||0))}
 function active(){return read(ACTIVE,null)}
+function start(meta){const a=active();if(a)return a;const x={sessionIndex:Number(meta?.sessionIndex)||0,type:meta?.type||"activity",title:meta?.title||"Learning Activity",startedAt:new Date().toISOString()};save(ACTIVE,x);return x}
 function recordFromResult(result){
  const a=active();if(!a||!result)return null;
  const score=clamp(result.score??result.accuracy??result.percentage);
@@ -21,5 +22,5 @@ function sync(result){
  const o=recordFromResult(result);if(o){save(SYNC,{lastSync:new Date().toISOString(),score:o.score,type:o.type,title:o.title});window.dispatchEvent(new CustomEvent("esa:activity-outcome",{detail:o}))}return o;
 }
 function status(){return read(SYNC,{lastSync:null})}
-window.ESAOutcomeIntegrator={recordFromResult,sync,status};
+window.ESAOutcomeIntegrator={start,recordFromResult,sync,status};
 })();
