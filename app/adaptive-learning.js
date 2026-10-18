@@ -5,7 +5,7 @@ function read(k,f){try{return JSON.parse(localStorage.getItem(k)||JSON.stringify
 function clamp(n){return Math.max(0,Math.min(100,Math.round(n||0)))}
 function build(){
  const a=window.ESASkillAnalytics?.all?ESASkillAnalytics.all():{},diag=read("esaVocabularyDiagnosticV1",null);
- const skills=Object.keys(a).map(k=>({key:k,...a[k]})).sort((x,y)=>x.current-y.current);
+ const raw=a.skills||a;const skills=Object.keys(raw).filter(k=>raw[k]&&typeof raw[k]==="object").map(k=>({key:k,...raw[k],current:Number(raw[k].score??raw[k].current)||0})).sort((x,y)=>x.current-y.current);
  const weakest=skills[0]||{key:"vocabulary",current:0};
  const focus=weakest.key;
  const baseDifficulty=weakest.current<40?"foundation":weakest.current<65?"developing":weakest.current<80?"intermediate":"advanced";
