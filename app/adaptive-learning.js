@@ -6,7 +6,7 @@ function clamp(n){return Math.max(0,Math.min(100,Math.round(n||0)))}
 function build(){
  const a=window.ESASkillAnalytics?.all?ESASkillAnalytics.all():{},diag=read("esaVocabularyDiagnosticV1",null);
  const raw=a.skills||a;const skills=Object.keys(raw).filter(k=>raw[k]&&typeof raw[k]==="object").map(k=>({key:k,...raw[k],current:Number(raw[k].score??raw[k].current)||0})).sort((x,y)=>x.current-y.current);
- const weakest=skills[0]||{key:"vocabulary",current:0};
+ const mastery=window.ESAMastery?.get?window.ESAMastery.get():{mastery:{}};const eligible=skills.filter(s=>mastery.mastery?.[s.key]?.status!=="mastered");const weakest=eligible[0]||skills[0]||{key:"vocabulary",current:0};
  const focus=weakest.key;
  const baseDifficulty=weakest.current<40?"foundation":weakest.current<65?"developing":weakest.current<80?"intermediate":"advanced";
  const loop=window.ESAClosedLoop?.get?window.ESAClosedLoop.get():null;
@@ -20,7 +20,7 @@ function build(){
   customerService:"Practise one customer-service scenario and response.",
   aviation:"Complete an aviation communication/safety scenario."
  };
- const plan={date:new Date().toISOString().slice(0,10),focus,weakestScore:weakest.current,difficulty,reason:loop?.reason||"Lowest current skill evidence",activity:activities[focus]||activities.vocabulary,diagnosticPath:diag?.recommendedPath||null,skills:Object.fromEntries(skills.map(s=>[s.key,s.current]))};
+ const plan={date:new Date().toISOString().slice(0,10),focus,weakestScore:weakest.current,difficulty,reason:loop?.reason||"Lowest current skill evidence",activity:activities[focus]||activities.vocabulary,diagnosticPath:diag?.recommendedPath||null,skills:Object.fromEntries(skills.map(s=>[s.key,s.current])),mastery:Object.fromEntries(skills.map(s=>[s.key,mastery.mastery?.[s.key]?.status||"building"]))};
  localStorage.setItem(KEY,JSON.stringify(plan)); return plan;
 }
 function get(){return read(KEY,null)||build()}
