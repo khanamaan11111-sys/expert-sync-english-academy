@@ -8,7 +8,9 @@ function build(){
  const skills=Object.keys(a).map(k=>({key:k,...a[k]})).sort((x,y)=>x.current-y.current);
  const weakest=skills[0]||{key:"vocabulary",current:0};
  const focus=weakest.key;
- const difficulty=weakest.current<40?"foundation":weakest.current<65?"developing":weakest.current<80?"intermediate":"advanced";
+ const baseDifficulty=weakest.current<40?"foundation":weakest.current<65?"developing":weakest.current<80?"intermediate":"advanced";
+ const loop=window.ESAClosedLoop?.get?window.ESAClosedLoop.get():null;
+ const difficulty=loop?.nextDifficulty||baseDifficulty;
  const activities={
   grammar:"Practice grammar questions and correct recurring errors.",
   vocabulary:"Complete Smart Review and learn high-priority words.",
@@ -18,7 +20,7 @@ function build(){
   customerService:"Practise one customer-service scenario and response.",
   aviation:"Complete an aviation communication/safety scenario."
  };
- const plan={date:new Date().toISOString().slice(0,10),focus,weakestScore:weakest.current,difficulty,reason:"Lowest current skill evidence",activity:activities[focus]||activities.vocabulary,diagnosticPath:diag?.recommendedPath||null,skills:Object.fromEntries(skills.map(s=>[s.key,s.current]))};
+ const plan={date:new Date().toISOString().slice(0,10),focus,weakestScore:weakest.current,difficulty,reason:loop?.reason||"Lowest current skill evidence",activity:activities[focus]||activities.vocabulary,diagnosticPath:diag?.recommendedPath||null,skills:Object.fromEntries(skills.map(s=>[s.key,s.current]))};
  localStorage.setItem(KEY,JSON.stringify(plan)); return plan;
 }
 function get(){return read(KEY,null)||build()}
