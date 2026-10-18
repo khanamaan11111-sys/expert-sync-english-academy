@@ -1,4 +1,4 @@
-const CACHE_NAME = "expert-sync-academy-v1";
+const CACHE_NAME = "expert-sync-academy-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
