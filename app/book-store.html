@@ -24,13 +24,16 @@
 </main>
 <script>
 const cfg=window.ESASupabaseConfig, sb=window.supabaseClient;
+function withTimeout(p,ms,label){return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error(label||"Request timed out. Please refresh and try again.")),ms))])}
+function assertSupabase(){if(!window.supabase||!sb)throw new Error("Supabase connection did not load. Please refresh the page.");}
 let user=null,book=null,refCode=new URLSearchParams(location.search).get("ref")||"";
 function esc(x){return String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function setStatus(html,cls=""){const e=document.getElementById("status");e.className="card "+cls;e.innerHTML=html}
-async function currentUser(){return (await sb.auth.getUser()).data?.user||null}
+async function currentUser(){assertSupabase();const r=await withTimeout(sb.auth.getUser(),8000,"Supabase authentication timed out. Please refresh the page.");return r.data?.user||null}
 async function isAdmin(){return !!user && (user.app_metadata?.role==="admin" || user.user_metadata?.role==="admin")}
 async function loadBook(){
- const r=await sb.from("digital_books").select("*").eq("is_published",true).order("created_at",{ascending:false}).limit(1).maybeSingle();
+ assertSupabase();
+ const r=await withTimeout(sb.from("digital_books").select("*").eq("is_published",true).order("created_at",{ascending:false}).limit(1).maybeSingle(),8000,"Book catalogue request timed out. Please refresh and try again.");
  if(r.error) throw r.error; book=r.data; return book;
 }
 async function renderBook(){
@@ -102,7 +105,8 @@ let deferredInstall=null;
  }
  async function init(){
  try{
-  await sb.auth.getSession();
+  assertSupabase();
+  await withTimeout(sb.auth.getSession(),8000,"Supabase session check timed out. Please refresh the page.");
   user=await currentUser();
   if(await isAdmin()){document.getElementById("adminBtn").style.display="";document.getElementById("adminUploadBtn").style.display="inline-block";document.getElementById("adminUploadBtn").onclick=()=>location.href="book-admin.html"}document.getElementById("installBtn").onclick=installApp;
   book=await loadBook();await renderBook();await renderState();await renderShare();await renderWallet();
