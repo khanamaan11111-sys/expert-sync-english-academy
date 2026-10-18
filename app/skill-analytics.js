@@ -31,6 +31,11 @@ function trend(skill){
  const change=Math.round(vals[vals.length-1]-vals[vals.length-2]);
  return {current:vals[vals.length-1],change,direction:change>0?"up":change<0?"down":"steady",points:vals};
 }
-function all(){record();const names=["grammar","vocabulary","speaking","pronunciation","interview","customerService","aviation"];return Object.fromEntries(names.map(n=>[n,trend(n)]))}
-window.ESASkillAnalytics={snapshot,record,history,trend,all};
+function evidence(){
+ const p=window.ESAUnifiedEvidence?.refresh?.()||read("esaUnifiedEvidenceV1",{summary:{}});
+ const names=["grammar","vocabulary","speaking","pronunciation","interview","customerService","aviation"];
+ return Object.fromEntries(names.map(n=>{const x=p.summary?.[n]||{score:0,attempts:0,last:null};const t=trend(n);const confidence=clamp(Math.min(100,x.attempts*20+(x.last?40:0)));return [n,{...x,...t,confidence,priority: x.attempts===0?"build-evidence":x.score<50?"high":x.score<70?"medium":"low"}]}));
+}
+function all(){record();const e=evidence(),entries=Object.entries(e).sort((a,b)=>(a[1].score||0)-(b[1].score||0));return {skills:e,priority:entries[0]?.[0]||"vocabulary",strength:entries.at(-1)?.[0]||"vocabulary",overall:clamp(entries.reduce((n,[,v])=>n+(v.score||0),0)/(entries.length||1))}}
+window.ESASkillAnalytics={snapshot,record,history,trend,evidence,all};
 })();
