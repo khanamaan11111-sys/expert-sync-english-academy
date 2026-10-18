@@ -2,7 +2,7 @@
   "name": "Expert Sync English Academy",
   "short_name": "Expert Sync",
   "description": "Aviation English, communication, interview preparation and career learning with Expert Sync English Academy.",
-  "start_url": "./",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
@@ -11,7 +11,7 @@
   "categories": [
     "education"
   ],
-  "id": "./",
+  "id": "./index.html",
   "icons": [
     {
       "src": "icon.svg",
