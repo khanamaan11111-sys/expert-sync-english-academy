@@ -23,30 +23,11 @@ function assertSupabase(){if(!window.supabase||!sb)throw new Error("Supabase con
 function esc(x){return String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 async function user(){
  assertSupabase();
- let candidates=[];
  try{
-  for(let i=0;i<localStorage.length;i++){
-   const k=localStorage.key(i)||"";
-   if(k.includes("auth-token")){
-    const raw=localStorage.getItem(k);
-    if(raw) candidates.push(JSON.parse(raw));
-   }
-  }
+  const r=await withTimeout(sb.auth.getSession(),3000,"Supabase session lookup timed out.");
+  if(r.data?.session?.user)return r.data.session.user;
  }catch(_){}
- for(const parsed of candidates){
-  const sess=parsed?.currentSession||parsed?.session||parsed;
-  if(sess?.access_token){
-   try{
-    const rr=await withTimeout(fetch(cfg.url+"/auth/v1/user",{headers:{apikey:cfg.publishableKey,Authorization:"Bearer "+sess.access_token}}),5000,"Supabase account check timed out.");
-    if(rr.ok)return await rr.json();
-   }catch(_){}
-  }
- }
- try{
-  const r=await withTimeout(sb.auth.getUser(),5000,"No active login session was found. Please sign in to the Student App first.");
-  if(r.data?.user)return r.data.user;
- }catch(_){}
- throw new Error("No active Expert Sync login session was found. Open the Student App, sign in with your administrator account, then open Book Admin again.");
+ throw new Error("No active Expert Sync login session was found. Please sign in to the Student App first, then open Book Admin again.");
 }
 async function admin(){const u=await user();return !!u&&(u.app_metadata?.role==="admin"||u.user_metadata?.role==="admin")}
 function msg(html,cls=""){const e=document.getElementById("message");e.className="notice "+cls;e.innerHTML=html}
