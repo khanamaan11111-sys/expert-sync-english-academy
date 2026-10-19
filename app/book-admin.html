@@ -23,21 +23,21 @@ function assertSupabase(){if(!window.supabase||!sb)throw new Error("Supabase con
 function esc(x){return String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 async function user(){
  assertSupabase();
+ const key="sb-"+new URL(cfg.url).hostname.split(".")[0]+"-auth-token";
+ let parsed=null;
  try{
-  const r=await withTimeout(sb.auth.getSession(),3500,"session-timeout");
-  return r.data?.session?.user||null;
+  const raw=localStorage.getItem(key);
+  parsed=raw?JSON.parse(raw):null;
+ }catch(_){}
+ const s=parsed?.currentSession||parsed?.session||parsed;
+ if(!s?.access_token) throw new Error("No active Expert Sync login session was found. Please sign in to the Student App first, then open Book Admin.");
+ try{
+  const rr=await withTimeout(fetch(cfg.url+"/auth/v1/user",{headers:{apikey:cfg.publishableKey,Authorization:"Bearer "+s.access_token}}),5000,"Supabase account check timed out.");
+  if(!rr.ok) throw new Error("Supabase rejected the current login session.");
+  const u=await rr.json();
+  return u;
  }catch(e){
-  const key="sb-"+new URL(cfg.url).hostname.split(".")[0]+"-auth-token";
-  try{
-   const raw=localStorage.getItem(key);
-   const parsed=raw?JSON.parse(raw):null;
-   const s=parsed?.currentSession||parsed?.session||parsed;
-   if(s?.access_token){
-    const rr=await fetch(cfg.url+"/auth/v1/user",{headers:{apikey:cfg.publishableKey,Authorization:"Bearer "+s.access_token}});
-    if(rr.ok)return await rr.json();
-   }
-  }catch(_){}
-  throw new Error("Your Expert Sync login session could not be read. Please sign in again from the Student App, then reopen Book Admin.");
+  throw new Error(e.message||"Unable to verify the Expert Sync login session.");
  }
 }
 async function admin(){const u=await user();return !!u&&(u.app_metadata?.role==="admin"||u.user_metadata?.role==="admin")}
