@@ -23,17 +23,10 @@ function assertSupabase(){if(!window.supabase||!sb)throw new Error("Supabase con
 function esc(x){return String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 async function user(){
  assertSupabase();
- const key="sb-"+new URL(cfg.url).hostname.split(".")[0]+"-auth-token";
- let parsed=null;
- try{const raw=localStorage.getItem(key);parsed=raw?JSON.parse(raw):null}catch(_){}
- const sess=parsed?.currentSession||parsed?.session||parsed;
- if(sess?.access_token){
-  try{
-   const rr=await withTimeout(fetch(cfg.url+"/auth/v1/user",{headers:{apikey:cfg.publishableKey,Authorization:"Bearer "+sess.access_token}}),5000,"Supabase account check timed out.");
-   if(rr.ok)return await rr.json();
-  }catch(_){}
- }
- throw new Error("No active Expert Sync login session was found. Please sign in to the Student App first, then open Book Admin again.");
+ const r=await withTimeout(sb.auth.getSession(),5000,"Supabase session check timed out.");
+ if(r.error)throw r.error;
+ if(r.data?.session?.user)return r.data.session.user;
+ throw new Error("NO_ACTIVE_SESSION");
 }
 async function admin(){const u=await user();return !!u&&(u.app_metadata?.role==="admin"||u.user_metadata?.role==="admin")}
 function msg(html,cls=""){const e=document.getElementById("message");e.className="notice "+cls;e.innerHTML=html}
@@ -62,5 +55,35 @@ document.getElementById("upload").onclick=async()=>{
   await current();
  }catch(e){console.error(e);msg(esc(e.message||e),"danger")}finally{const b=document.getElementById("upload");b.disabled=false;b.textContent="⬆️ Upload & Publish Book"}
 };
-(async()=>{try{assertSupabase();document.getElementById("gate").innerHTML="Checking administrator access…";if(await admin()){document.getElementById("gate").classList.add("hidden");document.getElementById("panel").classList.remove("hidden");await current();await renderOrders()}else document.getElementById("gate").innerHTML='<div class="notice danger"><b>Administrator access required.</b><br>The signed-in account is not marked as an Expert Sync administrator.</div>'}catch(e){document.getElementById("gate").innerHTML='<div class="notice danger"><b>Administrator check could not complete.</b><br>'+esc(e.message||e)+'<div class="row" style="margin-top:10px"><button class="btn light" onclick="location.href=\'index.html\'">← Open Student App</button><button class="btn light" onclick="location.reload()">↻ Try Again</button></div></div>'}})();
+(async()=>{
+ try{
+  assertSupabase();
+  document.getElementById("gate").innerHTML="Checking administrator access…";
+  if(await admin()){
+   document.getElementById("gate").classList.add("hidden");
+   document.getElementById("panel").classList.remove("hidden");
+   await current(); await renderOrders();
+  }else{
+   document.getElementById("gate").innerHTML='<div class="notice danger"><b>Administrator access required.</b><br>The signed-in account is not marked as an Expert Sync administrator.</div>';
+  }
+ }catch(e){
+  if(e.message==="NO_ACTIVE_SESSION"){
+   document.getElementById("gate").innerHTML='<h2 class="title">🔐 Expert Sync Administrator Login</h2><div class="notice">This Book Admin window does not have the Student App session. Sign in here with your administrator account to continue.</div><div class="field"><label>ADMIN EMAIL</label><input id="adminEmail" type="email" autocomplete="username" placeholder="Your administrator email"></div><div class="field"><label>PASSWORD</label><input id="adminPassword" type="password" autocomplete="current-password" placeholder="Your administrator password"></div><div class="row"><button class="btn gold" id="adminLogin">🔓 Sign In & Continue</button><button class="btn light" onclick="location.href=\'index.html\'">← Student App</button></div><div id="loginMsg" style="margin-top:10px"></div>';
+   document.getElementById("adminLogin").onclick=async()=>{
+    const b=document.getElementById("adminLogin"),m=document.getElementById("loginMsg");
+    const email=document.getElementById("adminEmail").value.trim(),password=document.getElementById("adminPassword").value;
+    if(!email||!password){m.innerHTML='<div class="notice danger">Enter your administrator email and password.</div>';return}
+    b.disabled=true;b.textContent="Signing in…";m.innerHTML="";
+    try{
+     const r=await withTimeout(sb.auth.signInWithPassword({email,password}),8000,"Sign-in timed out. Please try again.");
+     if(r.error)throw r.error;
+     if(!(r.data?.user?.app_metadata?.role==="admin"||r.data?.user?.user_metadata?.role==="admin"))throw new Error("This account is valid, but it is not marked as an Expert Sync administrator.");
+     location.reload();
+    }catch(err){m.innerHTML='<div class="notice danger">'+esc(err.message||err)+'</div>';b.disabled=false;b.textContent="🔓 Sign In & Continue"}
+   };
+  }else{
+   document.getElementById("gate").innerHTML='<div class="notice danger"><b>Administrator check could not complete.</b><br>'+esc(e.message||e)+'<div class="row" style="margin-top:10px"><button class="btn light" onclick="location.href=\'index.html\'">← Open Student App</button><button class="btn light" onclick="location.reload()">↻ Try Again</button></div></div>';
+  }
+ }
+})();
 </script></body></html>
