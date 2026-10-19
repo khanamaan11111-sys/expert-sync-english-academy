@@ -23,22 +23,30 @@ function assertSupabase(){if(!window.supabase||!sb)throw new Error("Supabase con
 function esc(x){return String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 async function user(){
  assertSupabase();
- const key="sb-"+new URL(cfg.url).hostname.split(".")[0]+"-auth-token";
- let parsed=null;
+ let candidates=[];
  try{
-  const raw=localStorage.getItem(key);
-  parsed=raw?JSON.parse(raw):null;
+  for(let i=0;i<localStorage.length;i++){
+   const k=localStorage.key(i)||"";
+   if(k.includes("auth-token")){
+    const raw=localStorage.getItem(k);
+    if(raw) candidates.push(JSON.parse(raw));
+   }
+  }
  }catch(_){}
- const s=parsed?.currentSession||parsed?.session||parsed;
- if(!s?.access_token) throw new Error("No active Expert Sync login session was found. Please sign in to the Student App first, then open Book Admin.");
- try{
-  const rr=await withTimeout(fetch(cfg.url+"/auth/v1/user",{headers:{apikey:cfg.publishableKey,Authorization:"Bearer "+s.access_token}}),5000,"Supabase account check timed out.");
-  if(!rr.ok) throw new Error("Supabase rejected the current login session.");
-  const u=await rr.json();
-  return u;
- }catch(e){
-  throw new Error(e.message||"Unable to verify the Expert Sync login session.");
+ for(const parsed of candidates){
+  const sess=parsed?.currentSession||parsed?.session||parsed;
+  if(sess?.access_token){
+   try{
+    const rr=await withTimeout(fetch(cfg.url+"/auth/v1/user",{headers:{apikey:cfg.publishableKey,Authorization:"Bearer "+sess.access_token}}),5000,"Supabase account check timed out.");
+    if(rr.ok)return await rr.json();
+   }catch(_){}
+  }
  }
+ try{
+  const r=await withTimeout(sb.auth.getUser(),5000,"No active login session was found. Please sign in to the Student App first.");
+  if(r.data?.user)return r.data.user;
+ }catch(_){}
+ throw new Error("No active Expert Sync login session was found. Open the Student App, sign in with your administrator account, then open Book Admin again.");
 }
 async function admin(){const u=await user();return !!u&&(u.app_metadata?.role==="admin"||u.user_metadata?.role==="admin")}
 function msg(html,cls=""){const e=document.getElementById("message");e.className="notice "+cls;e.innerHTML=html}
@@ -67,5 +75,5 @@ document.getElementById("upload").onclick=async()=>{
   await current();
  }catch(e){console.error(e);msg(esc(e.message||e),"danger")}finally{const b=document.getElementById("upload");b.disabled=false;b.textContent="⬆️ Upload & Publish Book"}
 };
-(async()=>{try{assertSupabase();document.getElementById("gate").innerHTML="Checking administrator access…";await new Promise(r=>setTimeout(r,150));if(await admin()){document.getElementById("gate").classList.add("hidden");document.getElementById("panel").classList.remove("hidden");await current();await renderOrders()}else document.getElementById("gate").innerHTML='<div class="notice danger"><b>Administrator access required.</b><br>Signed in account is not marked as an Expert Sync administrator. The upload controls will remain locked.</div>'}catch(e){document.getElementById("gate").innerHTML='<div class="notice danger">'+esc(e.message||e)+'</div>'}})();
+(async()=>{try{assertSupabase();document.getElementById("gate").innerHTML="Checking administrator access…";if(await admin()){document.getElementById("gate").classList.add("hidden");document.getElementById("panel").classList.remove("hidden");await current();await renderOrders()}else document.getElementById("gate").innerHTML='<div class="notice danger"><b>Administrator access required.</b><br>The signed-in account is not marked as an Expert Sync administrator.</div>'}catch(e){document.getElementById("gate").innerHTML='<div class="notice danger"><b>Administrator check could not complete.</b><br>'+esc(e.message||e)+'<div class="row" style="margin-top:10px"><button class="btn light" onclick="location.href=\'index.html\'">← Open Student App</button><button class="btn light" onclick="location.reload()">↻ Try Again</button></div></div>'}})();
 </script></body></html>
