@@ -29,7 +29,19 @@ function assertSupabase(){if(!window.supabase||!sb)throw new Error("Supabase con
 let user=null,book=null,refCode=new URLSearchParams(location.search).get("ref")||"";
 function esc(x){return String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function setStatus(html,cls=""){const e=document.getElementById("status");e.className="card "+cls;e.innerHTML=html}
-async function currentUser(){assertSupabase();const r=await withTimeout(sb.auth.getSession(),5000,"Supabase session could not be read. Please refresh the page.");return r.data?.session?.user||null}
+async function currentUser(){
+ assertSupabase();
+ const key="sb-"+new URL(cfg.url).hostname.split(".")[0]+"-auth-token";
+ let parsed=null;
+ try{const raw=localStorage.getItem(key);parsed=raw?JSON.parse(raw):null}catch(_){}
+ const s=parsed?.currentSession||parsed?.session||parsed;
+ if(!s?.access_token)return null;
+ try{
+  const rr=await withTimeout(fetch(cfg.url+"/auth/v1/user",{headers:{apikey:cfg.publishableKey,Authorization:"Bearer "+s.access_token}}),5000,"Supabase account check timed out.");
+  if(!rr.ok)return null;
+  return await rr.json();
+ }catch(_){return null}
+}
 async function isAdmin(){return !!user && (user.app_metadata?.role==="admin" || user.user_metadata?.role==="admin")}
 async function loadBook(){
  assertSupabase();
