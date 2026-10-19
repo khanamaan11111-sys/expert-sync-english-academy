@@ -20,7 +20,7 @@
 <section id="shareCard" class="card hidden"></section>
 <section id="walletCard" class="card hidden"></section>
 <section id="readerCard" class="card hidden"><h2 style="color:#063b91;margin-top:0">📖 Your Book</h2><div id="readerNote" class="muted"></div><iframe id="viewer" class="viewer" title="Purchased book"></iframe><div class="row" style="margin-top:10px"><button class="btn gold" id="downloadBtn">⬇️ Download PDF</button><button class="btn light" onclick="document.getElementById('viewer').requestFullscreen?.()">⛶ Fullscreen</button></div></section>
-<div class="row"><button class="btn light" onclick="location.href='index.html'">← Student App</button><button class="btn light" onclick="location.reload()">↻ Refresh Access</button><button class="btn light" id="adminBtn" onclick="location.href='book-admin.html'" style="display:none">⚙️ Book Admin</button></div>
+<div class="row"><button class="btn light" onclick="location.href='index.html'">← Student App</button><button class="btn light" onclick="location.reload()">↻ Refresh Access</button><button class="btn light" id="adminBtn" onclick="location.href='book-admin.html'">⚙️ Book Admin</button></div>
 </main>
 <script>
 const cfg=window.ESASupabaseConfig, sb=window.supabaseClient;
@@ -29,7 +29,7 @@ function assertSupabase(){if(!window.supabase||!sb)throw new Error("Supabase con
 let user=null,book=null,refCode=new URLSearchParams(location.search).get("ref")||"";
 function esc(x){return String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function setStatus(html,cls=""){const e=document.getElementById("status");e.className="card "+cls;e.innerHTML=html}
-async function currentUser(){assertSupabase();const r=await withTimeout(sb.auth.getUser(),8000,"Supabase authentication timed out. Please refresh the page.");return r.data?.user||null}
+async function currentUser(){assertSupabase();const r=await withTimeout(sb.auth.getSession(),5000,"Supabase session could not be read. Please refresh the page.");return r.data?.session?.user||null}
 async function isAdmin(){return !!user && (user.app_metadata?.role==="admin" || user.user_metadata?.role==="admin")}
 async function loadBook(){
  assertSupabase();
@@ -106,9 +106,9 @@ let deferredInstall=null;
  async function init(){
  try{
   assertSupabase();
-  await withTimeout(sb.auth.getSession(),8000,"Supabase session check timed out. Please refresh the page.");
+  await withTimeout(sb.auth.getSession(),5000,"Supabase session check timed out. Please refresh the page.");
   user=await currentUser();
-  if(await isAdmin()){document.getElementById("adminBtn").style.display="";document.getElementById("adminUploadBtn").style.display="inline-block";document.getElementById("adminUploadBtn").onclick=()=>location.href="book-admin.html"}document.getElementById("installBtn").onclick=installApp;
+  if(await isAdmin()){document.getElementById("adminUploadBtn").style.display="inline-block";document.getElementById("adminUploadBtn").onclick=()=>location.href="book-admin.html"}document.getElementById("installBtn").onclick=installApp;
   book=await loadBook();await renderBook();await renderState();await renderShare();await renderWallet();
   if(user)setStatus('<b>Signed in.</b> Your paid book access is protected by Supabase Auth + private Storage.');else setStatus('<b>Book store ready.</b> Please use the Student App login to purchase.');
  }catch(e){console.error(e);setStatus("<b>Book store error.</b><br>"+esc(e.message||e),"danger")}
