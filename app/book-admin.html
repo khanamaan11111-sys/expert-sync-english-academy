@@ -21,7 +21,25 @@ const sb=window.supabaseClient,cfg=window.ESASupabaseConfig;
 function withTimeout(p,ms,label){return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error(label||"Request timed out. Please refresh and try again.")),ms))])}
 function assertSupabase(){if(!window.supabase||!sb)throw new Error("Supabase connection did not load. Please refresh the page.");}
 function esc(x){return String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-async function user(){assertSupabase();const r=await withTimeout(sb.auth.getSession(),5000,"Supabase session could not be read. Please refresh the page.");return r.data?.session?.user||null}
+async function user(){
+ assertSupabase();
+ try{
+  const r=await withTimeout(sb.auth.getSession(),3500,"session-timeout");
+  return r.data?.session?.user||null;
+ }catch(e){
+  const key="sb-"+new URL(cfg.url).hostname.split(".")[0]+"-auth-token";
+  try{
+   const raw=localStorage.getItem(key);
+   const parsed=raw?JSON.parse(raw):null;
+   const s=parsed?.currentSession||parsed?.session||parsed;
+   if(s?.access_token){
+    const rr=await fetch(cfg.url+"/auth/v1/user",{headers:{apikey:cfg.publishableKey,Authorization:"Bearer "+s.access_token}});
+    if(rr.ok)return await rr.json();
+   }
+  }catch(_){}
+  throw new Error("Your Expert Sync login session could not be read. Please sign in again from the Student App, then reopen Book Admin.");
+ }
+}
 async function admin(){const u=await user();return !!u&&(u.app_metadata?.role==="admin"||u.user_metadata?.role==="admin")}
 function msg(html,cls=""){const e=document.getElementById("message");e.className="notice "+cls;e.innerHTML=html}
 async function renderOrders(){const box=document.getElementById("orderList");const r=await withTimeout(sb.from("book_orders").select("id,book_id,buyer_id,amount_inr,status,payment_method,payment_reference,created_at,referral_code,digital_books(title)").order("created_at",{ascending:false}).limit(100),8000,"Payment list request timed out. Please refresh the page.");if(r.error){box.innerHTML="<div class=\"notice danger\">"+esc(r.error.message)+"</div>";return}document.getElementById("orders").classList.remove("hidden");box.innerHTML=(r.data||[]).map(o=>'<div class="book-row"><b>'+esc(o.digital_books?.title||"Book")+"</b><div style=\"font-size:11px;color:#68768b;margin:5px 0\">"+esc(o.status.toUpperCase())+" • ₹"+o.amount_inr+" • "+esc(o.payment_method||"")+" • "+esc(o.payment_reference||"No reference")+"</div><div style=\"font-size:10px;color:#8a96a8\">Order: "+esc(o.id)+"<br>Buyer: "+esc(o.buyer_id)+"</div>"+(o.status==="pending"?'<button class="btn gold" style="margin-top:9px" onclick="markPaid(\''+o.id+\'\')">✓ Verify & Mark Paid</button>':"")+"</div>").join("")||"<div class=\"notice\">No orders yet.</div>"}\nasync function markPaid(id){if(!await admin())return;if(!confirm("Confirm that the ₹400 payment has been received and verify this UTR before unlocking the book?"))return;const r=await sb.from("book_orders").update({status:"paid",paid_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",id);if(r.error){alert(r.error.message);return}alert("Order marked paid. The private PDF is now unlocked and any valid referral reward has been credited.");renderOrders()}\nasync function current(){
@@ -49,5 +67,5 @@ document.getElementById("upload").onclick=async()=>{
   await current();
  }catch(e){console.error(e);msg(esc(e.message||e),"danger")}finally{const b=document.getElementById("upload");b.disabled=false;b.textContent="⬆️ Upload & Publish Book"}
 };
-(async()=>{try{assertSupabase();document.getElementById("gate").innerHTML="Checking administrator access…";if(await admin()){document.getElementById("gate").classList.add("hidden");document.getElementById("panel").classList.remove("hidden");await current();await renderOrders()}else document.getElementById("gate").innerHTML='<div class="notice danger"><b>Administrator access required.</b><br>Signed in account is not marked as an Expert Sync administrator. The upload controls will remain locked.</div>'}catch(e){document.getElementById("gate").innerHTML='<div class="notice danger">'+esc(e.message||e)+'</div>'}})();
+(async()=>{try{assertSupabase();document.getElementById("gate").innerHTML="Checking administrator access…";await new Promise(r=>setTimeout(r,150));if(await admin()){document.getElementById("gate").classList.add("hidden");document.getElementById("panel").classList.remove("hidden");await current();await renderOrders()}else document.getElementById("gate").innerHTML='<div class="notice danger"><b>Administrator access required.</b><br>Signed in account is not marked as an Expert Sync administrator. The upload controls will remain locked.</div>'}catch(e){document.getElementById("gate").innerHTML='<div class="notice danger">'+esc(e.message||e)+'</div>'}})();
 </script></body></html>
