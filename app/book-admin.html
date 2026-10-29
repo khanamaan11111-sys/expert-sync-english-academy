@@ -23,9 +23,9 @@ function assertSupabase(){if(!window.supabase||!sb)throw new Error("Supabase con
 function esc(x){return String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 async function user(){
  assertSupabase();
- const r=await withTimeout(sb.auth.getSession(),5000,"Supabase session check timed out.");
+ const r=await withTimeout(sb.auth.getUser(),8000,"Supabase administrator check timed out.");
  if(r.error)throw r.error;
- if(r.data?.session?.user)return r.data.session.user;
+ if(r.data?.user)return r.data.user;
  throw new Error("NO_ACTIVE_SESSION");
 }
 async function admin(){const u=await user();return !!u&&(u.app_metadata?.role==="admin"||u.user_metadata?.role==="admin")}
@@ -59,31 +59,44 @@ document.getElementById("upload").onclick=async()=>{
  try{
   assertSupabase();
   document.getElementById("gate").innerHTML="Checking administrator access…";
-  if(await admin()){
-   document.getElementById("gate").classList.add("hidden");
+  const u=await user();
+  const isAdm=!!u&&(u.app_metadata?.role==="admin"||u.user_metadata?.role==="admin");
+  if(isAdm){
+   document.getElementById("gate").innerHTML='<div class="notice success"><b>✓ Administrator verified</b><br>'+esc(u.email||"Administrator")+'</div>';
+   setTimeout(()=>document.getElementById("gate").classList.add("hidden"),700);
    document.getElementById("panel").classList.remove("hidden");
    await current(); await renderOrders();
   }else{
-   document.getElementById("gate").innerHTML='<div class="notice danger"><b>Administrator access required.</b><br>The signed-in account is not marked as an Expert Sync administrator.</div>';
+   document.getElementById("gate").innerHTML='<h2 class="title">🔐 Administrator sign-in required</h2><div class="notice danger">The current signed-in account is <b>'+esc(u.email||"unknown")+'</b> and does not have the Expert Sync administrator role. Sign in below with the administrator account.</div>'+loginMarkup();
+   bindAdminLogin();
   }
  }catch(e){
-  if(e.message==="NO_ACTIVE_SESSION"){
-   document.getElementById("gate").innerHTML='<h2 class="title">🔐 Expert Sync Administrator Login</h2><div class="notice">This Book Admin window does not have the Student App session. Sign in here with your administrator account to continue.</div><div class="field"><label>ADMIN EMAIL</label><input id="adminEmail" type="email" autocomplete="username" placeholder="Your administrator email"></div><div class="field"><label>PASSWORD</label><input id="adminPassword" type="password" autocomplete="current-password" placeholder="Your administrator password"></div><div class="row"><button class="btn gold" id="adminLogin">🔓 Sign In & Continue</button><button class="btn light" onclick="location.href=\'index.html\'">← Student App</button></div><div id="loginMsg" style="margin-top:10px"></div>';
-   document.getElementById("adminLogin").onclick=async()=>{
-    const b=document.getElementById("adminLogin"),m=document.getElementById("loginMsg");
-    const email=document.getElementById("adminEmail").value.trim(),password=document.getElementById("adminPassword").value;
-    if(!email||!password){m.innerHTML='<div class="notice danger">Enter your administrator email and password.</div>';return}
-    b.disabled=true;b.textContent="Signing in…";m.innerHTML="";
-    try{
-     const r=await withTimeout(sb.auth.signInWithPassword({email,password}),8000,"Sign-in timed out. Please try again.");
-     if(r.error)throw r.error;
-     if(!(r.data?.user?.app_metadata?.role==="admin"||r.data?.user?.user_metadata?.role==="admin"))throw new Error("This account is valid, but it is not marked as an Expert Sync administrator.");
-     location.reload();
-    }catch(err){m.innerHTML='<div class="notice danger">'+esc(err.message||err)+'</div>';b.disabled=false;b.textContent="🔓 Sign In & Continue"}
-   };
+  if(e.message==="NO_ACTIVE_SESSION"||/session/i.test(e.message||"")){
+   document.getElementById("gate").innerHTML='<h2 class="title">🔐 Expert Sync Administrator Login</h2><div class="notice">Book Admin uses its own Supabase authentication check. Sign in below with your administrator account.</div>'+loginMarkup();
+   bindAdminLogin();
   }else{
-   document.getElementById("gate").innerHTML='<div class="notice danger"><b>Administrator check could not complete.</b><br>'+esc(e.message||e)+'<div class="row" style="margin-top:10px"><button class="btn light" onclick="location.href=\'index.html\'">← Open Student App</button><button class="btn light" onclick="location.reload()">↻ Try Again</button></div></div>';
+   document.getElementById("gate").innerHTML='<div class="notice danger"><b>Administrator check failed.</b><br>'+esc(e.message||e)+'<div class="row" style="margin-top:10px"><button class="btn light" onclick="location.reload()">↻ Try Again</button></div></div>';
   }
  }
 })();
+function loginMarkup(){
+ return '<div class="field"><label>ADMIN EMAIL</label><input id="adminEmail" type="email" autocomplete="username" placeholder="Administrator email"></div><div class="field"><label>PASSWORD</label><input id="adminPassword" type="password" autocomplete="current-password" placeholder="Administrator password"></div><div class="row"><button class="btn gold" id="adminLogin">🔓 Sign In & Continue</button><button class="btn light" onclick="location.href=\'index.html\'">← Student App</button></div><div id="loginMsg" style="margin-top:10px"></div>';
+}
+function bindAdminLogin(){
+ document.getElementById("adminLogin").onclick=async()=>{
+  const b=document.getElementById("adminLogin"),m=document.getElementById("loginMsg");
+  const email=document.getElementById("adminEmail").value.trim(),password=document.getElementById("adminPassword").value;
+  if(!email||!password){m.innerHTML='<div class="notice danger">Enter the administrator email and password.</div>';return}
+  b.disabled=true;b.textContent="Signing in…";m.innerHTML="";
+  try{
+   await withTimeout(sb.auth.signOut(),5000,"Could not clear the previous session.");
+   const r=await withTimeout(sb.auth.signInWithPassword({email,password}),10000,"Administrator sign-in timed out. Please try again.");
+   if(r.error)throw r.error;
+   const fresh=r.data?.user;
+   if(!(fresh?.app_metadata?.role==="admin"||fresh?.user_metadata?.role==="admin"))throw new Error("This account is valid, but it is not marked as an Expert Sync administrator.");
+   m.innerHTML='<div class="notice success">✓ Administrator verified. Opening Book Admin…</div>';
+   setTimeout(()=>location.reload(),300);
+  }catch(err){m.innerHTML='<div class="notice danger">'+esc(err.message||err)+'</div>';b.disabled=false;b.textContent="🔓 Sign In & Continue"}
+ };
+}
 </script></body></html>
