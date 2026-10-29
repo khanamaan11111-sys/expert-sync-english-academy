@@ -62,7 +62,7 @@ function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&l
 function withTimeout(p,ms,label){return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error(label)),ms))])}
 function isAdmin(u){return !!u&&(u.app_metadata?.role==="admin"||u.user_metadata?.role==="admin")}
 function msg(html,cls=""){const e=document.getElementById("message");e.className="notice "+cls;e.innerHTML=html}
-async function getUser(){const r=await withTimeout(sb.auth.getUser(),8000,"Supabase authentication timed out. Please refresh.");if(r.error)throw r.error;return r.data?.user||null}
+async function getUser(){const refreshed=await withTimeout(sb.auth.refreshSession(),8000,"Supabase session refresh timed out. Please refresh.");if(refreshed.error)throw refreshed.error;const r=await withTimeout(sb.auth.getUser(),8000,"Supabase authentication timed out. Please refresh.");if(r.error)throw r.error;return r.data?.user||null}
 async function renderCurrent(){
  const r=await withTimeout(sb.from("digital_books").select("*").order("created_at",{ascending:false}).limit(10),8000,"Book catalogue request timed out.");
  if(r.error)throw r.error;
@@ -99,8 +99,12 @@ document.getElementById("adminLogin").onclick=async()=>{
   const r=await withTimeout(sb.auth.signInWithPassword({email,password}),10000,"Administrator sign-in timed out.");
   if(r.error)throw r.error;
   if(!isAdmin(r.data?.user))throw new Error("This account is valid, but it is not marked as an Expert Sync administrator.");
+  const refreshed=await withTimeout(sb.auth.refreshSession(),8000,"Administrator session refresh timed out.");
+  if(refreshed.error)throw refreshed.error;
+  const verified=await getUser();
+  if(!isAdmin(verified))throw new Error("Administrator role is not present in the active Supabase session. Please sign out and sign in again.");
   m.innerHTML='<div class="notice success">✓ Administrator verified. Loading the upload panel…</div>';
-  await openAdmin(r.data.user);
+  await openAdmin(verified);
  }catch(e){m.innerHTML='<div class="notice danger">'+esc(e.message||e)+'</div>';b.disabled=false;b.textContent="🔓 Sign In & Open Upload"}
 };
 async function openAdmin(u){
@@ -113,7 +117,7 @@ async function openAdmin(u){
 document.getElementById("upload").onclick=async()=>{
  const btn=document.getElementById("upload");
  try{
-  const u=await getUser();if(!isAdmin(u)){msg("Administrator access is required.","danger");return}
+  const u=await getUser();if(!isAdmin(u)){msg("Administrator access is required. Please sign out and sign in again with the administrator account.","danger");return}
   const f=document.getElementById("file").files?.[0],title=document.getElementById("title").value.trim();
   if(!f||!title){msg("Book title and PDF file are required.","danger");return}
   if(f.type!=="application/pdf"&&!/\.pdf$/i.test(f.name)){msg("Please select a PDF file.","danger");return}
