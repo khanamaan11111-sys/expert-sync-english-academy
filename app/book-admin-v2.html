@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#031b3f">
+<title>Expert Sync Book Admin • v2</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f8ff;color:#172033}
+.hero{background:linear-gradient(135deg,#031b3f,#063b91,#0b63ce);color:#fff;padding:30px 18px;border-radius:0 0 28px 28px}
+.wrap{max-width:900px;margin:auto;padding:16px}.card{background:#fff;border:1px solid #dbe5f2;border-radius:20px;padding:18px;margin:12px 0;box-shadow:0 5px 16px rgba(3,27,63,.07)}
+h1,h2{margin-top:0}.title{color:#063b91}.field{margin:12px 0}.field label{display:block;font-size:10px;font-weight:900;color:#526078;margin-bottom:5px}
+.field input,.field textarea{width:100%;padding:11px;border:1px solid #cbd7e7;border-radius:10px;font:inherit}.field textarea{min-height:100px;resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:12px;padding:11px 15px;font-weight:800;cursor:pointer;background:#063b91;color:#fff}.gold{background:#d4af37;color:#172033}.light{background:#edf4fd;color:#063b91;border:1px solid #cbdced}
+.notice{padding:13px;border-radius:12px;background:#fff8df;border:1px solid #eadca7;font-size:12px;line-height:1.55}.success{background:#edf9f1;border-color:#bfe4cc}.danger{background:#fff0f0;border-color:#efc3c3}
+.preview{width:100%;height:65vh;border:1px solid #dbe5f2;border-radius:14px}.book-row{padding:12px;border:1px solid #dbe5f2;border-radius:12px;margin:8px 0;background:#f9fbff}
+.hidden{display:none!important}.status{font-size:11px;color:#68768b}.locked{opacity:.6}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+<div style="font-size:10px;font-weight:900;letter-spacing:2px;color:#ffd978">EXPERT SYNC • ADMIN • VERSION 2</div>
+<h1>📚 Book Upload & Publishing</h1>
+<p style="color:#dce9f7;line-height:1.5;font-size:13px">Upload the authorised PDF directly from this app. The PDF is stored in a private Supabase bucket; customers can only obtain a signed access link after a paid order is verified.</p>
+</div></header>
+<main class="wrap">
+
+<section class="card" id="loginCard">
+<h2 class="title">🔐 Administrator Login</h2>
+<div class="notice">This version shows the login immediately. It does not wait on a hidden “Checking administrator access…” screen.</div>
+<div class="field"><label>ADMIN EMAIL</label><input id="adminEmail" type="email" autocomplete="username" placeholder="Administrator email"></div>
+<div class="field"><label>PASSWORD</label><input id="adminPassword" type="password" autocomplete="current-password" placeholder="Administrator password"></div>
+<div class="row"><button class="btn gold" id="adminLogin">🔓 Sign In & Open Upload</button><button class="btn light" onclick="location.href='index.html'">← Student App</button></div>
+<div id="loginMsg" style="margin-top:10px"></div>
+</section>
+
+<section class="card hidden" id="adminStatus"></section>
+
+<section class="card hidden" id="panel">
+<h2 class="title">⬆️ Upload New PDF</h2>
+<div class="notice">The PDF is uploaded directly to the private <b>expert-sync-books</b> Supabase Storage bucket. It is never made public.</div>
+<div class="field"><label>BOOK TITLE *</label><input id="title" placeholder="Expert Sync English Academy — Book Title"></div>
+<div class="field"><label>DESCRIPTION</label><textarea id="description" placeholder="Short description for customers"></textarea></div>
+<div class="field"><label>PRICE</label><input value="₹400" disabled></div>
+<div class="field"><label>PAGE COUNT (OPTIONAL)</label><input id="pages" type="number" min="1" placeholder="e.g. 285"></div>
+<div class="field"><label>PDF FILE *</label><input id="file" type="file" accept="application/pdf,.pdf"></div>
+<div id="fileInfo" class="notice hidden"></div>
+<div class="row"><button class="btn gold" id="upload">⬆️ Upload & Publish Book</button><button class="btn light" onclick="location.href='book-store.html?v=20261029'">Open Book Store</button></div>
+<div id="message" style="margin-top:10px"></div>
+</section>
+
+<section class="card hidden" id="current"><h2 class="title">Current Published Book</h2><div id="currentList"></div></section>
+<section class="card hidden" id="previewCard"><h2 class="title">Admin Preview</h2><div id="previewNote" class="notice"></div><iframe id="preview" class="preview" title="Admin PDF preview"></iframe></section>
+<section class="card hidden" id="orders"><h2 class="title">💳 Payment Verification</h2><div class="notice">Verify the UPI transaction/UTR before marking an order paid. Marking an order paid unlocks the private PDF for that buyer.</div><div id="orderList"></div></section>
+</main>
+
+<script>
+const sb=window.supabaseClient,cfg=window.ESASupabaseConfig;
+function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function withTimeout(p,ms,label){return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error(label)),ms))])}
+function isAdmin(u){return !!u&&(u.app_metadata?.role==="admin"||u.user_metadata?.role==="admin")}
+function msg(html,cls=""){const e=document.getElementById("message");e.className="notice "+cls;e.innerHTML=html}
+async function getUser(){const r=await withTimeout(sb.auth.getUser(),8000,"Supabase authentication timed out. Please refresh.");if(r.error)throw r.error;return r.data?.user||null}
+async function renderCurrent(){
+ const r=await withTimeout(sb.from("digital_books").select("*").order("created_at",{ascending:false}).limit(10),8000,"Book catalogue request timed out.");
+ if(r.error)throw r.error;
+ document.getElementById("current").classList.remove("hidden");
+ document.getElementById("currentList").innerHTML=(r.data||[]).map(b=>'<div class="book-row"><b>'+esc(b.title)+'</b><div class="status">'+(b.is_published?"🟢 Published":"⚪ Unpublished")+" • ₹"+esc(b.price_inr)+" • "+(b.page_count?esc(b.page_count)+" pages":"page count not set")+'</div></div>').join("")||'<div class="notice">No books uploaded yet.</div>';
+}
+async function renderOrders(){
+ const box=document.getElementById("orderList");
+ const r=await withTimeout(sb.from("book_orders").select("id,book_id,buyer_id,amount_inr,status,payment_method,payment_reference,created_at,digital_books(title)").order("created_at",{ascending:false}).limit(100),8000,"Payment list request timed out.");
+ if(r.error){box.innerHTML='<div class="notice danger">'+esc(r.error.message)+'</div>';return}
+ document.getElementById("orders").classList.remove("hidden");
+ box.innerHTML=(r.data||[]).map(o=>'<div class="book-row"><b>'+esc(o.digital_books?.title||"Book")+'</b><div class="status">'+esc(String(o.status||"").toUpperCase())+" • ₹"+esc(o.amount_inr)+" • "+esc(o.payment_method||"")+" • "+esc(o.payment_reference||"No reference")+'</div><div style="font-size:10px;color:#8a96a8">Order: '+esc(o.id)+'<br>Buyer: '+esc(o.buyer_id)+'</div>'+(o.status==="pending"?'<button class="btn gold" style="margin-top:9px" onclick="markPaid(\''+o.id+'\')">✓ Verify & Mark Paid</button>':"")+'</div>').join("")||'<div class="notice">No orders yet.</div>';
+}
+async function markPaid(id){
+ if(!isAdmin(await getUser()))return;
+ if(!confirm("Confirm that the payment has been received and the UTR is verified?"))return;
+ const r=await sb.from("book_orders").update({status:"paid",paid_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",id);
+ if(r.error){alert(r.error.message);return}
+ alert("Order marked PAID. The buyer can now unlock the private PDF.");
+ renderOrders();
+}
+document.getElementById("file").addEventListener("change",e=>{
+ const f=e.target.files?.[0],box=document.getElementById("fileInfo");
+ if(!f){box.classList.add("hidden");return}
+ box.classList.remove("hidden");box.innerHTML="<b>"+esc(f.name)+"</b><br><span style='font-size:11px'>"+(f.size/1024/1024).toFixed(2)+" MB • PDF</span>";
+});
+document.getElementById("adminLogin").onclick=async()=>{
+ const b=document.getElementById("adminLogin"),m=document.getElementById("loginMsg");
+ const email=document.getElementById("adminEmail").value.trim(),password=document.getElementById("adminPassword").value;
+ if(!email||!password){m.innerHTML='<div class="notice danger">Enter the administrator email and password.</div>';return}
+ b.disabled=true;b.textContent="Signing in…";m.innerHTML="";
+ try{
+  await withTimeout(sb.auth.signOut(),5000,"Could not clear the previous session.");
+  const r=await withTimeout(sb.auth.signInWithPassword({email,password}),10000,"Administrator sign-in timed out.");
+  if(r.error)throw r.error;
+  if(!isAdmin(r.data?.user))throw new Error("This account is valid, but it is not marked as an Expert Sync administrator.");
+  m.innerHTML='<div class="notice success">✓ Administrator verified. Loading the upload panel…</div>';
+  await openAdmin(r.data.user);
+ }catch(e){m.innerHTML='<div class="notice danger">'+esc(e.message||e)+'</div>';b.disabled=false;b.textContent="🔓 Sign In & Open Upload"}
+};
+async function openAdmin(u){
+ document.getElementById("loginCard").classList.add("hidden");
+ const s=document.getElementById("adminStatus");s.className="card";s.innerHTML='<div class="notice success"><b>✓ Administrator verified</b><br>'+esc(u.email||"Administrator")+'</div><button class="btn light" style="margin-top:8px" id="logoutBtn">Sign out</button>';
+ document.getElementById("logoutBtn").onclick=async()=>{await sb.auth.signOut();location.reload()};
+ document.getElementById("panel").classList.remove("hidden");
+ try{await renderCurrent();await renderOrders()}catch(e){msg(esc(e.message||e),"danger")}
+}
+document.getElementById("upload").onclick=async()=>{
+ const btn=document.getElementById("upload");
+ try{
+  const u=await getUser();if(!isAdmin(u)){msg("Administrator access is required.","danger");return}
+  const f=document.getElementById("file").files?.[0],title=document.getElementById("title").value.trim();
+  if(!f||!title){msg("Book title and PDF file are required.","danger");return}
+  if(f.type!=="application/pdf"&&!/\.pdf$/i.test(f.name)){msg("Please select a PDF file.","danger");return}
+  if(f.size>100*1024*1024){msg("This upload is limited to 100 MB.","danger");return}
+  btn.disabled=true;btn.textContent="Uploading PDF…";
+  const old=await sb.from("digital_books").select("id").eq("is_published",true);
+  if(old.error)throw old.error;
+  if(old.data?.length){const r=await sb.from("digital_books").update({is_published:false,updated_at:new Date().toISOString()}).in("id",old.data.map(x=>x.id));if(r.error)throw r.error}
+  const safe=f.name.toLowerCase().replace(/[^a-z0-9._-]+/g,"-").replace(/-+/g,"-").replace(/^-|-$/g,"")||"book.pdf";
+  const path="books/"+Date.now()+"-"+safe;
+  const up=await sb.storage.from(cfg.bucket).upload(path,f,{contentType:"application/pdf",cacheControl:"3600",upsert:false});
+  if(up.error)throw up.error;
+  const ins=await sb.from("digital_books").insert({title,description:document.getElementById("description").value.trim(),price_inr:Number(cfg.priceInr)||400,storage_bucket:cfg.bucket,storage_path:path,original_filename:f.name,page_count:Number(document.getElementById("pages").value)||null,version:1,is_published:true,created_by:u.id}).select().single();
+  if(ins.error){await sb.storage.from(cfg.bucket).remove([path]);throw ins.error}
+  msg("✓ PDF uploaded and published successfully. It is private until a buyer's payment is verified.","success");
+  const s=await sb.storage.from(cfg.bucket).createSignedUrl(path,3600);
+  if(!s.error){document.getElementById("previewCard").classList.remove("hidden");document.getElementById("preview").src=s.data.signedUrl;document.getElementById("previewNote").textContent="Admin preview — signed link expires in 1 hour."}
+  await renderCurrent();
+ }catch(e){console.error(e);msg(esc(e.message||e),"danger")}finally{btn.disabled=false;btn.textContent="⬆️ Upload & Publish Book"}
+};
+(async()=>{
+ try{
+  if(!sb||!window.supabase)throw new Error("Supabase connection did not load. Please refresh.");
+  const u=await getUser();
+  if(u&&isAdmin(u))await openAdmin(u);
+  else if(u)document.getElementById("loginMsg").innerHTML='<div class="notice">Current account: <b>'+esc(u.email||"unknown")+'</b>. Sign in with the administrator account below.</div>';
+ }catch(e){
+  document.getElementById("loginMsg").innerHTML='<div class="notice">Please sign in below. '+esc(e.message||"No active administrator session.")+'</div>';
+ }
+})();
+</script>
+</body></html>
