@@ -23,9 +23,12 @@ async function init(){
   if(!sb||!cfg)throw new Error("Supabase configuration did not load.");
   const session=await timeout(sb.auth.getSession(),7000,"Supabase session check timed out.");
   user=session.data?.session?.user||null;
-  const r=await timeout(sb.from("digital_books").select("id,title,description,price_inr,page_count,storage_bucket,storage_path,is_published,created_at").eq("is_published",true).order("created_at",{ascending:false}).limit(1).maybeSingle(),9000,"The published book request timed out.");
-  if(r.error)throw r.error;
-  book=r.data;
+  const api=cfg.url+"/rest/v1/digital_books?select=id,title,description,price_inr,page_count,storage_bucket,storage_path,is_published,created_at&is_published=eq.true&order=created_at.desc&limit=1";
+  const rr=await timeout(fetch(api,{headers:{apikey:cfg.publishableKey,Accept:"application/json"}}),9000,"Published book request timed out.");
+  const body=await rr.text();
+  if(!rr.ok)throw new Error("Book catalogue HTTP "+rr.status+": "+body.slice(0,300));
+  const rows=JSON.parse(body);
+  book=rows[0]||null;
   if(!book){status("<b>No published book is available.</b><br><span class='muted'>The administrator has not published a book yet.</span>","danger");return}
   renderBook();
   if(user)await loadOrder();
