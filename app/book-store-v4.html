@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#063b91"><title>Expert Sync Book Store • v4</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f8ff;color:#172033}.hero{background:linear-gradient(135deg,#031b3f,#063b91,#0b63ce);color:#fff;padding:30px 18px;border-radius:0 0 28px 28px}.heroIn,.wrap{max-width:900px;margin:auto}.hero h1{margin:8px 0;font-size:30px}.eyebrow{font-size:10px;font-weight:900;letter-spacing:2px;color:#ffd978}.hero p{color:#dce9f7;font-size:13px;line-height:1.5}.wrap{padding:16px}.card{background:#fff;border:1px solid #dbe5f2;border-radius:20px;padding:18px;margin:12px 0;box-shadow:0 5px 16px rgba(3,27,63,.07)}.book{display:grid;grid-template-columns:190px 1fr;gap:20px}.cover{min-height:250px;border-radius:16px;background:linear-gradient(145deg,#063b91,#0b63ce);display:grid;place-items:center;text-align:center;color:#fff;padding:18px}.cover strong{font-size:24px}.price{font-size:30px;font-weight:900;color:#063b91;margin:8px 0}.muted{font-size:12px;color:#68768b;line-height:1.55}.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:800;cursor:pointer;background:#063b91;color:#fff}.gold{background:#d4af37;color:#172033}.light{background:#edf4fd;color:#063b91;border:1px solid #cbdced}.row{display:flex;gap:8px;flex-wrap:wrap}.notice{padding:13px;border-radius:12px;background:#fff8df;border:1px solid #eadca7;font-size:12px;line-height:1.55}.success{background:#edf9f1;border-color:#bfe4cc}.danger{background:#fff0f0;border-color:#efc3c3}.field{margin:11px 0}.field label{display:block;font-size:10px;font-weight:900;color:#526078;margin-bottom:5px}.field input{width:100%;padding:11px;border:1px solid #cbd7e7;border-radius:10px;font:inherit}.qrbox{display:grid;grid-template-columns:220px 1fr;gap:20px;align-items:center;padding:16px;border:1px dashed #b7c8dc;border-radius:14px;background:#f8fbff}.viewer{width:100%;height:75vh;border:1px solid #dbe5f2;border-radius:14px}.hidden{display:none}@media(max-width:650px){.book,.qrbox{grid-template-columns:1fr}.cover{min-height:160px}}
+
+.store-badge{display:inline-flex;align-items:center;gap:7px;background:#edf5ff;color:#063b91;border:1px solid #cfe0f6;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:900}
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.feature{background:#f8fbff;border:1px solid #e1eaf7;border-radius:14px;padding:14px;text-align:center}
+.feature b{display:block;color:#063b91;font-size:13px;margin-bottom:4px}.feature span{font-size:11px;color:#68768b;line-height:1.4}
+.step-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.step{border:1px solid #dfe8f5;border-radius:14px;padding:14px;background:#fff}.step strong{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#063b91;color:#fff;margin-bottom:8px}.step b{display:block;font-size:13px;color:#172033;margin-bottom:4px}.step span{font-size:11px;color:#68768b;line-height:1.45}
+.account-banner{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#f7fbff;border:1px solid #d8e6f6;border-radius:14px;padding:13px 14px;margin-bottom:12px}.account-banner b{color:#063b91;font-size:13px}.account-banner span{font-size:11px;color:#68768b;display:block;margin-top:3px}
+@media(max-width:650px){.feature-grid,.step-grid{grid-template-columns:1fr}.account-banner{align-items:flex-start;flex-direction:column}}
+</style></head>
+<body>
+<header class="hero"><div class="heroIn"><div class="eyebrow">EXPERT SYNC ENGLISH ACADEMY • DIGITAL BOOK • VERSION 4</div><h1>📚 Expert Sync Book Store</h1><p>Buy the authorised Expert Sync English Grammar Book for ₹400. Payment is verified before the private PDF is unlocked.</p></div></header>
+<main class="wrap">
+<section id="status" class="card"><b>Book Store is starting…</b><div class="muted">Preparing the published book catalogue.</div></section>
+<section id="accountBanner" class="account-banner">
+  <div><b id="accountTitle">Guest browsing</b><span id="accountText">You can view the book now. Sign in is required when you choose to purchase.</span></div>
+  <button class="btn light" id="accountBtn">Sign In</button>
+</section>
+<section id="bookCard" class="card hidden"></section>
+<section id="infoCard" class="card">
+  <div class="store-badge">✓ AUTHORIZED DIGITAL EDITION</div>
+  <div class="feature-grid">
+    <div class="feature"><b>🔐 Secure</b><span>Private PDF access after payment verification.</span></div>
+    <div class="feature"><b>📖 285 Pages</b><span>Complete grammar reference in one digital book.</span></div>
+    <div class="feature"><b>⚡ Fast Access</b><span>Verified buyers receive a secure reader link.</span></div>
+  </div>
+  <h3 style="color:#063b91;margin:16px 0 10px">How it works</h3>
+  <div class="step-grid">
+    <div class="step"><strong>1</strong><b>Sign in</b><span>Use your Student App account before purchasing.</span></div>
+    <div class="step"><strong>2</strong><b>Pay & submit UTR</b><span>Pay ₹400 by UPI and submit the transaction reference.</span></div>
+    <div class="step"><strong>3</strong><b>Get your book</b><span>After Academy verification, your private PDF is unlocked.</span></div>
+  </div>
+</section>
+<section id="paymentCard" class="card hidden"></section>
+<section id="readerCard" class="card hidden"><h2 style="color:#063b91">📖 Your Book</h2><div id="readerNote" class="muted"></div><iframe id="viewer" class="viewer"></iframe><div class="row" style="margin-top:10px"><button class="btn gold" id="downloadBtn">⬇️ Download PDF</button></div></section>
+<div class="row"><button class="btn light" onclick="location.href='index.html'">← Student App</button><button class="btn light" onclick="location.reload()">↻ Refresh</button><button class="btn light" onclick="location.href='book-admin-v3.html'">⚙️ Book Admin</button></div>
+</main>
+<script>
+const cfg=window.ESASupabaseConfig||null,sb=window.supabaseClient||null;
+let book={
+ id:"b9aa4c07-a7fc-4892-b24b-126eaae2c95e",
+ title:"Expert Sync English Grammar Book",
+ description:"A comprehensive English grammar resource for English learners.",
+ price_inr:400,
+ page_count:285,
+ storage_bucket:"expert-sync-books",
+ storage_path:"books/1793296105805-doc-20261019-wa0000_compress.pdf",
+ is_published:true
+};
+let user=null,order=null,poll=null,authReady=false;
+const $=id=>document.getElementById(id);
+const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function status(html,cls=""){ $("status").className="card "+cls; $("status").innerHTML=html; }
+function timeout(p,ms,msg){return Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error(msg)),ms))]);}
+
+
+function updateAccountBanner(){
+  const t=$("accountTitle"),x=$("accountText"),b=$("accountBtn");
+  if(!t||!x||!b)return;
+  if(user){t.textContent="Student account connected";x.textContent="You are signed in. You can purchase and access verified orders.";b.textContent="Student App";b.onclick=()=>location.href="index.html";}
+  else{t.textContent="Guest browsing";x.textContent="You can view the book now. Sign in is required when you choose to purchase.";b.textContent="Sign In";b.onclick=()=>location.href="index.html";}
+}
+function renderBook(){
+ $("bookCard").classList.remove("hidden");
+ $("bookCard").innerHTML='<div class="book"><div class="cover"><div><div style="font-size:52px">📘</div><strong>'+esc(book.title)+'</strong><div style="margin-top:10px;font-size:11px">Expert Sync English Academy</div></div></div><div><div class="eyebrow" style="color:#68768b">DIGITAL EDITION</div><h2 style="color:#063b91">'+esc(book.title)+'</h2><p class="muted">'+esc(book.description||"A comprehensive English grammar resource for English learners.")+'</p><div class="price">₹'+Number(book.price_inr||400)+'</div><div class="muted">'+(book.page_count?esc(book.page_count)+" pages • ":"")+"Private paid access</div><div class="row" style="margin-top:15px"><button class="btn gold" id="buyBtn">'+(order?.status==="paid"?"📖 Open My Book":"🔐 Unlock for ₹"+Number(book.price_inr||400))+'</button></div><div id="bookState" class="muted" style="margin-top:10px"></div></div></div>';
+ $("buyBtn").onclick=handleBuy;
+}
+
+async function loadPublishedBook(){
+ if(!cfg?.url||!cfg?.publishableKey)return;
+ try{
+  const api=cfg.url+"/rest/v1/digital_books?select=id,title,description,price_inr,page_count,storage_bucket,storage_path,is_published,created_at&is_published=eq.true&order=created_at.desc&limit=1";
+  const rr=await timeout(fetch(api,{cache:"no-store",headers:{apikey:cfg.publishableKey,Authorization:"Bearer "+cfg.publishableKey,Accept:"application/json"}}),5000,"Catalogue refresh timed out.");
+  if(!rr.ok)return;
+  const rows=await rr.json();
+  if(rows[0]){book=rows[0];renderBook();}
+ }catch(e){console.warn("Catalogue refresh kept fallback book:",e.message);}
+}
+
+async function refreshAuth(){
+ if(!sb)return;
+ try{
+  const session=await timeout(sb.auth.getSession(),3500,"Authentication check timed out.");
+  user=session.data?.session?.user||null;
+  authReady=true; updateAccountBanner();
+  if(user){
+   try{await loadOrder();}catch(e){console.warn("Order check:",e.message);}
+   status("<b>Book Store ready.</b> You are signed in.","success");
+  }else{
+   status("<b>Book Store ready.</b> Sign in through the Student App to purchase and access the book.","success");
+  }
+ }catch(e){
+  console.warn("Auth check:",e.message);
+  status("<b>Book Store ready.</b> The catalogue is available. Sign in through the Student App before purchasing.","success");
+ }
+}
+
+async function handleBuy(){
+ if(order?.status==="paid")return openReader();
+ if(!sb){location.href="index.html";return;}
+ try{
+  const session=await timeout(sb.auth.getSession(),4000,"Login check timed out.");
+  user=session.data?.session?.user||null;
+ }catch(_){}
+ if(!user){location.href="index.html";return;}
+ showPayment();
+}
+
+async function loadOrder(){
+ if(!sb||!user)return;
+ const r=await timeout(sb.from("book_orders").select("id,status,payment_reference,created_at").eq("book_id",book.id).eq("buyer_id",user.id).order("created_at",{ascending:false}).limit(1).maybeSingle(),5000,"Order check timed out.");
+ if(r.error)throw r.error;
+ order=r.data;
+ renderBook();
+ if(order?.status==="paid")openReader();
+ else if(order?.status==="pending"&&$("bookState"))$("bookState").textContent="Payment reference submitted. Waiting for verification.";
+}
+
+function showPayment(){
+ const amount=Number(book.price_inr||400),upiId="9713177663@ybl",payee="Expert Sync English Academy";
+ const upi="upi://pay?pa="+encodeURIComponent(upiId)+"&pn="+encodeURIComponent(payee)+"&am="+amount.toFixed(2)+"&cu=INR&tn="+encodeURIComponent(book.title);
+ const p=$("paymentCard");p.classList.remove("hidden");
+ p.innerHTML='<h2 style="color:#063b91">💳 Pay ₹'+amount+' to Unlock</h2><div class="qrbox"><div id="upiQr" style="width:200px;height:200px;background:#fff;border-radius:12px;margin:auto;display:grid;place-items:center"><span class="muted">Generating QR…</span></div><div><b>Scan this UPI QR</b><p class="muted">Pay exactly ₹'+amount+' using Google Pay, PhonePe, Paytm or another UPI app.</p><b>UPI ID</b><div style="font-size:19px;color:#063b91;margin:6px 0">'+upiId+'</div><p class="muted">After payment, enter the UTR/transaction ID below. Your PDF unlocks only after the Academy verifies the payment.</p></div></div><div class="field"><label>UPI TRANSACTION / UTR REFERENCE *</label><input id="utr" placeholder="Enter UTR / transaction ID" autocomplete="off"></div><button class="btn gold" id="submit">✓ I Have Paid — Submit UTR</button><div id="payMsg" class="muted" style="margin-top:9px"></div>';
+ const script=document.createElement("script");script.src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";script.onload=()=>{try{new QRCode($("upiQr"),{text:upi,width:194,height:194,correctLevel:QRCode.CorrectLevel.M})}catch(e){qrFallback(upiId)}};script.onerror=()=>qrFallback(upiId);document.head.appendChild(script);
+ $("submit").onclick=submitPayment;p.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+function qrFallback(id){$("upiQr").innerHTML='<div class="muted" style="padding:10px;text-align:center">QR library unavailable.<br><br><b>UPI ID</b><br>'+esc(id)+'</div>'}
+
+async function submitPayment(){
+ const utr=$("utr").value.trim(),m=$("payMsg");
+ if(!utr){m.textContent="Please enter your UTR / transaction ID.";return;}
+ if(!user){m.textContent="Your login session is missing. Please sign in again.";return;}
+ const existing=await sb.from("book_orders").select("id,status").eq("book_id",book.id).eq("buyer_id",user.id).eq("status","pending").maybeSingle();
+ if(existing.error){m.textContent=existing.error.message;return;}
+ if(existing.data){m.textContent="⏳ Your payment is already submitted and is waiting for verification.";startPoll();return;}
+ const r=await sb.from("book_orders").insert({book_id:book.id,buyer_id:user.id,amount_inr:Number(book.price_inr||400),status:"pending",payment_method:"UPI",payment_reference:utr}).select().single();
+ if(r.error){m.textContent=r.error.message;return;}
+ order=r.data;m.innerHTML="<span style='color:#168a45;font-weight:800'>✓ UTR submitted. Waiting for payment verification.</span>";startPoll();
+}
+
+function startPoll(){
+ if(poll)return;
+ poll=setInterval(async()=>{
+  try{
+   const r=await sb.from("book_orders").select("id,status").eq("book_id",book.id).eq("buyer_id",user.id).order("created_at",{ascending:false}).limit(1).maybeSingle();
+   if(r.data?.status==="paid"){clearInterval(poll);poll=null;order=r.data;if($("payMsg"))$("payMsg").innerHTML="<span style='color:#168a45;font-weight:900'>🎉 Payment verified! Your book is unlocked.</span>";renderBook();openReader();}
+  }catch(_){}
+ },8000);
+}
+
+async function openReader(){
+ if(order?.status!=="paid")return;
+ const p=$("readerCard");p.classList.remove("hidden");
+ const r=await sb.storage.from(book.storage_bucket).createSignedUrl(book.storage_path,3600);
+ if(r.error){$("readerNote").textContent=r.error.message;return;}
+ $("viewer").src=r.data.signedUrl;$("readerNote").textContent="Secure access link valid for 1 hour.";
+ $("downloadBtn").onclick=async()=>{const d=await sb.storage.from(book.storage_bucket).createSignedUrl(book.storage_path,300,{download:true});if(!d.error)location.href=d.data.signedUrl;};
+ p.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+renderBook();
+updateAccountBanner();
+status("<b>Book Store ready.</b> Loading the published catalogue…","success");
+loadPublishedBook();
+refreshAuth();
+</script></body></html>
