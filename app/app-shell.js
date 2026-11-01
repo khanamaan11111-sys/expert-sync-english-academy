@@ -27,7 +27,7 @@
   links.forEach(function(item){
     const a=document.createElement("a");
     a.href=item[2]; a.addEventListener("click",function(){saveNav(item[1].toLowerCase().replace(/\\s+/g,"-"))}); a.innerHTML=item[0]+" "+item[1];
-    if(path===item[2]) a.className="active";
+    if(item[2].startsWith("http")){a.target="_blank";a.rel="noopener noreferrer"} else if(path===item[2]) a.className="active";
     if(item[2]==="vocabulary-dashboard.html") a.setAttribute("aria-label","Open your personalised learner progress dashboard");
     nav.appendChild(a);
   });
