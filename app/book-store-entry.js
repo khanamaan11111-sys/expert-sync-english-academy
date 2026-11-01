@@ -4,6 +4,12 @@
     var fab=document.createElement("div");
     fab.id="esa-book-store-fab";
     fab.style.cssText="position:fixed;right:16px;bottom:92px;z-index:9998;display:flex;flex-direction:column;gap:8px;align-items:flex-end;";
+    var studio=document.createElement("button");
+    studio.type="button";
+    studio.style.cssText="border:1px solid #6d5aa6;border-radius:14px;padding:11px 14px;font-weight:900;background:#171f35;color:#fff;box-shadow:0 8px 22px rgba(3,27,63,.20);cursor:pointer;";
+    studio.innerHTML="🎨 Digital Studio";
+    studio.onclick=function(){window.open("https://khanamaan11111-sys.github.io/expert-sync-digital-studio/","_blank","noopener");};
+    fab.appendChild(studio);
     var store=document.createElement("button");
     store.type="button";
     store.style.cssText="border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:11px 14px;font-weight:900;background:#063b91;color:#fff;box-shadow:0 8px 22px rgba(3,27,63,.24);cursor:pointer;";
